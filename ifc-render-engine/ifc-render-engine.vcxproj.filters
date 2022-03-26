@@ -23,5 +23,6 @@
     <ClInclude Include="src\ifcre\render\gl\vertex_buffer.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
+    <ClInclude Include="src\ifcre\resource\ifc_geometry.h" />
   </ItemGroup>
 </Project>
