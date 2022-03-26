@@ -7,6 +7,8 @@
 #include <stdint.h>
 #include "../common/std_types.h"
 #include "gl/render_window.h"
+#include "gl/glsl_program.h"
+#include "gl/vertex_buffer.h"
 
 namespace ifcre {
 
@@ -16,6 +18,11 @@ namespace ifcre {
 		CLEAR_STENCIL = 0x04
 	};
 
+	enum GLTestEnum : uint8_t {
+		DEPTH_TEST = 0x01,
+		STENCIL_TEST = 0x02
+	};
+
 	struct GLColor {
 		Real r;
 		Real g;
@@ -23,23 +30,33 @@ namespace ifcre {
 		Real a;
 	};
 
-	
-
 	class GLRender{
 	public: 
-		GLRender() {}
+		GLRender();
 
+// ----------- low-level interfaces ---------------
 		void clearFrameBuffer(GLClearEnum clear, GLColor* color = nullptr, Real depth = 1.0f);
 
-		// ----------- low-level interfaces ---------------
-		void bindVao();
+		void enableTest(GLTestEnum test);
+		void disableTest(GLTestEnum test);
 
-		uint32_t createVao();
+// ----- ----- ----- ----- ----- ----- ----- -----
 
-		void render();
-		// ----- ----- ----- ----- ----- ----- ----- -----
+		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+
+// --------------- render ----------------------
+
+		void render(uint32_t render_id);
+
+		void postRender(uint32_t col_tex_id);
+// ----- ----- ----- ----- ----- ----- ----- -----
+
 	private:
+		Map<uint32_t, SharedPtr<GLVertexBuffer>> m_vertex_buffer_map;
 
+	private:
+		UniquePtr<GLSLProgram> m_offscreen_shader;
+		UniquePtr<GLSLProgram> m_test_shader;
 
 	};
 };

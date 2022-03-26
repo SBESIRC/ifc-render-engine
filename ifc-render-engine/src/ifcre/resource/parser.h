@@ -15,7 +15,7 @@ namespace ifcre {
 
 	class DefaultParser {
 	public:
-		static DefaultModel load(String file) {
+		static SharedPtr<DefaultModel> load(String file) {
 			objl::Loader loader;
 			loader.LoadFile(file);
 
@@ -34,22 +34,13 @@ namespace ifcre {
                     vertices.push_back(curMesh.Vertices[j].Normal.X);
                     vertices.push_back(curMesh.Vertices[j].Normal.Y);
                     vertices.push_back(curMesh.Vertices[j].Normal.Z);
-
-                    vertices.push_back(curMesh.Vertices[j].TextureCoordinate.X);
-                    vertices.push_back(curMesh.Vertices[j].TextureCoordinate.Y);
                 }
 
-                // Go through every 3rd index and print the
-                //	triangle that these indices represent
-                for (int j = 0; j < curMesh.Indices.size(); j += 3) {
-                    indices.push_back(curMesh.Indices[j]);
-                    indices.push_back(curMesh.Indices[j + 1]);
-                    indices.push_back(curMesh.Indices[j + 2]);
-                    // file << "T" << j / 3 << ": " << curMesh.Indices[j] << ", " << curMesh.Indices[j + 1] << ", " << curMesh.Indices[j + 2] << "\n";
-                }
+
+                indices = curMesh.Indices;
             }
 
-            return DefaultModel(indices, vertices);
+            return make_shared<DefaultModel>(indices, vertices);
 		}
 	};
 }

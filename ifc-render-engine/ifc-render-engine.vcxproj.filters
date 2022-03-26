@@ -6,6 +6,8 @@
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
     <ClCompile Include="src\ifcre\render\gl_render.cpp" />
     <ClCompile Include="src\ifcre\render\gl\render_window.cpp" />
+    <ClCompile Include="src\ifcre\render\gl\glsl_program.cpp" />
+    <ClCompile Include="src\ifcre\render\gl\vertex_buffer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -16,5 +18,10 @@
     <ClInclude Include="src\ifcre\resource\model.h" />
     <ClInclude Include="src\ifcre\render\gl\render_window.h" />
     <ClInclude Include="src\ifcre\resource\OBJ_Loader.h.h" />
+    <ClInclude Include="src\ifcre\render\gl\shader_consts.h" />
+    <ClInclude Include="src\ifcre\render\gl\glsl_program.h" />
+    <ClInclude Include="src\ifcre\render\gl\vertex_buffer.h" />
+    <ClInclude Include="src\ifcre\render\gl\gl_enum.h" />
+    <ClInclude Include="src\ifcre\common\ifc_util.h" />
   </ItemGroup>
 </Project>

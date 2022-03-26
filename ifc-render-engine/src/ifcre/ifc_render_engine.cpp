@@ -1,4 +1,5 @@
 #include "ifc_render_engine.h"
+#include "resource/parser.h"
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -11,9 +12,18 @@ namespace ifcre {
 		
 		int width = atoi(configs["width"].c_str());
 		int height = atoi(configs["height"].c_str());
+		String model_file = configs["file"];
+		test_model = DefaultParser::load(model_file);
 		
-		m_glrender = std::make_shared<GLRender>();
-		m_render_window = std::make_shared<RenderWindow>("IFC Render", width, height);
+		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
+		m_glrender = make_shared<GLRender>();
+		
+		// add a rendered model
+		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
+		model_vb->upload(test_model->vertices, test_model->indices);
+		model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
+		model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+		test_model->render_id = m_glrender->addModel(model_vb);
 
 		m_init = true;
 	}
@@ -30,7 +40,7 @@ namespace ifcre {
 			m_window.pollEvents();
 			m_window.processInput();
 
-			render();
+			drawFrame();
 
 			m_window.swapBuffer();
 		}
@@ -39,23 +49,27 @@ namespace ifcre {
 	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
 	{
 		if (ifcre.get() == nullptr) {
-			ifcre = std::make_shared<IFCRenderEngine>();
+			ifcre = make_shared<IFCRenderEngine>();
 		}
 		return ifcre;
 	}
 
 // private:
-	void IFCRenderEngine::render()
+	void IFCRenderEngine::drawFrame()
 	{
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
+		m_render.enableTest(DEPTH_TEST);
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
-		//m_window.bind();
-
-
+		m_window.bind();
 		m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
 
-		//m_window.unbind();
+		m_render.render(test_model->render_id);
+
+		// post
+		m_window.unbind();
+		m_render.disableTest(DEPTH_TEST);
+		m_render.postRender(m_window.getColorTexId());
 
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 

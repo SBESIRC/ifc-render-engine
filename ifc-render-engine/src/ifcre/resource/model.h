@@ -8,6 +8,7 @@ namespace ifcre {
 
 	class IFCModel {
 
+	private:
 	};
 	
 
@@ -15,9 +16,7 @@ namespace ifcre {
 	class DefaultModel {
 	public:
 		DefaultModel(Vector<uint32_t>ind, Vector<float> ver) : indices(ind), vertices(ver) {}
-
-		
-	private:
+		uint32_t render_id;
 		Vector<uint32_t> indices;
 		Vector<float> vertices;
 	};

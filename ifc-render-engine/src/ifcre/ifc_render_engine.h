@@ -4,6 +4,7 @@
 
 #include "render/gl_render.h"
 #include "common/std_types.h"
+#include "resource/model.h"
 #include <map>
 namespace ifcre {
 
@@ -26,12 +27,14 @@ namespace ifcre {
 		static SharedPtr<RenderEngine> getSingleton();
 
 	private:
-		void render();
+		void drawFrame();
 	
 	private:
 		bool m_init;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
+
+		SharedPtr<DefaultModel> test_model;
 	};
 }
 
