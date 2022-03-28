@@ -30,6 +30,9 @@ namespace ifcre {
 	public:
 		uint32_t render_id;//seems a render_id combine with an array of vertex?
 		Vector<ComponentModel> components;
+		Vector<Real> ver_attrib;
+		Vector<uint32_t> g_indices;
+		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
 			std::ifstream is(filename.c_str(), std::ios::binary);
 
@@ -91,9 +94,39 @@ namespace ifcre {
 				components.emplace_back(ComponentModel(tmpvc, tmps));
 			}
 		}
+
+		Vector<uint32_t> getgIndices() {
+			return this->g_indices;
+		}
+		Vector<Real> getgVertices() {
+			return this->g_vertices;
+		}
+		Vector<Real> getgNormals() {
+			return this->g_normals;
+		}
+
+		void setBBX(glm::vec3 pa, glm::vec3 pb) {
+			pMin = pa;
+			pMax = pb;
+		}
+		Vector<Real> getVerAttrib() {
+			size_t s = g_vertices.size();
+			ver_attrib.resize(2 * s);
+			int offset = 0;
+			for (int i = 0; i < s; i+=3) {
+				ver_attrib[offset + i] = g_vertices[i];
+				ver_attrib[offset + i + 1] = g_vertices[i + 1];
+				ver_attrib[offset + i + 2] = g_vertices[i + 2];
+				ver_attrib[offset + i + 3] = g_normals[i];
+				ver_attrib[offset + i + 4] = g_normals[i + 1];
+				ver_attrib[offset + i + 5] = g_normals[i + 2];
+				offset += 3;
+			}
+			return ver_attrib;
+		}
 	private:
 		glm::vec3 pMin, pMax;
-		Vector<uint32_t> g_indices;
+		
 		Vector<Real> g_vertices;
 		Vector<Real> g_normals;
 	};

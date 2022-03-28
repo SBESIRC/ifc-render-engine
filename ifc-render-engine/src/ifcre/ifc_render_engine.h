@@ -31,10 +31,12 @@ namespace ifcre {
 	
 	private:
 		bool m_init;
+		bool try_ifc;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
 
 		SharedPtr<DefaultModel> test_model;
+		SharedPtr<IFCModel> ifc_test_model;
 	};
 }
 

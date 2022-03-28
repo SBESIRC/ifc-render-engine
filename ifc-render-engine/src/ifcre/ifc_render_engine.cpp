@@ -13,18 +13,31 @@ namespace ifcre {
 		int width = atoi(configs["width"].c_str());
 		int height = atoi(configs["height"].c_str());
 		String model_file = configs["file"];
-		test_model = DefaultParser::load(model_file);
-		
+		try_ifc = configs["model_type"] == "ifc";
+		if (try_ifc) {
+			ifc_test_model = IFCParser::load(model_file);
+		}
+		else {
+			test_model = DefaultParser::load(model_file);
+		}
 		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
 		m_glrender = make_shared<GLRender>();
-		
+
 		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
-		model_vb->upload(test_model->vertices, test_model->indices);
-		model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-		model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
-		test_model->render_id = m_glrender->addModel(model_vb);
-
+		if (try_ifc) {
+			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
+			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
+			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+			ifc_test_model->render_id = m_glrender->addModel(model_vb);
+		}
+		else {
+			model_vb->upload(test_model->vertices, test_model->indices);
+			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
+			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+			test_model->render_id = m_glrender->addModel(model_vb);
+		}
+		
 		m_init = true;
 	}
 
@@ -64,7 +77,7 @@ namespace ifcre {
 		m_window.bind();
 		m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
 
-		m_render.render(test_model->render_id);
+		m_render.render(try_ifc? ifc_test_model->render_id:test_model->render_id);
 
 		// post
 		m_window.unbind();
