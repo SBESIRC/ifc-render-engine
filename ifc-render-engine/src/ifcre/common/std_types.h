@@ -7,9 +7,11 @@
 #include <map>
 
 #include <memory>
+#include <sstream>
 
 namespace ifcre {
 	typedef std::string String;
+	typedef std::stringstream StringStream;
 
 #define SINGLE_PRECISION
 #ifdef SINGLE_PRECISION

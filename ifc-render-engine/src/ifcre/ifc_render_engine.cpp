@@ -18,12 +18,14 @@ namespace ifcre {
 		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
 		m_glrender = make_shared<GLRender>();
 		
-		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 		model_vb->upload(test_model->vertices, test_model->indices);
 		model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
 		model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 		test_model->render_id = m_glrender->addModel(model_vb);
+
+		m_camera = make_shared<GLCamera>(glm::vec3(0.0f, 0.0f, 5.0f));
+		m_render_window->setCamera(m_camera);
 
 		m_init = true;
 	}
@@ -61,14 +63,27 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 		m_render.enableTest(DEPTH_TEST);
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
-		m_window.bind();
-		m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
+		m_window.startRenderToWindow(); 
+		{
+			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
 
-		m_render.render(test_model->render_id);
+			glm::mat4 cam_mv = m_camera->getModelViewMatrix();
+			m_render.setModelViewMatrix(cam_mv);
+			// 0. prev: render normal and depth tex of th scene
+			m_window.switchRenderDepthNormal();
+			m_render.render(test_model->render_id, NORMAL_DEPTH_WRITE);
 
+			// 1. render scene
+			m_window.switchRenderColor();
+			m_render.render(test_model->render_id, DEFAULT_SHADING);
+
+
+
+		}
 		// post
-		m_window.unbind();
+		m_window.endRenderToWindow();
 		m_render.disableTest(DEPTH_TEST);
+		// render edge
 		m_render.postRender(m_window.getColorTexId());
 
 	}

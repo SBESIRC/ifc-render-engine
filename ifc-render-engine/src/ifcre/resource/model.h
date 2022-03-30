@@ -9,6 +9,7 @@ namespace ifcre {
 	class IFCModel {
 
 	private:
+
 	};
 	
 

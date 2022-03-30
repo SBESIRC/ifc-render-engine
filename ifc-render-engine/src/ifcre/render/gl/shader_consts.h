@@ -20,7 +20,6 @@ namespace ifcre {
 		"void main()\n"
 		"{\n"
 		"	vec3 col = texture(screenTexture, TexCoords).rgb;\n"
-		//"	vec3 col = vec3(1.0,0.5,1.0);\n"
 		"	FragColor = vec4(col, 1.0);\n"
 		"} ";
 

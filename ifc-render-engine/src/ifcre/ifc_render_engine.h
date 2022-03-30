@@ -3,6 +3,7 @@
 #define IFC_RENDER_ENGINE
 
 #include "render/gl_render.h"
+#include "render/gl_camera.h"
 #include "common/std_types.h"
 #include "resource/model.h"
 #include <map>
@@ -31,8 +32,10 @@ namespace ifcre {
 	
 	private:
 		bool m_init;
+
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
+		SharedPtr<GLCamera> m_camera;
 
 		SharedPtr<DefaultModel> test_model;
 	};

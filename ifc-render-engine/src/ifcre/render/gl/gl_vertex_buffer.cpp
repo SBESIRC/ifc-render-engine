@@ -1,4 +1,4 @@
-#include "vertex_buffer.h"
+#include "gl_vertex_buffer.h"
 #include <glad/glad.h>
 namespace ifcre {
 
@@ -39,7 +39,7 @@ namespace ifcre {
 	{
 		glBindVertexArray(m_vaoid);
 		glDrawElements(GL_TRIANGLES, m_size, GL_UNSIGNED_INT, 0);
-		//glBindVertexArray(0);
+		glBindVertexArray(0);
 	}
 
 	inline bool GLVertexBuffer::useIndex()
