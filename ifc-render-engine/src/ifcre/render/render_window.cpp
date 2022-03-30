@@ -2,6 +2,8 @@
 #include "render_window.h"
 
 namespace ifcre {
+    bool m_lbutton_down, m_rbutton_down;
+    double lastX, lastY, curX, curY;
     // --------------------- event processing ------------------
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 
@@ -10,8 +12,14 @@ namespace ifcre {
         glViewport(0, 0, width, height);
     }
 
-    static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
-
+    void RenderWindow::cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
+        RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
+        auto& camera = *(that->m_camera);
+        if (m_lbutton_down) {
+            glfwGetCursorPos(window, &curX, &curY);
+            camera.translate(curX - lastX, lastY - curY);
+            lastX = curX, lastY = curY;
+        }
     }
 
     void RenderWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -20,8 +28,27 @@ namespace ifcre {
         camera.translateByScreenOp(0, 0, yoffset);
     }
     
-    static void mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
-
+    void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
+        RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
+        auto& camera = *(that->m_camera);
+        if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            if (GLFW_PRESS == action) {
+                m_lbutton_down = true;
+                glfwGetCursorPos(window, &lastX, &lastY);
+            }
+            else if(GLFW_RELEASE == action) {
+                m_lbutton_down = false;
+            }
+        }
+        if (GLFW_MOUSE_BUTTON_RIGHT == button) {
+            if (GLFW_PRESS == action) {
+                m_rbutton_down = true;
+                glfwGetCursorPos(window, &lastX, &lastY);
+            }
+            else if (GLFW_RELEASE == action) {
+                m_rbutton_down = false;
+            }
+        }
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -36,6 +63,7 @@ namespace ifcre {
 
         // glfw window creation
         m_window = glfwCreateWindow(w, h, title, NULL, NULL);
+        m_lbutton_down = m_rbutton_down = false;
         if (m_window == NULL)
         {
 

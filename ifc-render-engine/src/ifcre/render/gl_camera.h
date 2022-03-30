@@ -59,7 +59,11 @@ namespace ifcre {
                     0, 0, z, 0,
                     0, 0, 0, 1) * m_model;
         }
-
+        void translate(Real x, Real y) {
+            glm::vec3 trans = x * m_right + y * m_up;
+            trans *= 0.005;
+            m_model = glm::translate(m_model, trans);
+        }
         
 
 	private:

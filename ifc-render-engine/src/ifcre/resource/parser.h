@@ -69,6 +69,8 @@ namespace ifcre {
 			ret->setBBX(pMin, pMax);
 			ret->getVerAttrib();
 			return ret;
+
+			//
         }
 	};
 

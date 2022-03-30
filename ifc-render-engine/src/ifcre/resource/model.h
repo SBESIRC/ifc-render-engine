@@ -9,6 +9,15 @@
 
 namespace ifcre {
 
+	union MtlMetaData {
+		Real f;
+		int i;
+	};
+
+	struct MtlData {
+		MtlMetaData data[7];
+	};
+
 	class ComponentModel {
 	public:
 		uint32_t render_id;//different component may has different render style
@@ -93,6 +102,9 @@ namespace ifcre {
 				}
 				components.emplace_back(ComponentModel(tmpvc, tmps));
 			}
+
+			//material datas
+
 		}
 
 		Vector<uint32_t> getgIndices() {
