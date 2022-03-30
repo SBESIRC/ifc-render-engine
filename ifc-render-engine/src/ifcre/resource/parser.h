@@ -11,6 +11,65 @@ namespace ifcre {
 	
 	class IFCParser {
 		// TODO
+    public:
+        static SharedPtr<IFCModel> load(String file) {
+            glm::vec3 pMin, pMax;
+            Vector<uint32_t> g_indices;
+            Vector<Real> g_vertices;
+            Vector<Real> g_normals;
+
+			std::ifstream is(file.c_str(), std::ios::binary);
+
+			//vertices
+			size_t s;
+			is.read((char*)&s, sizeof(size_t));
+			g_vertices.resize(s);
+			Real x_min, x_max, y_min, y_max, z_min, z_max;
+			x_min = y_min = z_min = FLT_MAX;
+			x_max = y_max = z_max = -FLT_MAX;
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&g_vertices[i], sizeof(Real));
+				switch (i % 3)
+				{
+				case 0:
+				{
+					x_min = std::min(x_min, g_vertices[i]);
+					x_max = std::max(x_max, g_vertices[i]);
+					break;
+				}
+				case 1: {
+					y_min = std::min(y_min, g_vertices[i]);
+					y_max = std::max(y_max, g_vertices[i]);
+					break;
+				}
+				default: {
+					z_min = std::min(z_min, g_vertices[i]);
+					z_max = std::max(z_max, g_vertices[i]);
+					break;
+				}
+				}
+			}
+			pMax = glm::vec3(x_max, y_max, z_max);
+			pMin = glm::vec3(x_min, y_min, z_min);
+			//normals
+			is.read((char*)&s, sizeof(size_t));
+			g_normals.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&g_normals[i], sizeof(Real));
+			}
+
+			//global_indices
+			is.read((char*)&s, sizeof(size_t));
+			g_indices.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&g_indices[i], sizeof(unsigned int));
+				g_indices[i]--;
+			}
+			auto ret = make_shared<IFCModel>(g_indices, g_vertices, g_normals);
+			ret->setBBX(pMin, pMax);
+			ret->getVerAttrib();
+			return ret;
+        }
 	};
 
 	class DefaultParser {

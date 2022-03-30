@@ -348,3 +348,4 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/3rdparty/glm-0.9.9.8/glm/out/build/x64-Debug
