@@ -121,6 +121,12 @@ namespace ifcre {
 			pMin = pa;
 			pMax = pb;
 		}
+		glm::vec3 getpMin()const {
+			return pMin;
+		}
+		glm::vec3 getpMax()const {
+			return pMax;
+		}
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
 			ver_attrib.resize(2 * s);

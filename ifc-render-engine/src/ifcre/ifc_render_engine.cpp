@@ -29,8 +29,9 @@ namespace ifcre {
 		//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 		//test_model->render_id = m_glrender->addModel(model_vb);
 
-		m_camera = make_shared<GLCamera>(glm::vec3(0.0f, 0.0f, 5.0f));
+		m_camera = make_shared<GLCamera>(glm::vec3(0.0f, 0.0f, 10.0f));
 		m_render_window->setCamera(m_camera);
+		m_camera->setModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
 
 
 		// add a rendered model
@@ -86,7 +87,6 @@ namespace ifcre {
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.startRenderToWindow(); 
 		{
-
 			glm::mat4 cam_mv = m_camera->getModelViewMatrix();
 			m_render.setModelViewMatrix(cam_mv);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());

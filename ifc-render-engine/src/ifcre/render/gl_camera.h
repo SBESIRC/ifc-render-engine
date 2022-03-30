@@ -10,7 +10,7 @@
 namespace ifcre {
 	class GLCamera {
 	public:
-		GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
+		GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
             : m_pos(pos)
             , m_worldup(worldup){
             reset();
@@ -23,6 +23,15 @@ namespace ifcre {
             glm::mat4 res = m_model * glm::lookAt(m_pos, m_pos + m_front, m_up);
 
             return res;
+        }
+        glm::mat4 setModelMatrixByBBX(const glm::vec3 pMin,const glm::vec3 pMax) {
+            //Real mm = std::max(pMax.x - pMin.x, std::max(pMax.y - pMin.y, pMax.z - pMin.z));
+            Real scales = 1. / (pMax.x - pMin.x);
+            glm::vec3 offset = glm::vec3(-(pMin.x + pMax.x) / 2, -(pMin.y + pMax.y) / 2, -(pMin.z + pMax.z) / 2);
+            m_model = glm::mat4(1.0f);
+            scale(scales, scales, scales);
+            m_model = glm::translate(m_model, offset);
+            return m_model;
         }
 
         void translateByScreenOp(float offx, float offy, float offz) {
@@ -45,6 +54,12 @@ namespace ifcre {
         void rotate(const glm::vec3& axis, float angle) {
             m_model = glm::rotate(m_model, angle, axis);
         }
+        void raotate(Real x, Real y) {
+            glm::mat4 rot = glm::mat4(1.);
+            rot = glm::rotate(rot, glm::radians(x), m_worldup);
+            rot = glm::rotate(rot, glm::radians(y), m_right);
+            m_model = rot * m_model;
+        }
 
         // TODO
         void lookCenter(glm::vec3& center) {
@@ -62,7 +77,7 @@ namespace ifcre {
         void translate(Real x, Real y) {
             glm::vec3 trans = x * m_right + y * m_up;
             trans *= 0.005;
-            m_model = glm::translate(m_model, trans);
+            m_pos += trans;
         }
         
 

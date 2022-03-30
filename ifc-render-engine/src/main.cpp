@@ -4,8 +4,8 @@ using namespace ifcre;
 
 SharedPtr<RenderEngine> render_engine;
 
-const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
-//const char bunny_model[] = "resources\\models\\ifc_midfile\\temp.midfile";
+//const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
+const char bunny_model[] = "resources\\models\\ifc_midfile\\temp.midfile";
 int main(void) {
 	render_engine = IFCRenderEngine::getSingleton();
 
@@ -13,7 +13,7 @@ int main(void) {
 	std::map<String, String> configs;
 	configs.insert(std::make_pair("width", "1600"));
 	configs.insert(std::make_pair("height", "900"));
-	//configs.insert(std::make_pair("model_type", "ifc"));
+	configs.insert(std::make_pair("model_type", "ifc"));
 	configs.insert(std::make_pair("file", bunny_model));
 	re.initialize(configs);
 	re.run();

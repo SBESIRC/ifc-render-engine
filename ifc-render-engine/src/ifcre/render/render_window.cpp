@@ -5,6 +5,7 @@
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
     double lastX, lastY, curX, curY;
+    double rlastX, rlastY, rcurX, rcurY;
     // --------------------- event processing ------------------
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 
@@ -18,8 +19,13 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         if (m_lbutton_down) {
             glfwGetCursorPos(window, &curX, &curY);
-            camera.translate(curX - lastX, lastY - curY);
+            camera.translate(lastX - curX, curY - lastY);
             lastX = curX, lastY = curY;
+        }
+        if (m_rbutton_down) {
+            glfwGetCursorPos(window, &rcurX, &rcurY);
+            camera.raotate(rcurX- rlastX, rcurY - rlastY);
+            rlastX = rcurX, rlastY = rcurY;
         }
     }
 
@@ -44,7 +50,7 @@ namespace ifcre {
         if (GLFW_MOUSE_BUTTON_RIGHT == button) {
             if (GLFW_PRESS == action) {
                 m_rbutton_down = true;
-                glfwGetCursorPos(window, &lastX, &lastY);
+                glfwGetCursorPos(window, &rlastX, &rlastY);
             }
             else if (GLFW_RELEASE == action) {
                 m_rbutton_down = false;
