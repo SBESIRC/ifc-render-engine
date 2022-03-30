@@ -124,6 +124,9 @@ namespace ifcre {
 			}
 			return ver_attrib;
 		}
+		Vector<glm::vec3> getBBX() {
+			return { pMin,pMax };
+		}
 	private:
 		glm::vec3 pMin, pMax;
 		

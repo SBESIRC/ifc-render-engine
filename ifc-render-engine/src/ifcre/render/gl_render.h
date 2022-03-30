@@ -9,6 +9,9 @@
 #include "gl/render_window.h"
 #include "gl/glsl_program.h"
 #include "gl/vertex_buffer.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 namespace ifcre {
 
@@ -47,8 +50,19 @@ namespace ifcre {
 // --------------- render ----------------------
 
 		void render(uint32_t render_id);
+		void render(uint32_t render_id, Vector<glm::vec3> bbx, Real zoom_parameter);
 
 		void postRender(uint32_t col_tex_id);
+// --------------- shader set ----------------------
+		void setMat4(const std::string& name, const glm::mat4& mat)const {
+			m_test_shader->setMat4(name, mat);
+		}
+		void setVec3(const std::string& name, const glm::vec3& value)const {
+			m_test_shader->setVec3(name, value);
+		}
+		void setInt(const std::string& name,int value)const {
+			m_test_shader->setInt(name, value);
+		}
 // ----- ----- ----- ----- ----- ----- ----- -----
 
 	private:

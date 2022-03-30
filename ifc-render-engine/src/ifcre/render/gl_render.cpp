@@ -2,9 +2,6 @@
 
 #include "gl/shader_consts.h"
 #include "../common/ifc_util.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 namespace ifcre {
 // ------------ construction ---------------------
 	GLRender::GLRender()
@@ -21,7 +18,7 @@ namespace ifcre {
 		model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
 
 		glm::mat4 view(1.0f);
-		glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
+		glm::vec3 eyepos(0.0f, 0.0f, 3.0f);
 		glm::vec3 front(0.0f, 0.0f, -1.0f);
 		glm::vec3 up(0.0f, 1.0f, 0.0f);
 		view = glm::lookAt(eyepos, eyepos + front, up);
@@ -67,6 +64,24 @@ namespace ifcre {
 		}
 
 		m_test_shader->use();
+		SharedPtr<GLVertexBuffer> vb = it->second;
+		vb->draw();
+	}
+	void GLRender::render(uint32_t render_id, Vector<glm::vec3> bbx,Real zoom_parameter) {
+		auto& vb_map = m_vertex_buffer_map;
+		auto it = vb_map.find(render_id);
+		if (it == vb_map.end()) {
+			printf("The render_id[%u] is not existed.\n", render_id);
+			return;
+		}
+
+		m_test_shader->use();
+		auto scal = zoom_parameter / (bbx[1].x - bbx[0].x);
+		std::cout << zoom_parameter << std::endl;
+		glm::mat4 model(1.0f);
+		model = glm::scale(model, glm::vec3(scal, scal, scal));
+		model = glm::translate(model, glm::vec3(-(bbx[0].x + bbx[1].x) / 2, -(bbx[0].y + bbx[1].y) / 2, -(bbx[0].z + bbx[1].z) / 2));
+		m_test_shader->setMat4("model", model);
 		SharedPtr<GLVertexBuffer> vb = it->second;
 		vb->draw();
 	}

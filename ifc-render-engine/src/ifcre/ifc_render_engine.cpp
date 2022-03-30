@@ -76,9 +76,14 @@ namespace ifcre {
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.bind();
 		m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
-
-		m_render.render(try_ifc? ifc_test_model->render_id:test_model->render_id);
-
+		
+		if (try_ifc) {
+			m_render.render(ifc_test_model->render_id, ifc_test_model->getBBX(), m_window.zoom_parameter);
+		}
+		else {
+			m_render.render(test_model->render_id);
+		}
+		
 		// post
 		m_window.unbind();
 		m_render.disableTest(DEPTH_TEST);

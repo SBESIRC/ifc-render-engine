@@ -24,6 +24,8 @@ namespace ifcre {
 		void recreateFramebuffer(int w, int h);
 
 		uint32_t getColorTexId();
+
+		Real zoom_parameter;
 	private:
 
 		void createFramebuffer(int w, int h);

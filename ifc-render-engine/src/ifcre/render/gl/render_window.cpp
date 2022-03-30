@@ -9,7 +9,15 @@ namespace ifcre {
         that->recreateFramebuffer(width, height);
         glViewport(0, 0, width, height);
     }
-
+    static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+        RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
+        
+        that->zoom_parameter -= (float)(0.1 * yoffset);
+        if (that->zoom_parameter < 0.1) {
+            that->zoom_parameter = 0.1;
+        }
+        std::cout << "that->zoom_parameter: " << that->zoom_parameter << std::endl;
+    }
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ----------------------
@@ -30,6 +38,7 @@ namespace ifcre {
         }
         glfwMakeContextCurrent(m_window);
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+        glfwSetScrollCallback(m_window, scroll_callback);
         glfwSetWindowUserPointer(m_window, this);
 
         // load gl functions by glad
@@ -45,7 +54,7 @@ namespace ifcre {
         }
 
         createFramebuffer(w, h);
-        
+        zoom_parameter = 3.0;
 	}
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
