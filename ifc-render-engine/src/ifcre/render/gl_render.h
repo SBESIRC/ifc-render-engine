@@ -37,14 +37,16 @@ namespace ifcre {
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 
-		void setModelViewMatrix(glm::mat4& mv);
+		void setModelViewMatrix(const glm::mat4& mv);
+		void setProjectionMatrix(const glm::mat4& projection);
 
 	// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 
 		// for offscreen
-		void postRender(uint32_t col_tex_id);
+		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
+		void postRender(RenderWindow& w);
 	// ----- ----- ----- ----- ----- ----- ----- -----
 
 	private:
@@ -52,7 +54,8 @@ namespace ifcre {
 
 	private:
 
-		glm::mat4 m_mv;
+		glm::mat4 m_modelview;
+		glm::mat4 m_projection;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
