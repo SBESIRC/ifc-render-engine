@@ -153,7 +153,6 @@ namespace ifcre {
     void RenderWindow::createFramebuffer(int w, int h)
     {
         auto& mfb = m_framebuffer;
-
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
         glNamedFramebufferTexture(mfb.fbo_id, GL_COLOR_ATTACHMENT0, mfb.m_default_rt->getTexId(), 0);

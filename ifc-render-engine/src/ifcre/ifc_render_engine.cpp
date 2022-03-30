@@ -90,7 +90,8 @@ namespace ifcre {
 
 			glm::mat4 cam_mv = m_camera->getModelViewMatrix();
 			m_render.setModelViewMatrix(cam_mv);
-			// 0. prev: render normal and depth tex of th scene
+
+			// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
 			//m_render.render(test_model->render_id, NORMAL_DEPTH_WRITE);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
@@ -102,7 +103,7 @@ namespace ifcre {
 
 
 		}
-		// post
+		// post render
 		m_window.endRenderToWindow();
 		m_render.disableTest(DEPTH_TEST);
 		// render edge
