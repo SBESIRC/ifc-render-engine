@@ -55,10 +55,11 @@ namespace ifcre {
             m_model = glm::rotate(m_model, angle, axis);
         }
         void raotate(Real x, Real y) {
+            //not completed
             glm::mat4 rot = glm::mat4(1.);
             rot = glm::rotate(rot, glm::radians(x), m_worldup);
             rot = glm::rotate(rot, glm::radians(y), m_right);
-            m_model = rot * m_model;
+            //m_pos = rot*glm::vec4(m_pos,1);
         }
 
         // TODO

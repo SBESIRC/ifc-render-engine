@@ -68,9 +68,32 @@ namespace ifcre {
 			auto ret = make_shared<IFCModel>(g_indices, g_vertices, g_normals);
 			ret->setBBX(pMin, pMax);
 			ret->getVerAttrib();
-			return ret;
 
-			//
+			//indices by components
+			is.read((char*)&s, sizeof(size_t));
+			//ret->components.resize(s);
+			size_t tmps;
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&tmps, sizeof(size_t));
+				Vector<uint32_t> tmp(tmps);
+				for (int j = 0; j < tmps; j++) {
+					is.read((char*)&tmp[j], sizeof(unsigned int));
+					tmp[j]--;
+				}
+				ret->components.emplace_back(ComponentModel(tmp, tmps));
+			}
+
+			//materials' paragraph
+			Vector<MtlData> mat_vec;
+			is.read((char*)&s, sizeof(size_t));
+			std::cout << s << std::endl;
+			mat_vec.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
+				is.read((char*)&mat_vec[i].data[7], sizeof(int));
+			}
+			ret->setMaterialData(mat_vec);
+			return ret;
         }
 	};
 

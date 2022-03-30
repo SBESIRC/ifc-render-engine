@@ -15,14 +15,16 @@ namespace ifcre {
 	};
 
 	struct MtlData {
-		MtlMetaData data[7];
+		MtlMetaData data[8];
+		// 3 for kd(float, float, float), 3 for ks(float, float, float)
+		//1 for alpha(float), and 1 for ns(int)
 	};
 
 	class ComponentModel {
 	public:
 		uint32_t render_id;//different component may has different render style
 		glm::vec3 pMin, pMax;//bounding box
-		ComponentModel(Vector<int> _indices, size_t s/*, uint32_t _render_id) :render_id(_render_id*/) {
+		ComponentModel(Vector<uint32_t> _indices, size_t s/*, uint32_t _render_id) :render_id(_render_id*/) {
 			this->_indices.resize(s);
 			for (int i = 0; i < s; i++) {
 				this->_indices[i] = _indices[i];
@@ -41,6 +43,7 @@ namespace ifcre {
 		Vector<ComponentModel> components;
 		Vector<Real> ver_attrib;
 		Vector<uint32_t> g_indices;
+		Vector<Vector<uint32_t>> c_indices;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
 			std::ifstream is(filename.c_str(), std::ios::binary);
@@ -95,7 +98,7 @@ namespace ifcre {
 			size_t tmps;
 			for (int i = 0; i < s; i++) {
 				is.read((char*)&tmps, sizeof(size_t));
-				Vector<int> tmpvc(tmps);
+				Vector<uint32_t> tmpvc(tmps);
 				for (int j = 0; j < tmps; j++) {
 					is.read((char*)&tmpvc[j], sizeof(unsigned int));
 					tmpvc[j]--;
@@ -121,6 +124,9 @@ namespace ifcre {
 			pMin = pa;
 			pMax = pb;
 		}
+		void setMaterialData(Vector<MtlData> _material_data) {
+			material_data = _material_data;
+		}
 		glm::vec3 getpMin()const {
 			return pMin;
 		}
@@ -144,7 +150,7 @@ namespace ifcre {
 		}
 	private:
 		glm::vec3 pMin, pMax;
-		
+		Vector<MtlData> material_data;
 		Vector<Real> g_vertices;
 		Vector<Real> g_normals;
 	};
