@@ -2,7 +2,6 @@
 out vec4 FragColor;
 
 in vec3 f_normal;
-in float f_depth;
 
 vec2 EncodeViewNormalStereo( vec3 n )
 {
@@ -27,6 +26,9 @@ vec2 EncodeFloatRG( float v )
 }
 
 void main(){
-    FragColor = vec4(EncodeViewNormalStereo(f_normal), EncodeFloatRG(f_depth));
+    FragColor = vec4(EncodeViewNormalStereo(f_normal), EncodeFloatRG(1 - gl_FragCoord.z));
+
+    // float d = 1 - gl_FragCoord.z;
+    // FragColor = vec4(d,d,d,1.0);
     // FragColor = vec4(1.0,1.0,1.0,1.0);
 }

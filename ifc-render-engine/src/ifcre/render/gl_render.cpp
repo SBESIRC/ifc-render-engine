@@ -10,9 +10,11 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// program init
-		m_offscreen_program = make_unique<GLSLProgram>(v_offscreen, f_offscreen);
+		String v_image_effect = util::read_file("shaders/image_effect.vert");
+		String f_image_effect = util::read_file("shaders/image_effect.frag");
+		m_offscreen_program = make_unique<GLSLProgram>(v_image_effect.c_str(), f_image_effect.c_str());
 		m_offscreen_program->use();
-		m_offscreen_program->setInt("screenTexture", 0);
+		//m_offscreen_program->setInt("screenTexture", 0);
 		String v_nd = util::read_file("shaders/normal_depth_write.vert");
 		String f_nd = util::read_file("shaders/normal_depth_write.frag");
 		m_normal_depth_program = make_unique<GLSLProgram>(v_nd.c_str(), f_nd.c_str());
@@ -76,15 +78,14 @@ namespace ifcre {
 		}
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
-			glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
 			m_normal_depth_program->use();
-			m_normal_depth_program->setMat4("mvp",  projection * m_mv);
-			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_mv)));
+			m_normal_depth_program->setMat4("mvp",  m_projection * m_modelview);
+			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
 			break;
 		}
 		case DEFAULT_SHADING: {
 			m_test_shader->use();
-			m_test_shader->setMat4("view", m_mv);
+			m_test_shader->setMat4("view", m_modelview);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -96,7 +97,7 @@ namespace ifcre {
 		vb->draw();
 	}
 
-	void GLRender::postRender(uint32_t col_tex_id)
+	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)
 	{
 		static bool first = false;
 		static uint32_t off_vao;
@@ -126,10 +127,62 @@ namespace ifcre {
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, col_tex_id);
+		if (depth_normal_tex_id != -1) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, depth_normal_tex_id);
+		}
 		m_offscreen_program->use();
+		m_offscreen_program->setInt("screenTexture", 0);
+		m_offscreen_program->setInt("depthNormalTexture", 1);
+		
 		glBindVertexArray(off_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+	}
+
+	void GLRender::postRender(RenderWindow& w)
+	{
+		static bool first = false;
+		static uint32_t off_vao;
+		if (!first) {
+			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+			// positions   // texCoords
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f,  1.0f, 1.0f
+			};
+			uint32_t off_vbo;
+			glGenVertexArrays(1, &off_vao);
+			glGenBuffers(1, &off_vbo);
+			glBindVertexArray(off_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+			first = true;
+		}
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());
+		if (w.getDepthNormalTexId() != -1) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());
+		}
+		m_offscreen_program->use();
+		m_offscreen_program->setInt("screenTexture", 0);
+		m_offscreen_program->setInt("depthNormalTexture", 1);
+		glm::vec2 win_size = w.getWindowSize();
+		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y);
+		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);
+
+		glBindVertexArray(off_vao);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
 	}
 
 	void GLRender::enableTest(GLTestEnum test)
@@ -179,8 +232,12 @@ namespace ifcre {
 		return id;
 	}
 
-	void GLRender::setModelViewMatrix(glm::mat4& mv)
+	void GLRender::setModelViewMatrix(const glm::mat4& mv)
 	{
-		m_mv = mv;
+		m_modelview = mv;
+	}
+	void GLRender::setProjectionMatrix(const glm::mat4& projection)
+	{
+		m_projection = projection;
 	}
 }

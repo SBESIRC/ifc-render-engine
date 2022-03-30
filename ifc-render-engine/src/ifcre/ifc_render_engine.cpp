@@ -86,18 +86,22 @@ namespace ifcre {
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.startRenderToWindow(); 
 		{
-			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH),  &clearValue);
 
 			glm::mat4 cam_mv = m_camera->getModelViewMatrix();
 			m_render.setModelViewMatrix(cam_mv);
+			m_render.setProjectionMatrix(m_window.getProjMatrix());
 
 			// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
+			clearValue = { 0.5f,0.5f ,1.0f ,1.0f };
+			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			//m_render.render(test_model->render_id, NORMAL_DEPTH_WRITE);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 
 			// 1. render scene
 			m_window.switchRenderColor();
+			clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
+			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
 
 
@@ -107,7 +111,8 @@ namespace ifcre {
 		m_window.endRenderToWindow();
 		m_render.disableTest(DEPTH_TEST);
 		// render edge
-		m_render.postRender(m_window.getColorTexId());
+		//m_render.postRender(m_window.getColorTexId(), m_window.getDepthNormalTexId());
+		m_render.postRender(m_window);
 
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 

@@ -7,11 +7,12 @@
 #include "../common/std_types.h"
 #include "gl/gl_render_texture.h"
 #include "gl_camera.h"
+#include <glm/glm.hpp>
 namespace ifcre {
 
 	class RenderWindow {
 	public:
-		RenderWindow(const char* title, int w, int h, bool vsync = false);
+		RenderWindow(const char* title, int32_t w, int32_t h, bool vsync = false);
 		~RenderWindow();
 
 		void processInput();
@@ -30,6 +31,9 @@ namespace ifcre {
 		void recreateFramebuffer(int w, int h);
 
 		uint32_t getColorTexId();
+		uint32_t getDepthNormalTexId();
+		glm::vec2 getWindowSize();
+		glm::mat4 getProjMatrix();
 
 		void setCamera(SharedPtr<GLCamera> camera);
 	private:
@@ -42,11 +46,17 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
 
+		// refer to camera of ifc engine
 		SharedPtr<GLCamera> m_camera;
 		uint32_t m_cur_fbo;
 
         // memory management by GLFW
         GLFWwindow* m_window;
+
+		int32_t m_width, m_height;
+		glm::mat4 m_projection;
+		const Real m_znear = 0.1, m_zfar = 1000.0;
+		const Real fov = 45.0;
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods);

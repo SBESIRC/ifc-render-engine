@@ -1,4 +1,5 @@
 #include <glad/glad.h>
+#include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
 
 namespace ifcre {
@@ -54,7 +55,7 @@ namespace ifcre {
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ----------------------
-	RenderWindow::RenderWindow(const char* title, int w, int h, bool vsync)
+	RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool vsync)
 	{
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -165,11 +166,24 @@ namespace ifcre {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
         createFramebuffer(w, h);
     }
-
+    
     uint32_t RenderWindow::getColorTexId()
     {
-        //return m_framebuffer.colortex_id;
         return m_framebuffer.m_default_rt->getTexId();
+    }
+
+    uint32_t RenderWindow::getDepthNormalTexId() 
+    {
+        return m_framebuffer.m_depth_normal_rt->getTexId();
+    }
+
+    glm::vec2 RenderWindow::getWindowSize() 
+    {
+        return glm::vec2(m_width, m_height);
+    }
+
+    glm::mat4 RenderWindow::getProjMatrix() {
+        return m_projection;
     }
 
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)
@@ -180,6 +194,9 @@ namespace ifcre {
 // private:
     void RenderWindow::createFramebuffer(int w, int h)
     {
+        m_width = w;
+        m_height = h;
+        m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         auto& mfb = m_framebuffer;
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);

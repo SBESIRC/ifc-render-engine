@@ -28,6 +28,10 @@ namespace ifcre {
     {
         glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
+    void GLSLProgram::setVec2(const std::string& name, const glm::vec2& value) const
+    {
+        glUniform2fv(glGetUniformLocation(id, name.c_str()), 1, &value[0]);
+    }
     void GLSLProgram::setVec3(const std::string& name, const glm::vec3& value) const
     {
         glUniform3fv(glGetUniformLocation(id, name.c_str()), 1, &value[0]);
