@@ -81,18 +81,25 @@ namespace ifcre {
 					tmp[j]--;
 				}
 				ret->components.emplace_back(ComponentModel(tmp, tmps));
+				ret->components[i].setbbx(g_vertices);
 			}
 
 			//materials' paragraph
 			Vector<MtlData> mat_vec;
 			is.read((char*)&s, sizeof(size_t));
-			std::cout << s << std::endl;
 			mat_vec.resize(s);
 			for (int i = 0; i < s; i++) {
 				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
 				is.read((char*)&mat_vec[i].data[7], sizeof(int));
 			}
-			ret->setMaterialData(mat_vec);
+			Vector<MaterialData> t_mat_vec(s);
+			for (int i = 0; i < s; i++) {
+				t_mat_vec[i] = MaterialData(
+					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
+					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
+					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
+			}
+			ret->setMaterialData(t_mat_vec);
 			return ret;
         }
 	};

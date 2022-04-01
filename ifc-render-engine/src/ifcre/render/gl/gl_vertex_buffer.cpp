@@ -35,6 +35,14 @@ namespace ifcre {
 		glBindVertexArray(0);
 	}
 
+	void GLVertexBuffer::ssboAttribUpload(Vector<MaterialData>& mtlData) {
+		/*GLint SSBOBinding = 0, BlockDataSize = 0;*/
+		glGenBuffers(1,&m_ssboid);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ssboid);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(MaterialData) * mtlData.size(), mtlData.data(), GL_DYNAMIC_COPY);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	}
+
 	void GLVertexBuffer::draw()
 	{
 		glBindVertexArray(m_vaoid);

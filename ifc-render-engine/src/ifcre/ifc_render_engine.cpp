@@ -20,6 +20,7 @@ namespace ifcre {
 		else {
 			test_model = DefaultParser::load(model_file);
 		}
+		//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
 		m_glrender = make_shared<GLRender>();
 		
