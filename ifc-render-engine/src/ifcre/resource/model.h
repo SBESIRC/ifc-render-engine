@@ -177,23 +177,37 @@ namespace ifcre {
 		}
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
-			ver_attrib.resize(2 * s);
+			ver_attrib.resize(3 * s);
 			int offset = 0;
-			for (int i = 0; i < s; i+=3) {
+			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];
 				ver_attrib[offset + i + 1] = g_vertices[i + 1];
 				ver_attrib[offset + i + 2] = g_vertices[i + 2];
 				ver_attrib[offset + i + 3] = g_normals[i];
 				ver_attrib[offset + i + 4] = g_normals[i + 1];
 				ver_attrib[offset + i + 5] = g_normals[i + 2];
-				offset += 3;
+				ver_attrib[offset + i + 6] = g_kd_color[i];
+				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
+				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
+				offset += 6;
 			}
 			return ver_attrib;
+		}
+		Vector<Real> getVerColor() {
+			Vector<Real> color(g_vertices.size());
+			for (int i = 0; i < g_indices.size(); i++) {
+				color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+				color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+				color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+			}
+			g_kd_color = color;
+			return color;
 		}
 	private:
 		glm::vec3 pMin, pMax;
 		Vector<MaterialData> material_data;
 		Vector<Real> g_vertices;
+		Vector<Real> g_kd_color;
 		Vector<Real> g_normals;
 	};
 	

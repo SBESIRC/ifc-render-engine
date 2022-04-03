@@ -39,8 +39,9 @@ namespace ifcre {
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 		if (try_ifc) {
 			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
-			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 9, (void*)0);
+			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 9, (void*)(3 * sizeof(Real)));
+			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 9, (void*)(6 * sizeof(Real)));
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
 		}
 		else {

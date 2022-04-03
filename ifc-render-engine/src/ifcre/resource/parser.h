@@ -67,7 +67,6 @@ namespace ifcre {
 			}
 			auto ret = make_shared<IFCModel>(g_indices, g_vertices, g_normals);
 			ret->setBBX(pMin, pMax);
-			ret->getVerAttrib();
 
 			//indices by components
 			is.read((char*)&s, sizeof(size_t));
@@ -100,6 +99,8 @@ namespace ifcre {
 					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
 			}
 			ret->setMaterialData(t_mat_vec);
+			ret->getVerColor();
+			ret->getVerAttrib();
 			return ret;
         }
 	};
