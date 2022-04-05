@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include "gl_enum.h"
+#include "../../common/std_types.h"
 
 namespace ifcre {
 	class GLRenderTexture {

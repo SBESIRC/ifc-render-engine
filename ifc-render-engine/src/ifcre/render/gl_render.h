@@ -32,6 +32,7 @@ namespace ifcre {
 
 		void enableTest(GLTestEnum test);
 		void disableTest(GLTestEnum test);
+		void depthFunc(GLFuncEnum func);
 
 	// ----- ----- ----- ----- ----- ----- ----- -----
 

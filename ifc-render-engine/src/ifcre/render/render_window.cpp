@@ -6,9 +6,14 @@ namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
     double lastX, lastY, curX, curY;
     double rlastX, rlastY, rcurX, rcurY;
+
+    // --------------------- event helper ----------------------
+    
+    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+    
     // --------------------- event processing ------------------
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
-
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         that->recreateFramebuffer(width, height);
         glViewport(0, 0, width, height);
@@ -17,16 +22,29 @@ namespace ifcre {
     void RenderWindow::cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
-        if (m_lbutton_down) {
-            glfwGetCursorPos(window, &curX, &curY);
-            camera.translate(lastX - curX, curY - lastY);
-            lastX = curX, lastY = curY;
+        auto& cur_rt = *(that->m_cur_rt);
+        auto& status = that->m_status;
+        
+        if (status.lbtn_down) {
+			// rebuild 
+			// OpenGL Screen space:
+			//  ^y
+			//   | 
+			//   ¨N¡ª>x
+            camera.rotateByScreenX(status.click_world_center, glm::radians((xpos - status.last_mouse_x) > 0 ? 1.0f : -1.0f));
+			camera.lookCenter(status.click_world_center);
         }
-        if (m_rbutton_down) {
-            glfwGetCursorPos(window, &rcurX, &rcurY);
-            camera.raotate(rcurX- rlastX, rcurY - rlastY);
-            rlastX = rcurX, rlastY = rcurY;
+
+
+        if (status.rbtn_down) {
+            //glfwGetCursorPos(window, &curX, &curY);
+            //camera.translate(lastX - curX, curY - lastY);
+            //lastX = curX, lastY = curY;
+            camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
         }
+
+        status.last_mouse_x = xpos;
+        status.last_mouse_y = ypos;
     }
 
     void RenderWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -38,26 +56,48 @@ namespace ifcre {
     void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
+        auto& status = that->m_status;
+
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
+            switch (action) {
+            case GLFW_PRESS: {
+                status.lbtn_down = true;
+                double click_x, click_y;
+                glfwGetCursorPos(window, &click_x, &click_y);
+                Real w = that->m_width, h = that->m_height;
+                // from [0, 1] to [-1, 1]
+                Real y = (h - click_y - 1) / h * 2 - 1;
+                Real x = click_x / w * 2 - 1;
+                Real z;
+                glBindFramebuffer(GL_FRAMEBUFFER, that->m_framebuffer.fbo_id);
+                glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                z = z * 2 - 1;
+                glm::vec4 ndc(x, y, z, 1.0f);
+                glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+                glm::vec4 t = vp_inv * ndc;
+                t = t / t.w;
+                status.click_world_center = t;
+                break;
+            }
+            case GLFW_RELEASE:
+                status.lbtn_down = false;
+                break;
+            }
+        }
+        
+        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             if (GLFW_PRESS == action) {
                 m_lbutton_down = true;
                 glfwGetCursorPos(window, &lastX, &lastY);
+                status.rbtn_down = true;
             }
             else if(GLFW_RELEASE == action) {
                 m_lbutton_down = false;
-            }
-        }
-        if (GLFW_MOUSE_BUTTON_RIGHT == button) {
-            if (GLFW_PRESS == action) {
-                m_rbutton_down = true;
-                glfwGetCursorPos(window, &rlastX, &rlastY);
-            }
-            else if (GLFW_RELEASE == action) {
-                m_rbutton_down = false;
+                status.rbtn_down = false;
             }
         }
     }
-
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ----------------------
@@ -152,8 +192,12 @@ namespace ifcre {
             return;
         }
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_depth_normal_rt->getTexId(), 0);
+        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_depth_normal_rt->getDepthId(), 0);
+
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
-        glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
+        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
+        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
+        m_cur_rt = m_framebuffer.m_depth_normal_rt.get();
     }
 
     void RenderWindow::switchRenderColor()
@@ -163,8 +207,12 @@ namespace ifcre {
             return;
         }
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_default_rt->getTexId(), 0);
+        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
+
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
-        glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
+        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
+        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
+        m_cur_rt = m_framebuffer.m_default_rt.get();
     }
 
     void RenderWindow::recreateFramebuffer(int w, int h)
@@ -204,13 +252,16 @@ namespace ifcre {
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         auto& mfb = m_framebuffer;
-        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         glCreateFramebuffers(1, &mfb.fbo_id);
         glNamedFramebufferTexture(mfb.fbo_id, GL_COLOR_ATTACHMENT0, mfb.m_default_rt->getTexId(), 0);
         //glNamedFramebufferTexture(mfb.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, mfb.m_default_rt->getDepthId(), 0);
-        glNamedFramebufferRenderbuffer(mfb.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mfb.m_default_rt->getDepthId());
+        glNamedFramebufferTexture(mfb.fbo_id, GL_DEPTH_ATTACHMENT, mfb.m_default_rt->getDepthId(), 0);
+        //glNamedFramebufferRenderbuffer(mfb.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mfb.m_default_rt->getDepthId());
+        //glNamedFramebufferRenderbuffer(mfb.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mfb.m_default_rt->getDepthId());
+        m_cur_rt = mfb.m_default_rt.get();
 
-        mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;

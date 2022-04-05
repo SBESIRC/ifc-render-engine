@@ -225,6 +225,20 @@ namespace ifcre {
 		}
 	}
 
+	void GLRender::depthFunc(GLFuncEnum func)
+	{
+		switch (func) {
+		case ALWAYS_FUNC: glDepthFunc(GL_ALWAYS); break;
+		case NEVER_FUNC: glDepthFunc(GL_NEVER); break;
+		case LESS_FUNC: glDepthFunc(GL_LESS); break;
+		case EQUAL_FUNC: glDepthFunc(GL_EQUAL); break;
+		case LEQUAL_FUNC: glDepthFunc(GL_LEQUAL); break;
+		case GREATER_FUNC: glDepthFunc(GL_GREATER); break;
+		case NOTEQUAL_FUNC: glDepthFunc(GL_NOTEQUAL); break;
+		case GEQUAL_FUNC: glDepthFunc(GL_GEQUAL); break;
+		}
+	}
+
 	uint32_t GLRender::addModel(SharedPtr<GLVertexBuffer> vertex_buffer)
 	{
 		uint32_t id = util::get_next_globalid();

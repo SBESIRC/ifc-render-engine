@@ -45,6 +45,8 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_default_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
+		// current render texture using by this render window
+		GLRenderTexture* m_cur_rt;
 
 		// refer to camera of ifc engine
 		SharedPtr<GLCamera> m_camera;
@@ -55,6 +57,12 @@ namespace ifcre {
 
 		int32_t m_width, m_height;
 		glm::mat4 m_projection;
+
+		struct {
+			int32_t last_mouse_x, last_mouse_y;
+			bool lbtn_down = false, rbtn_down = false;
+			glm::vec3 click_world_center;
+		}m_status;
 		const Real m_znear = 0.1, m_zfar = 1000.0;
 		const Real fov = 45.0;
 	private:

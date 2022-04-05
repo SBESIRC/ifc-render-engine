@@ -1,5 +1,6 @@
 #include "gl_render_texture.h"
 #include <glad/glad.h>
+#include<glm/glm.hpp>
 
 namespace ifcre {
 	// ------------------ construct ----------------------
@@ -22,7 +23,8 @@ namespace ifcre {
 			switch (depth) {
 			case DEPTH_WRITE_ONLY:
 				glCreateRenderbuffers(1, &m_depth_id);
-				glNamedRenderbufferStorage(m_depth_id, GL_DEPTH24_STENCIL8, w, h);
+				//glNamedRenderbufferStorage(m_depth_id, GL_DEPTH24_STENCIL8, w, h);
+				glNamedRenderbufferStorage(m_depth_id, GL_DEPTH_COMPONENT, w, h);
 				break;
 			case DEPTH16:
 				glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT16, w, h);
@@ -31,6 +33,11 @@ namespace ifcre {
 			case DEPTH24:
 				glTextureStorage2D(m_depth_id, 1, GL_DEPTH24_STENCIL8, w, h);
 				//glTextureSubImage2D(m_depth_id, 0, 0, 0, w, h, GL_RG, GL_UNSIGNED_INT_24_8, NULL);
+				break;
+			case DEPTH32:
+				glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT32, w, h);
+				//glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT, w, h);
+				//glTextureSubImage2D(m_depth_id, 0, 0, 0, w, h, GL_RED, GL_FLOAT, NULL);
 				break;
 			default:break;
 			}

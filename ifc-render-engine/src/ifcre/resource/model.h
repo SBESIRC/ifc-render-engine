@@ -44,6 +44,7 @@ namespace ifcre {
 		Vector<Real> ver_attrib;
 		Vector<uint32_t> g_indices;
 		Vector<Vector<uint32_t>> c_indices;
+		glm::mat4 m_model;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
 			std::ifstream is(filename.c_str(), std::ios::binary);

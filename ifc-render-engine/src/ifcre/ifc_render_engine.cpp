@@ -1,5 +1,6 @@
 #include "ifc_render_engine.h"
 #include "resource/parser.h"
+#include "common/ifc_util.h"
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -31,7 +32,8 @@ namespace ifcre {
 
 		m_camera = make_shared<GLCamera>(glm::vec3(0.0f, 0.0f, 10.0f));
 		m_render_window->setCamera(m_camera);
-		m_camera->setModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
+		// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
+		ifc_test_model->m_model = util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
 
 
 		// add a rendered model
@@ -84,14 +86,15 @@ namespace ifcre {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 		m_render.enableTest(DEPTH_TEST);
+		m_render.depthFunc(LESS_FUNC);
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.startRenderToWindow(); 
 		{
-			glm::mat4 cam_mv = m_camera->getModelViewMatrix();
-			m_render.setModelViewMatrix(cam_mv);
+			glm::mat4 view = m_camera->getViewMatrix();
+			m_render.setModelViewMatrix(view * ifc_test_model->m_model);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 
-			// 0. prev: render normal and depth tex of the scene
+			//// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
 			clearValue = { 0.5f,0.5f ,1.0f ,1.0f };
 			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
