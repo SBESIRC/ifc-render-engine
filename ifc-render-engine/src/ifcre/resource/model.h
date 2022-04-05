@@ -6,6 +6,9 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <glm/glm.hpp>
+
+extern"C" void generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
@@ -19,11 +22,21 @@ namespace ifcre {
 		// 3 for kd(float, float, float), 3 for ks(float, float, float)
 		//1 for alpha(float), and 1 for ns(int)
 	};
+	struct MaterialData {
+		glm::vec4 kd;
+		glm::vec4 ks;
+		float alpha;
+		int ns;
+		MaterialData() {}
+		MaterialData(glm::vec4 a, glm::vec4 b, float c, int d) :kd(a), ks(b), alpha(c), ns(d) {}
+	};
 
 	class ComponentModel {
 	public:
 		uint32_t render_id;//different component may has different render style
 		glm::vec3 pMin, pMax;//bounding box
+		Vector<Real> bbx_vertex_array;
+		Vector<uint32_t> bbx_draw_element_buffers;
 		ComponentModel(Vector<uint32_t> _indices, size_t s/*, uint32_t _render_id) :render_id(_render_id*/) {
 			this->_indices.resize(s);
 			for (int i = 0; i < s; i++) {
@@ -33,6 +46,35 @@ namespace ifcre {
 		Vector<uint32_t> getInices() {
 			return this->_indices;
 		}
+		void setbbx(Vector<Real> g_vert) {
+			Real x_min, x_max, y_min, y_max, z_min, z_max;
+			x_min = y_min = z_min = FLT_MAX;
+			x_max = y_max = z_max = -FLT_MAX;
+			for (int i = 0; i < this->_indices.size(); i++) {
+				x_min = std::min(x_min, g_vert[3*this->_indices[i]]);
+				x_max = std::max(x_max, g_vert[3 * this->_indices[i]]);
+				y_min = std::min(y_min, g_vert[3 * this->_indices[i] + 1]);
+				y_max = std::max(y_max, g_vert[3 * this->_indices[i] + 1]);
+				z_min = std::min(z_min, g_vert[3 * this->_indices[i] + 2]);
+				z_max = std::max(z_max, g_vert[3 * this->_indices[i] + 2]);
+			}
+			pMax = glm::vec3(x_max, y_max, z_max);
+			pMin = glm::vec3(x_min, y_min, z_min);
+			generate_bbx_buffer();
+		}
+		void generate_bbx_buffer() {
+			bbx_vertex_array.clear();
+			bbx_vertex_array.resize(24);
+			for (int i = 0; i < 8; i++) {
+				bbx_vertex_array[3 * i] = (i & 1 ? pMax.x : pMin.x);
+				bbx_vertex_array[3 * i + 1] = (i & 2 ? pMax.y : pMin.y);
+				bbx_vertex_array[3 * i + 2] = (i & 4 ? pMax.z : pMin.z);
+			}
+			bbx_draw_element_buffers.clear();
+			bbx_draw_element_buffers.resize(24);
+			bbx_draw_element_buffers = { 0,1,3,2,4,5,7,6,0,1,5,4,2,3,7,6,0,2,6,4,1,3,7,5 };
+		}
+		
 	private:
 		Vector<uint32_t> _indices;
 	};
@@ -125,7 +167,7 @@ namespace ifcre {
 			pMin = pa;
 			pMax = pb;
 		}
-		void setMaterialData(Vector<MtlData> _material_data) {
+		void setMaterialData(Vector<MaterialData> _material_data) {
 			material_data = _material_data;
 		}
 		glm::vec3 getpMin()const {
@@ -136,23 +178,37 @@ namespace ifcre {
 		}
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
-			ver_attrib.resize(2 * s);
+			ver_attrib.resize(3 * s);
 			int offset = 0;
-			for (int i = 0; i < s; i+=3) {
+			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];
 				ver_attrib[offset + i + 1] = g_vertices[i + 1];
 				ver_attrib[offset + i + 2] = g_vertices[i + 2];
 				ver_attrib[offset + i + 3] = g_normals[i];
 				ver_attrib[offset + i + 4] = g_normals[i + 1];
 				ver_attrib[offset + i + 5] = g_normals[i + 2];
-				offset += 3;
+				ver_attrib[offset + i + 6] = g_kd_color[i];
+				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
+				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
+				offset += 6;
 			}
 			return ver_attrib;
 		}
+		Vector<Real> getVerColor() {
+			Vector<Real> color(g_vertices.size());
+			for (int i = 0; i < g_indices.size(); i++) {
+				color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+				color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+				color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+			}
+			g_kd_color = color;
+			return color;
+		}
 	private:
 		glm::vec3 pMin, pMax;
-		Vector<MtlData> material_data;
+		Vector<MaterialData> material_data;
 		Vector<Real> g_vertices;
+		Vector<Real> g_kd_color;
 		Vector<Real> g_normals;
 	};
 	

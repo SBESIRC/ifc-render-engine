@@ -3,6 +3,7 @@
 #define IFCRE_VERTEX_BUFFER_H_
 
 #include "../../common/std_types.h"
+#include "../../resource/model.h"
 
 namespace ifcre {
 	class GLVertexBuffer {
@@ -15,7 +16,7 @@ namespace ifcre {
 		void upload(Vector<Real>& vertices, Vector<uint32_t>& indices);
 		void upload(Vector<Real>& vertices);
 		void vertexAttribDesc(uint32_t index, int32_t size, int32_t stride, const void* pointer);
-
+		void ssboAttribUpload(Vector<MaterialData>& mtlData);
 		void draw();
 
 		bool useIndex();
@@ -30,6 +31,7 @@ namespace ifcre {
 		uint32_t m_vaoid;
 		uint32_t m_vboid;
 		uint32_t m_eboid;
+		uint32_t m_ssboid;
 	};
 }
 
