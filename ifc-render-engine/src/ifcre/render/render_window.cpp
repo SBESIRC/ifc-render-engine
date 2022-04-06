@@ -31,8 +31,14 @@ namespace ifcre {
 			//  ^y
 			//   | 
 			//   ¨N¡ª>x
-            camera.rotateByScreenX(status.click_world_center, glm::radians((xpos - status.last_mouse_x) > 0 ? 1.0f : -1.0f));
-			camera.lookCenter(status.click_world_center);
+            if (status.last_mouse_x != xpos) {
+                camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
+            }
+            //if (status.last_mouse_y != ypos) {
+            //    camera.rotateByScreenY(status.click_world_center, glm::radians((status.last_mouse_y - ypos) > 0 ? 5.0f : -5.0f));
+            //}
+
+
         }
 
 
@@ -61,17 +67,20 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
-                status.lbtn_down = true;
+                Real z;
+                Real w = that->m_width, h = that->m_height;
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
-                Real w = that->m_width, h = that->m_height;
-                // from [0, 1] to [-1, 1]
-                Real y = (h - click_y - 1) / h * 2 - 1;
-                Real x = click_x / w * 2 - 1;
-                Real z;
                 glBindFramebuffer(GL_FRAMEBUFFER, that->m_framebuffer.fbo_id);
                 glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                if (z == 1.0) {
+                    break;
+                }
+                status.lbtn_down = true;
+                // from [0, 1] to [-1, 1]
+                Real y = (h - click_y - 1) / h * 2 - 1;
+                Real x = click_x / w * 2 - 1;
                 z = z * 2 - 1;
                 glm::vec4 ndc(x, y, z, 1.0f);
                 glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());

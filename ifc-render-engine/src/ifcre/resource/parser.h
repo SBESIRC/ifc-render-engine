@@ -19,6 +19,10 @@ namespace ifcre {
             Vector<Real> g_normals;
 
 			std::ifstream is(file.c_str(), std::ios::binary);
+			if (!is.is_open()) {
+				std::cout << file << " opened failed.\n";
+				exit(-1);
+			}
 
 			//vertices
 			size_t s;
