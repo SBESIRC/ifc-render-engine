@@ -69,6 +69,14 @@ namespace ifcre {
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
+
+	public:
+		glm::vec3 clickWorldCenter = glm::vec3(0, 0, 0);
+		// -1: clockwise
+		//	0: no rotation
+		//	1: anti-clockwise
+		int32_t horizontalRot = 0;
+		int32_t verticalRot = 0;
 	};
 
 }

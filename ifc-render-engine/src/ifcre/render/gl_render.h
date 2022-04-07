@@ -45,6 +45,7 @@ namespace ifcre {
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 
+		void renderAxis(glm::vec3& pick_center);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);

@@ -22,22 +22,22 @@ namespace ifcre {
 
 
 		m_test_shader = make_unique<GLSLProgram>(v_test, f_test);
-		glm::mat4 model(1.0f);
+		//glm::mat4 model(1.0f);
 		//model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
 
-		glm::mat4 view(1.0f);
-		glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
-		glm::vec3 front(0.0f, 0.0f, -1.0f);
-		glm::vec3 up(0.0f, 1.0f, 0.0f);
-		view = glm::lookAt(eyepos, eyepos + front, up);
+		//glm::mat4 view(1.0f);
+		//glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
+		//glm::vec3 front(0.0f, 0.0f, -1.0f);
+		//glm::vec3 up(0.0f, 1.0f, 0.0f);
+		//view = glm::lookAt(eyepos, eyepos + front, up);
 
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
-		m_test_shader->use();
-		m_test_shader->setMat4("model", model);
-		m_test_shader->setMat4("view", view);
-		m_test_shader->setMat4("projection", projection);
+		//glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
+		//m_test_shader->use();
+		//m_test_shader->setMat4("model", model);
+		//m_test_shader->setMat4("view", view);
+		//m_test_shader->setMat4("projection", projection);
 		// ----- ----- ----- ----- ----- -----
 
 
@@ -85,7 +85,8 @@ namespace ifcre {
 		}
 		case DEFAULT_SHADING: {
 			m_test_shader->use();
-			m_test_shader->setMat4("view", m_modelview);
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("projection", m_projection);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -95,6 +96,21 @@ namespace ifcre {
 		}
 		SharedPtr<GLVertexBuffer> vb = it->second;
 		vb->draw();
+	}
+
+	void GLRender::renderAxis(glm::vec3& pick_center)
+	{
+		static bool first = false;
+		if (!first) {
+			float coord_axis[] = {
+				0.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,	// x-axis
+				0.0, 0.0, 0.0,
+				0.0, 1.0, 0.0,	// y-axis
+				0.0, 0.0, 0.0,
+				0.0, 0.0, 1.0	// z-axis
+			};
+		}
 	}
 
 	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)

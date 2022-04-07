@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 extern"C" void generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
@@ -81,12 +82,39 @@ namespace ifcre {
 
 	class IFCModel {
 	public:
+		void rotateInLocalSpace(glm::vec3& pick_center, float angle) {
+			glm::mat4 rot(1.0f);
+			glm::mat4 m(1.0f);
+			glm::mat4 inv_model = glm::inverse(m_model);
+			glm::vec3 model_pick = inv_model * glm::vec4(pick_center, 1.0f);
+			rot = glm::rotate(rot, angle, glm::vec3(0, 1, 0));
+			glm::vec3 trans = -model_pick;
+			m_model = m_model * glm::translate(m, -trans) * rot * glm::translate(m, trans);
+		}
+
+		void rotateInWorldSpace(glm::vec3& pick_center, float angle) {
+			glm::mat4 rot(1.0f);
+			glm::mat4 m(1.0f);
+			rot = glm::rotate(rot, angle, glm::vec3(1, 0, 0));
+			glm::vec3 trans = -pick_center;
+			m_model = glm::translate(m, -trans) * rot * glm::translate(m, trans) * m_model;
+		}
+
+		void setModelMatrix(const glm::mat4& model) {
+			m_model = model;
+		}
+		glm::mat4 getModelMatrix() {
+			return m_model;
+		}
+	private:
+		glm::mat4 m_model;
+
+	public:
 		uint32_t render_id;//seems a render_id combine with an array of vertex?
 		Vector<ComponentModel> components;
 		Vector<Real> ver_attrib;
 		Vector<uint32_t> g_indices;
 		Vector<Vector<uint32_t>> c_indices;
-		glm::mat4 m_model;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
 			std::ifstream is(filename.c_str(), std::ios::binary);
@@ -122,6 +150,7 @@ namespace ifcre {
 			}
 			this->pMax = glm::vec3(x_max, y_max, z_max);
 			this->pMin = glm::vec3(x_min, y_min, z_min);
+			m_center = (pMin + pMax) * 0.5f;
 			//normals
 			is.read((char*)&s, sizeof(size_t));
 			this->g_normals.resize(s);
@@ -166,6 +195,7 @@ namespace ifcre {
 		void setBBX(glm::vec3 pa, glm::vec3 pb) {
 			pMin = pa;
 			pMax = pb;
+			m_center = (pMin + pMax) * 0.5f;
 		}
 		void setMaterialData(Vector<MaterialData> _material_data) {
 			material_data = _material_data;
@@ -206,6 +236,7 @@ namespace ifcre {
 		}
 	private:
 		glm::vec3 pMin, pMax;
+		glm::vec3 m_center;
 		Vector<MaterialData> material_data;
 		Vector<Real> g_vertices;
 		Vector<Real> g_kd_color;
