@@ -100,6 +100,10 @@ namespace ifcre {
 			m_model = glm::translate(m, -trans) * rot * glm::translate(m, trans) * m_model;
 		}
 
+		glm::vec3 getModelCenter() {
+			return m_center;
+		}
+
 		void setModelMatrix(const glm::mat4& model) {
 			m_model = model;
 		}

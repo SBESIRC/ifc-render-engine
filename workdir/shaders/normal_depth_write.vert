@@ -8,7 +8,7 @@ uniform mat4 mvp;
 
 out vec3 f_normal;
 void main()
-{
+{   
     gl_Position = mvp * vec4(pos, 1.0);
     // transform to [0, 1]
     f_normal = t_inv_model * normal;
