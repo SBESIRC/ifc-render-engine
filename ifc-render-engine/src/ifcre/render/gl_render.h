@@ -26,7 +26,7 @@ namespace ifcre {
 	class GLRender{
 	public: 
 		GLRender();
-
+		
 	// ----------- low-level interfaces ---------------
 		void clearFrameBuffer(GLClearEnum clear, GLColor* color = nullptr, Real depth = 1.0f);
 
@@ -46,7 +46,7 @@ namespace ifcre {
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 
-		void renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos = glm::vec3(0.0f, 0.0f, 10.0f));
+		void renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
@@ -68,12 +68,8 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_axis_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
-
-		
-		// 1. 
-		// 2. 
-		// 3. 
-		// 4. 
+	private:
+		void _defaultConfig();
 	};
 };
 

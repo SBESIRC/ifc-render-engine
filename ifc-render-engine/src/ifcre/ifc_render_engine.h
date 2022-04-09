@@ -39,6 +39,9 @@ namespace ifcre {
 
 		SharedPtr<DefaultModel> test_model;
 		SharedPtr<IFCModel> ifc_test_model;
+
+	private:
+		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10);
 	};
 }
 

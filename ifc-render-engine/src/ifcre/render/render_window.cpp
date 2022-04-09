@@ -23,17 +23,18 @@ namespace ifcre {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
-        auto& status = that->m_status;
+        auto& status = that->m_mouse_status;
         if (status.lbtn_down) {
 
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
-                that->horizontalRot = status.last_mouse_x - xpos > 0 ? 1 : -1;
+                status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
+
             }
 
             if (status.last_mouse_y != ypos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
-                that->verticalRot = status.last_mouse_y - ypos > 0 ? 1 : -1;
+                status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
             }
             //if (status.last_mouse_y != ypos) {
             //    camera.rotateByScreenY(status.click_world_center, glm::radians((status.last_mouse_y - ypos) > 0 ? 5.0f : -5.0f));
@@ -61,7 +62,7 @@ namespace ifcre {
     void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
-        auto& status = that->m_status;
+        auto& status = that->m_mouse_status;
 
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
@@ -90,8 +91,6 @@ namespace ifcre {
                 glm::vec4 t = vp_inv * ndc;
                 t = t / t.w;
                 status.click_world_center = t;
-
-                that->clickWorldCenter = t;
                 break;
             }
             case GLFW_RELEASE:
@@ -152,6 +151,9 @@ namespace ifcre {
         if (vsync) {
             glfwSwapInterval(1);
         }
+        else {
+            glfwSwapInterval(0);
+        }
 
         createFramebuffer(w, h);
         
@@ -180,10 +182,17 @@ namespace ifcre {
     void RenderWindow::swapBuffer()
     {
         glfwSwapBuffers(m_window);
+        double now_time = glfwGetTime();
+        m_delta_time = now_time - m_last_time;
+        m_last_time = now_time;
+
+        m_mouse_status.horizontal_move = 0;
+        m_mouse_status.vertical_move = 0;
     }
 
     void RenderWindow::pollEvents()
     {
+
         glfwPollEvents();
     }
 
@@ -196,8 +205,7 @@ namespace ifcre {
     void RenderWindow::endRenderToWindow()
     {
         m_cur_fbo = 0;
-        horizontalRot = 0;
-        verticalRot = 0;
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
@@ -247,7 +255,7 @@ namespace ifcre {
         return m_framebuffer.m_depth_normal_rt->getTexId();
     }
 
-    glm::vec2 RenderWindow::getWindowSize() 
+    glm::vec2 RenderWindow::getWindowSize()
     {
         return glm::vec2(m_width, m_height);
     }
@@ -260,6 +268,29 @@ namespace ifcre {
     {
         m_camera = camera;
     }
+
+// --------------------- mouse status ---------------------
+    glm::vec3 RenderWindow::getClickedWorldCoord()
+    {
+        return m_mouse_status.click_world_center;
+    }
+    float RenderWindow::getMouseHorizontalVel()
+    {
+        return m_oper_option.mouse_hori_vel * m_mouse_status.horizontal_move;
+    }
+    float RenderWindow::getMouseVerticalVel()
+    {
+        return m_oper_option.mouse_vert_vel * m_mouse_status.vertical_move;
+    }
+    bool RenderWindow::isMouseHorizontalRot()
+    {
+        return m_mouse_status.horizontal_move != 0;
+    }
+    bool RenderWindow::isMouseVerticalRot()
+    {
+        return m_mouse_status.vertical_move != 0;
+    }
+// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 // private:
     void RenderWindow::createFramebuffer(int w, int h)

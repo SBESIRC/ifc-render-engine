@@ -36,6 +36,15 @@ namespace ifcre {
 		glm::mat4 getProjMatrix();
 
 		void setCamera(SharedPtr<GLCamera> camera);
+		
+		// --------- mouse status -----------
+		glm::vec3 getClickedWorldCoord();
+		float getMouseHorizontalVel();
+		float getMouseVerticalVel();
+		bool isMouseHorizontalRot();
+		bool isMouseVerticalRot();
+
+		// ----- ----- ----- ----- ----- -----
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -59,24 +68,27 @@ namespace ifcre {
 		glm::mat4 m_projection;
 
 		struct {
+			int32_t horizontal_move = 0, vertical_move = 0;
 			int32_t last_mouse_x, last_mouse_y;
 			bool lbtn_down = false, rbtn_down = false;
-			glm::vec3 click_world_center;
-		}m_status;
+			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
+		}m_mouse_status;
+
+		struct {
+			Real mouse_hori_vel = 0.02;
+			Real mouse_vert_vel = 0.015;
+		}m_oper_option;
+
+		// -------- render time --------
+		double m_last_time = 0, m_delta_time = 0;
+		// ----- ----- ----- ----- -----
+
 		const Real m_znear = 0.1, m_zfar = 1000.0;
 		const Real fov = 45.0;
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
-
-	public:
-		glm::vec3 clickWorldCenter = glm::vec3(0, 0, 0);
-		// -1: clockwise
-		//	0: no rotation
-		//	1: anti-clockwise
-		int32_t horizontalRot = 0;
-		int32_t verticalRot = 0;
 	};
 
 }
