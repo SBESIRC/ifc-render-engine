@@ -33,6 +33,7 @@ namespace ifcre {
 	private:
 		bool m_init;
 		bool try_ifc;
+		bool use_transparency;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
 		SharedPtr<GLCamera> m_camera;

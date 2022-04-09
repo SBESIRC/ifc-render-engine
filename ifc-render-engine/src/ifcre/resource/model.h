@@ -85,15 +85,21 @@ namespace ifcre {
 		Vector<ComponentModel> components;
 		Vector<Real> ver_attrib;
 		Vector<uint32_t> g_indices;
+		Vector<uint32_t> trans_ind;
+		Vector<uint32_t> no_trans_ind;
 		Vector<Vector<uint32_t>> c_indices;
 		glm::mat4 m_model;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
 			std::ifstream is(filename.c_str(), std::ios::binary);
+			if (!is.is_open()) {
+				std::cout << filename << " opened failed.\n";
+				exit(-1);
+			}
 
 			//vertices
 			size_t s;
-			is.read((char*)&s, sizeof(Real));
+			is.read((char*)&s, sizeof(size_t));
 			this->g_vertices.resize(s);
 			Real x_min, x_max, y_min, y_max, z_min, z_max;
 			x_min = y_min = z_min = FLT_MAX;
@@ -147,10 +153,26 @@ namespace ifcre {
 					tmpvc[j]--;
 				}
 				components.emplace_back(ComponentModel(tmpvc, tmps));
+				components[i].setbbx(g_vertices);
 			}
 
 			//material datas
-
+			is.read((char*)&s, sizeof(size_t));
+			material_data.resize(s);
+			Vector<MtlData> mat_vec(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
+				is.read((char*)&mat_vec[i].data[7], sizeof(int));
+			}
+			for (int i = 0; i < s; i++) {
+				material_data[i] = MaterialData(
+					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
+					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
+					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
+			}
+			getVerColor();
+			getVerAttrib();
+			divide_model_by_alpha();
 		}
 
 		Vector<uint32_t> getgIndices() {
@@ -176,6 +198,7 @@ namespace ifcre {
 		glm::vec3 getpMax()const {
 			return pMax;
 		}
+		
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
 			ver_attrib.resize(3 * s);
@@ -203,6 +226,19 @@ namespace ifcre {
 			}
 			g_kd_color = color;
 			return color;
+		}
+
+		void divide_model_by_alpha() {
+			Vector<uint32_t> transparency_ind;
+			Vector<uint32_t> no_transparency_ind;
+			for (int i = 0; i < g_indices.size(); i++) {
+				if (material_data[i / 3].alpha < 1)
+					transparency_ind.emplace_back(g_indices[i]);
+				else
+					no_transparency_ind.emplace_back(g_indices[i]);
+			}
+			trans_ind = transparency_ind;
+			no_trans_ind = no_transparency_ind;
 		}
 	private:
 		glm::vec3 pMin, pMax;

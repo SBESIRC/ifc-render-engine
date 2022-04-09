@@ -44,9 +44,8 @@ namespace ifcre {
 
         if (status.rbtn_down) {
             //glfwGetCursorPos(window, &curX, &curY);
-            //camera.translate(lastX - curX, curY - lastY);
-            //lastX = curX, lastY = curY;
-            camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
+            camera.translate(status.last_mouse_x - xpos, ypos - status.last_mouse_y);
+            //camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
         }
 
         status.last_mouse_x = xpos;
@@ -96,13 +95,13 @@ namespace ifcre {
         }
         
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-            if (GLFW_PRESS == action) {
+            if (GLFW_PRESS == action) {/*
                 m_lbutton_down = true;
-                glfwGetCursorPos(window, &lastX, &lastY);
+                glfwGetCursorPos(window, &lastX, &lastY);*/
                 status.rbtn_down = true;
             }
-            else if(GLFW_RELEASE == action) {
-                m_lbutton_down = false;
+            else if(GLFW_RELEASE == action) {/*
+                m_lbutton_down = false;*/
                 status.rbtn_down = false;
             }
         }
