@@ -70,6 +70,11 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
 		void _defaultConfig();
+
+	// render option
+	private:
+		const glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+		glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 	};
 };
 
