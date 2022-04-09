@@ -68,6 +68,9 @@ namespace ifcre {
             m_pos += trans;
         }
         
+        glm::vec3 getViewPos() {
+            return m_pos;
+        }
 
 	private:
         void _updateCameraVectors()

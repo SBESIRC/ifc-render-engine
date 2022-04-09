@@ -37,14 +37,13 @@ namespace ifcre {
 		"//layout(std430, binding=0) buffer Materials{\n"
 		"//	Material m[];\n"
 		"//};\n"
-		"uniform mat4 model;\n"
-		"uniform mat4 view;\n"
+		"uniform mat4 modelview;\n"
 		"uniform mat4 projection;\n"
 		"out vec3 color;\n"
 		"void main()\n"
 		"{\n"
 		"	color = aNormal * 0.1f + aColor;\n"
-		"	gl_Position = projection * view * model * vec4(aPos, 1.0);\n"
+		"	gl_Position = projection * modelview * vec4(aPos, 1.0);\n"
 		"}";
 
 	const char* f_test = "#version 330 core\n"
@@ -54,6 +53,8 @@ namespace ifcre {
 		"{\n"
 		"	FragColor = vec4(color, 1.0);\n"
 		"}\n";
+
+	
 }
 
 #endif

@@ -24,21 +24,20 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_status;
-        
         if (status.lbtn_down) {
-			// rebuild 
-			// OpenGL Screen space:
-			//  ^y
-			//   | 
-			//   ¨N¡ª>x
+
             if (status.last_mouse_x != xpos) {
-                camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
+                //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
+                that->horizontalRot = status.last_mouse_x - xpos > 0 ? 1 : -1;
+            }
+
+            if (status.last_mouse_y != ypos) {
+                //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
+                that->verticalRot = status.last_mouse_y - ypos > 0 ? 1 : -1;
             }
             //if (status.last_mouse_y != ypos) {
             //    camera.rotateByScreenY(status.click_world_center, glm::radians((status.last_mouse_y - ypos) > 0 ? 5.0f : -5.0f));
             //}
-
-
         }
 
 
@@ -66,6 +65,10 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
+                // OpenGL Screen space:
+                //  ^y
+                //   | 
+                //   ¨N¡ª>x
                 Real z;
                 Real w = that->m_width, h = that->m_height;
                 double click_x, click_y;
@@ -73,10 +76,10 @@ namespace ifcre {
                 glBindFramebuffer(GL_FRAMEBUFFER, that->m_framebuffer.fbo_id);
                 glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
                 glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                status.lbtn_down = true;
                 if (z == 1.0) {
                     break;
                 }
-                status.lbtn_down = true;
                 // from [0, 1] to [-1, 1]
                 Real y = (h - click_y - 1) / h * 2 - 1;
                 Real x = click_x / w * 2 - 1;
@@ -86,6 +89,8 @@ namespace ifcre {
                 glm::vec4 t = vp_inv * ndc;
                 t = t / t.w;
                 status.click_world_center = t;
+
+                that->clickWorldCenter = t;
                 break;
             }
             case GLFW_RELEASE:
@@ -190,6 +195,8 @@ namespace ifcre {
     void RenderWindow::endRenderToWindow()
     {
         m_cur_fbo = 0;
+        horizontalRot = 0;
+        verticalRot = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 

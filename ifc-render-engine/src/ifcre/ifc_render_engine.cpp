@@ -29,7 +29,7 @@ namespace ifcre {
 		m_camera = make_shared<GLCamera>(glm::vec3(0.0f, 0.0f, 10.0f));
 		m_render_window->setCamera(m_camera);
 		// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
-		ifc_test_model->m_model = util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
+		ifc_test_model->setModelMatrix(util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax()));
 
 		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -97,13 +97,24 @@ namespace ifcre {
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.startRenderToWindow(); 
 		{
-			glm::mat4 view = m_camera->getViewMatrix();
-			m_render.setModelViewMatrix(view * ifc_test_model->m_model);
-			m_render.setProjectionMatrix(m_window.getProjMatrix());
+			// -------------- ifc model transform by mouse ---------------
+			if (m_window.horizontalRot != 0) {
+				ifc_test_model->rotateInLocalSpace(m_window.clickWorldCenter, m_window.horizontalRot > 0?-0.03f: 0.03f);
+			}
+			if (m_window.verticalRot != 0) {
+				ifc_test_model->rotateInWorldSpace(m_window.clickWorldCenter, m_window.verticalRot > 0 ? -0.02f : 0.02f);
+			}
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
+
+			auto model_matrix = ifc_test_model->getModelMatrix();
+			glm::mat4 view = m_camera->getViewMatrix();
+			m_render.setViewMatrix(view);
+			m_render.setModelViewMatrix(view * model_matrix);
+			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			//// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
-			clearValue = { 0.5f,0.5f ,1.0f ,1.0f };
+			clearValue = { 0.5f, 0.5f, 1.0f, 1.0f };
 			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			//m_render.render(test_model->render_id, NORMAL_DEPTH_WRITE);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
@@ -114,8 +125,14 @@ namespace ifcre {
 			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
 
-			use_transparency ? m_render.render(2, DEFAULT_SHADING) :void() ;
 
+			// -------------- render axis, not normal render procedure ---------------
+			m_render.renderAxis(model_matrix
+				, m_window.clickWorldCenter
+				, ifc_test_model->getModelCenter()
+				, m_camera->getViewPos());
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+			use_transparency ? m_render.render(2, DEFAULT_SHADING) : void();
 		}
 		// post render
 		m_window.endRenderToWindow();

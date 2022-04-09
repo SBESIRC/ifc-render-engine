@@ -20,24 +20,28 @@ namespace ifcre {
 		m_normal_depth_program = make_unique<GLSLProgram>(v_nd.c_str(), f_nd.c_str());
 		m_normal_depth_program->use();
 
+		String v_axis = util::read_file("shaders/axis.vert");
+		String f_axis = util::read_file("shaders/axis.frag");
+		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
+
 
 		m_test_shader = make_unique<GLSLProgram>(v_test, f_test);
-		glm::mat4 model(1.0f);
+		//glm::mat4 model(1.0f);
 		//model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
 
-		glm::mat4 view(1.0f);
-		glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
-		glm::vec3 front(0.0f, 0.0f, -1.0f);
-		glm::vec3 up(0.0f, 1.0f, 0.0f);
-		view = glm::lookAt(eyepos, eyepos + front, up);
+		//glm::mat4 view(1.0f);
+		//glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
+		//glm::vec3 front(0.0f, 0.0f, -1.0f);
+		//glm::vec3 up(0.0f, 1.0f, 0.0f);
+		//view = glm::lookAt(eyepos, eyepos + front, up);
 
-		glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
-		m_test_shader->use();
-		m_test_shader->setMat4("model", model);
-		m_test_shader->setMat4("view", view);
-		m_test_shader->setMat4("projection", projection);
+		//glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
+		//m_test_shader->use();
+		//m_test_shader->setMat4("model", model);
+		//m_test_shader->setMat4("view", view);
+		//m_test_shader->setMat4("projection", projection);
 		// ----- ----- ----- ----- ----- -----
 
 
@@ -85,7 +89,8 @@ namespace ifcre {
 		}
 		case DEFAULT_SHADING: {
 			m_test_shader->use();
-			m_test_shader->setMat4("view", m_modelview);
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("projection", m_projection);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -97,11 +102,63 @@ namespace ifcre {
 		vb->draw();
 	}
 
+	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
+	{
+		static bool first = true;
+		static uint32_t axis_vao;
+		if (first) {
+			float coord_axis[] = {
+				0.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,	// x-axis
+				0.0, 0.0, 0.0,
+				0.0, 1.0, 0.0,	// y-axis
+				0.0, 0.0, 0.0,
+				0.0, 0.0, 1.0	// z-axis
+			};
+			uint32_t axis_vbo;
+			glGenVertexArrays(1, &axis_vao);
+			glGenBuffers(1, &axis_vbo);
+			glBindVertexArray(axis_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			first = false;
+		}
+		m_axis_shader->use();
+		glm::mat4 model = m;
+		//model[3][0] = model[3][1] = model[3][2] = 0;
+		glm::mat4 trans_center(1.0f);
+		glm::mat4 trans_click_center(1.0f);
+		trans_center = glm::translate(trans_center, model_center);
+		model = model * trans_center;
+		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
+		
+		float len_ref = glm::length(init_view_pos - model_center);
+		float len = glm::length(view_pos - pick_center);
+		float scale = len / len_ref * 15;
+		model = glm::scale(model, glm::vec3(scale, scale, scale));
+
+		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
+		model = trans_click_center * model;
+
+		m_axis_shader->setMat4("mvp", m_projection * m_view * model);
+		glLineWidth(2.0f);
+		glBindVertexArray(axis_vao);
+		glDisable(DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
+		glDrawArrays(GL_LINES, 0, 6);
+		glDepthFunc(GL_LESS);
+		glEnable(DEPTH_TEST);
+		glBindVertexArray(0);
+
+	}
+
 	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)
 	{
-		static bool first = false;
+		static bool first = true;
 		static uint32_t off_vao;
-		if (!first) {
+		if (first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 			// positions   // texCoords
 			-1.0f,  1.0f,  0.0f, 1.0f,
@@ -123,7 +180,7 @@ namespace ifcre {
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 			
-			first = true;
+			first = false;
 		}
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, col_tex_id);
@@ -246,6 +303,10 @@ namespace ifcre {
 		return id;
 	}
 
+	void GLRender::setViewMatrix(const glm::mat4& view) {
+		m_view = view;
+	}
+
 	void GLRender::setModelViewMatrix(const glm::mat4& mv)
 	{
 		m_modelview = mv;
@@ -254,4 +315,4 @@ namespace ifcre {
 	{
 		m_projection = projection;
 	}
-}
+} 
