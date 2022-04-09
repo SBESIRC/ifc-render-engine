@@ -46,7 +46,7 @@ namespace ifcre {
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 
-		void renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos);
+		void renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos = glm::vec3(0.0f, 0.0f, 10.0f));
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);

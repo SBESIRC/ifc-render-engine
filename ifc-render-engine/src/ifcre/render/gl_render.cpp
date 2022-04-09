@@ -102,7 +102,7 @@ namespace ifcre {
 		vb->draw();
 	}
 
-	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos)
+	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
 		static uint32_t axis_vao;
@@ -134,9 +134,9 @@ namespace ifcre {
 		model = model * trans_center;
 		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
 		
+		float len_ref = glm::length(init_view_pos - model_center);
 		float len = glm::length(view_pos - pick_center);
-		float scale;
-		scale = 0.5 * glm::pow(glm::log2(len + 1), 2.0f);
+		float scale = len / len_ref * 15;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
 		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);

@@ -100,6 +100,8 @@ namespace ifcre {
 				ifc_test_model->rotateInWorldSpace(m_window.clickWorldCenter, m_window.verticalRot > 0 ? -0.02f : 0.02f);
 			}
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+
 			auto model_matrix = ifc_test_model->getModelMatrix();
 			glm::mat4 view = m_camera->getViewMatrix();
 			m_render.setViewMatrix(view);
@@ -118,11 +120,13 @@ namespace ifcre {
 			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
 
+
+			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(model_matrix
 				, m_window.clickWorldCenter
 				, ifc_test_model->getModelCenter()
 				, m_camera->getViewPos());
-
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 		}
 		// post render
 		m_window.endRenderToWindow();
