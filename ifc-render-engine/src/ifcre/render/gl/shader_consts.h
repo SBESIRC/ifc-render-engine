@@ -32,7 +32,7 @@ namespace ifcre {
 		"out vec3 color;\n"
 		"void main()\n"
 		"{\n"
-		"	color = aNormal * 0.1f + aColor*0.9f;\n"
+		"	color = aColor;\n"
 		"	gl_Position = projection * modelview * vec4(aPos, 1.0);\n"
 		"}";
 
@@ -42,7 +42,7 @@ namespace ifcre {
 		"out vec4 FragColor;\n"
 		"void main()\n"
 		"{\n"
-		"	FragColor = vec4(color, alpha);\n"
+		"	FragColor = vec4(color, 0.5);\n"
 		"}\n";
 
 	

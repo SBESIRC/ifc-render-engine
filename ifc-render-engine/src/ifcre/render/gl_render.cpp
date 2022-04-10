@@ -104,12 +104,23 @@ namespace ifcre {
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
+		case TRANSPARENCY_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 
+			m_test_shader->use();
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setFloat("alpha", m_alpha);
+			break;
+		}
 		default:break;
 			
 		}
 		SharedPtr<GLVertexBuffer> vb = it->second;
 		vb->draw();
+		glDisable(GL_BLEND);
 	}
 
 	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)

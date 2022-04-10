@@ -61,7 +61,7 @@ namespace ifcre {
 			trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 9, (void*)0);
 			trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 9, (void*)(3 * sizeof(Real)));
 			trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 9, (void*)(6 * sizeof(Real)));
-			int k= m_glrender->addModel(trans_model_vb);
+			transparency_id = m_glrender->addModel(trans_model_vb);
 		}
 		
 		m_init = true;
@@ -122,6 +122,7 @@ namespace ifcre {
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
+
 			//// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
@@ -129,6 +130,11 @@ namespace ifcre {
 			// 1. render scene
 			m_window.switchRenderColor();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
+			
+
+			//2. render transparency scene
+			m_render.setAlpha(0.5);
+			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
