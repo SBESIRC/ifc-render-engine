@@ -267,6 +267,7 @@ namespace ifcre {
 		switch (test) {
 		case 0x01: {
 			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
 			break;
 		}
 		case 0x02: {
@@ -280,6 +281,24 @@ namespace ifcre {
 		}
 		default:break;
 		}
+	}
+
+	void GLRender::enableBlend() {
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+	}
+	void GLRender::disableBlend() {
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+	}
+
+	void GLRender::enableMultiSample() {
+		glEnable(GL_MULTISAMPLE);
+	}
+	void GLRender::disableMultiSample() {
+		glDisable(GL_MULTISAMPLE);
 	}
 
 	void GLRender::depthFunc(GLFuncEnum func)
@@ -314,5 +333,8 @@ namespace ifcre {
 	void GLRender::setProjectionMatrix(const glm::mat4& projection)
 	{
 		m_projection = projection;
+	}
+	void GLRender::setAlpha(const float& alpha) {
+		m_alpha = alpha;
 	}
 } 

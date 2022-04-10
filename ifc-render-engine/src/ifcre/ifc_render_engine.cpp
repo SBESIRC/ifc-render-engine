@@ -94,6 +94,7 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 		m_render.enableTest(DEPTH_TEST);
 		m_render.depthFunc(LESS_FUNC);
+		m_render.enableMultiSample();
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 		m_window.startRenderToWindow(); 
 		{
@@ -112,6 +113,7 @@ namespace ifcre {
 			m_render.setViewMatrix(view);
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
+			m_render.setAlpha(1.0);
 			//// 0. prev: render normal and depth tex of the scene
 			m_window.switchRenderDepthNormal();
 			clearValue = { 0.5f, 0.5f, 1.0f, 1.0f };
@@ -124,19 +126,25 @@ namespace ifcre {
 			clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 			m_render.clearFrameBuffer((GLClearEnum)(CLEAR_COLOR | CLEAR_DEPTH), &clearValue);
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
-
+			
+			// ----- ----- --render transparent models-- ----- ----- ----- ----- -----
+			m_render.setAlpha(0.5);
+			m_render.enableBlend();
+			use_transparency ? m_render.render(2, DEFAULT_SHADING) : void();
+			m_render.disableBlend();
 
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(model_matrix
 				, m_window.clickWorldCenter
 				, ifc_test_model->getModelCenter()
 				, m_camera->getViewPos());
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-			use_transparency ? m_render.render(2, DEFAULT_SHADING) : void();
+
+			
 		}
 		// post render
 		m_window.endRenderToWindow();
 		m_render.disableTest(DEPTH_TEST);
+		m_render.disableMultiSample();
 		// render edge
 		//m_render.postRender(m_window.getColorTexId(), m_window.getDepthNormalTexId());
 		m_render.postRender(m_window);
