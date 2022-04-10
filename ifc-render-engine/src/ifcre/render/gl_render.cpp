@@ -44,7 +44,10 @@ namespace ifcre {
 		//m_test_shader->setMat4("projection", projection);
 		// ----- ----- ----- ----- ----- -----
 
+		// -------------- render init --------------
+		glLineWidth(3.0f);
 
+		// ----- ----- ----- ----- ----- ----- -----
 
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
@@ -82,12 +85,19 @@ namespace ifcre {
 		}
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
+			auto& color = m_depnor_value;
+			glClearColor(color.x, color.y, color.z, color.w);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearDepthf(1.0);
 			m_normal_depth_program->use();
 			m_normal_depth_program->setMat4("mvp",  m_projection * m_modelview);
 			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
 			break;
 		}
 		case DEFAULT_SHADING: {
+			auto& color = m_bg_color;
+			glClearColor(color.r, color.g, color.b, color.a);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			m_test_shader->use();
 			m_test_shader->setMat4("modelview", m_modelview);
 			m_test_shader->setMat4("projection", m_projection);
@@ -143,14 +153,11 @@ namespace ifcre {
 		model = trans_click_center * model;
 
 		m_axis_shader->setMat4("mvp", m_projection * m_view * model);
-		glLineWidth(2.0f);
 		glBindVertexArray(axis_vao);
 		glDisable(DEPTH_TEST);
 		glDepthFunc(GL_ALWAYS);
 		glDrawArrays(GL_LINES, 0, 6);
-		glDepthFunc(GL_LESS);
-		glEnable(DEPTH_TEST);
-		glBindVertexArray(0);
+		_defaultConfig();
 
 	}
 
@@ -195,6 +202,8 @@ namespace ifcre {
 		glBindVertexArray(off_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		_defaultConfig();
+
 	}
 
 	void GLRender::postRender(RenderWindow& w)
@@ -225,6 +234,7 @@ namespace ifcre {
 
 			first = true;
 		}
+		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());
 		if (w.getDepthNormalTexId() != -1) {
@@ -238,8 +248,17 @@ namespace ifcre {
 		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y);
 		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);
 
+		glDisable(GL_DEPTH_TEST);
 		glBindVertexArray(off_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		_defaultConfig();
+	}
+
+	void GLRender::_defaultConfig()
+	{
+		glBindVertexArray(0);
+		glEnable(GL_DEPTH_TEST);
+		glDepthFunc(GL_LESS);
 	}
 
 	void GLRender::enableTest(GLTestEnum test)
