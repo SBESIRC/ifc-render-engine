@@ -100,8 +100,22 @@ namespace ifcre {
 			m_model = glm::translate(m, -trans) * rot * glm::translate(m, trans) * m_model;
 		}
 
+		void translate(glm::vec3& step) {
+			glm::mat4 t(1.0f);
+			t = glm::translate(t, step);
+			m_model = t * m_model;
+		}
+
 		glm::vec3 getModelCenter() {
 			return m_center;
+		}
+		
+		void setScaleFactor(Real scale) {
+			m_scale_factor = scale;
+		}
+
+		Real getScaleFactor() {
+			return m_scale_factor;
 		}
 
 		void setModelMatrix(const glm::mat4& model) {
@@ -112,6 +126,7 @@ namespace ifcre {
 		}
 	private:
 		glm::mat4 m_model;
+		Real m_scale_factor;
 
 	public:
 		uint32_t render_id;//seems a render_id combine with an array of vertex?
