@@ -8,7 +8,30 @@ namespace ifcre {
     double rlastX, rlastY, rcurX, rcurY;
 
     // --------------------- event helper ----------------------
-    
+    void RenderWindow::_setClickedWorldCoords(double click_x, double click_y) {
+        // OpenGL Screen space:
+        //  ^y
+        //   | 
+        //   ¨N¡ª>x
+        Real z;
+        Real w = m_width, h = m_height;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (z == 1.0) {
+            return;
+        }
+        z = z * 2 - 1;
+        m_mouse_status.click_z = z;
+        // from [0, 1] to [-1, 1]
+        Real y = (h - click_y - 1) / h * 2 - 1;
+        Real x = click_x / w * 2 - 1;
+        glm::vec4 ndc(x, y, z, 1.0f);
+        glm::mat4 vp_inv = glm::inverse(m_projection * m_camera->getViewMatrix());
+        glm::vec4 t = vp_inv * ndc;
+        t = t / t.w;
+        m_mouse_status.click_world_center = t;
+    }
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     
@@ -25,13 +48,11 @@ namespace ifcre {
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
         if (status.lbtn_down) {
-
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
                 status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
 
             }
-
             if (status.last_mouse_y != ypos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
                 status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
@@ -46,7 +67,26 @@ namespace ifcre {
             //glfwGetCursorPos(window, &curX, &curY);
             //camera.translate(lastX - curX, curY - lastY);
             //lastX = curX, lastY = curY;
-            camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
+
+            if (status.last_mouse_x != xpos) {
+                status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
+
+            }
+            if (status.last_mouse_y != ypos) {
+                status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
+            }
+            //camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
+            Real w = that->m_width, h = that->m_height;
+            Real y = (h - ypos - 1) / h * 2 - 1;
+            Real x = xpos / w * 2 - 1;
+
+            glm::vec4 ndc(x, y, status.click_z, 1.0f);
+            glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+            glm::vec4 t = vp_inv * ndc;
+            t = t / t.w;
+            status.hover_world_coord = t;
+            status.click_world_center.x = t.x;
+            status.click_world_center.y = t.y;
         }
 
         status.last_mouse_x = xpos;
@@ -56,6 +96,9 @@ namespace ifcre {
     void RenderWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
+        double click_x, click_y;
+        glfwGetCursorPos(window, &click_x, &click_y);
+        that->_setClickedWorldCoords(click_x, click_y);
         camera.translateByScreenOp(0, 0, yoffset);
     }
     
@@ -67,30 +110,10 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
-                // OpenGL Screen space:
-                //  ^y
-                //   | 
-                //   ¨N¡ª>x
-                Real z;
-                Real w = that->m_width, h = that->m_height;
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
-                glBindFramebuffer(GL_FRAMEBUFFER, that->m_framebuffer.fbo_id);
-                glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-                glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                that->_setClickedWorldCoords(click_x, click_y);
                 status.lbtn_down = true;
-                if (z == 1.0) {
-                    break;
-                }
-                // from [0, 1] to [-1, 1]
-                Real y = (h - click_y - 1) / h * 2 - 1;
-                Real x = click_x / w * 2 - 1;
-                z = z * 2 - 1;
-                glm::vec4 ndc(x, y, z, 1.0f);
-                glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
-                glm::vec4 t = vp_inv * ndc;
-                t = t / t.w;
-                status.click_world_center = t;
                 break;
             }
             case GLFW_RELEASE:
@@ -100,6 +123,22 @@ namespace ifcre {
         }
         
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+
+            switch (action) {
+            case GLFW_PRESS: {
+                double click_x, click_y;
+                glfwGetCursorPos(window, &click_x, &click_y);
+                that->_setClickedWorldCoords(click_x, click_y);
+                status.rbtn_down = true;
+                break;
+            }
+            case GLFW_RELEASE: {
+
+                status.rbtn_down = false;
+                break;
+            }
+            }
+
             if (GLFW_PRESS == action) {
                 m_lbutton_down = true;
                 glfwGetCursorPos(window, &lastX, &lastY);
@@ -274,6 +313,10 @@ namespace ifcre {
     {
         return m_mouse_status.click_world_center;
     }
+    glm::vec3 RenderWindow::getHoverWorldCoord()
+    {
+        return m_mouse_status.hover_world_coord;
+    }
     float RenderWindow::getMouseHorizontalVel()
     {
         return m_oper_option.mouse_hori_vel * m_mouse_status.horizontal_move;
@@ -284,11 +327,22 @@ namespace ifcre {
     }
     bool RenderWindow::isMouseHorizontalRot()
     {
-        return m_mouse_status.horizontal_move != 0;
+        return m_mouse_status.lbtn_down 
+            && !m_mouse_status.rbtn_down 
+            && m_mouse_status.horizontal_move != 0;
     }
     bool RenderWindow::isMouseVerticalRot()
     {
-        return m_mouse_status.vertical_move != 0;
+        return m_mouse_status.lbtn_down 
+            && !m_mouse_status.rbtn_down 
+            && m_mouse_status.vertical_move != 0;
+    }
+    bool RenderWindow::isMouseMove()
+    {
+        return m_mouse_status.rbtn_down 
+            && !m_mouse_status.lbtn_down
+            && (m_mouse_status.horizontal_move != 0 
+                || m_mouse_status.vertical_move != 0);
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 

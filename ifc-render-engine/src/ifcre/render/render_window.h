@@ -39,10 +39,12 @@ namespace ifcre {
 		
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
+		glm::vec3 getHoverWorldCoord();
 		float getMouseHorizontalVel();
 		float getMouseVerticalVel();
 		bool isMouseHorizontalRot();
 		bool isMouseVerticalRot();
+		bool isMouseMove();
 
 		// ----- ----- ----- ----- ----- -----
 	private:
@@ -72,6 +74,8 @@ namespace ifcre {
 			int32_t last_mouse_x, last_mouse_y;
 			bool lbtn_down = false, rbtn_down = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
+			glm::vec3 hover_world_coord = glm::vec3(0, 0, 0);
+			Real click_z = 1.0;
 		}m_mouse_status;
 
 		struct {
@@ -89,6 +93,11 @@ namespace ifcre {
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
+
+// --------------------- event helper ----------------------
+	private:
+		void _setClickedWorldCoords(double click_x, double click_y);
+// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	};
 
 }

@@ -102,6 +102,18 @@ namespace ifcre {
 			float angle = m_window.getMouseVerticalVel();
 			ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
 		}
+
+		if (m_window.isMouseMove()) {
+			glm::vec3 hover = m_window.getHoverWorldCoord();
+			glm::vec3 step = hover - m_last_hover_pos;
+			ifc_test_model->translate(step);
+
+			m_last_hover_pos = hover;
+		}
+		else {
+			m_last_hover_pos = clicked_coord;
+		}
+
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 		{
@@ -130,7 +142,6 @@ namespace ifcre {
 			, m_camera->getViewPos()
 			, m_view_pos);
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 }
