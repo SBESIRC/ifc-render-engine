@@ -160,7 +160,7 @@ namespace ifcre {
 		
 		float len_ref = glm::length(init_view_pos - model_center);
 		float len = glm::length(view_pos - pick_center);
-		printf("%f\n", scale_factor);
+		//printf("%f\n", scale_factor);
 		float scale = len / len_ref / scale_factor * 5;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
