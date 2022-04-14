@@ -35,7 +35,11 @@ namespace ifcre {
 		m_camera = make_shared<GLCamera>(m_view_pos);
 		m_render_window->setCamera(m_camera);
 		// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
-		ifc_test_model->setModelMatrix(util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax()));
+		Real scale_factor = 0;
+		glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix);
+		ifc_test_model->setScaleFactor(scale_factor);
 
 		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -153,9 +157,8 @@ namespace ifcre {
 		m_render.postRender(m_window);
 
 		// -------------- render axis, not normal render procedure ---------------
-		m_render.renderAxis(model_matrix
+		m_render.renderAxis(*ifc_test_model
 			, clicked_coord
-			, ifc_test_model->getModelCenter()
 			, m_camera->getViewPos()
 			, m_view_pos);
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

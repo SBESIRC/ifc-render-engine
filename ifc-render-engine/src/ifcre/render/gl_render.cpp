@@ -123,7 +123,7 @@ namespace ifcre {
 		glDisable(GL_BLEND);
 	}
 
-	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
+	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
 		static uint32_t axis_vao;
@@ -147,7 +147,10 @@ namespace ifcre {
 			first = false;
 		}
 		m_axis_shader->use();
-		glm::mat4 model = m;
+		glm::vec3 model_center = ifc_model.getModelCenter();
+		glm::mat4 model = ifc_model.getModelMatrix();
+		float scale_factor = ifc_model.getScaleFactor();
+
 		//model[3][0] = model[3][1] = model[3][2] = 0;
 		glm::mat4 trans_center(1.0f);
 		glm::mat4 trans_click_center(1.0f);
@@ -157,7 +160,8 @@ namespace ifcre {
 		
 		float len_ref = glm::length(init_view_pos - model_center);
 		float len = glm::length(view_pos - pick_center);
-		float scale = len / len_ref * 15;
+		printf("%f\n", scale_factor);
+		float scale = len / len_ref / scale_factor * 5;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
 		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);

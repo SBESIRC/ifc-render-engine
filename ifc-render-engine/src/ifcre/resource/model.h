@@ -109,6 +109,14 @@ namespace ifcre {
 		glm::vec3 getModelCenter() {
 			return m_center;
 		}
+		
+		void setScaleFactor(Real scale) {
+			m_scale_factor = scale;
+		}
+
+		Real getScaleFactor() {
+			return m_scale_factor;
+		}
 
 		void setModelMatrix(const glm::mat4& model) {
 			m_model = model;
@@ -118,6 +126,7 @@ namespace ifcre {
 		}
 	private:
 		glm::mat4 m_model;
+		Real m_scale_factor;
 
 	public:
 		uint32_t render_id;//seems a render_id combine with an array of vertex?
