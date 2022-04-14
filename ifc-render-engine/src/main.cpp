@@ -14,6 +14,7 @@ int main(void) {
 	configs.insert(std::make_pair("width", "1600"));
 	configs.insert(std::make_pair("height", "900"));
 	configs.insert(std::make_pair("model_type", "ifc"));
+	configs.insert(std::make_pair("use_transparency", "true"));
 	configs.insert(std::make_pair("file", bunny_model));
 	re.initialize(configs);
 	re.run();

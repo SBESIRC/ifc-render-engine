@@ -1,7 +1,24 @@
 #include "gl_vertex_buffer.h"
 #include <glad/glad.h>
 namespace ifcre {
-
+	void GLVertexBuffer::upload(int use_conf, Vector<Real>& vertices, Vector<uint32_t>& trans_indices, Vector<uint32_t>& no_trans_indices)
+	{
+		glGenVertexArrays(1, &m_vaoid);
+		glGenBuffers(1, &m_vboid);
+		glGenBuffers(1, &m_eboid);
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, trans_indices.size() * sizeof(uint32_t), trans_indices.data(), GL_STATIC_DRAW);
+		if (use_conf) {
+			glGenBuffers(1, &m_eboid2);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid2);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, no_trans_indices.size() * sizeof(uint32_t), no_trans_indices.data(), GL_STATIC_DRAW);
+		}
+		glBindVertexArray(0);
+		m_size = trans_indices.size();
+	}
 	void GLVertexBuffer::upload(Vector<Real>& vertices, Vector<uint32_t>& indices)
 	{
 		glGenVertexArrays(1, &m_vaoid);

@@ -33,6 +33,10 @@ namespace ifcre {
 		void enableTest(GLTestEnum test);
 		void disableTest(GLTestEnum test);
 		void depthFunc(GLFuncEnum func);
+		void enableBlend();
+		void disableBlend();
+		void enableMultiSample();
+		void disableMultiSample();
 
 	// ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -41,6 +45,7 @@ namespace ifcre {
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setViewMatrix(const glm::mat4& view);
 		void setProjectionMatrix(const glm::mat4& projection);
+		void setAlpha(const float& alpha);
 
 	// --------------- render ----------------------
 
@@ -60,6 +65,7 @@ namespace ifcre {
 		glm::mat4 m_modelview;
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
+		float m_alpha;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;

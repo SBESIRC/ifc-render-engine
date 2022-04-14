@@ -12,7 +12,7 @@ namespace ifcre {
         // OpenGL Screen space:
         //  ^y
         //   | 
-        //   ¨N¡ª>x
+        //   ï¿½Nï¿½ï¿½>x
         Real z;
         Real w = m_width, h = m_height;
         glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
@@ -139,13 +139,13 @@ namespace ifcre {
             }
             }
 
-            if (GLFW_PRESS == action) {
+            if (GLFW_PRESS == action) {/*
                 m_lbutton_down = true;
-                glfwGetCursorPos(window, &lastX, &lastY);
+                glfwGetCursorPos(window, &lastX, &lastY);*/
                 status.rbtn_down = true;
             }
-            else if(GLFW_RELEASE == action) {
-                m_lbutton_down = false;
+            else if(GLFW_RELEASE == action) {/*
+                m_lbutton_down = false;*/
                 status.rbtn_down = false;
             }
         }
@@ -159,6 +159,7 @@ namespace ifcre {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         // glfw window creation
         m_window = glfwCreateWindow(w, h, title, NULL, NULL);

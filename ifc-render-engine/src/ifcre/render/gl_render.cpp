@@ -104,12 +104,23 @@ namespace ifcre {
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
+		case TRANSPARENCY_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 
+			m_test_shader->use();
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setFloat("alpha", m_alpha);
+			break;
+		}
 		default:break;
 			
 		}
 		SharedPtr<GLVertexBuffer> vb = it->second;
 		vb->draw();
+		glDisable(GL_BLEND);
 	}
 
 	void GLRender::renderAxis(const glm::mat4& m, const glm::vec3& pick_center, const glm::vec3& model_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
@@ -286,6 +297,7 @@ namespace ifcre {
 		switch (test) {
 		case 0x01: {
 			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
 			break;
 		}
 		case 0x02: {
@@ -299,6 +311,24 @@ namespace ifcre {
 		}
 		default:break;
 		}
+	}
+
+	void GLRender::enableBlend() {
+		glEnable(GL_CULL_FACE);
+		glFrontFace(GL_CCW);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glEnable(GL_BLEND);
+	}
+	void GLRender::disableBlend() {
+		glDisable(GL_BLEND);
+		glDisable(GL_CULL_FACE);
+	}
+
+	void GLRender::enableMultiSample() {
+		glEnable(GL_MULTISAMPLE);
+	}
+	void GLRender::disableMultiSample() {
+		glDisable(GL_MULTISAMPLE);
 	}
 
 	void GLRender::depthFunc(GLFuncEnum func)
@@ -333,5 +363,8 @@ namespace ifcre {
 	void GLRender::setProjectionMatrix(const glm::mat4& projection)
 	{
 		m_projection = projection;
+	}
+	void GLRender::setAlpha(const float& alpha) {
+		m_alpha = alpha;
 	}
 } 

@@ -33,6 +33,7 @@ namespace ifcre {
 	private:
 		bool m_init;
 		bool try_ifc;
+		bool use_transparency;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
 		SharedPtr<GLCamera> m_camera;
@@ -43,6 +44,7 @@ namespace ifcre {
 	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10);
 		glm::vec3 m_last_hover_pos = glm::vec3(0, 0, 0);
+		uint32_t transparency_id;
 	};
 }
 
