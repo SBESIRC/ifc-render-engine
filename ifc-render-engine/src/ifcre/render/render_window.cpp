@@ -99,7 +99,9 @@ namespace ifcre {
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
         that->_setClickedWorldCoords(click_x, click_y);
-        camera.translateByScreenOp(0, 0, yoffset);
+        //camera.translateByScreenOp(0, 0, yoffset);
+        camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
+        
     }
     
     void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
