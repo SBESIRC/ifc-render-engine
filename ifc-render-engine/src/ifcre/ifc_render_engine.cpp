@@ -2,6 +2,8 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 
+#define ONLY_DEPTH_NROMAL_RES
+
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
 
@@ -140,17 +142,21 @@ namespace ifcre {
 			m_render.setAlpha(1.0);
 
 			//// 0. prev: render normal and depth tex of the scene
+#ifndef ONLY_DEPTH_NROMAL_RES
 			m_window.switchRenderDepthNormal();
+#endif
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 
-			// 1. render scene
+#ifndef ONLY_DEPTH_NROMAL_RES
+			//// 1. render scene
 			m_window.switchRenderColor();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
-			
 
-			//2. render transparency scene
+			////2. render transparency scene
 			m_render.setAlpha(0.5);
 			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
+#endif
+
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge

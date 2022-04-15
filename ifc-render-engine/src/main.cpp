@@ -5,7 +5,8 @@ using namespace ifcre;
 SharedPtr<RenderEngine> render_engine;
 
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
-const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
+//const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
+const char bunny_model[] = "resources\\models\\ifc_midfile\\temp.midfile";
 int main(void) {
 	render_engine = IFCRenderEngine::getSingleton();
 

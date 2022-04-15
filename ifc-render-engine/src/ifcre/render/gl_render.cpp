@@ -158,10 +158,10 @@ namespace ifcre {
 		model = model * trans_center;
 		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
 		
-		float len_ref = glm::length(init_view_pos - model_center);
+		float len_ref = glm::length(init_view_pos);
 		float len = glm::length(view_pos - pick_center);
 		//printf("%f\n", scale_factor);
-		float scale = len / len_ref / scale_factor * 5;
+		float scale = len / len_ref / scale_factor * 0.25f;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
 		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
