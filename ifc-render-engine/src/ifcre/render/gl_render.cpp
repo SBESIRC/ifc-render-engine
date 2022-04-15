@@ -94,13 +94,20 @@ namespace ifcre {
 			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
 			break;
 		}
+		case COMP_ID_WRITE: {
+			auto& dft_id = m_default_com_id;
+			break;
+		}
 		case DEFAULT_SHADING: {
 			auto& color = m_bg_color;
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			m_test_shader->use();
 			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("model", m_model);
+			m_test_shader->setMat4("view", m_view);
 			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setVec3("cameraPos", m_camerapos);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -111,7 +118,10 @@ namespace ifcre {
 
 			m_test_shader->use();
 			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("model", m_model);
+			m_test_shader->setMat4("view", m_view);
 			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setVec3("cameraPos", m_camerapos);
 			m_test_shader->setFloat("alpha", m_alpha);
 			break;
 		}
@@ -160,7 +170,7 @@ namespace ifcre {
 		
 		float len_ref = glm::length(init_view_pos - model_center);
 		float len = glm::length(view_pos - pick_center);
-		printf("%f\n", scale_factor);
+		//printf("%f\n", scale_factor);
 		float scale = len / len_ref / scale_factor * 5;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
@@ -359,6 +369,10 @@ namespace ifcre {
 	void GLRender::setViewMatrix(const glm::mat4& view) {
 		m_view = view;
 	}
+	
+	void GLRender::setModelMatrix(const glm::mat4& model) {
+		m_model = model;
+	}
 
 	void GLRender::setModelViewMatrix(const glm::mat4& mv)
 	{
@@ -370,5 +384,8 @@ namespace ifcre {
 	}
 	void GLRender::setAlpha(const float& alpha) {
 		m_alpha = alpha;
+	}
+	void GLRender::setCameraPos(const glm::vec3& m_pos) {
+		m_camerapos = m_pos;
 	}
 } 

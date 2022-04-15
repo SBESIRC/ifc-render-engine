@@ -46,11 +46,21 @@ namespace ifcre {
 		SharedPtr<GLVertexBuffer> trans_model_vb = make_shared<GLVertexBuffer>();
 		if (try_ifc) {
 			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
-			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 9, (void*)0);
-			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 9, (void*)(3 * sizeof(Real)));
-			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 9, (void*)(6 * sizeof(Real)));
+			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
+			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
+			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
+			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
-			
+
+			if (use_transparency) {
+				/*trans_model_vb->upload(use_transparency,ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind, ifc_test_model->no_trans_ind);
+				*/trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
+				trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
+				trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
+				trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
+				trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
+				transparency_id = m_glrender->addModel(trans_model_vb);
+			}
 		}
 		else
 		{
@@ -59,15 +69,6 @@ namespace ifcre {
 			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 			test_model->render_id = m_glrender->addModel(model_vb);
 		}
-		if (use_transparency) {
-			/*trans_model_vb->upload(use_transparency,ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind, ifc_test_model->no_trans_ind);
-			*/trans_model_vb->upload( ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
-			trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 9, (void*)0);
-			trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 9, (void*)(3 * sizeof(Real)));
-			trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 9, (void*)(6 * sizeof(Real)));
-			transparency_id = m_glrender->addModel(trans_model_vb);
-		}
-		
 		m_init = true;
 	}
 
@@ -135,6 +136,7 @@ namespace ifcre {
 			m_window.startRenderToWindow();
 			glm::mat4 view = m_camera->getViewMatrix();
 			m_render.setViewMatrix(view);
+			m_render.setModelMatrix(model_matrix);
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
@@ -149,7 +151,7 @@ namespace ifcre {
 			
 
 			//2. render transparency scene
-			m_render.setAlpha(0.5);
+			m_render.setAlpha(0.2);
 			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
 			m_window.endRenderToWindow();
 		}

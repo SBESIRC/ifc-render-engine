@@ -17,8 +17,10 @@ namespace ifcre {
 #define SINGLE_PRECISION
 #ifdef SINGLE_PRECISION
 	typedef float Real;
+	typedef uint32_t uint;
 #else
 	typedef double Real;
+	typedef uint64_t uint;
 #endif
 
 	template <typename T>

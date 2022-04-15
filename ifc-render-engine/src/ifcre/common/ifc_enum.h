@@ -6,8 +6,9 @@ namespace ifcre {
 	enum RenderTypeEnum {
 		NORMAL_DEPTH_WRITE = 0x00,
 		DEFAULT_SHADING = 0x01,
-		TRANSPARENCY_SHADING = 0x02,
 		//EDGE_SHADING = 0x02,
+		TRANSPARENCY_SHADING = 0x03,
+		COMP_ID_WRITE = 0x04
 	};
 }
 

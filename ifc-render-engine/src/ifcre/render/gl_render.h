@@ -44,10 +44,11 @@ namespace ifcre {
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 
 		void setModelViewMatrix(const glm::mat4& mv);
+		void setModelMatrix(const glm::mat4& model);
 		void setViewMatrix(const glm::mat4& view);
 		void setProjectionMatrix(const glm::mat4& projection);
 		void setAlpha(const float& alpha);
-
+		void setCameraPos(const glm::vec3& m_pos);
 	// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
@@ -64,9 +65,11 @@ namespace ifcre {
 	private:
 
 		glm::mat4 m_modelview;
+		glm::mat4 m_model;
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
 		float m_alpha;
+		glm::vec3 m_camerapos;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
@@ -82,6 +85,7 @@ namespace ifcre {
 	private:
 		const glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
+		const int m_default_com_id = -1;
 	};
 };
 

@@ -219,6 +219,7 @@ namespace ifcre {
 					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
 			}
 			getVerColor();
+			generateCompIds();
 			getVerAttrib();
 			divide_model_by_alpha();
 		}
@@ -231,6 +232,9 @@ namespace ifcre {
 		}
 		Vector<Real> getgNormals() {
 			return this->g_normals;
+		}
+		Vector<uint32_t> getCompInidces() {
+			return this->comp_ids;
 		}
 
 		void setBBX(glm::vec3 pa, glm::vec3 pb) {
@@ -250,7 +254,7 @@ namespace ifcre {
 		
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
-			ver_attrib.resize(3 * s);
+			ver_attrib.resize(s / 3 * 10);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];
@@ -262,10 +266,24 @@ namespace ifcre {
 				ver_attrib[offset + i + 6] = g_kd_color[i];
 				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
 				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
-				offset += 6;
+				ver_attrib[offset + i + 9] = comp_ids[i / 3];
+				offset += 7;
 			}
 			return ver_attrib;
 		}
+
+		void generateCompIds() {
+			comp_ids.resize(g_vertices.size()/3);
+			int j = 0;
+			for (int i = 0; i < components.size(); i++) {
+				auto ix = components[i].getInices();
+				int s = ix.size();
+				for (int j = 0; j < s; j++) {
+					comp_ids[ix[j]] = i;
+				}
+			}
+		}
+
 		Vector<Real> getVerColor() {
 			Vector<Real> color(g_vertices.size());
 			for (int i = 0; i < g_indices.size(); i++) {
@@ -296,6 +314,7 @@ namespace ifcre {
 		Vector<Real> g_vertices;
 		Vector<Real> g_kd_color;
 		Vector<Real> g_normals;
+		Vector<uint> comp_ids;
 	};
 	
 
