@@ -3,6 +3,7 @@
 #define IFCRE_OBJECT_H_
 
 #include "../common/std_types.h"
+#include "../common/ifc_util.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
@@ -251,7 +252,10 @@ namespace ifcre {
 		glm::vec3 getpMax()const {
 			return pMax;
 		}
-		
+		union tempa{
+			Real f;
+			int i;
+		};
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size();
 			ver_attrib.resize(s / 3 * 10);//no!
@@ -266,7 +270,7 @@ namespace ifcre {
 				ver_attrib[offset + i + 6] = g_kd_color[i];
 				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
 				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
-				ver_attrib[offset + i + 9] = comp_ids[i / 3];
+				ver_attrib[offset + i + 9] = util::in_as_float(comp_ids[i / 3]);//todo: transform by bit
 				offset += 7;
 			}
 			return ver_attrib;

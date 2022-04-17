@@ -251,6 +251,16 @@ namespace ifcre {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
+    void RenderWindow::switchRenderCompId() {
+        if (m_cur_fbo != m_framebuffer.fbo_id) {
+            printf("Current FBO ID is %d, not %d.", m_cur_fbo, m_framebuffer.fbo_id);
+            return;
+        }
+        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
+        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_comp_id_rt->getDepthId(), 0);
+        m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+    }
+
     void RenderWindow::switchRenderDepthNormal()
     {
         if (m_cur_fbo != m_framebuffer.fbo_id) {
@@ -285,6 +295,12 @@ namespace ifcre {
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
         createFramebuffer(w, h);
+    }
+
+    void RenderWindow::readPixels() {
+        Vector<float> data(m_width * m_height*3);
+        glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_FLOAT, data.data());
+        printf("");
     }
     
     uint32_t RenderWindow::getColorTexId()
@@ -366,6 +382,7 @@ namespace ifcre {
         m_cur_rt = mfb.m_default_rt.get();
 
         mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;

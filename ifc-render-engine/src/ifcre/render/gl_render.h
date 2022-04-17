@@ -74,6 +74,7 @@ namespace ifcre {
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
 		UniquePtr<GLSLProgram> m_normal_depth_program;
+		UniquePtr<GLSLProgram> m_comp_id_program;
 		UniquePtr<GLSLProgram> m_test_shader;
 		UniquePtr<GLSLProgram> m_axis_shader;
 

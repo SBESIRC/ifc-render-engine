@@ -20,6 +20,11 @@ namespace ifcre {
 		m_normal_depth_program = make_unique<GLSLProgram>(v_nd.c_str(), f_nd.c_str());
 		m_normal_depth_program->use();
 
+		String v_compid = util::read_file("shaders/comp_id_write.vert");
+		String f_compid = util::read_file("shaders/comp_id_write.frag");
+		m_comp_id_program = make_unique<GLSLProgram>(v_compid.c_str(), f_compid.c_str());
+		m_comp_id_program->use();
+
 		String v_axis = util::read_file("shaders/axis.vert");
 		String f_axis = util::read_file("shaders/axis.frag");
 		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
@@ -95,7 +100,12 @@ namespace ifcre {
 			break;
 		}
 		case COMP_ID_WRITE: {
-			auto& dft_id = m_default_com_id;
+			auto& color = m_depnor_value;
+			glClearColor(color.x, color.y, color.z, color.w);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearDepthf(1.0);
+			m_comp_id_program->use();
+			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
 			break;
 		}
 		case DEFAULT_SHADING: {

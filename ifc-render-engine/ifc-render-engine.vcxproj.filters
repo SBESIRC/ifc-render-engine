@@ -30,4 +30,35 @@
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\workdir\shaders\normal_depth_write.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\normal_depth_write.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\image_effect.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\image_effect.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\axis.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\axis.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\comp_id_write.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\comp_id_write.vert">
+      <Filter>shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{789911ef-e823-4d96-aeeb-0bfa026c9449}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
 </Project>

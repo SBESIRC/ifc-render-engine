@@ -35,6 +35,14 @@ namespace util {
 		o_model = glm::translate(o_model, offset);
 		o_scale_factor = scales;
 	}
+	inline float in_as_float(int in) {
+		union X {
+			float a;
+			int b;
+		}x;
+		x.b = in;
+		return x.a;
+	}
 }
 }
 

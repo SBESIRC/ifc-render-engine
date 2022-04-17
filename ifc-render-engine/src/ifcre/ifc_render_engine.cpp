@@ -3,6 +3,7 @@
 #include "common/ifc_util.h"
 
 #define ONLY_DEPTH_NROMAL_RES
+#define TEST_COMP_ID_RES
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -143,11 +144,17 @@ namespace ifcre {
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
 
+#ifdef TEST_COMP_ID_RES
+			//m_window.switchRenderCompId();
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE);
+			m_render.render(transparency_id, COMP_ID_WRITE);
+#endif
+
 			//// 0. prev: render normal and depth tex of the scene
 #ifndef ONLY_DEPTH_NROMAL_RES
 			m_window.switchRenderDepthNormal();
 #endif
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
+			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 
 #ifndef ONLY_DEPTH_NROMAL_RES
 			//// 1. render scene
@@ -157,6 +164,7 @@ namespace ifcre {
 			////2. render transparency scene
 			m_render.setAlpha(0.5);
 			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
+			m_window.readPixels();
 #endif
 
 			m_window.endRenderToWindow();

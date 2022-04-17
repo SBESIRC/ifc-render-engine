@@ -25,10 +25,13 @@ namespace ifcre {
 		void startRenderToWindow();
 		void endRenderToWindow();
 
+		void switchRenderCompId();
 		void switchRenderDepthNormal();
 		void switchRenderColor();
 
 		void recreateFramebuffer(int w, int h);
+
+		void readPixels();
 
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
@@ -54,6 +57,7 @@ namespace ifcre {
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_default_rt;
+			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
 		// current render texture using by this render window
