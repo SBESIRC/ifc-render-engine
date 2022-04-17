@@ -4,7 +4,8 @@ layout (location = 3) in int aComp;//todo
 
 uniform mat4 mvp;
 
-out int comp;
+flat out int comp;
+
 void main()
 {   
     comp= aComp;

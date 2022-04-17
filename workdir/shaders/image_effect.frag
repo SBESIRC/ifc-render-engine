@@ -47,7 +47,7 @@ void main(){
 	// vec4 onlyEdge = mix(_BackgroundColor, _EdgeColor, edge);
 	// vec3 col = mix(withEdge, onlyEdge, _EdgeOnly).rgb;
     // FragColor = vec4(col, 1.0);
-//#define ONLY_DEPTH_NROMAL_RES
+#define ONLY_DEPTH_NROMAL_RES
 #ifndef ONLY_DEPTH_NROMAL_RES
     FragColor = vec4(withEdge.rgb, 1.0);
 #else

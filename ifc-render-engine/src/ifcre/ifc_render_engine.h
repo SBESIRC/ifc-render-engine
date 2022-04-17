@@ -45,6 +45,7 @@ namespace ifcre {
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10);
 		glm::vec3 m_last_hover_pos = glm::vec3(0, 0, 0);
 		uint32_t transparency_id;
+		uint32_t no_transparency_id;
 	};
 }
 

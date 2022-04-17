@@ -46,9 +46,10 @@ namespace ifcre {
 
 		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
+		SharedPtr<GLVertexBuffer> no_trans_model_vb = make_shared<GLVertexBuffer>();
 		SharedPtr<GLVertexBuffer> trans_model_vb = make_shared<GLVertexBuffer>();
 		if (try_ifc) {
-			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
+			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
 			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
 			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
 			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
@@ -56,6 +57,13 @@ namespace ifcre {
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
 
 			if (use_transparency) {
+				no_trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
+				no_trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
+				no_trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
+				no_trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
+				no_trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
+				no_transparency_id = m_glrender->addModel(no_trans_model_vb);
+
 				/*trans_model_vb->upload(use_transparency,ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind, ifc_test_model->no_trans_ind);
 				*/trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
 				trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
@@ -147,14 +155,16 @@ namespace ifcre {
 #ifdef TEST_COMP_ID_RES
 			//m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE);
-			m_render.render(transparency_id, COMP_ID_WRITE);
+			//m_render.render(transparency_id, COMP_ID_WRITE);
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
 #ifndef ONLY_DEPTH_NROMAL_RES
 			m_window.switchRenderDepthNormal();
 #endif
-			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
+#ifndef TEST_COMP_ID_RES
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
+#endif
 
 #ifndef ONLY_DEPTH_NROMAL_RES
 			//// 1. render scene
