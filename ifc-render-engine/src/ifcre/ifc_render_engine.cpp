@@ -2,8 +2,8 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 
-#define ONLY_DEPTH_NROMAL_RES
-#define TEST_COMP_ID_RES
+//#define ONLY_DEPTH_NROMAL_RES
+//#define TEST_COMP_ID_RES
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -54,24 +54,29 @@ namespace ifcre {
 			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
 			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
 			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
-			ifc_test_model->render_id = m_glrender->addModel(model_vb);
-
+			
 			if (use_transparency) {
-				no_trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
+				/*no_trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
 				no_trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
 				no_trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
 				no_trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
 				no_trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
 				no_transparency_id = m_glrender->addModel(no_trans_model_vb);
 
-				/*trans_model_vb->upload(use_transparency,ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind, ifc_test_model->no_trans_ind);
-				*/trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
+				trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
 				trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
 				trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
 				trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
 				trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
-				transparency_id = m_glrender->addModel(trans_model_vb);
+				transparency_id = m_glrender->addModel(trans_model_vb);*/
+				model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
+				model_vb->uploadTransElements(ifc_test_model->trans_ind);
 			}
+			
+			for (int i = 0; i < ifc_test_model->components.size(); i++) {
+				model_vb->uploadElementBufferOnly(ifc_test_model->components[i]._indices);
+			}
+			ifc_test_model->render_id = m_glrender->addModel(model_vb);
 		}
 		else
 		{
@@ -169,11 +174,11 @@ namespace ifcre {
 #ifndef ONLY_DEPTH_NROMAL_RES
 			//// 1. render scene
 			m_window.switchRenderColor();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING);
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING,3);
 
 			////2. render transparency scene
 			m_render.setAlpha(0.5);
-			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
+			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, 4) : void();
 			m_window.readPixels();
 #endif
 

@@ -79,8 +79,70 @@ namespace ifcre {
 			default:break;
 		}
 	}
-
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
+	{
+		auto& vb_map = m_vertex_buffer_map;
+		auto it = vb_map.find(render_id);
+		if (it == vb_map.end()) {
+			printf("The render_id[%u] is not existed.\n", render_id);
+			return;
+		}
+		switch (type) {
+		case NORMAL_DEPTH_WRITE: {
+			auto& color = m_depnor_value;
+			glClearColor(color.x, color.y, color.z, color.w);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearDepthf(1.0);
+			m_normal_depth_program->use();
+			m_normal_depth_program->setMat4("mvp", m_projection * m_modelview);
+			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
+			break;
+		}
+		case COMP_ID_WRITE: {
+			auto& color = m_depnor_value;
+			glClearColor(color.x, color.y, color.z, color.w);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearDepthf(1.0);
+			m_comp_id_program->use();
+			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
+			break;
+		}
+		case DEFAULT_SHADING: {
+			auto& color = m_bg_color;
+			glClearColor(color.r, color.g, color.b, color.a);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			m_test_shader->use();
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("model", m_model);
+			m_test_shader->setMat4("view", m_view);
+			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setVec3("cameraPos", m_camerapos);
+			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
+			break;
+		}
+		case TRANSPARENCY_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+
+			m_test_shader->use();
+			m_test_shader->setMat4("modelview", m_modelview);
+			m_test_shader->setMat4("model", m_model);
+			m_test_shader->setMat4("view", m_view);
+			m_test_shader->setMat4("projection", m_projection);
+			m_test_shader->setVec3("cameraPos", m_camerapos);
+			m_test_shader->setFloat("alpha", m_alpha);
+			break;
+		}
+		default:break;
+
+		}
+		SharedPtr<GLVertexBuffer> vb = it->second;
+		vb->draw();
+		glDisable(GL_BLEND);
+	}
+
+	void GLRender::render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id = 1)
 	{
 		auto& vb_map = m_vertex_buffer_map;
 		auto it = vb_map.find(render_id);
@@ -139,7 +201,29 @@ namespace ifcre {
 			
 		}
 		SharedPtr<GLVertexBuffer> vb = it->second;
-		vb->draw();
+		switch (local_render_id)
+		{
+		case 1: {
+			vb->draw();
+			break;
+		}
+		case 2: {
+			vb->draw();
+			break;
+		}
+		case 3: {//draw no trans only
+			vb->drawNoTrans();
+			break;
+		}
+		case 4: {//draw trans only
+			vb->drawTrans();
+			break;
+		}
+		default: {
+			vb->drawByAddedEbo(local_render_id);
+			break;
+		}
+		}
 		glDisable(GL_BLEND);
 	}
 

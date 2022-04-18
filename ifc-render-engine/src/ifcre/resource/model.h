@@ -35,6 +35,7 @@ namespace ifcre {
 
 	class ComponentModel {
 	public:
+		Vector<uint32_t> _indices;
 		uint32_t render_id;//different component may has different render style
 		glm::vec3 pMin, pMax;//bounding box
 		Vector<Real> bbx_vertex_array;
@@ -78,7 +79,6 @@ namespace ifcre {
 		}
 		
 	private:
-		Vector<uint32_t> _indices;
 	};
 
 	class IFCModel {
