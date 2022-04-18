@@ -9,11 +9,18 @@
 namespace ifcre {
 	class GLRenderTexture {
 	public:
-		GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth);
+		GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth, bool open_aa = false);
 		~GLRenderTexture();
 
 		uint32_t getTexId();
 		uint32_t getDepthId();
+
+		bool isDepthWriteOnly();
+		bool hasStencil();
+
+		bool isOpenAA();
+
+		void attach(uint32_t fbo_id);
 
 	private:
 		int32_t m_width;
@@ -27,6 +34,8 @@ namespace ifcre {
 		GLWrapEnum m_wrap_mode;
 		GLRTFormatEnum m_rt_format;
 		GLRTDepthFormatEnum m_rt_depth_format;
+
+		bool m_open_aa;
 		
 	};
 }

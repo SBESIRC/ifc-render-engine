@@ -2,8 +2,8 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 
-#define ONLY_DEPTH_NROMAL_RES
-#define TEST_COMP_ID_RES
+//#define ONLY_DEPTH_NROMAL_RES
+//#define TEST_COMP_ID_RES
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -26,7 +26,7 @@ namespace ifcre {
 			test_model = DefaultParser::load(model_file);
 		}
 		//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
-		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
+		m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
 		m_glrender = make_shared<GLRender>();
 		
 		//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -174,7 +174,7 @@ namespace ifcre {
 			////2. render transparency scene
 			m_render.setAlpha(0.5);
 			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
-			m_window.readPixels();
+			//m_window.readPixels();
 #endif
 
 			m_window.endRenderToWindow();
