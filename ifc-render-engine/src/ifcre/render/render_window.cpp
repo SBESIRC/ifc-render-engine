@@ -8,6 +8,10 @@ namespace ifcre {
     double rlastX, rlastY, rcurX, rcurY;
 
     // --------------------- event helper ----------------------
+    //float get_depth_value(GLRTDepthFormatEnum depth_enum) {
+    //    
+    //}
+
     void RenderWindow::_setClickedWorldCoords(double click_x, double click_y) {
         // OpenGL Screen space:
         //  ^y
@@ -155,13 +159,16 @@ namespace ifcre {
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ----------------------
-	RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool vsync)
+	RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync)
 	{
         glfwInit();
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_SAMPLES, 4);
+        m_option.anti_aliasing = aa;
+        if (aa) {
+            glfwWindowHint(GLFW_SAMPLES, 4);
+        }
 
         // glfw window creation
         m_window = glfwCreateWindow(w, h, title, NULL, NULL);
@@ -246,14 +253,20 @@ namespace ifcre {
 
     void RenderWindow::endRenderToWindow()
     {
-        m_cur_fbo = 0;
+        if (m_option.anti_aliasing) {
+            m_framebuffer.m_default_rt->attach(m_framebuffer.fbo_id);
 
+            glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaa_fb.fbo_id);
+            glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer.fbo_id);
+            glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        }
+        m_cur_fbo = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void RenderWindow::switchRenderCompId() {
         if (m_cur_fbo != m_framebuffer.fbo_id) {
-            printf("Current FBO ID is %d, not %d.", m_cur_fbo, m_framebuffer.fbo_id);
+            printf("Current FBO ID is %d, not %d.\n", m_cur_fbo, m_framebuffer.fbo_id);
             return;
         }
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
@@ -264,31 +277,45 @@ namespace ifcre {
     void RenderWindow::switchRenderDepthNormal()
     {
         if (m_cur_fbo != m_framebuffer.fbo_id) {
-            printf("Current FBO ID is %d, not %d.", m_cur_fbo, m_framebuffer.fbo_id);
+            printf("Current FBO ID is %d, not %d.\n", m_cur_fbo, m_framebuffer.fbo_id);
             return;
         }
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_depth_normal_rt->getTexId(), 0);
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_depth_normal_rt->getDepthId(), 0);
+        m_cur_rt = m_framebuffer.m_depth_normal_rt.get();
+        m_cur_rt->attach(m_framebuffer.fbo_id);
 
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
+        
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
-        m_cur_rt = m_framebuffer.m_depth_normal_rt.get();
     }
 
     void RenderWindow::switchRenderColor()
     {
         if (m_cur_fbo != m_framebuffer.fbo_id) {
-            printf("Current FBO ID is %d, not %d.", m_cur_fbo, m_framebuffer.fbo_id);
+            printf("Current FBO ID is %d, not %d.\n", m_cur_fbo, m_framebuffer.fbo_id);
             return;
         }
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_default_rt->getTexId(), 0);
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
+        
+        //bool open_aa = m_cur_rt->isOpenAA();
+        //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_framebuffer.m_default_rt->getTexId(), 0);
+        ////glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_cur_rt->getDepthId(), 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_framebuffer.m_default_rt->getDepthId(), 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (m_option.anti_aliasing) {
+            m_cur_rt = m_msaa_fb.m_msaa_rt.get();
+            m_cur_rt->attach(m_msaa_fb.fbo_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, m_msaa_fb.fbo_id);
+        }
+        else {
+            m_cur_rt = m_framebuffer.m_default_rt.get();
+            m_cur_rt->attach(m_framebuffer.fbo_id);
+        }
 
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
+        
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
-        m_cur_rt = m_framebuffer.m_default_rt.get();
     }
 
     void RenderWindow::recreateFramebuffer(int w, int h)
@@ -298,11 +325,16 @@ namespace ifcre {
     }
 
     void RenderWindow::readPixels() {
-        Vector<float> data(m_width * m_height*3);
+        Vector<float> data(m_width * m_height * 3);
         glReadPixels(0, 0, m_width, m_height, GL_RGB, GL_FLOAT, data.data());
         printf("");
     }
     
+    uint32_t RenderWindow::getFBOId()
+    {
+        return m_framebuffer.fbo_id;
+    }
+
     uint32_t RenderWindow::getColorTexId()
     {
         return m_framebuffer.m_default_rt->getTexId();
@@ -338,11 +370,11 @@ namespace ifcre {
     }
     float RenderWindow::getMouseHorizontalVel()
     {
-        return m_oper_option.mouse_hori_vel * m_mouse_status.horizontal_move;
+        return m_option.mouse_hori_vel * m_mouse_status.horizontal_move;
     }
     float RenderWindow::getMouseVerticalVel()
     {
-        return m_oper_option.mouse_vert_vel * m_mouse_status.vertical_move;
+        return m_option.mouse_vert_vel * m_mouse_status.vertical_move;
     }
     bool RenderWindow::isMouseHorizontalRot()
     {
@@ -368,26 +400,40 @@ namespace ifcre {
 // private:
     void RenderWindow::createFramebuffer(int w, int h)
     {
+        if (w == 0 || h == 0) {
+            return;
+        }
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         auto& mfb = m_framebuffer;
-        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
-        glNamedFramebufferTexture(mfb.fbo_id, GL_COLOR_ATTACHMENT0, mfb.m_default_rt->getTexId(), 0);
-        //glNamedFramebufferTexture(mfb.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, mfb.m_default_rt->getDepthId(), 0);
-        glNamedFramebufferTexture(mfb.fbo_id, GL_DEPTH_ATTACHMENT, mfb.m_default_rt->getDepthId(), 0);
-        //glNamedFramebufferRenderbuffer(mfb.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, mfb.m_default_rt->getDepthId());
-        //glNamedFramebufferRenderbuffer(mfb.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mfb.m_default_rt->getDepthId());
+        //glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        mfb.m_default_rt->attach(m_framebuffer.fbo_id);
+
+        if (m_option.anti_aliasing) {
+            glCreateFramebuffers(1, &m_msaa_fb.fbo_id);
+            m_msaa_fb.m_msaa_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, true);
+            //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
+        }
+
         m_cur_rt = mfb.m_default_rt.get();
 
-        mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
         }
     }
+
+
 
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 

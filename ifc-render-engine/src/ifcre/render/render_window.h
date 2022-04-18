@@ -12,7 +12,7 @@ namespace ifcre {
 
 	class RenderWindow {
 	public:
-		RenderWindow(const char* title, int32_t w, int32_t h, bool vsync = false);
+		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false);
 		~RenderWindow();
 
 		void processInput();
@@ -33,6 +33,7 @@ namespace ifcre {
 
 		void readPixels();
 
+		uint32_t getFBOId();
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
 		glm::vec2 getWindowSize();
@@ -60,6 +61,12 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
+		
+		struct {
+			uint32_t fbo_id;
+			SharedPtr<GLRenderTexture> m_msaa_rt;
+		}m_msaa_fb;
+		
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
 
@@ -85,7 +92,9 @@ namespace ifcre {
 		struct {
 			Real mouse_hori_vel = 0.02;
 			Real mouse_vert_vel = 0.015;
-		}m_oper_option;
+
+			bool anti_aliasing = true;
+		}m_option;
 
 		// -------- render time --------
 		double m_last_time = 0, m_delta_time = 0;

@@ -26,7 +26,7 @@ namespace ifcre {
 			test_model = DefaultParser::load(model_file);
 		}
 		//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
-		m_render_window = make_shared<RenderWindow>("IFC Render", width, height);
+		m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
 		m_glrender = make_shared<GLRender>();
 		
 		//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -178,8 +178,8 @@ namespace ifcre {
 
 			////2. render transparency scene
 			m_render.setAlpha(0.5);
-			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, 4) : void();
-			m_window.readPixels();
+			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
+			//m_window.readPixels();
 #endif
 
 			m_window.endRenderToWindow();

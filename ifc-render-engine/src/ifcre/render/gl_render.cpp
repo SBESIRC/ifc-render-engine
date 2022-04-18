@@ -51,6 +51,7 @@ namespace ifcre {
 
 		// -------------- render init --------------
 		glLineWidth(3.0f);
+		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
 
@@ -329,6 +330,9 @@ namespace ifcre {
 	{
 		static bool first = false;
 		static uint32_t off_vao;
+		static unsigned int intermediateFBO;
+		static unsigned int screenTexture;
+
 		if (!first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
 			// positions   // texCoords
@@ -353,7 +357,7 @@ namespace ifcre {
 
 			first = true;
 		}
-		
+
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());
 		if (w.getDepthNormalTexId() != -1) {
@@ -363,12 +367,14 @@ namespace ifcre {
 		m_offscreen_program->use();
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
+
 		glm::vec2 win_size = w.getWindowSize();
 		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y);
 		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);
 
 		glDisable(GL_DEPTH_TEST);
 		glBindVertexArray(off_vao);
+		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		_defaultConfig();
 	}
@@ -378,6 +384,7 @@ namespace ifcre {
 		glBindVertexArray(0);
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
+		glEnable(GL_MULTISAMPLE);
 	}
 
 	void GLRender::enableTest(GLTestEnum test)
