@@ -194,6 +194,7 @@ namespace ifcre {
 			//components' indices
 			is.read((char*)&s, sizeof(size_t));
 			size_t tmps;
+			c_indices.resize(s);
 			for (int i = 0; i < s; i++) {
 				is.read((char*)&tmps, sizeof(size_t));
 				Vector<uint32_t> tmpvc(tmps);
@@ -203,6 +204,7 @@ namespace ifcre {
 				}
 				components.emplace_back(ComponentModel(tmpvc, tmps));
 				components[i].setbbx(g_vertices);
+				c_indices[i] = tmpvc;
 			}
 
 			//material datas

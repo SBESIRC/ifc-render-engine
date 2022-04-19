@@ -22,6 +22,7 @@ namespace ifcre {
 		void drawTrans();
 		void drawByAddedEbo(uint32_t ebo_id);
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
+		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
 		void uploadNoTransElements(Vector<uint32_t>& indices);
 		void uploadTransElements(Vector<uint32_t>& indices);
 

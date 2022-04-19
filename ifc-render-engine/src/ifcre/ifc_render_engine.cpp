@@ -72,10 +72,7 @@ namespace ifcre {
 				model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
 				model_vb->uploadTransElements(ifc_test_model->trans_ind);
 			}
-			
-			for (int i = 0; i < ifc_test_model->components.size(); i++) {
-				model_vb->uploadElementBufferOnly(ifc_test_model->components[i]._indices);
-			}
+			model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
 		}
 		else
@@ -174,11 +171,11 @@ namespace ifcre {
 #ifndef ONLY_DEPTH_NROMAL_RES
 			//// 1. render scene
 			m_window.switchRenderColor();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING,3);
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
 
 			////2. render transparency scene
 			m_render.setAlpha(0.5);
-			use_transparency ? m_render.render(transparency_id, TRANSPARENCY_SHADING): void();
+			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, TRANS) : void();
 			//m_window.readPixels();
 #endif
 

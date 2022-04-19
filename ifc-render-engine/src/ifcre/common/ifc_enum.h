@@ -10,6 +10,12 @@ namespace ifcre {
 		TRANSPARENCY_SHADING = 0x03,
 		COMP_ID_WRITE = 0x04
 	};
+	enum RenderPartEnum {
+		ALL = 0x01,
+		ALL_WEG = 0x02,
+		NO_TRANS = 0x03,
+		TRANS = 0x04
+	};
 }
 
 #endif
