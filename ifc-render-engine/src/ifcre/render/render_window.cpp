@@ -8,34 +8,34 @@ namespace ifcre {
     double rlastX, rlastY, rcurX, rcurY;
 
     // --------------------- event helper ----------------------
-    //float get_depth_value(GLRTDepthFormatEnum depth_enum) {
-    //    
-    //}
 
-    void RenderWindow::_setClickedWorldCoords(double click_x, double click_y) {
+    void RenderWindow::_setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z) {
         // OpenGL Screen space:
         //  ^y
         //   | 
         //   �N��>x
-        Real z;
         Real w = m_width, h = m_height;
-        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        if (z == 1.0) {
-            return;
-        }
-        z = z * 2 - 1;
-        m_mouse_status.click_z = z;
         // from [0, 1] to [-1, 1]
-        Real y = (h - click_y - 1) / h * 2 - 1;
-        Real x = click_x / w * 2 - 1;
+        Real y = (h - clicked_y - 1) / h * 2 - 1;
+        Real x = clicked_x / w * 2 - 1;
+        Real z = clicked_z * 2 - 1;
+        m_mouse_status.click_z = z;
         glm::vec4 ndc(x, y, z, 1.0f);
         glm::mat4 vp_inv = glm::inverse(m_projection * m_camera->getViewMatrix());
         glm::vec4 t = vp_inv * ndc;
         t = t / t.w;
         m_mouse_status.click_world_center = t;
     }
+
+    float RenderWindow::_getClickedDepthValue(double clicked_x, double clicked_y)
+    {
+        Real z;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        glReadPixels(clicked_x, m_height - clicked_y - 1, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        return z;
+    }
+
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     
@@ -51,7 +51,7 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
-        if (status.lbtn_down) {
+        if (status.lbtn_down && !status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
                 status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
@@ -80,19 +80,23 @@ namespace ifcre {
                 status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
             }
             //camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
-            Real w = that->m_width, h = that->m_height;
-            Real y = (h - ypos - 1) / h * 2 - 1;
-            Real x = xpos / w * 2 - 1;
+            float click_z = that->_getClickedDepthValue(xpos, ypos);
+            if (click_z != 1.0) {
 
-            glm::vec4 ndc(x, y, status.click_z, 1.0f);
-            glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
-            glm::vec4 t = vp_inv * ndc;
-            t = t / t.w;
-            status.hover_world_coord = t;
-            status.click_world_center.x = t.x;
-            status.click_world_center.y = t.y;
+                Real w = that->m_width, h = that->m_height;
+                Real y = (h - ypos - 1) / h * 2 - 1;
+                Real x = xpos / w * 2 - 1;
+
+                glm::vec4 ndc(x, y, status.click_z, 1.0f);
+                glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+                glm::vec4 t = vp_inv * ndc;
+                t = t / t.w;
+                status.hover_world_coord = t;
+                status.click_world_center.x = t.x;
+                status.click_world_center.y = t.y;
+            }
         }
-
+         
         status.last_mouse_x = xpos;
         status.last_mouse_y = ypos;
     }
@@ -102,7 +106,10 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
-        that->_setClickedWorldCoords(click_x, click_y);
+        float click_z = that->_getClickedDepthValue(click_x, click_y);
+        if (click_z != 1.0) {
+            that->_setClickedWorldCoords(click_x, click_y, click_z);
+        }
         //camera.translateByScreenOp(0, 0, yoffset);
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
         
@@ -118,7 +125,10 @@ namespace ifcre {
             case GLFW_PRESS: {
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
-                that->_setClickedWorldCoords(click_x, click_y);
+                float click_z = that->_getClickedDepthValue(click_x, click_y);
+                if (click_z != 1.0) {
+                    that->_setClickedWorldCoords(click_x, click_y, click_z);
+                }
                 status.lbtn_down = true;
                 break;
             }
@@ -134,25 +144,17 @@ namespace ifcre {
             case GLFW_PRESS: {
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
-                that->_setClickedWorldCoords(click_x, click_y);
+                float click_z = that->_getClickedDepthValue(click_x, click_y);
+                if (click_z != 1.0) {
+                    that->_setClickedWorldCoords(click_x, click_y, click_z);
+                }
                 status.rbtn_down = true;
                 break;
             }
             case GLFW_RELEASE: {
-
                 status.rbtn_down = false;
                 break;
             }
-            }
-
-            if (GLFW_PRESS == action) {/*
-                m_lbutton_down = true;
-                glfwGetCursorPos(window, &lastX, &lastY);*/
-                status.rbtn_down = true;
-            }
-            else if(GLFW_RELEASE == action) {/*
-                m_lbutton_down = false;*/
-                status.rbtn_down = false;
             }
         }
     }
@@ -255,7 +257,6 @@ namespace ifcre {
     {
         if (m_option.anti_aliasing) {
             m_framebuffer.m_default_rt->attach(m_framebuffer.fbo_id);
-
             glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaa_fb.fbo_id);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
@@ -272,6 +273,7 @@ namespace ifcre {
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_comp_id_rt->getDepthId(), 0);
         m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
     }
 
     void RenderWindow::switchRenderDepthNormal()
@@ -282,6 +284,7 @@ namespace ifcre {
         }
         m_cur_rt = m_framebuffer.m_depth_normal_rt.get();
         m_cur_rt->attach(m_framebuffer.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
 
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
         
@@ -310,6 +313,7 @@ namespace ifcre {
         else {
             m_cur_rt = m_framebuffer.m_default_rt.get();
             m_cur_rt->attach(m_framebuffer.fbo_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
         }
 
         //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);

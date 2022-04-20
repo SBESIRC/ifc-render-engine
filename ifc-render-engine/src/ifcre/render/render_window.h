@@ -109,7 +109,8 @@ namespace ifcre {
 
 // --------------------- event helper ----------------------
 	private:
-		void _setClickedWorldCoords(double click_x, double click_y);
+		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
+		float _getClickedDepthValue(double clicked_x, double clicked_y);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	};
 
