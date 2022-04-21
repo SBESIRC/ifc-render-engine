@@ -56,19 +56,6 @@ namespace ifcre {
 			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
 			
 			if (use_transparency) {
-				/*no_trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->no_trans_ind);
-				no_trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
-				no_trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
-				no_trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
-				no_trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
-				no_transparency_id = m_glrender->addModel(no_trans_model_vb);
-
-				trans_model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->trans_ind);
-				trans_model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
-				trans_model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
-				trans_model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
-				trans_model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
-				transparency_id = m_glrender->addModel(trans_model_vb);*/
 				model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
 				model_vb->uploadTransElements(ifc_test_model->trans_ind);
 			}
@@ -157,6 +144,7 @@ namespace ifcre {
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
+			m_window.switchRenderBack();
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
@@ -166,10 +154,11 @@ namespace ifcre {
 #ifndef TEST_COMP_ID_RES
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 #endif
-
+			m_window.switchRenderBack();
 #ifndef ONLY_DEPTH_NROMAL_RES
 			//// 1. render scene
 			m_window.switchRenderColor();
+			m_render.setCompId(m_window.getClickCompId());
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
 
 			////2. render transparency scene

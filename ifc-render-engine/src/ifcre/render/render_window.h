@@ -26,6 +26,7 @@ namespace ifcre {
 		void endRenderToWindow();
 
 		void switchRenderCompId();
+		void switchRenderBack();
 		void switchRenderDepthNormal();
 		void switchRenderColor();
 
@@ -36,6 +37,7 @@ namespace ifcre {
 		uint32_t getFBOId();
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
+		int getClickCompId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 
@@ -67,6 +69,11 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_msaa_rt;
 		}m_msaa_fb;
 		
+		struct {
+			uint32_t fbo_id;
+			SharedPtr<GLRenderTexture> m_comp_id_rt;
+		}m_comp_fb;
+
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
 
