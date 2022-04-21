@@ -3,7 +3,7 @@
 #include "common/ifc_util.h"
 
 //#define ONLY_DEPTH_NROMAL_RES
-//#define TEST_COMP_ID_RES
+#define TEST_COMP_ID_RES
 
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -118,7 +118,7 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 		//m_render.enableTest(DEPTH_TEST);
 		//m_render.depthFunc(LESS_FUNC);
-		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
+		GLColor clearValue = { 1.f, 1.f, 1.f, 1.0f };
 		auto model_matrix = ifc_test_model->getModelMatrix();
 
 		// -------------- ifc model transform by mouse ---------------
@@ -155,9 +155,8 @@ namespace ifcre {
 			m_render.setAlpha(1.0);
 
 #ifdef TEST_COMP_ID_RES
-			//m_window.switchRenderCompId();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE);
-			//m_render.render(transparency_id, COMP_ID_WRITE);
+			m_window.switchRenderCompId();
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene

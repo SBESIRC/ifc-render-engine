@@ -86,7 +86,10 @@ namespace ifcre {
 			bool lbtn_down = false, rbtn_down = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 hover_world_coord = glm::vec3(0, 0, 0);
+			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
 			Real click_z = 1.0;
+			int click_comp_id = -1;
+			int hover_comp_id = -1;
 		}m_mouse_status;
 
 		struct {
@@ -110,6 +113,7 @@ namespace ifcre {
 // --------------------- event helper ----------------------
 	private:
 		void _setClickedWorldCoords(double click_x, double click_y);
+		void _setClickedWorldColors(double click_x, double click_y);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	};
 

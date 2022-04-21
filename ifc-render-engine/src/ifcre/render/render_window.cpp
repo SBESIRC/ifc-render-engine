@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
+#define TEST_COMP_ID
 
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
@@ -36,8 +37,35 @@ namespace ifcre {
         t = t / t.w;
         m_mouse_status.click_world_center = t;
     }
-    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y) {
+
+        glm::vec3 getColor;
+        Real w = m_width, h = m_height;
+        m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        m_cur_rt->attach(m_framebuffer.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (glm::distance(getColor,glm::vec3(1.f, 1.f, 1.f))<0.001) {
+            m_mouse_status.click_comp_id = -1;
+            std::cout << "NO!" << std::endl;
+            return;
+        }
+        if (glm::distance(getColor, glm::vec3(0.f, 0.f, 0.f)) < 0.001) {
+            m_mouse_status.click_comp_id = -1;
+            std::cout << "NO2!" << std::endl;
+            return;
+        }
+        int clicked_comp_id = 0;
+        clicked_comp_id += (int)round(getColor.x * 128) << 16;
+        clicked_comp_id += (int)round(getColor.y * 128) << 8;
+        clicked_comp_id += (int)round(getColor.z * 128);
+        m_mouse_status.click_comp_id = clicked_comp_id;
+        std::cout << clicked_comp_id << std::endl;
+    }
+
+    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
     
     // --------------------- event processing ------------------
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
@@ -103,6 +131,10 @@ namespace ifcre {
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
         that->_setClickedWorldCoords(click_x, click_y);
+#ifdef TEST_COMP_ID
+        that->_setClickedWorldColors(click_x, click_y);
+#endif // TEST_COMP_ID
+
         //camera.translateByScreenOp(0, 0, yoffset);
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
         
@@ -119,6 +151,9 @@ namespace ifcre {
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
                 that->_setClickedWorldCoords(click_x, click_y);
+#ifdef TEST_COMP_ID
+                that->_setClickedWorldColors(click_x, click_y);
+#endif // TEST_COMP_ID
                 status.lbtn_down = true;
                 break;
             }
@@ -135,6 +170,9 @@ namespace ifcre {
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
                 that->_setClickedWorldCoords(click_x, click_y);
+#ifdef TEST_COMP_ID
+                that->_setClickedWorldColors(click_x, click_y);
+#endif // TEST_COMP_ID
                 status.rbtn_down = true;
                 break;
             }
@@ -272,6 +310,7 @@ namespace ifcre {
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_comp_id_rt->getDepthId(), 0);
         m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        m_cur_rt->attach(m_framebuffer.fbo_id);
     }
 
     void RenderWindow::switchRenderDepthNormal()
