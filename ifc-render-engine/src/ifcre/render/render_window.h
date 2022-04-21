@@ -43,14 +43,19 @@ namespace ifcre {
 		
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
-		glm::vec3 getHoverWorldCoord();
+		glm::vec3 getVirtualHoverWorldCoord();
 		float getMouseHorizontalVel();
 		float getMouseVerticalVel();
 		bool isMouseHorizontalRot();
 		bool isMouseVerticalRot();
 		bool isMouseMove();
+		bool isRightMouseClicked();
 
 		// ----- ----- ----- ----- ----- -----
+
+		// ---------- 
+
+
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -65,7 +70,7 @@ namespace ifcre {
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_msaa_rt;
-		}m_msaa_fb;
+		} m_msaa_fb;
 		
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
@@ -85,7 +90,8 @@ namespace ifcre {
 			int32_t last_mouse_x, last_mouse_y;
 			bool lbtn_down = false, rbtn_down = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
-			glm::vec3 hover_world_coord = glm::vec3(0, 0, 0);
+			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
+			int32_t click_x = 0, click_y = 0;
 			Real click_z = 1.0;
 		}m_mouse_status;
 

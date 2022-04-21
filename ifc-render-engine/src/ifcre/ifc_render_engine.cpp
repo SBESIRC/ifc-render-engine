@@ -132,14 +132,12 @@ namespace ifcre {
 			ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
 		}
 
-		if (m_window.isMouseMove()) {
-			glm::vec3 hover = m_window.getHoverWorldCoord();
-			glm::vec3 step = hover - m_last_hover_pos;
-			ifc_test_model->translate(step);
-
-			m_last_hover_pos = hover;
-		}
-		else {
+		if (m_window.isRightMouseClicked()) {
+			if (m_window.isMouseMove()) {
+				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+				glm::vec3 step = hover - m_last_hover_pos;
+				ifc_test_model->translate(step);
+			}
 			m_last_hover_pos = clicked_coord;
 		}
 

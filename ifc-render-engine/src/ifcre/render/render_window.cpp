@@ -25,6 +25,8 @@ namespace ifcre {
         glm::vec4 t = vp_inv * ndc;
         t = t / t.w;
         m_mouse_status.click_world_center = t;
+        m_mouse_status.click_x = clicked_x;
+        m_mouse_status.click_y = clicked_y;
     }
 
     float RenderWindow::_getClickedDepthValue(double clicked_x, double clicked_y)
@@ -51,7 +53,7 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
-        if (status.lbtn_down && !status.rbtn_down) {
+        if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
                 status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
@@ -71,32 +73,40 @@ namespace ifcre {
             //glfwGetCursorPos(window, &curX, &curY);
             //camera.translate(lastX - curX, curY - lastY);
             //lastX = curX, lastY = curY;
-
-            if (status.last_mouse_x != xpos) {
-                status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
-
-            }
-            if (status.last_mouse_y != ypos) {
-                status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
-            }
             //camera.translateByScreenOp(status.last_mouse_x - xpos, ypos - status.last_mouse_y, 0);
             float click_z = that->_getClickedDepthValue(xpos, ypos);
-            if (click_z != 1.0) {
 
-                Real w = that->m_width, h = that->m_height;
-                Real y = (h - ypos - 1) / h * 2 - 1;
-                Real x = xpos / w * 2 - 1;
-
-                glm::vec4 ndc(x, y, status.click_z, 1.0f);
-                glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
-                glm::vec4 t = vp_inv * ndc;
-                t = t / t.w;
-                status.hover_world_coord = t;
-                status.click_world_center.x = t.x;
-                status.click_world_center.y = t.y;
+            Real w = that->m_width, h = that->m_height;
+            if (status.click_z == 1.0) {
+                glm::vec4 pos = glm::vec4(status.click_world_center, 1.0);
+                pos = that->m_projection * camera.getViewMatrix() * pos;
+                pos /= pos.w;
+                status.click_z = pos.z;
+                // from [-1, 1] to [0, width], [0, height]
+                status.click_x = (pos.x + 1) * 0.5 * w;
+                status.click_y = (-pos.y + 1) * 0.5 * h;
             }
+            Real x, y;
+            if (click_z != 1.0 
+                && (ypos >= 0 && ypos < h && xpos >= 0 && xpos < w)) {
+                y = (h - ypos - 1) / h * 2 - 1;
+                x = xpos / w * 2 - 1;
+            }
+            else {
+                y = (h - (status.click_y + (ypos - status.last_mouse_y)) - 1) / h * 2 - 1;
+                x = (status.click_x + (xpos - status.last_mouse_x)) / w * 2 - 1;
+            }
+
+			glm::vec4 ndc(x, y, status.click_z, 1.0f);
+			glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+			glm::vec4 t = vp_inv * ndc;
+			t = t / t.w;
+			status.hover_world_center = t;
+			status.click_world_center.x = t.x;
+			status.click_world_center.y = t.y;
+            status.click_y = status.click_y + (ypos - status.last_mouse_y);
+            status.click_x = status.click_x + (xpos - status.last_mouse_x);
         }
-         
         status.last_mouse_x = xpos;
         status.last_mouse_y = ypos;
     }
@@ -104,14 +114,24 @@ namespace ifcre {
     void RenderWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
+        auto& status = that->m_mouse_status;
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
         float click_z = that->_getClickedDepthValue(click_x, click_y);
         if (click_z != 1.0) {
             that->_setClickedWorldCoords(click_x, click_y, click_z);
         }
-        //camera.translateByScreenOp(0, 0, yoffset);
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
+
+        Real w = that->m_width, h = that->m_height;
+        glm::vec4 pos = glm::vec4(status.click_world_center, 1.0);
+        pos = that->m_projection * camera.getViewMatrix() * pos;
+        pos /= pos.w;
+        status.click_z = pos.z;
+        // from [-1, 1] to [0, width], [0, height]
+        status.click_x = (pos.x + 1) * 0.5 * w;
+        status.click_y = (-pos.y + 1) * 0.5 * h;
+        //camera.translateByScreenOp(0, 0, yoffset);
         
     }
     
@@ -243,7 +263,6 @@ namespace ifcre {
 
     void RenderWindow::pollEvents()
     {
-
         glfwPollEvents();
     }
 
@@ -368,9 +387,9 @@ namespace ifcre {
     {
         return m_mouse_status.click_world_center;
     }
-    glm::vec3 RenderWindow::getHoverWorldCoord()
+    glm::vec3 RenderWindow::getVirtualHoverWorldCoord()
     {
-        return m_mouse_status.hover_world_coord;
+        return m_mouse_status.hover_world_center;
     }
     float RenderWindow::getMouseHorizontalVel()
     {
@@ -394,10 +413,12 @@ namespace ifcre {
     }
     bool RenderWindow::isMouseMove()
     {
-        return m_mouse_status.rbtn_down 
-            && !m_mouse_status.lbtn_down
-            && (m_mouse_status.horizontal_move != 0 
-                || m_mouse_status.vertical_move != 0);
+        return (m_mouse_status.horizontal_move != 0
+            || m_mouse_status.vertical_move != 0);
+    }
+    bool RenderWindow::isRightMouseClicked()
+    {
+        return m_mouse_status.rbtn_down;
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
