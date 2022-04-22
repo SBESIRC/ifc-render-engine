@@ -77,9 +77,9 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
-#ifdef TEST_COMP_ID
-        that->_setClickedWorldColors(xpos, ypos);
-#endif // TEST_COMP_ID
+//#ifdef TEST_COMP_ID
+//        that->_setClickedWorldColors(xpos, ypos);
+//#endif // TEST_COMP_ID
         if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
@@ -129,8 +129,9 @@ namespace ifcre {
 			glm::vec4 t = vp_inv * ndc;
 			t = t / t.w;
 			status.hover_world_center = t;
-			status.click_world_center.x = t.x;
-			status.click_world_center.y = t.y;
+			//status.click_world_center.x = t.x;
+			//status.click_world_center.y = t.y;
+            status.click_world_center = t;
             status.click_y = status.click_y + (ypos - status.last_mouse_y);
             status.click_x = status.click_x + (xpos - status.last_mouse_x);
         }
