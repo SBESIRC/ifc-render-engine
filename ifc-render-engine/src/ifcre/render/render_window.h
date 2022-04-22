@@ -26,6 +26,7 @@ namespace ifcre {
 		void endRenderToWindow();
 
 		void switchRenderCompId();
+		void switchRenderBack();
 		void switchRenderDepthNormal();
 		void switchRenderColor();
 
@@ -36,6 +37,7 @@ namespace ifcre {
 		uint32_t getFBOId();
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
+		int getClickCompId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 
@@ -71,6 +73,11 @@ namespace ifcre {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_msaa_rt;
 		} m_msaa_fb;
+
+		struct {
+			uint32_t fbo_id;
+			SharedPtr<GLRenderTexture> m_comp_id_rt;
+		}m_comp_fb;
 		
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
@@ -91,8 +98,11 @@ namespace ifcre {
 			bool lbtn_down = false, rbtn_down = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
+			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
 			int32_t click_x = 0, click_y = 0;
 			Real click_z = 1.0;
+			int click_comp_id = -1;
+			int hover_comp_id = -1;
 		}m_mouse_status;
 
 		struct {
@@ -117,6 +127,7 @@ namespace ifcre {
 	private:
 		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
+		void _setClickedWorldColors(double click_x, double click_y);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	};
 

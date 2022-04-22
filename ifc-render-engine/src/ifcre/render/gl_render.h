@@ -48,6 +48,7 @@ namespace ifcre {
 		void setViewMatrix(const glm::mat4& view);
 		void setProjectionMatrix(const glm::mat4& projection);
 		void setAlpha(const float& alpha);
+		void setCompId(const int& comp_id);
 		void setCameraPos(const glm::vec3& m_pos);
 	// --------------- render ----------------------
 
@@ -70,6 +71,7 @@ namespace ifcre {
 		glm::mat4 m_projection;
 		float m_alpha;
 		glm::vec3 m_camerapos;
+		int m_compId;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;

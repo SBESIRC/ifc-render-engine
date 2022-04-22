@@ -1,6 +1,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
+#define TEST_COMP_ID
 
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
@@ -38,6 +39,29 @@ namespace ifcre {
         return z;
     }
 
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y) {
+
+        glm::vec3 getColor;
+        Real w = m_width, h = m_height;
+        //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        m_cur_rt = m_comp_fb.m_comp_id_rt.get();
+        //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
+            m_mouse_status.click_comp_id = -1;
+            std::cout << "NO!" << std::endl;
+            return;
+        }
+        int clicked_comp_id = 0;
+        clicked_comp_id += (int)round(getColor.x * 128) << 16;
+        clicked_comp_id += (int)round(getColor.y * 128) << 8;
+        clicked_comp_id += (int)round(getColor.z * 128);
+        m_mouse_status.click_comp_id = clicked_comp_id;
+        std::cout << clicked_comp_id << std::endl;
+    }
+
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     
@@ -53,6 +77,9 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
+#ifdef TEST_COMP_ID
+        that->_setClickedWorldColors(xpos, ypos);
+#endif // TEST_COMP_ID
         if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
@@ -120,6 +147,7 @@ namespace ifcre {
         float click_z = that->_getClickedDepthValue(click_x, click_y);
         if (click_z != 1.0) {
             that->_setClickedWorldCoords(click_x, click_y, click_z);
+            that->_setClickedWorldColors(click_x, click_y);
         }
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
 
@@ -148,6 +176,7 @@ namespace ifcre {
                 float click_z = that->_getClickedDepthValue(click_x, click_y);
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
+                    that->_setClickedWorldColors(click_x, click_y);
                 }
                 status.lbtn_down = true;
                 break;
@@ -167,6 +196,9 @@ namespace ifcre {
                 float click_z = that->_getClickedDepthValue(click_x, click_y);
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
+#ifdef TEST_COMP_ID
+                    that->_setClickedWorldColors(click_x, click_y);
+#endif // TEST_COMP_ID
                 }
                 status.rbtn_down = true;
                 break;
@@ -280,19 +312,35 @@ namespace ifcre {
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         }
+        m_framebuffer.m_comp_id_rt->attach(m_framebuffer.fbo_id);
+        glBindFramebuffer(GL_READ_BUFFER, m_comp_fb.fbo_id);
+        glBindFramebuffer(GL_DRAW_BUFFER, m_framebuffer.fbo_id);
+        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
         m_cur_fbo = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void RenderWindow::switchRenderCompId() {
-        if (m_cur_fbo != m_framebuffer.fbo_id) {
+        /*if (m_cur_fbo != m_framebuffer.fbo_id) {
             printf("Current FBO ID is %d, not %d.\n", m_cur_fbo, m_framebuffer.fbo_id);
             return;
         }
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
         glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_comp_id_rt->getDepthId(), 0);
         m_cur_rt = m_framebuffer.m_comp_id_rt.get();
-        glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        m_cur_rt->attach(m_framebuffer.fbo_id);
+        */
+        /*
+           m_cur_fbo = m_comp_fb.fbo_id;
+           glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+           glNamedFramebufferTexture(m_comp_fb.fbo_id, GL_COLOR_ATTACHMENT0, m_comp_fb.m_comp_id_rt->getTexId(), 0);
+           glNamedFramebufferTexture(m_comp_fb.fbo_id, GL_DEPTH_ATTACHMENT, m_comp_fb.m_comp_id_rt->getDepthId(), 0);
+           glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+
+        m_cur_rt = m_comp_fb.m_comp_id_rt.get();
+        m_cur_rt->attach(m_comp_fb.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
     }
 
     void RenderWindow::switchRenderDepthNormal()
@@ -309,6 +357,10 @@ namespace ifcre {
         
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
         //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
+    }
+
+    void RenderWindow::switchRenderBack() {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     void RenderWindow::switchRenderColor()
@@ -366,6 +418,11 @@ namespace ifcre {
     uint32_t RenderWindow::getDepthNormalTexId() 
     {
         return m_framebuffer.m_depth_normal_rt->getTexId();
+    }
+
+    int RenderWindow::getClickCompId()
+    {
+        return m_mouse_status.click_comp_id;
     }
 
     glm::vec2 RenderWindow::getWindowSize()
@@ -447,11 +504,13 @@ namespace ifcre {
             m_msaa_fb.m_msaa_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, true);
             //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
         }
+        glCreateFramebuffers(1, &m_comp_fb.fbo_id);
+        m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
 
         m_cur_rt = mfb.m_default_rt.get();
 
         mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
-        mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
