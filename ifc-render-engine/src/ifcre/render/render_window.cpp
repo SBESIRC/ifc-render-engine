@@ -55,9 +55,9 @@ namespace ifcre {
             return;
         }
         int clicked_comp_id = 0;
-        clicked_comp_id += (int)round(getColor.x * 128) << 16;
-        clicked_comp_id += (int)round(getColor.y * 128) << 8;
-        clicked_comp_id += (int)round(getColor.z * 128);
+        clicked_comp_id += (int)round(getColor.x * 256) << 16;
+        clicked_comp_id += (int)round(getColor.y * 256) << 8;
+        clicked_comp_id += (int)round(getColor.z * 256);
         m_mouse_status.click_comp_id = clicked_comp_id;
         std::cout << clicked_comp_id << std::endl;
     }
