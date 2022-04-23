@@ -39,7 +39,7 @@ namespace ifcre {
         return z;
     }
 
-    void RenderWindow::_setClickedWorldColors(double click_x, double click_y) {
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode) {
 
         glm::vec3 getColor;
         Real w = m_width, h = m_height;
@@ -58,8 +58,10 @@ namespace ifcre {
         clicked_comp_id += (int)round(getColor.x * 256) << 16;
         clicked_comp_id += (int)round(getColor.y * 256) << 8;
         clicked_comp_id += (int)round(getColor.z * 256);
-        m_mouse_status.click_comp_id = clicked_comp_id;
-        std::cout << clicked_comp_id << std::endl;
+        if (hover_mode)
+            m_mouse_status.hover_comp_id = clicked_comp_id;
+        else
+            m_mouse_status.click_comp_id = clicked_comp_id;
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -77,9 +79,7 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
-//#ifdef TEST_COMP_ID
-//        that->_setClickedWorldColors(xpos, ypos);
-//#endif // TEST_COMP_ID
+        that->_setClickedWorldColors(xpos, ypos, true);
         if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
@@ -148,7 +148,7 @@ namespace ifcre {
         float click_z = that->_getClickedDepthValue(click_x, click_y);
         if (click_z != 1.0) {
             that->_setClickedWorldCoords(click_x, click_y, click_z);
-            that->_setClickedWorldColors(click_x, click_y);
+            that->_setClickedWorldColors(click_x, click_y, false);
         }
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
 
@@ -177,7 +177,7 @@ namespace ifcre {
                 float click_z = that->_getClickedDepthValue(click_x, click_y);
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
-                    that->_setClickedWorldColors(click_x, click_y);
+                    that->_setClickedWorldColors(click_x, click_y, false);
                 }
                 status.lbtn_down = true;
                 break;
@@ -198,7 +198,7 @@ namespace ifcre {
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
 #ifdef TEST_COMP_ID
-                    that->_setClickedWorldColors(click_x, click_y);
+                    that->_setClickedWorldColors(click_x, click_y, false);
 #endif // TEST_COMP_ID
                 }
                 status.rbtn_down = true;
@@ -424,6 +424,11 @@ namespace ifcre {
     int RenderWindow::getClickCompId()
     {
         return m_mouse_status.click_comp_id;
+    }
+
+    int RenderWindow::getHoverCompId()
+    {
+        return m_mouse_status.hover_comp_id;
     }
 
     glm::vec2 RenderWindow::getWindowSize()

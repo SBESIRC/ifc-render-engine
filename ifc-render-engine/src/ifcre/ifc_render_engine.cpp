@@ -157,6 +157,7 @@ namespace ifcre {
 			//// 1. render scene
 			m_window.switchRenderColor();
 			m_render.setCompId(m_window.getClickCompId());
+			m_render.setHoverCompId(m_window.getHoverCompId());
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
 
 			////2. render transparency scene

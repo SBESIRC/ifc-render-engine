@@ -182,6 +182,7 @@ namespace ifcre {
 			m_test_shader->setMat4("projection", m_projection);
 			m_test_shader->setVec3("cameraPos", m_camerapos);
 			m_test_shader->setInt("c_comp", m_compId);
+			m_test_shader->setInt("h_comp", m_hoverCompId);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -198,6 +199,7 @@ namespace ifcre {
 			m_test_shader->setVec3("cameraPos", m_camerapos);
 			m_test_shader->setFloat("alpha", m_alpha);
 			m_test_shader->setInt("c_comp", m_compId);
+			m_test_shader->setInt("h_comp", m_hoverCompId);
 			break;
 		}
 		default:break;
@@ -494,5 +496,9 @@ namespace ifcre {
 	void GLRender::setCompId(const int& comp_id)
 	{
 		m_compId = comp_id;
+	}
+	void GLRender::setHoverCompId(const int& comp_id)
+	{
+		m_hoverCompId = comp_id;
 	}
 } 

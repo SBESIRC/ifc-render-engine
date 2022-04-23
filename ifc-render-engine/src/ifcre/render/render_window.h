@@ -38,6 +38,7 @@ namespace ifcre {
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
 		int getClickCompId();
+		int getHoverCompId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 
@@ -127,7 +128,7 @@ namespace ifcre {
 	private:
 		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
-		void _setClickedWorldColors(double click_x, double click_y);
+		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	};
 
