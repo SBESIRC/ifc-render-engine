@@ -12,14 +12,18 @@ namespace ifcre {
 	// pure virtual function is to focus on 'action', not 'member type'
 	class RenderEngine {
 	public:
-		virtual void initialize(Map<String, String> &configs) = 0;
+		virtual void setConfig(String key, String value) = 0;
+		virtual void init() = 0;
+		//virtual void initialize(Map<String, String> &configs) = 0;
 		virtual void run() = 0;
 	};
 
 
 	class IFCRenderEngine : public RenderEngine {
 	public:
-		void initialize(Map<String, String> &configs);
+		//void initialize(Map<String, String> &configs);
+		void setConfig(String key, String value);
+		void init();
 		void run();
 
 	public:
@@ -31,6 +35,7 @@ namespace ifcre {
 		void drawFrame();
 	
 	private:
+		Map<String, String> m_cache_configs;
 		bool m_init;
 		bool try_ifc;
 		bool use_transparency;

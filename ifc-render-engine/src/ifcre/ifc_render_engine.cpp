@@ -8,12 +8,21 @@
 namespace ifcre {
 	SharedPtr<IFCRenderEngine> ifcre;
 
-	void IFCRenderEngine::initialize(Map<String, String> &configs)
+	void IFCRenderEngine::setConfig(String key, String value)
 	{
 		if (m_init) {
 			return;
 		}
-		
+		m_cache_configs[key] = value;
+	}
+
+	void IFCRenderEngine::init()
+	{
+		if (m_init) {
+			return;
+		}
+		auto& configs = m_cache_configs;
+
 		int width = atoi(configs["width"].c_str());
 		int height = atoi(configs["height"].c_str());
 		String model_file = configs["file"];
@@ -28,7 +37,7 @@ namespace ifcre {
 		//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 		m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
 		m_glrender = make_shared<GLRender>();
-		
+
 		//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 		//model_vb->upload(test_model->vertices, test_model->indices);
 		//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
@@ -54,7 +63,7 @@ namespace ifcre {
 			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
 			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
 			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
-			
+
 			if (use_transparency) {
 				model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
 				model_vb->uploadTransElements(ifc_test_model->trans_ind);

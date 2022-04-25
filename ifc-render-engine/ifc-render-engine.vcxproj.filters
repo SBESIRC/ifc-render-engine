@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ifcre\render\gl\glad.c" />
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
     <ClCompile Include="src\ifcre\render\gl_render.cpp" />
@@ -9,6 +8,7 @@
     <ClCompile Include="src\ifcre\render\gl\glsl_program.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_vertex_buffer.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_render_texture.cpp" />
+    <ClCompile Include="src\ifcre\ifcre_export.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -29,6 +29,7 @@
     <ClInclude Include="src\ifcre\render\gl\gl_render_texture.h" />
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
+    <ClInclude Include="src\ifcre\ifcre_export.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">

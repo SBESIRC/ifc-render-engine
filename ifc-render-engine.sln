@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ifc-render-engine", "ifc-render-engine\ifc-render-engine.vcxproj", "{24B05298-819B-4237-B1D1-77E4FE105779}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ifcre-starter", "ifcre-starter\ifcre-starter.vcxproj", "{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{24B05298-819B-4237-B1D1-77E4FE105779}.Release|x64.Build.0 = Release|x64
 		{24B05298-819B-4237-B1D1-77E4FE105779}.Release|x86.ActiveCfg = Release|Win32
 		{24B05298-819B-4237-B1D1-77E4FE105779}.Release|x86.Build.0 = Release|Win32
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Debug|x64.ActiveCfg = Debug|x64
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Debug|x64.Build.0 = Debug|x64
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Debug|x86.ActiveCfg = Debug|Win32
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Debug|x86.Build.0 = Debug|Win32
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Release|x64.ActiveCfg = Release|x64
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Release|x64.Build.0 = Release|x64
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Release|x86.ActiveCfg = Release|Win32
+		{9221EF1B-DFB4-42E8-8B1D-64D68E92E364}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
