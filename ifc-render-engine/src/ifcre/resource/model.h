@@ -139,6 +139,8 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> c_indices;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String filename) {
+
+			//generateIFCMidfile("resources\\models\\ifc\\ff.ifc", 0.001);
 			std::ifstream is(filename.c_str(), std::ios::binary);
 			if (!is.is_open()) {
 				std::cout << filename << " opened failed.\n";
