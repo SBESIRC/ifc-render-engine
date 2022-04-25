@@ -133,5 +133,4 @@ namespace ifcre {
 	};
 
 }
-
 #endif
