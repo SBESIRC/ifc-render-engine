@@ -1,9 +1,12 @@
-//#include "../ifc-render-engine/src/ifcre/ifcre_export.h"
 #include <iostream>
 #include <Windows.h>
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
 //const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
-const char model[] = "resources\\models\\ifc_midfile\\temp.midfile";
+#ifdef _DEBUG
+	const char model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
+#else
+	const char model[] = "resources\\models\\ifc\\ff.ifc";
+#endif // DEBUG
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
 typedef void (*ifcre_init)();
