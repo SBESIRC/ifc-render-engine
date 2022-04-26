@@ -9,44 +9,35 @@ namespace ifcre {
 // ------------ construction ---------------------
 	GLRender::GLRender()
 	{
+#ifdef _DEBUG
 		// program init
-		//String v_image_effect = util::read_file("shaders/image_effect.vert");
-		//String f_image_effect = util::read_file("shaders/image_effect.frag");
+		String v_image_effect = util::read_file("shaders/image_effect.vert");
+		String f_image_effect = util::read_file("shaders/image_effect.frag");
+		m_offscreen_program = make_unique<GLSLProgram>(v_image_effect.c_str(), f_image_effect.c_str());
+
+		String v_normal_depth_write = util::read_file("shaders/normal_depth_write.vert");
+		String f_normal_depth_write = util::read_file("shaders/normal_depth_write.frag");
+		m_normal_depth_program = make_unique<GLSLProgram>(v_normal_depth_write.c_str(), f_normal_depth_write.c_str());
+
+		String v_comp_id_write = util::read_file("shaders/comp_id_write.vert");
+		String f_comp_id_write = util::read_file("shaders/comp_id_write.frag");
+		m_comp_id_program = make_unique<GLSLProgram>(v_comp_id_write.c_str(), f_comp_id_write.c_str());
+
+		String v_axis = util::read_file("shaders/axis.vert");
+		String f_axis = util::read_file("shaders/axis.frag");
+		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
+
+		String v_test = util::read_file("shaders/test.vert");
+		String f_test = util::read_file("shaders/test.frag");
+		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
+#else 
+		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
-		m_offscreen_program->use();
-		//m_offscreen_program->setInt("screenTexture", 0);
-		//String v_nd = util::read_file("shaders/normal_depth_write.vert");
-		//String f_nd = util::read_file("shaders/normal_depth_write.frag");
 		m_normal_depth_program = make_unique<GLSLProgram>(sc::v_normal_depth_write, sc::f_normal_depth_write);
-		m_normal_depth_program->use();
-
-		//String v_compid = util::read_file("shaders/comp_id_write.vert");
-		//String f_compid = util::read_file("shaders/comp_id_write.frag");
 		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
-		m_comp_id_program->use();
-
-		//String v_axis = util::read_file("shaders/axis.vert");
-		//String f_axis = util::read_file("shaders/axis.frag");
 		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
-
-
 		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
-		//glm::mat4 model(1.0f);
-		//model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
-		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(0.7f, 0.7f, 0.7f));
-
-		//glm::mat4 view(1.0f);
-		//glm::vec3 eyepos(0.0f, 0.0f, 5.0f);
-		//glm::vec3 front(0.0f, 0.0f, -1.0f);
-		//glm::vec3 up(0.0f, 1.0f, 0.0f);
-		//view = glm::lookAt(eyepos, eyepos + front, up);
-
-		//glm::mat4 projection = glm::perspective(glm::radians(45.0f), 16.0f / 9.0f, 0.1f, 1000.0f);
-		//m_test_shader->use();
-		//m_test_shader->setMat4("model", model);
-		//m_test_shader->setMat4("view", view);
-		//m_test_shader->setMat4("projection", projection);
+#endif
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
