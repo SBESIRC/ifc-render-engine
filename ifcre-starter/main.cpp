@@ -6,7 +6,7 @@
 	const char model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
 #else
 	const char model[] = "resources\\models\\ifc\\ff.ifc";
-#endif // DEBUG
+#endif // _DEBUG
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
 typedef void (*ifcre_init)();
