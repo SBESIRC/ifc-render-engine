@@ -36,7 +36,7 @@ void create_ifcre(ifcre* re) {
 	}
 	return;
 }
-int main(void) {
+int main(int argc, char**argv) {
 	ifcre re;
 	create_ifcre(&re);
 	if (!re.loaded) {
@@ -47,7 +47,7 @@ int main(void) {
 	re.set_config("height", "900");
 	re.set_config("model_type", "ifc");
 	re.set_config("use_transparency", "true");
-	re.set_config("file", model);
+	re.set_config("file", argc == 1? model : argv[1]);
 
 	re.init();
 	re.run();

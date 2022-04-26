@@ -10,27 +10,27 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// program init
-		String v_image_effect = util::read_file("shaders/image_effect.vert");
-		String f_image_effect = util::read_file("shaders/image_effect.frag");
-		m_offscreen_program = make_unique<GLSLProgram>(v_image_effect.c_str(), f_image_effect.c_str());
+		//String v_image_effect = util::read_file("shaders/image_effect.vert");
+		//String f_image_effect = util::read_file("shaders/image_effect.frag");
+		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
 		m_offscreen_program->use();
 		//m_offscreen_program->setInt("screenTexture", 0);
-		String v_nd = util::read_file("shaders/normal_depth_write.vert");
-		String f_nd = util::read_file("shaders/normal_depth_write.frag");
-		m_normal_depth_program = make_unique<GLSLProgram>(v_nd.c_str(), f_nd.c_str());
+		//String v_nd = util::read_file("shaders/normal_depth_write.vert");
+		//String f_nd = util::read_file("shaders/normal_depth_write.frag");
+		m_normal_depth_program = make_unique<GLSLProgram>(sc::v_normal_depth_write, sc::f_normal_depth_write);
 		m_normal_depth_program->use();
 
-		String v_compid = util::read_file("shaders/comp_id_write.vert");
-		String f_compid = util::read_file("shaders/comp_id_write.frag");
-		m_comp_id_program = make_unique<GLSLProgram>(v_compid.c_str(), f_compid.c_str());
+		//String v_compid = util::read_file("shaders/comp_id_write.vert");
+		//String f_compid = util::read_file("shaders/comp_id_write.frag");
+		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
 		m_comp_id_program->use();
 
-		String v_axis = util::read_file("shaders/axis.vert");
-		String f_axis = util::read_file("shaders/axis.frag");
-		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
+		//String v_axis = util::read_file("shaders/axis.vert");
+		//String f_axis = util::read_file("shaders/axis.frag");
+		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
 
 
-		m_test_shader = make_unique<GLSLProgram>(v_test, f_test);
+		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
 		//glm::mat4 model(1.0f);
 		//model = glm::translate(model, glm::vec3(0.0f, -1.0f, 0.0f));
 		//model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f));
