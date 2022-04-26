@@ -1,11 +1,11 @@
 #include "../ifc-render-engine/src/ifcre/ifcre_export.h"
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
 //const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
-#ifdef DEBUG
+#ifdef _DEBUG
 	const char model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
 #else
 	const char model[] = "resources\\models\\ifc\\ff.ifc";
-#endif // DEBUG
+#endif // _DEBUG
 
 int main(void) {
 	ifcre_set_config("width", "1600");

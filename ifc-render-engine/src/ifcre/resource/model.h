@@ -2,7 +2,6 @@
 #ifndef IFCRE_OBJECT_H_
 #define IFCRE_OBJECT_H_
 
-//#define DEBUG
 
 #include "../common/std_types.h"
 #include "../common/ifc_util.h"
@@ -141,12 +140,12 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> c_indices;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const String ifc_file_name) {
-#ifdef DEBUG
+#ifdef _DEBUG
 			const String filename = ifc_file_name;
 #else
 			generateIFCMidfile(ifc_file_name, 0.001);
 			const String filename = "temp.midfile";
-#endif // DEBUG
+#endif // _DEBUG
 
 			std::ifstream is(filename.c_str(), std::ios::binary);
 			if (!is.is_open()) {
