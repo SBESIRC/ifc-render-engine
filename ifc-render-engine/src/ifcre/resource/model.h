@@ -10,8 +10,9 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Ifc2OpenGLDatas.h>
 
-extern"C" void generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
+extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
@@ -26,8 +27,8 @@ namespace ifcre {
 		//1 for alpha(float), and 1 for ns(int)
 	};
 	struct MaterialData {
-		glm::vec4 kd;
-		glm::vec4 ks;
+		glm::vec3 kd;
+		glm::vec3 ks;
 		float alpha;
 		int ns;
 		MaterialData() {}
@@ -139,13 +140,103 @@ namespace ifcre {
 		Vector<uint32_t> no_trans_ind;
 		Vector<Vector<uint32_t>> c_indices;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m){
+			clock_t start, end;
+			start = clock();
+			Real x_min, x_max, y_min, y_max, z_min, z_max;
+			x_min = y_min = z_min = FLT_MAX;
+			x_max = y_max = z_max = -FLT_MAX;
+			size_t ss = g_vertices.size();
+			for (size_t i = 0; i < ss; i++) {
+				switch (i % 3)
+				{
+				case 0:
+				{
+					x_min = std::min(x_min, this->g_vertices[i]);
+					x_max = std::max(x_max, this->g_vertices[i]);
+					break;
+				}
+				case 1: {
+					y_min = std::min(y_min, this->g_vertices[i]);
+					y_max = std::max(y_max, this->g_vertices[i]);
+					break;
+				}
+				default: {
+					z_min = std::min(z_min, this->g_vertices[i]);
+					z_max = std::max(z_max, this->g_vertices[i]);
+					break;
+				}
+				}
+			}
+			this->pMax = glm::vec3(x_max, y_max, z_max);
+			this->pMin = glm::vec3(x_min, y_min, z_min);
+			m_center = (pMin + pMax) * 0.5f;
+			
+			size_t facs = datas.face_mat.size();
+			material_data.resize(facs);
+			for (size_t i = 0; i < facs; i++) {
+				material_data[i].kd = glm::vec3(datas.face_mat[i].ka_r, datas.face_mat[i].ka_g, datas.face_mat[i].ka_b);
+				material_data[i].ks = glm::vec3(datas.face_mat[i].ks_r, datas.face_mat[i].ks_g, datas.face_mat[i].ks_b);
+				material_data[i].ns = datas.face_mat[i].ns;
+				material_data[i].alpha = datas.face_mat[i].a;
+			}
+			getVerColor();
+			/*
+			g_kd_color.resize(g_vertices.size());
+			for (int i = 0; i < g_indices.size(); i++) {
+				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+			}*/
+			generateCompIds();
+			/*
+			comp_ids.resize(g_vertices.size() / 3);
+			int j = 0;
+			for (int i = 0; i < c_indices.size(); i++) {
+				auto ix = c_indices[i];
+				int s = ix.size();
+				for (int j = 0; j < s; j++) {
+					comp_ids[ix[j]] = i;
+				}
+			}*/
+
+			getVerAttrib();
+			/*
+			size_t s = g_vertices.size();
+			ver_attrib.resize(s / 3 * 10);//no!
+			int offset = 0;
+			for (int i = 0; i < s; i += 3) {
+				ver_attrib[offset + i] = g_vertices[i];
+				ver_attrib[offset + i + 1] = g_vertices[i + 1];
+				ver_attrib[offset + i + 2] = g_vertices[i + 2];
+				ver_attrib[offset + i + 3] = g_normals[i];
+				ver_attrib[offset + i + 4] = g_normals[i + 1];
+				ver_attrib[offset + i + 5] = g_normals[i + 2];
+				ver_attrib[offset + i + 6] = g_kd_color[i];
+				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
+				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
+				ver_attrib[offset + i + 9] = util::in_as_float(comp_ids[i / 3]);//todo: transform by bit
+				offset += 7;
+			}*/
+
+			divide_model_by_alpha();
+			/*
+			Vector<uint32_t> transparency_ind;
+			Vector<uint32_t> no_transparency_ind;
+			for (int i = 0; i < g_indices.size(); i++) {
+				if (material_data[i / 3].alpha < 1)
+					transparency_ind.emplace_back(g_indices[i]);
+				else
+					no_transparency_ind.emplace_back(g_indices[i]);
+			}
+			trans_ind = transparency_ind;
+			no_trans_ind = no_transparency_ind;
+			*/
+			end = clock();
+			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+		}
 		IFCModel(const String ifc_file_name) {
-#ifdef _DEBUG
 			const String filename = ifc_file_name;
-#else
-			generateIFCMidfile(ifc_file_name, 0.001);
-			const String filename = "temp.midfile";
-#endif // _DEBUG
 
 			std::ifstream is(filename.c_str(), std::ios::binary);
 			if (!is.is_open()) {
@@ -289,8 +380,8 @@ namespace ifcre {
 		void generateCompIds() {
 			comp_ids.resize(g_vertices.size()/3);
 			int j = 0;
-			for (int i = 0; i < components.size(); i++) {
-				auto ix = components[i].getInices();
+			for (int i = 0; i < c_indices.size(); i++) {
+				auto ix = c_indices[i];
 				int s = ix.size();
 				for (int j = 0; j < s; j++) {
 					comp_ids[ix[j]] = i;
@@ -299,14 +390,13 @@ namespace ifcre {
 		}
 
 		Vector<Real> getVerColor() {
-			Vector<Real> color(g_vertices.size());
+			g_kd_color.resize(g_vertices.size());
 			for (int i = 0; i < g_indices.size(); i++) {
-				color[3 * g_indices[i]] = material_data[i / 3].kd.x;
-				color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
-				color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
 			}
-			g_kd_color = color;
-			return color;
+			return g_kd_color;
 		}
 
 		void divide_model_by_alpha() {
