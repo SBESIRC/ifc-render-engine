@@ -42,6 +42,7 @@ namespace ifcre {
 	// ----- ----- ----- ----- ----- ----- ----- -----
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
@@ -81,6 +82,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_comp_id_program;
 		UniquePtr<GLSLProgram> m_test_shader;
 		UniquePtr<GLSLProgram> m_axis_shader;
+		UniquePtr<GLSLProgram> m_select_bbx_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

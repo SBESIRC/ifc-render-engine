@@ -30,6 +30,8 @@ namespace ifcre {
 		String v_test = util::read_file("shaders/test.vert");
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
+
+		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_slct_bbx, sc::f_slct_bbx);
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -37,6 +39,7 @@ namespace ifcre {
 		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
 		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
 		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
+		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_slct_bbx, sc::f_slct_bbx);
 #endif
 		// ----- ----- ----- ----- ----- -----
 
@@ -193,6 +196,12 @@ namespace ifcre {
 			m_test_shader->setInt("h_comp", m_hoverCompId);
 			break;
 		}
+		case BOUNDINGBOX_SHADING: {
+			m_select_bbx_shader->use();
+			m_select_bbx_shader->setMat4("modelview", m_modelview);
+			m_select_bbx_shader->setMat4("projection", m_projection);
+			break;
+		}
 		default:break;
 			
 		}
@@ -213,6 +222,10 @@ namespace ifcre {
 		}
 		case 4: {//draw trans only
 			vb->drawTrans();
+			break;
+		}
+		case 5: {//draw bbx line
+			vb->drawBBXLines();
 			break;
 		}
 		default: {
@@ -460,6 +473,10 @@ namespace ifcre {
 		uint32_t id = util::get_next_globalid();
 		m_vertex_buffer_map.insert(make_pair(id, vertex_buffer));
 		return id;
+	}
+
+	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
+		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
 	void GLRender::setViewMatrix(const glm::mat4& view) {
