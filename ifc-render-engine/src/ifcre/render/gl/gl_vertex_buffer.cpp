@@ -60,7 +60,6 @@ namespace ifcre {
 		glBindVertexArray(0);
 	}
 
-
 	void GLVertexBuffer::drawTrans()
 	{
 		glBindVertexArray(m_vaoid);
@@ -77,6 +76,14 @@ namespace ifcre {
 		glDrawElements(GL_TRIANGLES, m_size_list[ebo_id - ebo_id_trip], GL_UNSIGNED_INT, 0);
 		//这里-ebo_id_trip是因为在genBuffer m_ebo_list前，已经调用了ebo_id_trip-1次genBuffer，导致m_ebo_list[0]=ebo_id_trip，所以要-ebo_id_trip
 		//后续将改为某个参数
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
+	void GLVertexBuffer::drawBBXLines() {
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid);
+		glDrawElements(GL_LINE_STRIP, m_size, GL_UNSIGNED_INT, 0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
@@ -129,6 +136,26 @@ namespace ifcre {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glNamedBufferData(m_eboid_for_trans, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
 		trans_size = indices.size();
+		glBindVertexArray(0);
+	}
+
+	void GLVertexBuffer::uploadBBXData(const Vector<Real>& vertices, const  Vector<uint32_t>& indices) {
+		glGenVertexArrays(1, &m_vaoid);
+		glGenBuffers(1, &m_vboid);
+		glGenBuffers(1, &m_eboid);
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
+		glBindVertexArray(0);
+		m_size = indices.size();
+	}
+	
+	void GLVertexBuffer::updateVertexAttributes(const Vector<Real>& vertices) {
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
+		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_DYNAMIC_DRAW);
 		glBindVertexArray(0);
 	}
 

@@ -55,8 +55,7 @@ namespace ifcre {
 
 		// add a rendered model
 		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
-		SharedPtr<GLVertexBuffer> no_trans_model_vb = make_shared<GLVertexBuffer>();
-		SharedPtr<GLVertexBuffer> trans_model_vb = make_shared<GLVertexBuffer>();
+		SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
 		if (try_ifc) {
 			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
 			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
@@ -70,6 +69,11 @@ namespace ifcre {
 			}
 			model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
+
+			//bounding box needs a vertexBuffer as well
+			select_bbx_vb->uploadBBXData(ifc_test_model->generate_bbxs_by_vec({ 0 }), ifc_test_model->bbx_drawing_order);
+			select_bbx_vb->vertexAttribDesc(0, 3, sizeof(Real) * 3, (void*)0);
+			select_bbx_id = m_glrender->addModel(select_bbx_vb);
 		}
 		else
 		{
@@ -173,6 +177,12 @@ namespace ifcre {
 			m_render.setAlpha(0.5);
 			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, TRANS) : void();
 			//m_window.readPixels();
+
+			//3. render bounding box
+			if(m_window.getClickCompId() != -1){
+				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ static_cast<uint32_t>(m_window.getClickCompId()) }));
+				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE); 
+			}
 #endif
 
 			m_window.endRenderToWindow();

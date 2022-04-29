@@ -13,7 +13,12 @@ namespace ifcre {
 		// TODO
     public:
         static SharedPtr<IFCModel> load(String file) {
-			auto ret = make_shared<IFCModel>(file);
+#ifdef _DEBUG
+            auto ret = make_shared<IFCModel>(file);
+#else
+            auto ge = generateIFCMidfile(file);
+            auto ret = make_shared<IFCModel>(ge);
+#endif
 			return ret;
         }
 	};

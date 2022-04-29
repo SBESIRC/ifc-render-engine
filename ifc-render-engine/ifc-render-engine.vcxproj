@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\glad\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
@@ -86,7 +86,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>

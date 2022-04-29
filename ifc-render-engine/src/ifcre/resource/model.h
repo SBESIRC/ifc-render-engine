@@ -10,8 +10,9 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Ifc2OpenGLDatas.h>
 
-extern"C" void generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
+extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
@@ -26,126 +27,39 @@ namespace ifcre {
 		//1 for alpha(float), and 1 for ns(int)
 	};
 	struct MaterialData {
-		glm::vec4 kd;
-		glm::vec4 ks;
+		glm::vec3 kd;
+		glm::vec3 ks;
 		float alpha;
 		int ns;
 		MaterialData() {}
 		MaterialData(glm::vec4 a, glm::vec4 b, float c, int d) :kd(a), ks(b), alpha(c), ns(d) {}
 	};
 
-	class ComponentModel {
-	public:
-		Vector<uint32_t> _indices;
-		uint32_t render_id;//different component may has different render style
-		glm::vec3 pMin, pMax;//bounding box
-		Vector<Real> bbx_vertex_array;
-		Vector<uint32_t> bbx_draw_element_buffers;
-		ComponentModel(Vector<uint32_t> _indices, size_t s/*, uint32_t _render_id) :render_id(_render_id*/) {
-			this->_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				this->_indices[i] = _indices[i];
-			}
-		}
-		Vector<uint32_t> getInices() {
-			return this->_indices;
-		}
-		void setbbx(Vector<Real> g_vert) {
-			Real x_min, x_max, y_min, y_max, z_min, z_max;
-			x_min = y_min = z_min = FLT_MAX;
-			x_max = y_max = z_max = -FLT_MAX;
-			for (int i = 0; i < this->_indices.size(); i++) {
-				x_min = std::min(x_min, g_vert[3*this->_indices[i]]);
-				x_max = std::max(x_max, g_vert[3 * this->_indices[i]]);
-				y_min = std::min(y_min, g_vert[3 * this->_indices[i] + 1]);
-				y_max = std::max(y_max, g_vert[3 * this->_indices[i] + 1]);
-				z_min = std::min(z_min, g_vert[3 * this->_indices[i] + 2]);
-				z_max = std::max(z_max, g_vert[3 * this->_indices[i] + 2]);
-			}
-			pMax = glm::vec3(x_max, y_max, z_max);
-			pMin = glm::vec3(x_min, y_min, z_min);
-			generate_bbx_buffer();
-		}
-		void generate_bbx_buffer() {
-			bbx_vertex_array.clear();
-			bbx_vertex_array.resize(24);
-			for (int i = 0; i < 8; i++) {
-				bbx_vertex_array[3 * i] = (i & 1 ? pMax.x : pMin.x);
-				bbx_vertex_array[3 * i + 1] = (i & 2 ? pMax.y : pMin.y);
-				bbx_vertex_array[3 * i + 2] = (i & 4 ? pMax.z : pMin.z);
-			}
-			bbx_draw_element_buffers.clear();
-			bbx_draw_element_buffers.resize(24);
-			bbx_draw_element_buffers = { 0,1,3,2,4,5,7,6,0,1,5,4,2,3,7,6,0,2,6,4,1,3,7,5 };
-		}
-		
-	private:
-	};
-
 	class IFCModel {
 	public:
-		void rotateInLocalSpace(glm::vec3& pick_center, float angle) {
-			glm::mat4 rot(1.0f);
-			glm::mat4 m(1.0f);
-			glm::mat4 inv_model = glm::inverse(m_model);
-			glm::vec3 model_pick = inv_model * glm::vec4(pick_center, 1.0f);
-			rot = glm::rotate(rot, angle, glm::vec3(0, 1, 0));
-			glm::vec3 trans = -model_pick;
-			m_model = m_model * glm::translate(m, -trans) * rot * glm::translate(m, trans);
-		}
-
-		void rotateInWorldSpace(glm::vec3& pick_center, float angle) {
-			glm::mat4 rot(1.0f);
-			glm::mat4 m(1.0f);
-			rot = glm::rotate(rot, angle, glm::vec3(1, 0, 0));
-			glm::vec3 trans = -pick_center;
-			m_model = glm::translate(m, -trans) * rot * glm::translate(m, trans) * m_model;
-		}
-
-		void translate(glm::vec3& step) {
-			glm::mat4 t(1.0f);
-			t = glm::translate(t, step);
-			m_model = t * m_model;
-		}
-
-		glm::vec3 getModelCenter() {
-			return m_center;
-		}
-		
-		void setScaleFactor(Real scale) {
-			m_scale_factor = scale;
-		}
-
-		Real getScaleFactor() {
-			return m_scale_factor;
-		}
-
-		void setModelMatrix(const glm::mat4& model) {
-			m_model = model;
-		}
-		glm::mat4 getModelMatrix() {
-			return m_model;
-		}
-	private:
-		glm::mat4 m_model;
-		Real m_scale_factor;
-
-	public:
-		uint32_t render_id;//seems a render_id combine with an array of vertex?
-		Vector<ComponentModel> components;
-		Vector<Real> ver_attrib;
-		Vector<uint32_t> g_indices;
-		Vector<uint32_t> trans_ind;
-		Vector<uint32_t> no_trans_ind;
-		Vector<Vector<uint32_t>> c_indices;
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m){
+			clock_t start, end;
+			start = clock();
+			
+			size_t facs = datas.face_mat.size();
+			material_data.resize(facs);
+			for (size_t i = 0; i < facs; i++) {
+				material_data[i].kd = glm::vec3(datas.face_mat[i].ka_r, datas.face_mat[i].ka_g, datas.face_mat[i].ka_b);
+				material_data[i].ks = glm::vec3(datas.face_mat[i].ks_r, datas.face_mat[i].ks_g, datas.face_mat[i].ks_b);
+				material_data[i].ns = datas.face_mat[i].ns;
+				material_data[i].alpha = datas.face_mat[i].a;
+			}
+			getVerColor();
+			generateCompIds();
+			generate_bbxs_by_comps();
+			getVerAttrib();
+			divide_model_by_alpha();
+			end = clock();
+			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+		}
 		IFCModel(const String ifc_file_name) {
-#ifdef _DEBUG
 			const String filename = ifc_file_name;
-#else
-			generateIFCMidfile(ifc_file_name, 0.001);
-			const String filename = "temp.midfile";
-#endif // _DEBUG
 
 			std::ifstream is(filename.c_str(), std::ios::binary);
 			if (!is.is_open()) {
@@ -157,34 +71,9 @@ namespace ifcre {
 			size_t s;
 			is.read((char*)&s, sizeof(size_t));
 			this->g_vertices.resize(s);
-			Real x_min, x_max, y_min, y_max, z_min, z_max;
-			x_min = y_min = z_min = FLT_MAX;
-			x_max = y_max = z_max = -FLT_MAX;
 			for (int i = 0; i < s; i++) {
 				is.read((char*)&this->g_vertices[i], sizeof(Real));
-				switch (i % 3)
-				{
-				case 0:
-				{
-					x_min = std::min(x_min, this->g_vertices[i]);
-					x_max = std::max(x_max, this->g_vertices[i]);
-					break;
-				}
-				case 1: {
-					y_min = std::min(y_min, this->g_vertices[i]);
-					y_max = std::max(y_max, this->g_vertices[i]);
-					break;
-				}
-				default: {
-					z_min = std::min(z_min, this->g_vertices[i]);
-					z_max = std::max(z_max, this->g_vertices[i]);
-					break;
-				}
-				}
 			}
-			this->pMax = glm::vec3(x_max, y_max, z_max);
-			this->pMin = glm::vec3(x_min, y_min, z_min);
-			m_center = (pMin + pMax) * 0.5f;
 			//normals
 			is.read((char*)&s, sizeof(size_t));
 			this->g_normals.resize(s);
@@ -210,8 +99,6 @@ namespace ifcre {
 					is.read((char*)&tmpvc[j], sizeof(unsigned int));
 					tmpvc[j]--;
 				}
-				components.emplace_back(ComponentModel(tmpvc, tmps));
-				components[i].setbbx(g_vertices);
 				c_indices[i] = tmpvc;
 			}
 
@@ -231,6 +118,7 @@ namespace ifcre {
 			}
 			getVerColor();
 			generateCompIds();
+			generate_bbxs_by_comps();
 			getVerAttrib();
 			divide_model_by_alpha();
 		}
@@ -289,8 +177,8 @@ namespace ifcre {
 		void generateCompIds() {
 			comp_ids.resize(g_vertices.size()/3);
 			int j = 0;
-			for (int i = 0; i < components.size(); i++) {
-				auto ix = components[i].getInices();
+			for (int i = 0; i < c_indices.size(); i++) {
+				auto ix = c_indices[i];
 				int s = ix.size();
 				for (int j = 0; j < s; j++) {
 					comp_ids[ix[j]] = i;
@@ -299,14 +187,13 @@ namespace ifcre {
 		}
 
 		Vector<Real> getVerColor() {
-			Vector<Real> color(g_vertices.size());
+			g_kd_color.resize(g_vertices.size());
 			for (int i = 0; i < g_indices.size(); i++) {
-				color[3 * g_indices[i]] = material_data[i / 3].kd.x;
-				color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
-				color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
 			}
-			g_kd_color = color;
-			return color;
+			return g_kd_color;
 		}
 
 		void divide_model_by_alpha() {
@@ -321,7 +208,118 @@ namespace ifcre {
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
 		}
+
+		void generate_bbxs_by_comps() {
+			size_t cindicessize = c_indices.size();
+			comps_bbx.resize(cindicessize * 6);
+			Real a_min[3], a_max[3];
+			int bbx_offset = 0;
+			for (auto& ix : c_indices) {
+				size_t s = ix.size();
+				a_min[0] = a_min[1] = a_min[2] = FLT_MAX;
+				a_max[0] = a_max[1] = a_max[2] = -FLT_MAX;
+				for (size_t i = 0; i < s; i++) {
+					for (int j = 0; j < 3; j++) {
+						a_min[j] = std::min(g_vertices[3 * ix[i] + j], a_min[j]);
+						a_max[j] = std::max(g_vertices[3 * ix[i] + j], a_max[j]);
+					}
+				}
+				for (int i = 0; i < 3; i++) {
+					comps_bbx[bbx_offset + i] = a_min[i];
+				}
+				for (int i = 0; i < 3; i++) {
+					comps_bbx[bbx_offset + i + 3] = a_max[i];
+				}
+				bbx_offset += 6;
+			}
+
+			for (size_t i = 0; i < cindicessize; i++) {
+				for (int j = 0; j < 3; j++) {
+					a_min[j] = std::min(comps_bbx[6 * i + j], a_min[j]);
+					a_max[j] = std::max(comps_bbx[6 * i + j + 3], a_max[j]);
+				}
+			}
+
+			this->pMax = glm::vec3(a_max[0], a_max[1], a_max[2]);
+			this->pMin = glm::vec3(a_min[0], a_min[1], a_min[2]);
+			m_center = (pMin + pMax) * 0.5f;
+		}
+
+		Vector<Real> generate_bbxs_by_vec(const Vector<uint32_t>& comp_indices) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
+			for (auto& id : comp_indices) {
+				for (int i = 0; i < 3; i++) {
+					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+				}
+				for (int i = 3; i < 6; i++) {
+					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+				}
+			}
+			Vector<Real> ret2(24);
+			for (int i = 0; i < 8; i++) {
+				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
+				ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
+				ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
+			}
+			return ret2;
+		}
+
+		void rotateInLocalSpace(glm::vec3& pick_center, float angle) {
+			glm::mat4 rot(1.0f);
+			glm::mat4 m(1.0f);
+			glm::mat4 inv_model = glm::inverse(m_model);
+			glm::vec3 model_pick = inv_model * glm::vec4(pick_center, 1.0f);
+			rot = glm::rotate(rot, angle, glm::vec3(0, 1, 0));
+			glm::vec3 trans = -model_pick;
+			m_model = m_model * glm::translate(m, -trans) * rot * glm::translate(m, trans);
+		}
+
+		void rotateInWorldSpace(glm::vec3& pick_center, float angle) {
+			glm::mat4 rot(1.0f);
+			glm::mat4 m(1.0f);
+			rot = glm::rotate(rot, angle, glm::vec3(1, 0, 0));
+			glm::vec3 trans = -pick_center;
+			m_model = glm::translate(m, -trans) * rot * glm::translate(m, trans) * m_model;
+		}
+
+		void translate(glm::vec3& step) {
+			glm::mat4 t(1.0f);
+			t = glm::translate(t, step);
+			m_model = t * m_model;
+		}
+
+		glm::vec3 getModelCenter() {
+			return m_center;
+		}
+
+		void setScaleFactor(Real scale) {
+			m_scale_factor = scale;
+		}
+
+		Real getScaleFactor() {
+			return m_scale_factor;
+		}
+
+		void setModelMatrix(const glm::mat4& model) {
+			m_model = model;
+		}
+		glm::mat4 getModelMatrix() {
+			return m_model;
+		}
+
+		uint32_t render_id;//seems a render_id combine with an array of vertex?
+		Vector<Real> ver_attrib;
+		Vector<Real> comps_bbx;//pmin, pmax
+		Vector<uint32_t> g_indices;
+		Vector<uint32_t> trans_ind;
+		Vector<uint32_t> no_trans_ind;
+		Vector<Vector<uint32_t>> c_indices;
+
+		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 };
+
 	private:
+		glm::mat4 m_model;
+		Real m_scale_factor;
 		glm::vec3 pMin, pMax;
 		glm::vec3 m_center;
 		Vector<MaterialData> material_data;

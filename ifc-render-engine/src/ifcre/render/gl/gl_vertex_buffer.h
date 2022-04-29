@@ -15,12 +15,15 @@ namespace ifcre {
 			, m_size(0) {}
 		void upload(Vector<Real>& vertices, Vector<uint32_t>& indices);
 		void upload(Vector<Real>& vertices);
+		void uploadBBXData(const Vector<Real>& vertices, const Vector<uint32_t>& indices);
+		void updateVertexAttributes(const Vector<Real>& vertices);
 		void vertexAttribDesc(uint32_t index, int32_t size, int32_t stride, const void* pointer);
 		void ssboAttribUpload(Vector<MaterialData>& mtlData);
 		void draw();
 		void drawNoTrans();
 		void drawTrans();
 		void drawByAddedEbo(uint32_t ebo_id);
+		void drawBBXLines();
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
 		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
 		void uploadNoTransElements(Vector<uint32_t>& indices);
