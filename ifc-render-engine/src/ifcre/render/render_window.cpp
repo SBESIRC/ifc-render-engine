@@ -83,12 +83,12 @@ namespace ifcre {
         if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
-                status.horizontal_move = status.last_mouse_x - xpos < 0 ? 1 : -1;
+                status.horizontal_move = xpos - status.last_mouse_x;
 
             }
             if (status.last_mouse_y != ypos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
-                status.vertical_move = status.last_mouse_y - ypos < 0 ? 1 : -1;
+                status.vertical_move = ypos - status.last_mouse_y;
             }
             //if (status.last_mouse_y != ypos) {
             //    camera.rotateByScreenY(status.click_world_center, glm::radians((status.last_mouse_y - ypos) > 0 ? 5.0f : -5.0f));

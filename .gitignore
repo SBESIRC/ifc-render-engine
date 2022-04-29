@@ -352,3 +352,4 @@ MigrationBackup/
 
 # other
 .vscode/
+workdir/resources/models/ifc/big_model.ifc

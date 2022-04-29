@@ -107,8 +107,8 @@ namespace ifcre {
 		}m_mouse_status;
 
 		struct {
-			Real mouse_hori_vel = 0.02;
-			Real mouse_vert_vel = 0.015;
+			Real mouse_hori_vel = 0.015;
+			Real mouse_vert_vel = 0.01;
 
 			bool anti_aliasing = true;
 		}m_option;
