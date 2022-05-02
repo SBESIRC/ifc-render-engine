@@ -225,7 +225,9 @@ namespace ifcre {
 			break;
 		}
 		case 5: {//draw bbx line
+			glDisable(GL_DEPTH_TEST);
 			vb->drawBBXLines();
+			glEnable(GL_DEPTH_TEST);
 			break;
 		}
 		default: {
