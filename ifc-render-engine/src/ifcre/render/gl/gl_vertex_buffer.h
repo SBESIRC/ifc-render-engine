@@ -22,10 +22,12 @@ namespace ifcre {
 		void draw();
 		void drawNoTrans();
 		void drawTrans();
+		void drawEdges();
 		void drawByAddedEbo(uint32_t ebo_id);
 		void drawBBXLines();
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
 		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
+		void UploadElementEdge(Vector<uint32_t>& edge_indices);
 		void uploadNoTransElements(Vector<uint32_t>& indices);
 		void uploadTransElements(Vector<uint32_t>& indices);
 
@@ -48,6 +50,8 @@ namespace ifcre {
 		uint32_t no_trans_size;
 		uint32_t m_eboid_for_trans;
 		uint32_t trans_size;
+		uint32_t m_eboid_for_edge;
+		uint32_t edge_size;
 		Vector<uint32_t> m_eboid_list;
 		Vector<uint32_t> m_size_list;
 	};

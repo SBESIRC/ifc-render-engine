@@ -68,6 +68,7 @@ namespace ifcre {
 				model_vb->uploadTransElements(ifc_test_model->trans_ind);
 			}
 			model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
+			model_vb->UploadElementEdge(ifc_test_model->edge_indices);
 			ifc_test_model->render_id = m_glrender->addModel(model_vb);
 
 			//bounding box needs a vertexBuffer as well
@@ -167,18 +168,21 @@ namespace ifcre {
 #endif
 			m_window.switchRenderBack();
 #ifndef ONLY_DEPTH_NROMAL_RES
-			//// 1. render scene
+			// 1. render scene
 			m_window.switchRenderColor();
 			m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
 
-			////2. render transparency scene
+			//2. render transparency scene
 			m_render.setAlpha(0.5);
 			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, TRANS) : void();
 			//m_window.readPixels();
 
-			//3. render bounding box
+			//3. render edges (maybe
+			m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
+
+			//4. render bounding box
 			if(m_window.getClickCompId() != -1){
 				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ static_cast<uint32_t>(m_window.getClickCompId()) }));
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE); 

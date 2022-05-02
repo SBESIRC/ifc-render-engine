@@ -34,6 +34,7 @@ public:
 
 struct Datas2OpenGL {
     vector<unsigned int> vert_indices;
+    vector<unsigned int> edge_indices;
     vector<vector<unsigned int>> search_m;
     vector<real_t> verts;
     vector<real_t> vert_normals2;

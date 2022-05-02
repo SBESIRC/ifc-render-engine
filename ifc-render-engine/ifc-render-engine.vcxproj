@@ -189,8 +189,12 @@
   <ItemGroup>
     <None Include="..\workdir\shaders\axis.frag" />
     <None Include="..\workdir\shaders\axis.vert" />
+    <None Include="..\workdir\shaders\bbx.frag" />
+    <None Include="..\workdir\shaders\bbx.vert" />
     <None Include="..\workdir\shaders\comp_id_write.frag" />
     <None Include="..\workdir\shaders\comp_id_write.vert" />
+    <None Include="..\workdir\shaders\edge.frag" />
+    <None Include="..\workdir\shaders\edge.vert" />
     <None Include="..\workdir\shaders\image_effect.frag" />
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />
