@@ -115,7 +115,8 @@ namespace ifcre {
             }
             Real x, y;
             if (click_z != 1.0 
-                && (ypos >= 0 && ypos < h && xpos >= 0 && xpos < w)) {
+                && (ypos >= 0 && ypos < h && xpos >= 0 && xpos < w)
+                && status.click_init_mask == 1) {
                 y = (h - ypos - 1) / h * 2 - 1;
                 x = xpos / w * 2 - 1;
             }
@@ -200,6 +201,10 @@ namespace ifcre {
 #ifdef TEST_COMP_ID
                     that->_setClickedWorldColors(click_x, click_y, false);
 #endif // TEST_COMP_ID
+                    that->m_mouse_status.click_init_mask = 1;
+                }
+                else {
+                    that->m_mouse_status.click_init_mask = -1;
                 }
                 status.rbtn_down = true;
                 break;

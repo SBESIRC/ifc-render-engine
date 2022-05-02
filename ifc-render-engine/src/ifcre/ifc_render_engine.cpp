@@ -119,7 +119,6 @@ namespace ifcre {
 		//m_render.enableTest(DEPTH_TEST);
 		//m_render.depthFunc(LESS_FUNC);
 		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
-		auto model_matrix = ifc_test_model->getModelMatrix();
 
 		// -------------- ifc model transform by mouse ---------------
 		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
@@ -133,13 +132,18 @@ namespace ifcre {
 		}
 
 		if (m_window.isRightMouseClicked()) {
-			if (m_window.isMouseMove()) {
+			if (m_window.isMouseMove() && m_last_rmclick) {
 				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
 				ifc_test_model->translate(step);
 			}
 			m_last_hover_pos = clicked_coord;
+			m_last_rmclick = true;
 		}
+		else {
+			m_last_rmclick = false;
+		}
+		auto model_matrix = ifc_test_model->getModelMatrix();
 
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
