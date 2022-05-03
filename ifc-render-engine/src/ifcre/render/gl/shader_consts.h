@@ -156,6 +156,21 @@ namespace ifcre {
 			"f_normal = t_inv_model * normal;\r\n"
 			"}\r\n";
 
+		const char* f_slct_bbx = "#version 330 core\r\n"
+			"out vec4 FragColor;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
+			"}\r\n";
+		const char* v_slct_bbx = "#version 330 core\r\n"
+			"layout(location = 0) in vec3 aPos;\r\n"
+			"uniform mat4 modelview;\r\n"
+			"uniform mat4 projection;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
+			"}\r\n";
+
 		const char* f_test = "#version 330 core\r\n"
 			"in vec3 go_color;\r\n"
 			"in vec3 normal;\r\n"

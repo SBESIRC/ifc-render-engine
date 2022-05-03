@@ -49,6 +49,8 @@ namespace ifcre {
 	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10);
 		glm::vec3 m_last_hover_pos = glm::vec3(0);
+		// right mouse click
+		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;
 	};
 }

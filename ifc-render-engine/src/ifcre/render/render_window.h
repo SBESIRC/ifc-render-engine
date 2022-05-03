@@ -101,6 +101,10 @@ namespace ifcre {
 			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
 			int32_t click_x = 0, click_y = 0;
+
+			// 1: inside of model
+			// -1: outside of model
+			int32_t click_init_mask = 0;
 			Real click_z = 1.0;
 			int click_comp_id = -1;
 			int hover_comp_id = -1;
