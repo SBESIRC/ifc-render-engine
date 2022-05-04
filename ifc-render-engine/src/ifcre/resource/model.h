@@ -38,7 +38,7 @@ namespace ifcre {
 	class IFCModel {
 	public:
 		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
-		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m){
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
 			
@@ -313,6 +313,7 @@ namespace ifcre {
 		Vector<uint32_t> g_indices;
 		Vector<uint32_t> trans_ind;
 		Vector<uint32_t> no_trans_ind;
+		Vector<uint32_t> edge_indices;
 		Vector<Vector<uint32_t>> c_indices;
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 };

@@ -83,6 +83,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_test_shader;
 		UniquePtr<GLSLProgram> m_axis_shader;
 		UniquePtr<GLSLProgram> m_select_bbx_shader;
+		UniquePtr<GLSLProgram> m_edge_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

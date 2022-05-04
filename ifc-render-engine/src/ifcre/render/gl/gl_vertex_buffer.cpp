@@ -68,6 +68,13 @@ namespace ifcre {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}
+	void GLVertexBuffer::drawEdges() {
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid_for_edge);
+		glDrawElements(GL_LINES, edge_size, GL_UNSIGNED_INT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
 
 	void GLVertexBuffer::drawByAddedEbo(uint32_t ebo_id) {
 		glBindVertexArray(m_vaoid);
@@ -116,6 +123,16 @@ namespace ifcre {
 		}
 		glBindVertexArray(0);
 	}
+	void GLVertexBuffer::UploadElementEdge(Vector<uint32_t>& edge_indices) {
+		edge_size = edge_indices.size();
+		glBindVertexArray(m_vaoid);
+		glGenBuffers(1, &m_eboid_for_edge);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid_for_edge);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glNamedBufferData(m_eboid_for_edge, edge_size * sizeof(uint32_t), edge_indices.data(), GL_STATIC_DRAW);
+		glBindVertexArray(0);
+	}
+
 
 	void GLVertexBuffer::uploadNoTransElements(Vector<uint32_t>& indices)
 	{

@@ -56,6 +56,18 @@
     <None Include="..\workdir\shaders\comp_id_write.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="..\workdir\shaders\bbx.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\bbx.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\edge.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="..\workdir\shaders\edge.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
