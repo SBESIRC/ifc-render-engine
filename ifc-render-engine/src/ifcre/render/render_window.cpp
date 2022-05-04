@@ -317,11 +317,14 @@ namespace ifcre {
             glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaa_fb.fbo_id);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+
+
+            // TODO delete
+            //m_framebuffer.m_comp_id_rt->attach(m_framebuffer.fbo_id);
+            //glBindFramebuffer(GL_READ_BUFFER, m_comp_fb.fbo_id);
+            //glBindFramebuffer(GL_DRAW_BUFFER, m_framebuffer.fbo_id);
+            //glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         }
-        m_framebuffer.m_comp_id_rt->attach(m_framebuffer.fbo_id);
-        glBindFramebuffer(GL_READ_BUFFER, m_comp_fb.fbo_id);
-        glBindFramebuffer(GL_DRAW_BUFFER, m_framebuffer.fbo_id);
-        glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
         m_cur_fbo = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

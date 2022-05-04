@@ -31,7 +31,9 @@ namespace ifcre {
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
 
-		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_slct_bbx, sc::f_slct_bbx);
+		String v_slct_bbx = util::read_file("shaders/slct_bbx.vert");
+		String f_slct_bbx = util::read_file("shaders/slct_bbx.frag");
+		m_select_bbx_shader = make_unique<GLSLProgram>(v_slct_bbx.c_str(), f_slct_bbx.c_str());
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
