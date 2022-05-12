@@ -1,4 +1,4 @@
-#version 330 core
+#version 460
 in vec3 go_color;
 out vec4 FragColor;
 void main()

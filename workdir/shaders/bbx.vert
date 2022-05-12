@@ -1,4 +1,4 @@
-#version 330 core
+#version 460
 layout(location = 0) in vec3 aPos;
 uniform mat4 modelview;
 uniform mat4 projection;

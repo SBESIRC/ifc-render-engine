@@ -1,4 +1,4 @@
-#version 330 core
+#version 460
 in vec3 go_color;
 in vec3 normal;
 in vec3 FragPos;

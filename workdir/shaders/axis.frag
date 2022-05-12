@@ -1,4 +1,4 @@
-#version 450 core
+#version 460
 
 flat in vec3 color;
 // out vec4 FragColor;

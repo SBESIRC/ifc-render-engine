@@ -1,4 +1,4 @@
-#version 450 core
+#version 460
 layout (location = 0) in vec3 pos;
 layout (location = 3) in int aComp;//todo
 

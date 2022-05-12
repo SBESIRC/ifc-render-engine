@@ -1,4 +1,4 @@
-#version 450 core
+#version 460
 layout(location = 0) in vec3 pos;
 
 flat out vec3 color;

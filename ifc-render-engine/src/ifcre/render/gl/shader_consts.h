@@ -4,14 +4,14 @@
 
 namespace ifcre {
 	namespace sc {
-		const char* f_axis = "#version 450 core\r\n"
+		const char* f_axis = "#version 460\r\n"
 			"flat in vec3 color;\r\n"
 			"// out vec4 FragColor;\r\n"
 			"void main(){\r\n"
 			"// gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\r\n"
 			"gl_FragColor = vec4(color, 1.0);\r\n"
 			"}\r\n";
-		const char* v_axis = "#version 450 core\r\n"
+		const char* v_axis = "#version 460\r\n"
 			"layout(location = 0) in vec3 pos;\r\n"
 			"flat out vec3 color;\r\n"
 			"uniform mat4 mvp;\r\n"
@@ -26,7 +26,22 @@ namespace ifcre {
 			"gl_Position = mvp * vec4(pos, 1.0);\r\n"
 			"}\r\n";
 
-		const char* f_comp_id_write = "#version 450 core\r\n"
+		const char* f_bbx = "#version 460\r\n"
+			"out vec4 FragColor;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
+			"}\r\n";
+		const char* v_bbx = "#version 460\r\n"
+			"layout(location = 0) in vec3 aPos;\r\n"
+			"uniform mat4 modelview;\r\n"
+			"uniform mat4 projection;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
+			"}\r\n";
+
+		const char* f_comp_id_write = "#version 460\r\n"
 			"out vec4 FragId;\r\n"
 			"flat in int comp;\r\n"
 			"vec3 int2rgb(int num){\r\n"
@@ -42,7 +57,7 @@ namespace ifcre {
 			"//FragId=vec4((comp>>16)/128.,(comp>>8)%128/128.,(comp%128)/128.,1.);\r\n"
 			"//FragId=vec4(1.,1.,1.,1.);\r\n"
 			"}\r\n";
-		const char* v_comp_id_write = "#version 450 core\r\n"
+		const char* v_comp_id_write = "#version 460\r\n"
 			"layout (location = 0) in vec3 pos;\r\n"
 			"layout (location = 3) in int aComp;//todo\r\n"
 			"uniform mat4 mvp;\r\n"
@@ -53,7 +68,25 @@ namespace ifcre {
 			"gl_Position = mvp * vec4(pos, 1.0);\r\n"
 			"}\r\n";
 
-		const char* f_image_effect = "#version 450 core\r\n"
+		const char* f_edge = "#version 460\r\n"
+			"in vec3 go_color;\r\n"
+			"out vec4 FragColor;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"FragColor = vec4(go_color,1.0);\r\n"
+			"}\r\n";
+		const char* v_edge = "#version 460\r\n"
+			"layout(location = 0) in vec3 aPos;\r\n"
+			"layout(location = 2) in vec3 aColor;\r\n"
+			"uniform mat4 mvp;\r\n"
+			"out vec3 go_color;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"go_color = aColor/2;\r\n"
+			"gl_Position = mvp * vec4(aPos, 1.0);\r\n"
+			"}\r\n";
+
+		const char* f_image_effect = "#version 460\r\n"
 			"out vec4 FragColor;\r\n"
 			"in vec2 f_texcoord[5];\r\n"
 			"uniform sampler2D screenTexture;\r\n"
@@ -98,7 +131,7 @@ namespace ifcre {
 			"FragColor = vec4(texture(screenTexture, f_texcoord[0]).rgb,1.0);\r\n"
 			"#endif\r\n"
 			"}\r\n";
-		const char* v_image_effect = "#version 450 core\r\n"
+		const char* v_image_effect = "#version 460\r\n"
 			"layout(location = 0) in vec2 pos;\r\n"
 			"layout(location = 1) in vec2 texcoord;\r\n"
 			"out vec2 f_texcoord[5];\r\n"
@@ -113,7 +146,7 @@ namespace ifcre {
 			"gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);\r\n"
 			"}\r\n";
 
-		const char* f_normal_depth_write = "#version 450 core\r\n"
+		const char* f_normal_depth_write = "#version 460\r\n"
 			"out vec4 FragColor;\r\n"
 			"in vec3 f_normal;\r\n"
 			"vec2 EncodeViewNormalStereo( vec3 n )\r\n"
@@ -142,7 +175,7 @@ namespace ifcre {
 			"// FragColor = vec4(d,d,d,1.0);\r\n"
 			"// FragColor = vec4(1.0,1.0,1.0,1.0);\r\n"
 			"}\r\n";
-		const char* v_normal_depth_write = "#version 450 core\r\n"
+		const char* v_normal_depth_write = "#version 460\r\n"
 			"layout (location = 0) in vec3 pos;\r\n"
 			"layout (location = 1) in vec3 normal;\r\n"
 			"uniform mat3 t_inv_model;\r\n"
@@ -156,13 +189,13 @@ namespace ifcre {
 			"f_normal = t_inv_model * normal;\r\n"
 			"}\r\n";
 
-		const char* f_slct_bbx = "#version 330 core\r\n"
+		const char* f_slct_bbx = "#version 460\r\n"
 			"out vec4 FragColor;\r\n"
 			"void main()\r\n"
 			"{\r\n"
 			"FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
 			"}\r\n";
-		const char* v_slct_bbx = "#version 330 core\r\n"
+		const char* v_slct_bbx = "#version 460\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"uniform mat4 modelview;\r\n"
 			"uniform mat4 projection;\r\n"
@@ -171,7 +204,7 @@ namespace ifcre {
 			"gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 
-		const char* f_test = "#version 330 core\r\n"
+		const char* f_test = "#version 460\r\n"
 			"in vec3 go_color;\r\n"
 			"in vec3 normal;\r\n"
 			"in vec3 FragPos;\r\n"
@@ -195,7 +228,7 @@ namespace ifcre {
 			"vec3 diffuse = max(dot(norm, camdir), 0.0) * color * 0.3;\r\n"
 			"FragColor = vec4(color * 0.7 + diffuse, alpha);\r\n"
 			"}\r\n";
-		const char* v_test = "#version 330 core\r\n"
+		const char* v_test = "#version 460\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 1) in vec3 aNormal;\r\n"
 			"layout(location = 2) in vec3 aColor;\r\n"
@@ -214,37 +247,8 @@ namespace ifcre {
 			"comp = aComp;\r\n"
 			"normal = mat3(transpose(inverse(model)))*aNormal;\r\n"
 			"gl_Position = projection * view * vec4(FragPos, 1.0);\r\n"
-			"}\r\n";/*
-		const char* v_slct_bbx = "#version 330 core\r\n"
-			"layout(location = 0) in vec3 aPos;\r\n"
-			"uniform mat4 modelview;\r\n"
-			"uniform mat4 projection;\r\n"
-			"void main()\r\n"
-			"{\r\n"
-			"gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		const char* f_slct_bbx = "#version 330 core\r\n"
-			"out vec4 FragColor;\r\n"
-			"void main()\r\n"
-			"{\r\n"
-			"FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
-			"}\r\n";*/
-		const char* v_edge="#version 330 core\r\n"
-			"layout(location = 0) in vec3 aPos;\r\n"
-			"layout(location = 2) in vec3 aColor;\r\n"
-			"uniform mat4 mvp;\r\n"
-			"out vec3 go_color;\r\n"
-			"void main()\r\n"
-			"{\r\n"
-			"  go_color = aColor/2;\r\n"
-			"  gl_Position = mvp * vec4(aPos, 1.0);\r\n"
-			"}\r\n";
-		const char* f_edge="#version 330 core\r\n"
-			"out vec4 FragColor;\r\n"
-			"in vec3 go_color;\r\n"
-			"void main(){\r\n"
-			" FragColor = vec4(go_color,1.0);\r\n"
-			"}\r\n";
+
 	}// shader_consts
 
 }
