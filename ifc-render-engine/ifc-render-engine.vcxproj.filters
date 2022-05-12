@@ -9,6 +9,8 @@
     <ClCompile Include="src\ifcre\render\gl\gl_vertex_buffer.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_render_texture.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
+    <ClCompile Include="src\ifcre\render\vk\vulkan_context.cpp" />
+    <ClCompile Include="src\ifcre\render\vk\vulkan_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -30,6 +32,8 @@
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
+    <ClInclude Include="src\ifcre\render\vk\vulkan_context.h" />
+    <ClInclude Include="src\ifcre\render\vk\vulkan_util.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">

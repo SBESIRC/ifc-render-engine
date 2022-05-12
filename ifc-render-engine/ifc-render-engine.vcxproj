@@ -78,9 +78,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(SolutionDir)3rdparty\vulkan-1.2.189.2\include;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(SolutionDir)3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <TargetExt>.dll</TargetExt>
   </PropertyGroup>
@@ -133,7 +133,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;myOwnFile.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;myOwnFile.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -164,6 +164,8 @@
     <ClCompile Include="src\ifcre\render\render_window.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_vertex_buffer.cpp" />
     <ClCompile Include="src\ifcre\render\gl_render.cpp" />
+    <ClCompile Include="src\ifcre\render\vk\vulkan_context.cpp" />
+    <ClCompile Include="src\ifcre\render\vk\vulkan_util.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
@@ -180,6 +182,8 @@
     <ClInclude Include="src\ifcre\render\render_window.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_vertex_buffer.h" />
     <ClInclude Include="src\ifcre\render\gl_render.h" />
+    <ClInclude Include="src\ifcre\render\vk\vulkan_context.h" />
+    <ClInclude Include="src\ifcre\render\vk\vulkan_util.h" />
     <ClInclude Include="src\ifcre\resource\ifc_geometry.h" />
     <ClInclude Include="src\ifcre\resource\model.h" />
     <ClInclude Include="src\ifcre\resource\OBJ_Loader.h.h" />
