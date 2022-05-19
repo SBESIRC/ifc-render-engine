@@ -6,7 +6,7 @@
 #include <string>
 
 
-namespace galaxysailing
+namespace ifcre
 {
     // public
     void VulkanContext::initialize(GLFWwindow* window)
@@ -22,6 +22,7 @@ namespace galaxysailing
 
         createSwapchain();
         createSwapchainImageViews();
+        createDepthResources();
     }
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -125,13 +126,16 @@ namespace galaxysailing
             if (isDeviceSuitable(device.second))
             {
                 m_physicalDevice = device.second;
+                VkPhysicalDeviceProperties physical_device_properties;
+                vkGetPhysicalDeviceProperties(m_physicalDevice, &physical_device_properties);
+
+                m_maxMSAASample = physical_device_properties.limits.framebufferColorSampleCounts
+                    & physical_device_properties.limits.framebufferDepthSampleCounts;
                 break;
             }
         }
 
-        if (m_physicalDevice == VK_NULL_HANDLE) {
-            assert(m_physicalDevice == VK_NULL_HANDLE);
-        }
+        assert(m_physicalDevice != VK_NULL_HANDLE);
     }
 
     void VulkanContext::createLogicalDevice() {
@@ -209,8 +213,9 @@ namespace galaxysailing
         VK_CHECK_RESULT(vkCreateCommandPool(m_device, &command_pool_create_info, nullptr, &m_commandPool));
     }
 
+    // refer to swapchain image extent
     void VulkanContext::createDepthResources() {
-        VkFormat depthFormat = findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }
+        m_depthImageFormat = findSupportedFormat({ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT }
             , VK_IMAGE_TILING_OPTIMAL
             , VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
         VulkanUtil::createImage(m_physicalDevice,
@@ -225,7 +230,8 @@ namespace galaxysailing
             m_depthImageMemory,
             0,
             1,
-            1);
+            1,
+            VK_SAMPLE_COUNT_1_BIT);
 
         m_depthImageView = VulkanUtil::createImageView(m_device
             , m_depthImage
@@ -303,7 +309,7 @@ namespace galaxysailing
     void VulkanContext::createSwapchainImageViews() {
         m_swapchainImageViews.resize(m_swapchainImages.size());
         for (size_t i = 0, len = m_swapchainImages.size(); i < len; ++i) {
-            VulkanUtil::createImageView(m_device
+            m_swapchainImageViews[i] = VulkanUtil::createImageView(m_device
                 , m_swapchainImages[i]
                 , m_swapchainImageFormat
                 , VK_IMAGE_ASPECT_COLOR_BIT
@@ -311,6 +317,50 @@ namespace galaxysailing
                 , 1
                 , 1);
         }
+    }
+
+    void VulkanContext::clearSwapchain() {
+        vkDestroyImageView(m_device, m_depthImageView, nullptr);
+        vkDestroyImage(m_device, m_depthImage, nullptr);
+        vkFreeMemory(m_device, m_depthImageMemory, nullptr);
+        for (size_t i = 0, len = m_swapchainImages.size(); i < len; ++i) {
+            vkDestroyImageView(m_device, m_swapchainImageViews[i], nullptr);
+        }
+        vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
+    }
+
+    VkCommandBuffer VulkanContext::beginSingleTimeCommand() {
+        // 1. allocate cmd buffer
+        VkCommandBufferAllocateInfo alloc_info{};
+        alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        alloc_info.commandPool = m_commandPool;
+        alloc_info.commandBufferCount = 1u;
+        VkCommandBuffer cmd_buffer;
+        VK_CHECK_RESULT(vkAllocateCommandBuffers(m_device, &alloc_info, &cmd_buffer));
+
+        // 2. begin cmd buffer
+        VkCommandBufferBeginInfo begin_info{};
+        begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+        VK_CHECK_RESULT(vkBeginCommandBuffer(cmd_buffer, &begin_info));
+
+        return cmd_buffer;
+    }
+
+    void VulkanContext::endSingleTimeCommand(VkCommandBuffer cmd_buffer) {
+        VK_CHECK_RESULT(vkEndCommandBuffer(cmd_buffer));
+
+        // submit
+        VkSubmitInfo submit_info{};
+        submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submit_info.commandBufferCount = 1;
+        submit_info.pCommandBuffers = &cmd_buffer;
+        VK_CHECK_RESULT(vkQueueSubmit(m_graphicsQueue, 1, &submit_info, nullptr));
+        VK_CHECK_RESULT(vkQueueWaitIdle(m_graphicsQueue));
+
+        // free this cmd buffer
+        vkFreeCommandBuffers(m_device, m_commandPool, 1, &cmd_buffer);
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -352,6 +402,7 @@ namespace galaxysailing
         if (supported != GLFW_TRUE)
         {
             // TODO
+            throw std::runtime_error("vulkan not support!");
         }
         uint32_t glfwExtensionCount = 0;
         const char** glfwExtensions;
@@ -426,8 +477,7 @@ namespace galaxysailing
 
         return indices.isComplete()
             && extensionsSupported
-            && swapChainAdequate
-            && supportedFeatures.samplerAnisotropy;
+            && swapChainAdequate;
     }
 
 

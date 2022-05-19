@@ -71,7 +71,6 @@ namespace ifcre {
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         that->recreateFramebuffer(width, height);
-        glViewport(0, 0, width, height);
     }
 
     void RenderWindow::cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -165,7 +164,7 @@ namespace ifcre {
         
     }
     
-    void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    void RenderWindow::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
@@ -246,7 +245,7 @@ namespace ifcre {
         // mouse callback
         glfwSetCursorPosCallback(m_window, cursor_pos_callback);
         glfwSetScrollCallback(m_window, scroll_callback);
-        glfwSetMouseButtonCallback(m_window, mouse_button_button_callback);
+        glfwSetMouseButtonCallback(m_window, mouse_button_callback);
         
 
         // load gl functions by glad
@@ -405,7 +404,12 @@ namespace ifcre {
     void RenderWindow::recreateFramebuffer(int w, int h)
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
+        while (w == 0 || h == 0) {
+            glfwGetFramebufferSize(m_window, &w, &h);
+            glfwWaitEvents();
+        }
         createFramebuffer(w, h);
+        glViewport(0, 0, w, h);
     }
 
     void RenderWindow::readPixels() {

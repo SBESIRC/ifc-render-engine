@@ -48,6 +48,10 @@ namespace ifcre {
     {
         glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
+    void GLSLProgram::bindUniformBlock(const std::string& name, int index) const
+    {
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);
+    }
     void GLSLProgram::use() const
     {
         glUseProgram(id);

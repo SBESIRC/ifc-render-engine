@@ -1,5 +1,5 @@
-#ifndef _GALAXYSAILING_VULKAN_CONTEXT_H_
-#define _GALAXYSAILING_VULKAN_CONTEXT_H_
+#ifndef _IFCRE_VULKAN_CONTEXT_H_
+#define _IFCRE_VULKAN_CONTEXT_H_
 #ifndef GLFW_INCLUDE_VULKAN
 #define GLFW_INCLUDE_VULKAN 1
 #endif
@@ -10,9 +10,8 @@
 #include <optional>
 #include <vector>
 
-namespace galaxysailing
+namespace ifcre
 {
-
     struct QueueFamilyIndices
     {
         std::optional<uint32_t> graphicsFamily;
@@ -30,6 +29,7 @@ namespace galaxysailing
     class VulkanContext
     {
     public:
+        GLFWwindow* m_window = nullptr;
         VkInstance m_instance = VK_NULL_HANDLE;
         VkSurfaceKHR m_surface = VK_NULL_HANDLE;
         VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
@@ -50,7 +50,7 @@ namespace galaxysailing
         VkImageView m_depthImageView = VK_NULL_HANDLE;
         VkDeviceMemory m_depthImageMemory = VK_NULL_HANDLE;
 
-        std::vector<VkFramebuffer> m_swapchainFrambuffers;
+        VkSampleCountFlags m_maxMSAASample;
 
         PFN_vkWaitForFences         fp_vkWaitForFences;
         PFN_vkResetFences           fp_vkResetFences;
@@ -75,10 +75,13 @@ namespace galaxysailing
 
         void createSwapchain();
         void createSwapchainImageViews();
+        void createDepthResources();
         void clearSwapchain();
 
+        VkCommandBuffer beginSingleTimeCommand();
+        void endSingleTimeCommand(VkCommandBuffer cmd_buffer);
+
     private:
-        GLFWwindow* m_window = nullptr;
         void createInstance();
         void setupDebugMessenger();
         void createWindowSurface();
@@ -86,7 +89,6 @@ namespace galaxysailing
         void createLogicalDevice();
 
         void createCommandPool();
-        void createDepthResources();
 
     private:
         bool m_enableValidationLayer = true;
@@ -111,7 +113,6 @@ namespace galaxysailing
         VkPresentModeKHR chooseSwapchainPresentModeFromDetails(std::vector<VkPresentModeKHR>& available_present_modes);
         VkExtent2D chooseSwapchainExtentFromDetails(VkSurfaceCapabilitiesKHR capabilities);
         VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
-
     };
 
 }

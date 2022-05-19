@@ -3,18 +3,23 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec3 aColor;
 layout(location = 3) in int aComp;
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
-out vec3 go_color;
-out vec3 normal;
-out vec3 FragPos;
-flat out int comp;
+
+layout(std140, binding = 0)uniform TransformsUBO{
+	mat4 model;						// 0 ~ 64
+	mat4 proj_view_model;			// 64 ~ 128
+	mat3 transpose_inv_model;		// 128 ~ 176
+} ubo;
+
+layout(location = 0) out vec3 vGoColor;
+layout(location = 1) out vec3 vNormal;
+layout(location = 2) out vec3 vFragPos;
+layout(location = 3) flat out int vComp;
 void main()
 {
-	go_color = aColor;
-	FragPos = vec3(model * vec4(aPos, 1.0));
-	comp = aComp;
-	normal = mat3(transpose(inverse(model)))*aNormal;
-	gl_Position = projection * view * vec4(FragPos, 1.0);
+
+	vGoColor = aColor;
+	vFragPos = vec3(ubo.model * vec4(aPos, 1.0));
+	vComp = aComp;
+	vNormal = ubo.transpose_inv_model * aNormal;
+	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }

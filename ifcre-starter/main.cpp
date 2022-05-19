@@ -5,7 +5,7 @@
 #ifdef _DEBUG
 	const char model[] = "resources\\models\\ifc_midfile\\temp3.midfile";
 #else
-	const char model[] = "resources\\models\\ifc\\0407.ifc";
+	const char model[] = "resources\\models\\ifc\\ff.ifc";
 #endif // _DEBUG
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
@@ -47,6 +47,8 @@ int main(int argc, char**argv) {
 	re.set_config("height", "900");
 	re.set_config("model_type", "ifc");
 	re.set_config("use_transparency", "true");
+	//re.set_config("render_api", "opengl");
+	re.set_config("render_api", "vulkan");
 	re.set_config("file", argc == 1? model : argv[1]);
 
 	re.init();
