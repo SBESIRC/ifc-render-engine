@@ -9,7 +9,7 @@ namespace ifcre {
 	public:
 		enum LayoutType : uint8_t
 		{
-			layout_test = 0,
+			layout_base = 0,
 			layout_type_count
 		};
 

@@ -25,6 +25,8 @@ void main()
 	vec3 norm = normalize(vNormal);
 	vec3 camdir = normalize(ubo.cameraPos - vFragPos);
 	vec3 diffuse = max(dot(norm, camdir), 0.0) * color * 0.3;
-    FragColor = vec4(color * 0.7 + diffuse, ubo.alpha);
-	// FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+	color = color * 0.7 + diffuse;
+    FragColor = vec4(color, ubo.alpha);
+
 }

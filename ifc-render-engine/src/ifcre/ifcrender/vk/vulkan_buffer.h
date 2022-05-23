@@ -40,6 +40,10 @@ namespace ifcre {
         VkBuffer getBuffer() const { return m_buffer; }
         uint32_t getSize() const { return m_size; }
 
+        void* cptr() {
+
+        }
+
     private:
         void _createWithoutStaging(VkDeviceSize buffer_size);
         void _createWithStaging(void* data, VkDeviceSize buffer_size);

@@ -18,7 +18,6 @@
     <ClCompile Include="src\ifcre\ifcrender\vk\ifc_vk_render.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\surface_ui.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />
-    <ClCompile Include="src\ifcre\ifcrender\scene.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.cpp" />
   </ItemGroup>
   <ItemGroup>

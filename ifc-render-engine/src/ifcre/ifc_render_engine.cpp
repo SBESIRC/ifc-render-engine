@@ -214,6 +214,7 @@ namespace ifcre {
 			m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
+			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, ALL);
 
 			//2. render transparency scene
 			m_render.setAlpha(0.5);
@@ -230,17 +231,17 @@ namespace ifcre {
 			}
 #endif
 
+
+			// -------------- render axis, not normal render procedure ---------------
+			m_render.renderAxis(*ifc_test_model
+				, clicked_coord
+				, m_camera->getViewPos()
+				, m_view_pos);
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
 		m_render.postRender(m_window);
-
-		// -------------- render axis, not normal render procedure ---------------
-		m_render.renderAxis(*ifc_test_model
-			, clicked_coord
-			, m_camera->getViewPos()
-			, m_view_pos);
-		// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 }

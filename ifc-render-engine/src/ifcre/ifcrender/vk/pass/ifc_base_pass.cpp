@@ -11,43 +11,47 @@ namespace ifcre {
         if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
             return;
         }
-        VulkanBuffer& vertex_buffer = *(mesh_it->second.vertexBuffer);
-        VulkanBuffer& opaque_index_buffer = *(mesh_it->second.opaqueIndexBuffer);
-        //VulkanBuffer& g_index_buffer = *(mesh_it->second.gIndexBuffer);
+        auto& mesh_buffer = mesh_it->second;
+        VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
+        VulkanBuffer& opaque_index_buffer = *(mesh_buffer.opaqueIndexBuffer);
+        VulkanBuffer& transparency_index_bufer = *(mesh_buffer.transparencyIndexBuffer);
+        VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
 
         auto& ctx = *m_vkContext;
         auto current_frame_index = m_commandInfo.currentFrameIndex;
         auto image_index = m_commandInfo.imageIndex;
         auto& cmd_buffer = m_commandInfo.cmdBuffer;
-        {
-            {
-                VkRenderPassBeginInfo renderpass_begin_info{};
-                renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-                renderpass_begin_info.renderPass = m_framebuffer.render_pass;
-                renderpass_begin_info.framebuffer = m_swapchainFramebuffers[image_index];
-                renderpass_begin_info.renderArea.offset = { 0, 0 };
-                renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
+		{
+			VkRenderPassBeginInfo renderpass_begin_info{};
+			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderpass_begin_info.renderPass = m_framebuffer.render_pass;
+			renderpass_begin_info.framebuffer = m_swapchainFramebuffers[image_index];
+			renderpass_begin_info.renderArea.offset = { 0, 0 };
+			renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
 
-                std::array<VkClearValue, 2> clear_values;
-                clear_values[0].color = { {1.0f, 1.0f, 1.0f, 1.0f} };
-                clear_values[1].depthStencil = { 1.0f, 0 };
-                renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
-                renderpass_begin_info.pClearValues = clear_values.data();
-                ctx.fp_vkCmdBeginRenderPass(cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-            }
-            ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].pipeline);
-            ctx.fp_vkCmdSetViewport(cmd_buffer, 0, 1, &m_commandInfo.viewport);
-            ctx.fp_vkCmdSetScissor(cmd_buffer, 0, 1, &m_commandInfo.scissor);
+			std::array<VkClearValue, 2> clear_values;
+			clear_values[0].color = { {1.0f, 1.0f, 1.0f, 1.0f} };
+			clear_values[1].depthStencil = { 1.0f, 0 };
+			renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+			renderpass_begin_info.pClearValues = clear_values.data();
+			ctx.fp_vkCmdBeginRenderPass(cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+		}
+		ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].pipeline);
+		ctx.fp_vkCmdSetViewport(cmd_buffer, 0, 1, &m_commandInfo.viewport);
+		ctx.fp_vkCmdSetScissor(cmd_buffer, 0, 1, &m_commandInfo.scissor);
 
-            VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
-            VkDeviceSize offsets[] = { 0 };
-            ctx.fp_vkCmdBindVertexBuffers(cmd_buffer, 0, 1, vertex_buffers, offsets);
-            ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, opaque_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-            ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].layout, 0, 1, &m_descriptorInfos[layout_test].descriptor_set, 0, nullptr);
+		VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		ctx.fp_vkCmdBindVertexBuffers(cmd_buffer, 0, 1, vertex_buffers, offsets);
+		ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
+		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, opaque_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		ctx.fp_vkCmdDrawIndexed(cmd_buffer, opaque_index_buffer.getSize(), 1, 0, 0, 0);
 
-            ctx.fp_vkCmdDrawIndexed(cmd_buffer, opaque_index_buffer.getSize(), 1, 0, 0, 0);
-            ctx.fp_vkCmdEndRenderPass(cmd_buffer);
-        }
+        ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].pipeline);
+        ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
+		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, transparency_index_bufer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		ctx.fp_vkCmdDrawIndexed(cmd_buffer, transparency_index_bufer.getSize(), 1, 0, 0, 0);
+		ctx.fp_vkCmdEndRenderPass(cmd_buffer);
 
     }
 
@@ -170,7 +174,7 @@ namespace ifcre {
             layout_info.bindingCount = static_cast<uint32_t>(ubo_layout_bindings.size());
             layout_info.pBindings = ubo_layout_bindings.data();
 
-            VK_CHECK_RESULT(vkCreateDescriptorSetLayout(ctx.m_device, &layout_info, nullptr, &m_descriptorInfos[layout_test].layout));
+            VK_CHECK_RESULT(vkCreateDescriptorSetLayout(ctx.m_device, &layout_info, nullptr, &m_descriptorInfos[layout_base].layout));
         }
 
         {
@@ -186,9 +190,9 @@ namespace ifcre {
             alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
             alloc_info.descriptorPool = m_descriptorPool;
             alloc_info.descriptorSetCount = 1U;
-            alloc_info.pSetLayouts = &m_descriptorInfos[render_pipeline_opaque].layout;
+            alloc_info.pSetLayouts = &m_descriptorInfos[layout_base].layout;
 
-            VK_CHECK_RESULT(vkAllocateDescriptorSets(ctx.m_device, &alloc_info, &m_descriptorInfos[layout_test].descriptor_set));
+            VK_CHECK_RESULT(vkAllocateDescriptorSets(ctx.m_device, &alloc_info, &m_descriptorInfos[layout_base].descriptor_set));
 
             // TODO vkUpdateDescriptorSets
             auto& uniform_buffer_map = m_vulkanResources->uniformBufferMap;
@@ -205,7 +209,7 @@ namespace ifcre {
 
             std::array<VkWriteDescriptorSet, 2> write_desc_sets{};
             write_desc_sets[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_desc_sets[0].dstSet = m_descriptorInfos[layout_test].descriptor_set;
+            write_desc_sets[0].dstSet = m_descriptorInfos[layout_base].descriptor_set;
             write_desc_sets[0].dstBinding = 0;
             write_desc_sets[0].dstArrayElement = 0;
             write_desc_sets[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -213,7 +217,7 @@ namespace ifcre {
             write_desc_sets[0].pBufferInfo = &transforms_buffer_info;
 
             write_desc_sets[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            write_desc_sets[1].dstSet = m_descriptorInfos[layout_test].descriptor_set;
+            write_desc_sets[1].dstSet = m_descriptorInfos[layout_base].descriptor_set;
             write_desc_sets[1].dstBinding = 1;
             write_desc_sets[1].dstArrayElement = 0;
             write_desc_sets[1].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -319,13 +323,11 @@ namespace ifcre {
     {
         auto& ctx = *m_vkContext;
         m_renderPipeline.resize(render_pipeline_count);
+        auto vert_code = VulkanUtil::compileFile("shaders/test.vert", shaderc_glsl_vertex_shader);
+        auto frag_code = VulkanUtil::compileFile("shaders/test.frag", shaderc_glsl_fragment_shader);
+        VkShaderModule vert_shader_module = VulkanUtil::createShaderModule(ctx.m_device, vert_code);
+        VkShaderModule frag_shader_module = VulkanUtil::createShaderModule(ctx.m_device, frag_code);
         {
-            auto vert_code = VulkanUtil::compileFile("shaders/test.vert", shaderc_glsl_vertex_shader);
-            auto frag_code = VulkanUtil::compileFile("shaders/test.frag", shaderc_glsl_fragment_shader);
-
-            VkShaderModule vert_shader_module = VulkanUtil::createShaderModule(ctx.m_device, vert_code);
-            VkShaderModule frag_shader_module = VulkanUtil::createShaderModule(ctx.m_device, frag_code);
-
             VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
             vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
             vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -388,7 +390,7 @@ namespace ifcre {
             // VK_POLYGON_MODE_POINT : polygon vertices are drawn as points
             rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
             rasterizer.lineWidth = 1.0f;
-            rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+            rasterizer.cullMode = VK_CULL_MODE_NONE;
             rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
             rasterizer.depthBiasEnable = VK_FALSE;
             //rasterizer.depthBiasConstantFactor = 0.0f; // Optional
@@ -430,7 +432,7 @@ namespace ifcre {
             VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
             pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipelineLayoutInfo.setLayoutCount = 1;
-            pipelineLayoutInfo.pSetLayouts = &m_descriptorInfos[render_pipeline_opaque].layout;
+            pipelineLayoutInfo.pSetLayouts = &m_descriptorInfos[layout_base].layout;
             pipelineLayoutInfo.pushConstantRangeCount = 0;
 
             VK_CHECK_RESULT(vkCreatePipelineLayout(ctx.m_device, &pipelineLayoutInfo, nullptr, &m_renderPipeline[render_pipeline_opaque].layout));
@@ -474,11 +476,37 @@ namespace ifcre {
             pipelineInfo.pDynamicState = &dynamic_state_ci;
 
             VK_CHECK_RESULT(vkCreateGraphicsPipelines(ctx.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_renderPipeline[render_pipeline_opaque].pipeline));
+            
+            // transparency pipeline
+            VK_CHECK_RESULT(vkCreatePipelineLayout(ctx.m_device, &pipelineLayoutInfo, nullptr, &m_renderPipeline[render_pipeline_transparency].layout));
 
-            // ---------------------clean up shader-------------------------------
-            vkDestroyShaderModule(ctx.m_device, frag_shader_module, nullptr);
-            vkDestroyShaderModule(ctx.m_device, vert_shader_module, nullptr);
+            colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+            colorBlendAttachment.blendEnable = VK_TRUE;
+            colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA; // Optional
+            colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
+            colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD; // Optional
+            colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
+            colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO; // Optional
+            colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD; // Optional
+
+            colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+            colorBlending.logicOpEnable = VK_FALSE;
+            colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
+            colorBlending.attachmentCount = 1;
+            colorBlending.pAttachments = &colorBlendAttachment;
+            colorBlending.blendConstants[0] = 0.0f; // Optional
+            colorBlending.blendConstants[1] = 0.0f; // Optional
+            colorBlending.blendConstants[2] = 0.0f; // Optional
+            colorBlending.blendConstants[3] = 0.0f; // Optional
+
+            pipelineInfo.pColorBlendState = &colorBlending;
+            VK_CHECK_RESULT(vkCreateGraphicsPipelines(ctx.m_device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_renderPipeline[render_pipeline_transparency].pipeline));
         }
+
+
+        // ---------------------clean up shader-------------------------------
+        vkDestroyShaderModule(ctx.m_device, frag_shader_module, nullptr);
+        vkDestroyShaderModule(ctx.m_device, vert_shader_module, nullptr);
     }
 
     void VulkanIFCBasePass::_createFramebuffers()

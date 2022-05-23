@@ -129,7 +129,7 @@ namespace ifcre
         auto& vertices = *payload.vertices;
 
         mesh_buffer.vertexBuffer = MAKE_SHARED_VERTEX_BUFFER(ctx);
-        mesh_buffer.vertexBuffer->create<float>(vertices.data(), vertices.size());
+        mesh_buffer.vertexBuffer->create<Real>(vertices.data(), vertices.size());
 
         mesh_buffer.gIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
         mesh_buffer.gIndexBuffer->create<uint32_t>(g_indices.data(), g_indices.size());
@@ -139,6 +139,11 @@ namespace ifcre
 
         mesh_buffer.transparencyIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
         mesh_buffer.transparencyIndexBuffer->create<uint32_t>(transparency_indices.data(), transparency_indices.size());
+
+        //std::cout << "opaque_indices size: " << opaque_indices.size() << "\n";
+        //std::cout << "transparency_indices size: " << transparency_indices.size() << "\n";
+
+        //std::cout << "g_indices size: " << g_indices.size() << "\n";
 
 #ifndef _DEBUG
         mesh_buffer.edgeIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
