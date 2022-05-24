@@ -13,6 +13,7 @@ namespace ifcre {
 	struct GLUniformBufferMap {
 		SharedPtr<GLUniformBuffer> transformsUBO;
 		SharedPtr<GLUniformBuffer> ifcRenderUBO;
+		SharedPtr<GLUniformBuffer> transformMVPUBO;
 	};
 
 	class GLUniformBuffer {

@@ -63,7 +63,7 @@ namespace ifcre
         VK_CHECK_RESULT(m_vkContext.fp_vkBeginCommandBuffer(m_commandBuffers[m_currentFrameIndex], &cmd_buffer_begin_info));
 
         // TODO Draw
-        auto& camera = *scene.m_camera;
+        auto& camera = *scene.m_editCamera;
         auto& ifc_object = *scene.m_ifcObject;
         IFCRenderUBO ifc_render_ubo{};
         ifc_render_ubo.alpha = 0.5;
@@ -156,7 +156,7 @@ namespace ifcre
         return id;
     }
 
-    float VulkanManager::getDepthValue(int32_t x, int32_t y)
+    float VulkanManager::getDepthValue(Scene& scene, int32_t x, int32_t y)
     {
         float res = 0.0f;
         VkCommandBuffer command_buffer = m_vkContext.beginSingleTimeCommand();

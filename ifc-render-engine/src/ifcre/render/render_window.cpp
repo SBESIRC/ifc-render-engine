@@ -41,23 +41,46 @@ namespace ifcre {
 
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode) {
 
-        glm::vec3 getColor;
+        //glm::vec3 getColor;
+        //Real w = m_width, h = m_height;
+        ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        //m_cur_rt = m_comp_fb.m_comp_id_rt.get();
+        ////glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        //glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+        //glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
+        //    m_mouse_status.click_comp_id = -1;
+        //    std::cout << "NO!" << std::endl;
+        //    return;
+        //}
+        //int clicked_comp_id = 0;
+        //clicked_comp_id += (int)round(getColor.x * 256) << 16;
+        //clicked_comp_id += (int)round(getColor.y * 256) << 8;
+        //clicked_comp_id += (int)round(getColor.z * 256);
+        //if (hover_mode)
+        //    m_mouse_status.hover_comp_id = clicked_comp_id;
+        //else
+        //    m_mouse_status.click_comp_id = clicked_comp_id;
+
+
+        glm::ivec4 comp_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
-            m_mouse_status.click_comp_id = -1;
-            std::cout << "NO!" << std::endl;
-            return;
-        }
-        int clicked_comp_id = 0;
-        clicked_comp_id += (int)round(getColor.x * 256) << 16;
-        clicked_comp_id += (int)round(getColor.y * 256) << 8;
-        clicked_comp_id += (int)round(getColor.z * 256);
+        //if (comp_id == -1) {
+        //    m_mouse_status.click_comp_id = -1;
+        //    //std::cout << "NO!" << std::endl;
+        //    return;
+        //}
+
+        //std::cout << comp_id.x << "\n";
+        
+        int clicked_comp_id = comp_id.x;
         if (hover_mode)
             m_mouse_status.hover_comp_id = clicked_comp_id;
         else
@@ -523,7 +546,7 @@ namespace ifcre {
             //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
         }
         glCreateFramebuffers(1, &m_comp_fb.fbo_id);
-        m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, false, COLOR_R32I);
 
         m_cur_rt = mfb.m_default_rt.get();
 

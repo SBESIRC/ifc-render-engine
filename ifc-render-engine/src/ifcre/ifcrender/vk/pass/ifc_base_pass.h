@@ -21,6 +21,12 @@ namespace ifcre {
 			render_pipeline_count
 		};
 
+		enum AttachmentEnum :uint8_t {
+			attach_multi_color = 0,
+			attach_multi_depth,
+			attach_count
+		};
+
 		void draw(uint32_t mesh_id);
 		void initialize();
 		void recreateFramebuffers();

@@ -62,11 +62,11 @@ namespace ifcre {
         };
 
 
-        //virtual void initialize() {
-        //    assert(m_vkContext != nullptr);
-        //    assert(m_descriptorPool != VK_NULL_HANDLE);
-        //    assert(m_vulkanResources != nullptr);
-        //}
+        virtual void initialize() {
+            assert(m_vkContext != nullptr);
+            assert(m_descriptorPool != VK_NULL_HANDLE);
+            assert(m_vulkanResources != nullptr);
+        }
 
         static void setRenderPassInfo(const RenderPassHelperInfo& info) {
             m_vkContext = info.context;

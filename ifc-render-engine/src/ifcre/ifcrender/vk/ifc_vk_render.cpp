@@ -30,6 +30,8 @@ namespace ifcre {
 
 		bool flag = false;
 		if (flag = m_surfaceIO->notExit()) {
+			scene.m_editCamera = m_renderUI->getEditCamera().get();
+			m_curScene = &scene;
 			m_vkManager.renderFrame(scene);
 		}
 
@@ -41,7 +43,10 @@ namespace ifcre {
 	}
 	float IFCVulkanRender::getDepthValue(int32_t x, int32_t y)
 	{
-		return m_vkManager.getDepthValue(x, y);
+		if (m_curScene == nullptr) {
+			return 1.0f;
+		}
+		return m_vkManager.getDepthValue(*m_curScene, x, y);
 	}
 // ----- ----- ----- ----- ----- ----- ----- -----
 }

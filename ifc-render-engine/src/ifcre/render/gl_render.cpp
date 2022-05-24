@@ -13,9 +13,11 @@ namespace ifcre {
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + 48);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4));
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
+		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 
 #ifdef _DEBUG
 		// program init
@@ -60,6 +62,8 @@ namespace ifcre {
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+
+		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -168,6 +172,7 @@ namespace ifcre {
 		}
 		auto& transformUBO = *m_uniform_buffer_map.transformsUBO;
 		auto& ifcRenderUBO = *m_uniform_buffer_map.ifcRenderUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
 			auto& color = m_depnor_value;
@@ -181,11 +186,12 @@ namespace ifcre {
 		}
 		case COMP_ID_WRITE: {
 			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w);
+			//glClearColor(color.x, color.y, color.z, color.w);
+			glClearColor(-2, 0, 0, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearDepthf(1.0);
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			m_comp_id_program->use();
-			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
 			break;
 		}
 		case DEFAULT_SHADING: {

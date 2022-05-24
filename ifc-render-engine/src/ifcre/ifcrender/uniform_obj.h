@@ -8,6 +8,7 @@ namespace ifcre {
 	enum UniformBufferEnum : uint8_t {
 		uniform_buffer_transforms = 0,
 		uniform_buffer_ifc_render,
+		uniform_buffer_transform_mvp,
 		uniform_buffer_count
 	};
 
@@ -22,6 +23,10 @@ namespace ifcre {
 		int c_comp;							// 4 ~ 8
 		int h_comp;							// 8 ~ 12
 		glm::vec3 cameraPos;			// 16 ~ 30
+	};
+
+	struct TransformMVPUBO {
+		glm::mat4 proj_view_model;
 	};
 }
 

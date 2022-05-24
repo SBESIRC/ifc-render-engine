@@ -95,12 +95,12 @@ namespace ifcre {
 		}
 
 		if (m_render_api == VULKAN_RENDER_API) {
-			m_scene.m_camera = make_shared<IFCCamera>(m_view_pos
-				, glm::vec3(0.0f, 1.0f, 0.0f)
-				, 45.0f
-				, (float)width / (float)height
-				, 0.1f, 1000.0f
-				, true);
+			//m_scene.m_camera = make_shared<IFCCamera>(m_view_pos
+			//	, glm::vec3(0.0f, 1.0f, 0.0f)
+			//	, 45.0f
+			//	, (float)width / (float)height
+			//	, 0.1f, 1000.0f
+			//	, true);
 			m_scene.m_ifcObject = ifc_test_model.get();
 			m_ifcRender = make_shared<IFCVulkanRender>();
 			m_ifcRender->initialize(width, height);

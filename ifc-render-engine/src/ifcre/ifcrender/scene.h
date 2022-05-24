@@ -8,7 +8,7 @@
 namespace ifcre {
 
 	struct Scene {
-		std::shared_ptr<IFCCamera> m_camera;
+		IFCCamera* m_editCamera;
 		IFCModel* m_ifcObject;
 	};
 

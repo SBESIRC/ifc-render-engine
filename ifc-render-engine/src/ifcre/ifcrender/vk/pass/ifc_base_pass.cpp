@@ -60,14 +60,11 @@ namespace ifcre {
 
     void VulkanIFCBasePass::initialize()
     {
-        //VulkanPassBase::initialize();
-        assert(m_vkContext != nullptr);
-        assert(m_descriptorPool != VK_NULL_HANDLE);
-        assert(m_vulkanResources != nullptr);
+        VulkanPassBase::initialize();
 
+        _createAttachments();
         _createDescriptorSetLayouts();
         _createDescriptorSets();
-        _createAttachments();
         _createRenderPass();
         _createPipeline();
         _createFramebuffers();
@@ -98,9 +95,9 @@ namespace ifcre {
     void VulkanIFCBasePass::_createAttachments()
     {
         auto& ctx = *m_vkContext;
-        m_framebuffer.attachments.resize(2);
-        m_framebuffer.attachments[0].format = ctx.m_swapchainImageFormat;
-        m_framebuffer.attachments[1].format = ctx.m_depthImageFormat;
+        m_framebuffer.attachments.resize(attach_count);
+        m_framebuffer.attachments[attach_multi_color].format = ctx.m_swapchainImageFormat;
+        m_framebuffer.attachments[attach_multi_depth].format = ctx.m_depthImageFormat;
 
         m_framebuffer.width = ctx.m_swapchainExtent.width;
         m_framebuffer.height = ctx.m_swapchainExtent.height;
@@ -111,19 +108,19 @@ namespace ifcre {
                 ctx.m_device,
                 m_framebuffer.width,
                 m_framebuffer.height,
-                m_framebuffer.attachments[0].format,
+                m_framebuffer.attachments[attach_multi_color].format,
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                m_framebuffer.attachments[0].image,
-                m_framebuffer.attachments[0].mem,
+                m_framebuffer.attachments[attach_multi_color].image,
+                m_framebuffer.attachments[attach_multi_color].mem,
                 0,
                 1,
                 1,
                 VK_SAMPLE_COUNT_4_BIT);
-            m_framebuffer.attachments[0].view = VulkanUtil::createImageView(ctx.m_device
-                , m_framebuffer.attachments[0].image
-                , m_framebuffer.attachments[0].format
+            m_framebuffer.attachments[attach_multi_color].view = VulkanUtil::createImageView(ctx.m_device
+                , m_framebuffer.attachments[attach_multi_color].image
+                , m_framebuffer.attachments[attach_multi_color].format
                 , VK_IMAGE_ASPECT_COLOR_BIT
                 , VK_IMAGE_VIEW_TYPE_2D
                 , 1
@@ -136,20 +133,20 @@ namespace ifcre {
                 ctx.m_device,
                 m_framebuffer.width,
                 m_framebuffer.height,
-                m_framebuffer.attachments[1].format,
+                m_framebuffer.attachments[attach_multi_depth].format,
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                m_framebuffer.attachments[1].image,
-                m_framebuffer.attachments[1].mem,
+                m_framebuffer.attachments[attach_multi_depth].image,
+                m_framebuffer.attachments[attach_multi_depth].mem,
                 0,
                 1,
                 1,
                 VK_SAMPLE_COUNT_4_BIT);
 
-            m_framebuffer.attachments[1].view = VulkanUtil::createImageView(ctx.m_device
-                , m_framebuffer.attachments[1].image
-                , m_framebuffer.attachments[1].format
+            m_framebuffer.attachments[attach_multi_depth].view = VulkanUtil::createImageView(ctx.m_device
+                , m_framebuffer.attachments[attach_multi_depth].image
+                , m_framebuffer.attachments[attach_multi_depth].format
                 , VK_IMAGE_ASPECT_DEPTH_BIT
                 , VK_IMAGE_VIEW_TYPE_2D
                 , 1
@@ -244,7 +241,7 @@ namespace ifcre {
         // 1. attach desc
         // color attach
         VkAttachmentDescription color_attach{};
-        color_attach.format = m_framebuffer.attachments[0].format;
+        color_attach.format = m_framebuffer.attachments[attach_multi_color].format;
         // color_attach.samples = VK_SAMPLE_COUNT_1_BIT;
         color_attach.samples = VK_SAMPLE_COUNT_4_BIT;
         color_attach.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -257,7 +254,7 @@ namespace ifcre {
 
         // depth attach
         VkAttachmentDescription depth_attach{};
-        depth_attach.format = m_framebuffer.attachments[1].format;
+        depth_attach.format = m_framebuffer.attachments[attach_multi_depth].format;
         // depth_attach.samples = VK_SAMPLE_COUNT_1_BIT;
         depth_attach.samples = VK_SAMPLE_COUNT_4_BIT;
         depth_attach.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -525,8 +522,8 @@ namespace ifcre {
         for (size_t i = 0; i < ctx.m_swapchainImageViews.size(); ++i)
         {
             std::array<VkImageView, 3> attachments = {
-                m_framebuffer.attachments[0].view
-                , m_framebuffer.attachments[1].view
+                m_framebuffer.attachments[attach_multi_color].view
+                , m_framebuffer.attachments[attach_multi_depth].view
                 , ctx.m_swapchainImageViews[i]
 
             };

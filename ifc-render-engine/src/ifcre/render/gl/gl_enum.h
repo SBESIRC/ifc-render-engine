@@ -40,8 +40,9 @@ namespace ifcre {
 		WRAP_CLAMP = 0x02
 	};
 
-	enum GLRTFormatEnum : uint8_t {
-		RGBA32 = 0x01
+	enum GLRTColorFormatEnum : uint8_t {
+		COLOR_RGBA8 = 0x01,
+		COLOR_R32I = 0x02
 	};
 
 	enum GLRTDepthFormatEnum : uint8_t {

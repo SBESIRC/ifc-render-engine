@@ -4,13 +4,13 @@
 
 namespace ifcre {
 	// ------------------ construct ----------------------
-	GLRenderTexture::GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth, bool open_aa)
+	GLRenderTexture::GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth, bool open_aa, GLRTColorFormatEnum color)
 		: m_width(w)
 		, m_height(h)
 		, m_rt_depth_format(depth)
 		, m_filter_mode(FILTER_BILINEAR)
 		, m_wrap_mode(WRAP_CLAMP)
-		, m_rt_format(RGBA32)
+		, m_rt_format(color)
 		, m_open_aa(open_aa)
 	{
 
@@ -27,7 +27,12 @@ namespace ifcre {
 		}
 		else {
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_tex_id);
-			glTextureStorage2D(m_tex_id, 1, GL_RGBA8, w, h);
+			if (color == COLOR_RGBA8) {
+				glTextureStorage2D(m_tex_id, 1, GL_RGBA8, w, h);
+			}
+			else if (color == COLOR_R32I) {
+				glTextureStorage2D(m_tex_id, 1, GL_R32I, w, h);
+			}
 
 			glTextureParameteri(m_tex_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTextureParameteri(m_tex_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

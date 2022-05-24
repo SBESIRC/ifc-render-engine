@@ -31,6 +31,7 @@ namespace ifcre {
 		std::shared_ptr<RenderUI> m_renderUI;
 
 		bool m_init = false;
+		Scene* m_curScene = nullptr;
 		
 	};
 };
