@@ -99,7 +99,8 @@ namespace ifcre {
 				, glm::vec3(0.0f, 1.0f, 0.0f)
 				, 45.0f
 				, (float)width / (float)height
-				, 0.1f, 1000.0f);
+				, 0.1f, 1000.0f
+				, true);
 			m_scene.m_ifcObject = ifc_test_model.get();
 			m_ifcRender = make_shared<IFCVulkanRender>();
 			m_ifcRender->initialize(width, height);
@@ -197,7 +198,7 @@ namespace ifcre {
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
-			m_window.switchRenderBack();
+			//m_window.switchRenderBack();
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
@@ -207,7 +208,7 @@ namespace ifcre {
 #ifndef TEST_COMP_ID_RES
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 #endif
-			m_window.switchRenderBack();
+			//m_window.switchRenderBack();
 #ifndef ONLY_DEPTH_NROMAL_RES
 			// 1. render scene
 			m_window.switchRenderColor();

@@ -42,15 +42,18 @@ namespace ifcre {
 
 		VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
 		VkDeviceSize offsets[] = { 0 };
+        // render opaque
 		ctx.fp_vkCmdBindVertexBuffers(cmd_buffer, 0, 1, vertex_buffers, offsets);
 		ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
 		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, opaque_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		ctx.fp_vkCmdDrawIndexed(cmd_buffer, opaque_index_buffer.getSize(), 1, 0, 0, 0);
 
+        // render transparency
         ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].pipeline);
         ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
 		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, transparency_index_bufer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
 		ctx.fp_vkCmdDrawIndexed(cmd_buffer, transparency_index_bufer.getSize(), 1, 0, 0, 0);
+
 		ctx.fp_vkCmdEndRenderPass(cmd_buffer);
 
     }
@@ -85,6 +88,11 @@ namespace ifcre {
         }
         _createAttachments();
         _createFramebuffers();
+    }
+
+    VkImage VulkanIFCBasePass::getDepthAttach()
+    {
+        return m_framebuffer.attachments[1].image;
     }
 
     void VulkanIFCBasePass::_createAttachments()

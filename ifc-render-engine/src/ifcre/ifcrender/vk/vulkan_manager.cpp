@@ -152,7 +152,75 @@ namespace ifcre
 
         uint32_t id = util::get_next_globalid();
         m_vulkanResources.meshBufferMap.emplace(id, mesh_buffer);
+
         return id;
+    }
+
+    float VulkanManager::getDepthValue(int32_t x, int32_t y)
+    {
+        float res = 0.0f;
+        VkCommandBuffer command_buffer = m_vkContext.beginSingleTimeCommand();
+
+        VkBufferImageCopy region{};
+        region.bufferOffset = 0;
+        region.bufferRowLength = 0;
+        region.bufferImageHeight = 0;
+        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+        region.imageSubresource.mipLevel = 0;
+        region.imageSubresource.baseArrayLayer = 0;
+        region.imageSubresource.layerCount = 1;
+        region.imageOffset = { x, y, 0 };
+        region.imageExtent = {1, 1, 1 };
+
+        uint32_t buffer_size = 4;
+        VkBuffer staging_buffer;
+        VkDeviceMemory staging_buffer_memory;
+        VulkanUtil::createBuffer(m_vkContext.m_physicalDevice,
+            m_vkContext.m_device,
+            buffer_size,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            staging_buffer,
+            staging_buffer_memory);
+
+        VkImage depth_image = m_ifcBasePass.getDepthAttach();
+        //VkImageMemoryBarrier copy_to_buffer_barrier{};
+        //copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+        //copy_to_buffer_barrier.pNext = nullptr;
+        //copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+        //copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+        //copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        //copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+        //copy_to_buffer_barrier.srcQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
+        //copy_to_buffer_barrier.dstQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
+        //copy_to_buffer_barrier.image = depth_image;
+        //copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+        //vkCmdPipelineBarrier(command_buffer,
+        //    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+        //    VK_PIPELINE_STAGE_TRANSFER_BIT,
+        //    0,
+        //    0,
+        //    nullptr,
+        //    0,
+        //    nullptr,
+        //    1,
+        //    &copy_to_buffer_barrier);
+        vkCmdCopyImageToBuffer(command_buffer,
+            depth_image,
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            staging_buffer,
+            1,
+            &region);
+        m_vkContext.endSingleTimeCommand(command_buffer);
+
+        float* data = nullptr;
+        vkMapMemory(m_vkContext.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&data);
+        res = data[0];
+        vkUnmapMemory(m_vkContext.m_device, staging_buffer_memory);
+
+        vkDestroyBuffer(m_vkContext.m_device, staging_buffer, nullptr);
+        vkFreeMemory(m_vkContext.m_device, staging_buffer_memory, nullptr);
+        return res;
     }
 
     // ----------------------- initialize -------------------------

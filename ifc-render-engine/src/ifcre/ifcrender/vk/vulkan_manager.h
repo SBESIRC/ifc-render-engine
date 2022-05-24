@@ -30,6 +30,7 @@ namespace ifcre {
         void renderFrame(Scene& scene);
 
         uint32_t addIFCMesh(IFCModelPayload& payload);
+        float getDepthValue(int32_t x, int32_t y);
     private:
 
         // vulkan device context

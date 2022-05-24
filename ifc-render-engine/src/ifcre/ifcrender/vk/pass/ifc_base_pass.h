@@ -24,6 +24,7 @@ namespace ifcre {
 		void draw(uint32_t mesh_id);
 		void initialize();
 		void recreateFramebuffers();
+		VkImage getDepthAttach();
 	private:
 		void _createAttachments();
 		void _createDescriptorSetLayouts();

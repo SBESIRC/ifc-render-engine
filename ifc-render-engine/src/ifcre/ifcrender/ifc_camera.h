@@ -7,9 +7,10 @@
 #include "../common/std_types.h"
 
 namespace ifcre {
+
 	class IFCCamera {
     public:
-        IFCCamera(glm::vec3 pos, glm::vec3 worldup, float fov, float aspect, float near, float far)
+        IFCCamera(glm::vec3 pos, glm::vec3 worldup, float fov, float aspect, float near, float far, bool need_y_flip)
             : m_pos(pos)
             , m_worldup(worldup)
             , m_front(glm::vec3(0.0f, 0.0f, -1.0f))
@@ -18,6 +19,7 @@ namespace ifcre {
             , m_near(near)
             , m_far(far){
             _updateCameraVectors();
+            m_needYFlip = need_y_flip;
         }
 
         glm::mat4 getViewMatrix() {
@@ -26,7 +28,7 @@ namespace ifcre {
 
         glm::mat4 getProjMatrix() {
             glm::mat4 projection = glm::perspective(glm::radians(m_fov), m_aspect, m_near, m_far);
-            projection[1][1] *= -1;
+            projection[1][1] *= m_needYFlip ? -1 : 1;
             return projection;
         }
 
@@ -38,13 +40,19 @@ namespace ifcre {
 
         glm::vec3 getViewPos() { return m_pos; }
 
+        void setAspect(float aspect) { m_aspect = aspect; }
+
     private:
+        typedef glm::mat4(*FuncGetPerspProj)(void);
         void _updateCameraVectors()
         {
             // also re-calculate the Right and Up vector
             m_right = glm::normalize(glm::cross(m_front, m_worldup));
             m_up = glm::normalize(glm::cross(m_right, m_front));
         }
+
+
+        
 
         // ------------- camera attributes----------------
         glm::vec3 m_pos;
@@ -54,10 +62,14 @@ namespace ifcre {
         glm::vec3 m_right;
         glm::vec3 m_worldup;
 
+        FuncGetPerspProj f_getPerspProj;
+
         float m_near;
         float m_far;
         float m_fov;
         float m_aspect;
+
+        bool m_needYFlip;
         // ----- ----- ----- ----- ----- ----- -----  -----
 	};
 }

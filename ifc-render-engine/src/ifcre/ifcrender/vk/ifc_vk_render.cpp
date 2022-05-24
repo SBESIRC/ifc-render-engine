@@ -1,9 +1,11 @@
 #include "../ifc_render.h"
-
+#include "../render_ui.h"
 namespace ifcre {
 // interface:
 	void IFCVulkanRender::initialize(int32_t w, int32_t h){
 		m_surfaceIO = std::make_shared<SurfaceIO>("IFC Render", w, h, VULKAN_RENDER_API);
+		m_renderUI = std::make_shared<RenderUI>();
+		m_renderUI->initialize(this);
 		m_vkManager.initialize(m_surfaceIO->getWindowPtr());
 
 		m_init = true;
@@ -32,6 +34,14 @@ namespace ifcre {
 		}
 
 		return flag;
+	}
+	void IFCVulkanRender::updateWindow(int32_t x, int32_t y, int32_t w, int32_t h)
+	{
+
+	}
+	float IFCVulkanRender::getDepthValue(int32_t x, int32_t y)
+	{
+		return m_vkManager.getDepthValue(x, y);
 	}
 // ----- ----- ----- ----- ----- ----- ----- -----
 }

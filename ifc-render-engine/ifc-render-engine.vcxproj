@@ -159,10 +159,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />
-    <ClCompile Include="src\ifcre\ifcrender\surface_ui.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\render_ui.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\ifc_vk_render.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\surface_io.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
     <ClCompile Include="src\ifcre\render\gl\glad.c" />
@@ -181,10 +182,11 @@
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
     <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
-    <ClInclude Include="src\ifcre\ifcrender\surface_ui.h" />
+    <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
     <ClInclude Include="src\ifcre\ifcrender\surface_io.h" />
     <ClInclude Include="src\ifcre\ifcrender\uniform_obj.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_uniform_buffer.h" />

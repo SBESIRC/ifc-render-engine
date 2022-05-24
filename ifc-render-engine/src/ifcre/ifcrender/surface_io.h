@@ -27,6 +27,8 @@ namespace ifcre {
 
 		void setWidth(int32_t w) { m_width = w; }
 		void setHeight(int32_t h) { m_height = h; }
+		int32_t getWidth() { return m_width; }
+		int32_t getHeight() { return m_height; }
 		GLFWwindow* getWindowPtr() const { return m_window; }
 		
 		void registerWindowResizeCallback(onWindowResizeFunc func) { m_windowResizeFuncs.push_back(func); }
