@@ -64,6 +64,7 @@ namespace ifcre {
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
 
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
+		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -300,7 +301,6 @@ namespace ifcre {
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			first = false;
 		}
-		m_axis_shader->use();
 		glm::vec3 model_center = ifc_model.getModelCenter();
 		glm::mat4 model = ifc_model.getModelMatrix();
 		float scale_factor = ifc_model.getScaleFactor();
@@ -321,7 +321,9 @@ namespace ifcre {
 		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
 		model = trans_click_center * model;
 
-		m_axis_shader->setMat4("mvp", m_projection * m_view * model);
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+		m_axis_shader->use();
 		glBindVertexArray(axis_vao);
 		glDisable(DEPTH_TEST);
 		glDepthFunc(GL_ALWAYS);

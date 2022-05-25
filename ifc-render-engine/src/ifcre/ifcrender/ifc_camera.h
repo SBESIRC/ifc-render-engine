@@ -17,30 +17,34 @@ namespace ifcre {
             , m_fov(fov)
             , m_aspect(aspect)
             , m_near(near)
-            , m_far(far){
+            , m_far(far)
+            , m_needYFlip(need_y_flip){
             _updateCameraVectors();
-            m_needYFlip = need_y_flip;
+            _updateViewMatrix();
+            _updateProjectionMatrix();
         }
 
         glm::mat4 getViewMatrix() {
-            return glm::lookAt(m_pos, m_pos + m_front, m_up);
+            return m_view;
         }
 
         glm::mat4 getProjMatrix() {
-            glm::mat4 projection = glm::perspective(glm::radians(m_fov), m_aspect, m_near, m_far);
-            projection[1][1] *= m_needYFlip ? -1 : 1;
-            return projection;
+            return m_projection;
         }
 
         void zoom(glm::vec3& target, Real d) {
             glm::vec3 dir = glm::normalize(target - m_pos) * d;
             float vel = glm::length(target - m_pos) * 0.15;
             m_pos += vel * dir;
+            _updateViewMatrix();
         }
 
         glm::vec3 getViewPos() { return m_pos; }
 
-        void setAspect(float aspect) { m_aspect = aspect; }
+        void setAspect(float aspect) { 
+            m_aspect = aspect;
+            _updateProjectionMatrix();
+        }
 
     private:
         typedef glm::mat4(*FuncGetPerspProj)(void);
@@ -51,8 +55,14 @@ namespace ifcre {
             m_up = glm::normalize(glm::cross(m_right, m_front));
         }
 
+        void _updateViewMatrix() {
+            m_view = glm::lookAt(m_pos, m_pos + m_front, m_up);
+        }
 
-        
+        void _updateProjectionMatrix() {
+            m_projection = glm::perspective(glm::radians(m_fov), m_aspect, m_near, m_far);
+            m_projection[1][1] *= m_needYFlip ? -1 : 1;
+        }
 
         // ------------- camera attributes----------------
         glm::vec3 m_pos;
@@ -70,6 +80,9 @@ namespace ifcre {
         float m_aspect;
 
         bool m_needYFlip;
+        
+        glm::mat4 m_view;
+        glm::mat4 m_projection;
         // ----- ----- ----- ----- ----- ----- -----  -----
 	};
 }

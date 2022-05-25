@@ -328,6 +328,7 @@ namespace ifcre
         TransformMVPUBO transform_mvp_ubo{};
         transform_mvp_ubo.proj_view_model = transforms_ubo.proj_view_model;
 
+
         m_vulkanResources.update<TransformsUBO>(transforms_ubo, uniform_buffer_transforms);
         m_vulkanResources.update<IFCRenderUBO>(ifc_render_ubo, uniform_buffer_ifc_render);
         m_vulkanResources.update<TransformMVPUBO>(transform_mvp_ubo, uniform_buffer_transform_mvp);

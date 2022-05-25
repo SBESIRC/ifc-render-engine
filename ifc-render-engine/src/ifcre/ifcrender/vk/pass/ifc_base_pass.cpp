@@ -87,11 +87,6 @@ namespace ifcre {
         _createFramebuffers();
     }
 
-    VkImage VulkanIFCBasePass::getDepthAttach()
-    {
-        return m_framebuffer.attachments[1].image;
-    }
-
     void VulkanIFCBasePass::_createAttachments()
     {
         auto& ctx = *m_vkContext;

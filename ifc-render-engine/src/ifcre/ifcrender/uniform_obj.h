@@ -9,6 +9,7 @@ namespace ifcre {
 		uniform_buffer_transforms = 0,
 		uniform_buffer_ifc_render,
 		uniform_buffer_transform_mvp,
+		uniform_buffer_transform_mvp_axis,
 		uniform_buffer_count
 	};
 

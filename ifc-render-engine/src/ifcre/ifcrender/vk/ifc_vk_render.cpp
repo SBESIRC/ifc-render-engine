@@ -29,21 +29,58 @@ namespace ifcre {
 		}
 
 		bool flag = false;
+		scene.m_editCamera = m_renderUI->getEditCamera().get();
+		
+		m_curScene = &scene;
+
 		if (flag = m_surfaceIO->notExit()) {
-			scene.m_editCamera = m_renderUI->getEditCamera().get();
-			m_curScene = &scene;
+			auto& ui = *m_renderUI;
+			auto& ifc_model = *scene.m_ifcObject;
+
+			// user interaction
+			glm::vec3 clicked_coord = ui.getClickedWorldCoord();
+			scene.m_pickWorldPos = clicked_coord;
+			//printf("%f %f %f\n", clicked_coord.x, clicked_coord.y, clicked_coord.z);
+			if (ui.isMouseHorizontalRot()) {
+				float angle = ui.getMouseHorizontalVel();
+				ifc_model.rotateInLocalSpace(clicked_coord, angle);
+			}
+			if (ui.isMouseVerticalRot()) {
+				float angle = ui.getMouseVerticalVel();
+				ifc_model.rotateInWorldSpace(clicked_coord, angle);
+			}
+
+			if (ui.isRightMouseClicked()) {
+				if (ui.isMouseMove() && m_last_rmclick) {
+					glm::vec3 hover = ui.getVirtualHoverWorldCoord();
+					glm::vec3 step = hover - m_last_hover_pos;
+					ifc_model.translate(step);
+				}
+				m_last_hover_pos = clicked_coord;
+				m_last_rmclick = true;
+			}
+			else {
+				m_last_rmclick = false;
+			}
+			// ----- ----- ----- ----- ----- ----- ----- 
+
 			m_vkManager.renderFrame(scene);
+
+			ui.reset();
 		}
 
 		return flag;
 	}
 	void IFCVulkanRender::updateWindow(int32_t x, int32_t y, int32_t w, int32_t h)
 	{
-
+		// TODO
 	}
 	float IFCVulkanRender::getDepthValue(int32_t x, int32_t y)
 	{
-		if (m_curScene == nullptr) {
+		auto& surface_io = *m_surfaceIO;
+		if (m_curScene == nullptr 
+				|| (x < 0 || y < 0 || x >= surface_io.getWidth() || y >= surface_io.getHeight()))
+		{
 			return 2.0f;
 		}
 		return m_vkManager.getDepthValue(*m_curScene, x, y);

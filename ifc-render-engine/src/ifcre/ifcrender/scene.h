@@ -10,6 +10,7 @@ namespace ifcre {
 	struct Scene {
 		IFCCamera* m_editCamera;
 		IFCModel* m_ifcObject;
+		glm::vec3 m_pickWorldPos;
 	};
 
 };
