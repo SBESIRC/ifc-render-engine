@@ -6,7 +6,6 @@
 namespace ifcre {
 
 	class VulkanIFCBasePass : public VulkanPassBase {
-	public:
 		enum LayoutType : uint8_t
 		{
 			layout_base = 0,
@@ -20,12 +19,12 @@ namespace ifcre {
 			render_pipeline_bbx,
 			render_pipeline_count
 		};
-
 		enum AttachmentEnum :uint8_t {
 			attach_multi_color = 0,
 			attach_multi_depth,
 			attach_count
 		};
+	public:
 
 		void draw(uint32_t mesh_id);
 		void initialize();

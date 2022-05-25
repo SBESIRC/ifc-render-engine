@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 #include "vulkan_buffer.h"
+#include "../uniform_obj.h"
 namespace ifcre {
 
     struct VulkanIFCMeshBuffer {
@@ -26,6 +27,12 @@ namespace ifcre {
     struct VulkanResourceHandle {
         std::map<uint32_t, VulkanIFCMeshBuffer> meshBufferMap;
         std::vector<std::shared_ptr<VulkanBuffer>> uniformBufferMap;
+
+        template<class T>
+        void update(T ubo, UniformBufferEnum e) {
+            auto& trans_uniform_buffer = *(uniformBufferMap[e]);
+            trans_uniform_buffer.update<T>(&ubo);
+        }
     };
 }
 

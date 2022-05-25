@@ -7,6 +7,7 @@
 #include "vulkan_resources.h"
 #include "vulkan_pass_base.h"
 #include "pass/ifc_base_pass.h"
+#include "pass/ifc_pick_pass.h"
 #include "../scene.h"
 #include "../uniform_obj.h"
 #include <vector>
@@ -49,6 +50,7 @@ namespace ifcre {
 
         // Pass
         VulkanIFCBasePass m_ifcBasePass;
+        VulkanIFCPickPass m_ifcPickPass;
 
         // descriptor pool
         VkDescriptorPool m_descriptorPool;
@@ -63,8 +65,7 @@ namespace ifcre {
         void recreateSwapchain();
         
         void setupPasses();
-        void _updateTransformsUniform(const glm::mat4& model_matrix, const glm::mat4& view, const glm::mat4& projection);
-        void _updateIFCRenderUniform(IFCRenderUBO &ubo);
+        void _updateUniform(Scene& scene);
     };
 }
 

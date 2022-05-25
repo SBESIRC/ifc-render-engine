@@ -18,9 +18,9 @@ namespace ifcre {
         VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
 
         auto& ctx = *m_vkContext;
-        auto current_frame_index = m_commandInfo.currentFrameIndex;
+        auto current_frame_index = *m_commandInfo.p_currentFrameIndex;
         auto image_index = m_commandInfo.imageIndex;
-        auto& cmd_buffer = m_commandInfo.cmdBuffer;
+        auto& cmd_buffer = m_commandInfo.curCmdBuffer;
 		{
 			VkRenderPassBeginInfo renderpass_begin_info{};
 			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;

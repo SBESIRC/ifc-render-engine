@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <glm/glm.hpp>
 namespace ifcre {
-	class VulkanIFCPick : public VulkanPassBase {
+	class VulkanIFCPickPass : public VulkanPassBase {
 		enum AttachmentEnum :uint8_t {
 			attach_comp_id = 0,
 			attach_depth,
@@ -15,7 +15,7 @@ namespace ifcre {
 	public:
 		void initialize();
 		void recreateFramebuffers();
-		float pickDepth(int32_t x, int32_t y);
+		glm::ivec2 pick(uint32_t render_id, int32_t x, int32_t y);
 	private:
 		void _createAttachments();
 		void _createDescriptorSetLayouts();

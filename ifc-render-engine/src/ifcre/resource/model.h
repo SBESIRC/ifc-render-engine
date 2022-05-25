@@ -168,7 +168,7 @@ namespace ifcre {
 				ver_attrib[offset + i + 6] = g_kd_color[i];
 				ver_attrib[offset + i + 7] = g_kd_color[i + 1];
 				ver_attrib[offset + i + 8] = g_kd_color[i + 2];
-				ver_attrib[offset + i + 9] = util::in_as_float(comp_ids[i / 3]);//todo: transform by bit
+				ver_attrib[offset + i + 9] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit
 				offset += 7;
 			}
 			return ver_attrib;

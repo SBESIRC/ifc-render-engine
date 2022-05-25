@@ -44,7 +44,7 @@ namespace ifcre {
 	float IFCVulkanRender::getDepthValue(int32_t x, int32_t y)
 	{
 		if (m_curScene == nullptr) {
-			return 1.0f;
+			return 2.0f;
 		}
 		return m_vkManager.getDepthValue(*m_curScene, x, y);
 	}

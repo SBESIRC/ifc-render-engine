@@ -2,9 +2,10 @@
 #include "../../uniform_obj.h"
 #include "../vulkan_mesh.h"
 #include "../vulkan_util.h"
+#include "../../../common/ifc_util.h"
 #include <array>
 namespace ifcre {
-	void VulkanIFCPick::initialize()
+	void VulkanIFCPickPass::initialize()
 	{
 		VulkanPassBase::initialize();
 
@@ -16,18 +17,137 @@ namespace ifcre {
 		_createFramebuffers();
 	}
 
-	void VulkanIFCPick::recreateFramebuffers()
-	{
-		// TODO
-
-	}
-
-	float VulkanIFCPick::pickDepth(int32_t x, int32_t y)
+	void VulkanIFCPickPass::recreateFramebuffers()
 	{
 		auto& ctx = *m_vkContext;
-		float res = 0.0f;
-		VkCommandBuffer command_buffer = ctx.beginSingleTimeCommand();
+		for (int i = 0; i < m_framebuffer.attachments.size(); ++i) {
+			vkDestroyImageView(ctx.m_device, m_framebuffer.attachments[i].view, nullptr);
+			vkDestroyImage(ctx.m_device, m_framebuffer.attachments[i].image, nullptr);
+			vkFreeMemory(ctx.m_device, m_framebuffer.attachments[i].mem, nullptr);
+		}
+		vkDestroyFramebuffer(ctx.m_device, m_pickFramebuffer, nullptr);
 
+		_createAttachments();
+		_createFramebuffers();
+	}
+
+	glm::ivec2 VulkanIFCPickPass::pick(uint32_t render_id, int32_t x, int32_t y)
+	{
+		glm::ivec2 res;
+		auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
+		if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
+			return glm::ivec2(-1, -1);
+		}
+		auto& mesh_buffer = mesh_it->second;
+		VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
+		VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
+
+		auto& ctx = *m_vkContext;
+		auto cur_frame_index = *m_commandInfo.p_currentFrameIndex;
+		auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
+		auto cur_in_flight_fence = m_commandInfo.curInFlightFence;
+		VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device, 1, &cur_in_flight_fence, VK_TRUE, UINT64_MAX));
+
+		VkCommandBufferBeginInfo cmd_buffer_begin_info{};
+		cmd_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		cmd_buffer_begin_info.flags = 0;
+		cmd_buffer_begin_info.pInheritanceInfo = nullptr;
+		VK_CHECK_RESULT(ctx.fp_vkBeginCommandBuffer(cur_cmd_buffer, &cmd_buffer_begin_info));
+
+		{
+			std::array<VkImageMemoryBarrier,2> transfer_to_render_barriers{};
+			transfer_to_render_barriers[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			transfer_to_render_barriers[0].pNext = nullptr;
+			transfer_to_render_barriers[0].srcAccessMask = 0;
+			transfer_to_render_barriers[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			transfer_to_render_barriers[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			transfer_to_render_barriers[0].newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			transfer_to_render_barriers[0].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			transfer_to_render_barriers[0].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			transfer_to_render_barriers[0].image = m_framebuffer.attachments[attach_comp_id].image;
+			transfer_to_render_barriers[0].subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+
+			transfer_to_render_barriers[1].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			transfer_to_render_barriers[1].pNext = nullptr;
+			transfer_to_render_barriers[1].srcAccessMask = 0;
+			transfer_to_render_barriers[1].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			transfer_to_render_barriers[1].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			transfer_to_render_barriers[1].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			transfer_to_render_barriers[1].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			transfer_to_render_barriers[1].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			transfer_to_render_barriers[1].image = m_framebuffer.attachments[attach_depth].image;
+			transfer_to_render_barriers[1].subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+			vkCmdPipelineBarrier(cur_cmd_buffer,
+				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+				0,
+				0,
+				nullptr,
+				0,
+				nullptr,
+				static_cast<uint32_t>(transfer_to_render_barriers.size()),
+				transfer_to_render_barriers.data());
+		}
+
+		{
+			VkRenderPassBeginInfo renderpass_begin_info{};
+			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderpass_begin_info.renderPass = m_framebuffer.render_pass;
+			renderpass_begin_info.framebuffer = m_pickFramebuffer;
+			renderpass_begin_info.renderArea.offset = { 0, 0 };
+			renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
+
+			std::array<VkClearValue, 2> clear_values;
+			clear_values[0].color = { {-2.0f, 0.0f, 0.0f, 0.0f} };
+			clear_values[1].depthStencil = { 1.0f, 0 };
+			renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+			renderpass_begin_info.pClearValues = clear_values.data();
+			ctx.fp_vkCmdBeginRenderPass(cur_cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+		}
+		ctx.fp_vkCmdBindPipeline(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].pipeline);
+		ctx.fp_vkCmdSetViewport(cur_cmd_buffer, 0, 1, &m_commandInfo.viewport);
+		ctx.fp_vkCmdSetScissor(cur_cmd_buffer, 0, 1, &m_commandInfo.scissor);
+
+		VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
+		VkDeviceSize offsets[] = { 0 };
+		// render all
+		ctx.fp_vkCmdBindVertexBuffers(cur_cmd_buffer, 0, 1, vertex_buffers, offsets);
+		ctx.fp_vkCmdBindDescriptorSets(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].layout, 0, 1, &m_descriptorInfos[0].descriptor_set, 0, nullptr);
+		ctx.fp_vkCmdBindIndexBuffer(cur_cmd_buffer, g_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		ctx.fp_vkCmdDrawIndexed(cur_cmd_buffer, g_index_buffer.getSize(), 1, 0, 0, 0);
+
+		ctx.fp_vkCmdEndRenderPass(cur_cmd_buffer);
+		ctx.fp_vkEndCommandBuffer(cur_cmd_buffer);
+
+		ctx.fp_vkResetFences(ctx.m_device, 1, &cur_in_flight_fence);
+
+		VkSubmitInfo submit_info = {};
+		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submit_info.waitSemaphoreCount = 0;
+		submit_info.pWaitSemaphores = nullptr;
+		submit_info.pWaitDstStageMask = nullptr;
+		submit_info.commandBufferCount = 1;
+		submit_info.pCommandBuffers = &cur_cmd_buffer;
+		submit_info.signalSemaphoreCount = 0;
+		submit_info.pSignalSemaphores = nullptr;
+		VK_CHECK_RESULT(vkQueueSubmit(ctx.m_graphicsQueue
+			, 1
+			, &submit_info
+			, cur_in_flight_fence));
+
+		auto new_index = (*m_commandInfo.p_currentFrameIndex + 1) % m_commandInfo.maxFramesInFlight;
+		*m_commandInfo.p_currentFrameIndex = new_index;
+
+		// implicit host read barrier
+		//res_wait_for_fences = m_p_vulkan_context->_vkWaitForFences(m_p_vulkan_context->_device,
+		//                                                           m_command_info._max_frames_in_flight,
+		//                                                           m_command_info._is_frame_in_flight_fences,
+		//                                                           VK_TRUE,
+		//                                                           UINT64_MAX);
+		vkQueueWaitIdle(ctx.m_graphicsQueue);
+
+		// 
+		VkCommandBuffer command_buffer = ctx.beginSingleTimeCommand();
 		VkBufferImageCopy region{};
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
@@ -51,27 +171,28 @@ namespace ifcre {
 			staging_buffer_memory);
 
 		VkImage depth_image = m_framebuffer.attachments[attach_depth].image;
-		//VkImageMemoryBarrier copy_to_buffer_barrier{};
-		//copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		//copy_to_buffer_barrier.pNext = nullptr;
-		//copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		//copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		//copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		//copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		//copy_to_buffer_barrier.srcQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
-		//copy_to_buffer_barrier.dstQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
-		//copy_to_buffer_barrier.image = depth_image;
-		//copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
-		//vkCmdPipelineBarrier(command_buffer,
-		//    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		//    VK_PIPELINE_STAGE_TRANSFER_BIT,
-		//    0,
-		//    0,
-		//    nullptr,
-		//    0,
-		//    nullptr,
-		//    1,
-		//    &copy_to_buffer_barrier);
+		VkImageMemoryBarrier copy_to_buffer_barrier{};
+		copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		copy_to_buffer_barrier.pNext = nullptr;
+		copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+		copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+		copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		copy_to_buffer_barrier.srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		copy_to_buffer_barrier.dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		copy_to_buffer_barrier.image = depth_image;
+		copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+		vkCmdPipelineBarrier(command_buffer,
+		    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		    VK_PIPELINE_STAGE_TRANSFER_BIT,
+		    0,
+		    0,
+		    nullptr,
+		    0,
+		    nullptr,
+		    1,
+		    &copy_to_buffer_barrier);
+
 		vkCmdCopyImageToBuffer(command_buffer,
 			depth_image,
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
@@ -82,15 +203,17 @@ namespace ifcre {
 
 		float* data = nullptr;
 		vkMapMemory(ctx.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&data);
-		res = data[0];
 		vkUnmapMemory(ctx.m_device, staging_buffer_memory);
 
 		vkDestroyBuffer(ctx.m_device, staging_buffer, nullptr);
 		vkFreeMemory(ctx.m_device, staging_buffer_memory, nullptr);
+
+		res = glm::ivec2(util::float_as_int(data[0]), 0);
+
 		return res;
 	}
 
-	void VulkanIFCPick::_createAttachments()
+	void VulkanIFCPickPass::_createAttachments()
 	{
 		auto& ctx = *m_vkContext;
 		m_framebuffer.attachments.resize(attach_count);
@@ -151,7 +274,7 @@ namespace ifcre {
 				, 1);
 		}
 	}
-    void VulkanIFCPick::_createDescriptorSetLayouts()
+    void VulkanIFCPickPass::_createDescriptorSetLayouts()
     {
         m_descriptorInfos.resize(1);
         auto& ctx = *m_vkContext;
@@ -171,7 +294,7 @@ namespace ifcre {
 
         VK_CHECK_RESULT(vkCreateDescriptorSetLayout(ctx.m_device, &layout_info, nullptr, &m_descriptorInfos[0].layout));
     }
-    void VulkanIFCPick::_createDescriptorSets()
+    void VulkanIFCPickPass::_createDescriptorSets()
     {
         auto& ctx = *m_vkContext;
 
@@ -202,7 +325,7 @@ namespace ifcre {
 
         vkUpdateDescriptorSets(ctx.m_device, static_cast<uint32_t>(write_desc_sets.size()), write_desc_sets.data(), 0, nullptr);
     }
-	void VulkanIFCPick::_createRenderPass()
+	void VulkanIFCPickPass::_createRenderPass()
 	{
 		auto& ctx = *m_vkContext;
 		VkAttachmentDescription color_attachment_description{};
@@ -219,7 +342,8 @@ namespace ifcre {
 		depth_attachment_description.format = m_framebuffer.attachments[attach_depth].format;
 		depth_attachment_description.samples = VK_SAMPLE_COUNT_1_BIT;
 		depth_attachment_description.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		//depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+		depth_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		depth_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		depth_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		depth_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -253,7 +377,7 @@ namespace ifcre {
         VK_CHECK_RESULT(vkCreateRenderPass(ctx.m_device, &render_pass_ci, nullptr, &m_framebuffer.render_pass));
 	}
 
-	void VulkanIFCPick::_createPipeline()
+	void VulkanIFCPickPass::_createPipeline()
 	{
 		auto& ctx = *m_vkContext;
 
@@ -335,8 +459,7 @@ namespace ifcre {
 		VkPipelineMultisampleStateCreateInfo multisampling{};
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.sampleShadingEnable = VK_FALSE;
-		// multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-		multisampling.rasterizationSamples = VK_SAMPLE_COUNT_4_BIT;
+		 multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
 		//multisampling.minSampleShading = 1.0f; // Optional
 		//multisampling.pSampleMask = nullptr; // Optional
 		//multisampling.alphaToCoverageEnable = VK_FALSE; // Optional
@@ -377,7 +500,6 @@ namespace ifcre {
 		depthStencil.depthTestEnable = VK_TRUE;
 		depthStencil.depthWriteEnable = VK_TRUE;
 		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
 		depthStencil.minDepthBounds = 0.0f; // Optional
 		depthStencil.maxDepthBounds = 1.0f; // Optional
@@ -417,7 +539,7 @@ namespace ifcre {
         vkDestroyShaderModule(ctx.m_device, frag_shader_module, nullptr);
         vkDestroyShaderModule(ctx.m_device, vert_shader_module, nullptr);
 	}
-	void VulkanIFCPick::_createFramebuffers()
+	void VulkanIFCPickPass::_createFramebuffers()
 	{
 		auto& ctx = *m_vkContext;
 

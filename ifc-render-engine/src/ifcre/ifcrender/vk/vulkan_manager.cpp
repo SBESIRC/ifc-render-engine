@@ -40,9 +40,10 @@ namespace ifcre
             , &image_index);
 
         auto& cmd_info = VulkanPassBase::m_commandInfo;
-        cmd_info.cmdBuffer = m_commandBuffers[m_currentFrameIndex];
+        cmd_info.curCmdBuffer = m_commandBuffers[m_currentFrameIndex];
         cmd_info.imageIndex = image_index;
-        cmd_info.currentFrameIndex = m_currentFrameIndex;
+        cmd_info.p_currentFrameIndex = &m_currentFrameIndex;
+        cmd_info.curInFlightFence = m_inFlightFences[m_currentFrameIndex];
         // std::cout<<"image_index: " << image_index << " currentFrameIndex: " << m_currentFrameIndex << "\n"; 
 
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
@@ -63,19 +64,17 @@ namespace ifcre
         VK_CHECK_RESULT(m_vkContext.fp_vkBeginCommandBuffer(m_commandBuffers[m_currentFrameIndex], &cmd_buffer_begin_info));
 
         // TODO Draw
-        auto& camera = *scene.m_editCamera;
+        _updateUniform(scene);
         auto& ifc_object = *scene.m_ifcObject;
-        IFCRenderUBO ifc_render_ubo{};
-        ifc_render_ubo.alpha = 0.5;
-        ifc_render_ubo.cameraPos = camera.getViewPos();
-        _updateTransformsUniform(ifc_object.getModelMatrix(), camera.getViewMatrix(), camera.getProjMatrix());
-        _updateIFCRenderUniform(ifc_render_ubo);
         m_ifcBasePass.draw(ifc_object.render_id);
 
         // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
         // end command buffer
         VK_CHECK_RESULT(m_vkContext.fp_vkEndCommandBuffer(m_commandBuffers[m_currentFrameIndex]));
+
+        // reset fence
+        m_vkContext.fp_vkResetFences(m_vkContext.m_device, 1, &m_inFlightFences[m_currentFrameIndex]);
 
         VkPipelineStageFlags wait_stages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
         VkSubmitInfo submit_info = {};
@@ -87,9 +86,6 @@ namespace ifcre
         submit_info.pCommandBuffers = &m_commandBuffers[m_currentFrameIndex];
         submit_info.signalSemaphoreCount = 1;
         submit_info.pSignalSemaphores = &m_renderFinishedSemaphores[m_currentFrameIndex];
-
-        // reset fence
-        m_vkContext.fp_vkResetFences(m_vkContext.m_device, 1, &m_inFlightFences[m_currentFrameIndex]);
         VK_CHECK_RESULT(vkQueueSubmit(m_vkContext.m_graphicsQueue
             , 1
             , &submit_info
@@ -158,69 +154,9 @@ namespace ifcre
 
     float VulkanManager::getDepthValue(Scene& scene, int32_t x, int32_t y)
     {
-        float res = 0.0f;
-        VkCommandBuffer command_buffer = m_vkContext.beginSingleTimeCommand();
-
-        VkBufferImageCopy region{};
-        region.bufferOffset = 0;
-        region.bufferRowLength = 0;
-        region.bufferImageHeight = 0;
-        region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-        region.imageSubresource.mipLevel = 0;
-        region.imageSubresource.baseArrayLayer = 0;
-        region.imageSubresource.layerCount = 1;
-        region.imageOffset = { x, y, 0 };
-        region.imageExtent = {1, 1, 1 };
-
-        uint32_t buffer_size = 4;
-        VkBuffer staging_buffer;
-        VkDeviceMemory staging_buffer_memory;
-        VulkanUtil::createBuffer(m_vkContext.m_physicalDevice,
-            m_vkContext.m_device,
-            buffer_size,
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            staging_buffer,
-            staging_buffer_memory);
-
-        VkImage depth_image = m_ifcBasePass.getDepthAttach();
-        //VkImageMemoryBarrier copy_to_buffer_barrier{};
-        //copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-        //copy_to_buffer_barrier.pNext = nullptr;
-        //copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-        //copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-        //copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        //copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-        //copy_to_buffer_barrier.srcQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
-        //copy_to_buffer_barrier.dstQueueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
-        //copy_to_buffer_barrier.image = depth_image;
-        //copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
-        //vkCmdPipelineBarrier(command_buffer,
-        //    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-        //    VK_PIPELINE_STAGE_TRANSFER_BIT,
-        //    0,
-        //    0,
-        //    nullptr,
-        //    0,
-        //    nullptr,
-        //    1,
-        //    &copy_to_buffer_barrier);
-        vkCmdCopyImageToBuffer(command_buffer,
-            depth_image,
-            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            staging_buffer,
-            1,
-            &region);
-        m_vkContext.endSingleTimeCommand(command_buffer);
-
-        float* data = nullptr;
-        vkMapMemory(m_vkContext.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&data);
-        res = data[0];
-        vkUnmapMemory(m_vkContext.m_device, staging_buffer_memory);
-
-        vkDestroyBuffer(m_vkContext.m_device, staging_buffer, nullptr);
-        vkFreeMemory(m_vkContext.m_device, staging_buffer_memory, nullptr);
-        return res;
+        auto& ifc_obj = *scene.m_ifcObject;
+        glm::ivec2 res = m_ifcPickPass.pick(ifc_obj.render_id, x, y);
+        return util::int_as_float(res.x);
     }
 
     // ----------------------- initialize -------------------------
@@ -294,14 +230,18 @@ namespace ifcre
         VulkanContext* ctx = &m_vkContext;
         auto& uniform_buffer_map = m_vulkanResources.uniformBufferMap;
         uniform_buffer_map.resize(uniform_buffer_count);
-        TransformsUBO transformsUBO{};
-        IFCRenderUBO ifcRenderUBO{};
+        TransformsUBO transforms_ubo{};
+        IFCRenderUBO ifc_render_ubo{};
+        TransformMVPUBO transform_mvp_ubo{};
 
         uniform_buffer_map[uniform_buffer_transforms] = MAKE_SHARED_UNIFORM_BUFFER(ctx);
-        uniform_buffer_map[uniform_buffer_transforms]->create<TransformsUBO>(&transformsUBO, 1);
+        uniform_buffer_map[uniform_buffer_transforms]->create<TransformsUBO>(&transforms_ubo, 1);
 
         uniform_buffer_map[uniform_buffer_ifc_render] = MAKE_SHARED_UNIFORM_BUFFER(ctx);
-        uniform_buffer_map[uniform_buffer_ifc_render]->create<IFCRenderUBO>(&ifcRenderUBO, 1);
+        uniform_buffer_map[uniform_buffer_ifc_render]->create<IFCRenderUBO>(&ifc_render_ubo, 1);
+
+        uniform_buffer_map[uniform_buffer_transform_mvp] = MAKE_SHARED_UNIFORM_BUFFER(ctx);
+        uniform_buffer_map[uniform_buffer_transform_mvp]->create<TransformMVPUBO>(&transform_mvp_ubo, 1);
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- 
@@ -341,7 +281,9 @@ namespace ifcre
         cmd_info.scissor.offset = { 0, 0 };
         cmd_info.scissor.extent = m_vkContext.m_swapchainExtent;
 
-        //m_testPass.recreateFramebuffers();
+
+        m_ifcBasePass.recreateFramebuffers();
+        m_ifcPickPass.recreateFramebuffers();
     }
 
     void VulkanManager::setupPasses()
@@ -349,6 +291,7 @@ namespace ifcre
         auto& ctx = m_vkContext;
         auto& cmd_info = VulkanPassBase::m_commandInfo;
         cmd_info.commandPool = m_commandPool;
+        cmd_info.maxFramesInFlight = m_maxFramesInFlight;
 
         cmd_info.viewport.x = 0.0f;
         cmd_info.viewport.y = 0.0f;
@@ -366,23 +309,28 @@ namespace ifcre
         VulkanPassBase::setRenderPassInfo(renderPassInfo);
 
         m_ifcBasePass.initialize();
+        m_ifcPickPass.initialize();
     }
 
-    void VulkanManager::_updateTransformsUniform(const glm::mat4& model_matrix, const glm::mat4& view, const glm::mat4& projection)
+    void VulkanManager::_updateUniform(Scene& scene)
     {
-        TransformsUBO ubo;
-        ubo.model = model_matrix;
-        ubo.proj_view_model = projection * view * model_matrix;
-        ubo.transpose_inv_model = glm::transpose(glm::inverse(glm::mat3(model_matrix)));
+        auto& camera = *scene.m_editCamera;
+        auto& ifc_object = *scene.m_ifcObject;
+        IFCRenderUBO ifc_render_ubo{};
+        ifc_render_ubo.alpha = 0.5;
+        ifc_render_ubo.cameraPos = camera.getViewPos();
 
-        auto& trans_uniform_buffer = *(m_vulkanResources.uniformBufferMap[uniform_buffer_transforms]);
-        trans_uniform_buffer.update<TransformsUBO>(&ubo);
-    }
+        TransformsUBO transforms_ubo{};
+        transforms_ubo.model = ifc_object.getModelMatrix();
+        transforms_ubo.transpose_inv_model = glm::transpose(glm::inverse(glm::mat3(transforms_ubo.model)));
+        transforms_ubo.proj_view_model = camera.getProjMatrix() * camera.getViewMatrix() * transforms_ubo.model;
 
-    void VulkanManager::_updateIFCRenderUniform(IFCRenderUBO& ubo)
-    {
-        auto& ifc_render_uniform_buffer = *(m_vulkanResources.uniformBufferMap[uniform_buffer_ifc_render]);
-        ifc_render_uniform_buffer.update<IFCRenderUBO>(&ubo);
+        TransformMVPUBO transform_mvp_ubo{};
+        transform_mvp_ubo.proj_view_model = transforms_ubo.proj_view_model;
+
+        m_vulkanResources.update<TransformsUBO>(transforms_ubo, uniform_buffer_transforms);
+        m_vulkanResources.update<IFCRenderUBO>(ifc_render_ubo, uniform_buffer_ifc_render);
+        m_vulkanResources.update<TransformMVPUBO>(transform_mvp_ubo, uniform_buffer_transform_mvp);
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

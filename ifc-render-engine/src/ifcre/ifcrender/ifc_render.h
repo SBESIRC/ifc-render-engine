@@ -12,6 +12,7 @@ namespace ifcre {
 		virtual void initialize(int32_t w, int32_t h) = 0;
 		virtual bool render(Scene &scene) = 0;
 		virtual SurfaceIO* getSurfaceIO() = 0;
+		virtual RenderUI* getRenderUI() = 0;
 		virtual void updateWindow(int32_t x, int32_t y, int32_t w, int32_t h) = 0;
 
 		virtual float getDepthValue(int32_t x, int32_t y) = 0;
@@ -22,6 +23,7 @@ namespace ifcre {
 		virtual void initialize(int32_t w, int32_t h) override;
 		virtual bool render(Scene& scene) override;
 		virtual SurfaceIO* getSurfaceIO() override { return m_surfaceIO.get(); }
+		virtual RenderUI* getRenderUI() override { return m_renderUI.get(); }
 		virtual void updateWindow(int32_t x, int32_t y, int32_t w, int32_t h) override;
 		virtual float getDepthValue(int32_t x, int32_t y) override;
 

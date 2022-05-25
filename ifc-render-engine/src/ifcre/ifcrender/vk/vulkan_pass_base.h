@@ -24,9 +24,11 @@ namespace ifcre {
 		VkCommandPool commandPool;
 		VkViewport viewport;
 		VkRect2D scissor;
-        uint32_t currentFrameIndex;
-        VkCommandBuffer cmdBuffer;
+        uint32_t* p_currentFrameIndex;
+        VkCommandBuffer curCmdBuffer;
         int32_t imageIndex;
+        VkFence curInFlightFence;
+        int32_t maxFramesInFlight;
 	};
 
 
