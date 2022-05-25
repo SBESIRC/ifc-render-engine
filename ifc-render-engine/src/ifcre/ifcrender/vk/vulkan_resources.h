@@ -28,6 +28,8 @@ namespace ifcre {
         std::map<uint32_t, VulkanIFCMeshBuffer> meshBufferMap;
         std::vector<std::shared_ptr<VulkanBuffer>> uniformBufferMap;
 
+        std::shared_ptr<VulkanBuffer> axisBuffer;
+
         template<class T>
         void update(T ubo, UniformBufferEnum e) {
             auto& trans_uniform_buffer = *(uniformBufferMap[e]);

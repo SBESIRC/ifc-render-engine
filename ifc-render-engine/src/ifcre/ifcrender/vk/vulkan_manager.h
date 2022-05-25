@@ -65,6 +65,7 @@ namespace ifcre {
         void recreateSwapchain();
         
         void setupPasses();
+        void _createInnerMesh();
         void _updateUniform(Scene& scene);
     };
 }

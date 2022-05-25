@@ -67,6 +67,7 @@ namespace ifcre
         PFN_vkCmdBindIndexBuffer    fp_vkCmdBindIndexBuffer;
         PFN_vkCmdBindDescriptorSets fp_vkCmdBindDescriptorSets;
         PFN_vkCmdDrawIndexed        fp_vkCmdDrawIndexed;
+        PFN_vkCmdDraw   fp_vkCmdDraw;
         PFN_vkCmdClearAttachments   fp_vkCmdClearAttachments;
 
     public:

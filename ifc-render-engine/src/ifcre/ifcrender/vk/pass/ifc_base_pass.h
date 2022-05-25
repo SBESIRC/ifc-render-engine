@@ -9,6 +9,7 @@ namespace ifcre {
 		enum LayoutType : uint8_t
 		{
 			layout_base = 0,
+			layout_axis,
 			layout_type_count
 		};
 
@@ -17,6 +18,7 @@ namespace ifcre {
 			render_pipeline_transparency,
 			render_pipeline_edge,
 			render_pipeline_bbx,
+			render_pipeline_axis,
 			render_pipeline_count
 		};
 		enum AttachmentEnum :uint8_t {

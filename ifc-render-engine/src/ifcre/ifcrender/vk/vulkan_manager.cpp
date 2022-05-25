@@ -25,6 +25,7 @@ namespace ifcre
         createUniformBuffers();
 
         setupPasses();
+        _createInnerMesh();
     }
 
     void VulkanManager::renderFrame(Scene& scene)
@@ -242,6 +243,9 @@ namespace ifcre
 
         uniform_buffer_map[uniform_buffer_transform_mvp] = MAKE_SHARED_UNIFORM_BUFFER(ctx);
         uniform_buffer_map[uniform_buffer_transform_mvp]->create<TransformMVPUBO>(&transform_mvp_ubo, 1);
+
+        uniform_buffer_map[uniform_buffer_transform_mvp_axis] = MAKE_SHARED_UNIFORM_BUFFER(ctx);
+        uniform_buffer_map[uniform_buffer_transform_mvp_axis]->create<TransformMVPUBO>(&transform_mvp_ubo, 1);
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- 
@@ -312,10 +316,27 @@ namespace ifcre
         m_ifcPickPass.initialize();
     }
 
+    void VulkanManager::_createInnerMesh()
+    {
+        float coord_axis[] = {
+                0.0, 0.0, 0.0,
+                1.0, 0.0, 0.0,	// x-axis
+                0.0, 0.0, 0.0,
+                0.0, 1.0, 0.0,	// y-axis
+                0.0, 0.0, 0.0,
+                0.0, 0.0, 1.0	// z-axis
+        };
+        VulkanContext* ctx = &m_vkContext;
+        m_vulkanResources.axisBuffer = MAKE_SHARED_VERTEX_BUFFER(ctx);
+        m_vulkanResources.axisBuffer->create<float>(coord_axis, 18);
+    }
+
     void VulkanManager::_updateUniform(Scene& scene)
     {
         auto& camera = *scene.m_editCamera;
         auto& ifc_object = *scene.m_ifcObject;
+
+        auto proj_view_matrix = camera.getProjMatrix() * camera.getViewMatrix();
         IFCRenderUBO ifc_render_ubo{};
         ifc_render_ubo.alpha = 0.5;
         ifc_render_ubo.cameraPos = camera.getViewPos();
@@ -323,15 +344,44 @@ namespace ifcre
         TransformsUBO transforms_ubo{};
         transforms_ubo.model = ifc_object.getModelMatrix();
         transforms_ubo.transpose_inv_model = glm::transpose(glm::inverse(glm::mat3(transforms_ubo.model)));
-        transforms_ubo.proj_view_model = camera.getProjMatrix() * camera.getViewMatrix() * transforms_ubo.model;
+        transforms_ubo.proj_view_model = proj_view_matrix * transforms_ubo.model;
 
         TransformMVPUBO transform_mvp_ubo{};
         transform_mvp_ubo.proj_view_model = transforms_ubo.proj_view_model;
+
+        // cal axis model matrix
+        TransformMVPUBO transform_mvp_axis_ubo{};
+        {
+            auto& ifc_model = *scene.m_ifcObject;
+            glm::vec3 model_center = ifc_model.getModelCenter();
+            glm::mat4 model = ifc_model.getModelMatrix();
+            float scale_factor = ifc_model.getScaleFactor();
+
+            glm::mat4 trans_center(1.0f);
+            glm::mat4 trans_click_center(1.0f);
+            trans_center = glm::translate(trans_center, model_center);
+            model = model * trans_center;
+            glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
+
+            //float len_ref = glm::length(init_view_pos);
+            float len_ref = 10.0f;
+            float len = glm::length(scene.m_editCamera->getViewPos() - scene.m_pickWorldPos);
+            //printf("%f\n", scale_factor);
+            float scale = len / len_ref / scale_factor * 0.25f;
+            model = glm::scale(model, glm::vec3(scale, scale, scale));
+
+            trans_click_center = glm::translate(trans_click_center, scene.m_pickWorldPos - world_pos);
+            model = trans_click_center * model;
+            transform_mvp_axis_ubo.proj_view_model = proj_view_matrix * model;
+        }
+        // ----- ----- ----- ----- ----- ----- ----- ----- 
 
 
         m_vulkanResources.update<TransformsUBO>(transforms_ubo, uniform_buffer_transforms);
         m_vulkanResources.update<IFCRenderUBO>(ifc_render_ubo, uniform_buffer_ifc_render);
         m_vulkanResources.update<TransformMVPUBO>(transform_mvp_ubo, uniform_buffer_transform_mvp);
+
+        m_vulkanResources.update<TransformMVPUBO>(transform_mvp_axis_ubo, uniform_buffer_transform_mvp_axis);
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

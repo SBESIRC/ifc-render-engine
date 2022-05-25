@@ -8,7 +8,7 @@ layout(std140, binding = 0)uniform TransformMVPUBO{
 } ubo;
 
 void main(){
-    int index = gl_VertexID >> 1;
+    int index = gl_VertexIndex >> 1;
     switch(index){
         case 0: color = vec3(1.0, 0.0, 0.0); break;
         case 1: color = vec3(0.0, 0.0, 1.0); break;
