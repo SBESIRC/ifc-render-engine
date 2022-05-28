@@ -7,6 +7,8 @@
 #include "common/std_types.h"
 #include "resource/model.h"
 #include <map>
+
+#include "ifcrender/ifc_render.h"
 namespace ifcre {
 
 	// pure virtual function is to focus on 'action', not 'member type'
@@ -33,7 +35,7 @@ namespace ifcre {
 
 	private:
 		void drawFrame();
-	
+		
 	private:
 		Map<String, String> m_cache_configs;
 		bool m_init;
@@ -47,11 +49,17 @@ namespace ifcre {
 		SharedPtr<IFCModel> ifc_test_model;
 
 	private:
+		SharedPtr<IFCRender> m_ifcRender;
+		Scene m_scene;
+
+	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10);
 		glm::vec3 m_last_hover_pos = glm::vec3(0);
 		// right mouse click
 		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;
+
+		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 	};
 }
 

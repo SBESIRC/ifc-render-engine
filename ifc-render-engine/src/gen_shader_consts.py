@@ -45,3 +45,4 @@ for file in file_list:
     if flag == 1:
         ff.write('\n')
 ff.write(file_content_tail)
+print('ok')

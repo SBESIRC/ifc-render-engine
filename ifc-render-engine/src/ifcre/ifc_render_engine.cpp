@@ -1,11 +1,15 @@
 #include "ifc_render_engine.h"
 #include "resource/parser.h"
 #include "common/ifc_util.h"
+#include "ifcrender/render_ui.h"
+
+#include<iostream>
 
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
 
 namespace ifcre {
+	extern IFCVulkanRender;
 	SharedPtr<IFCRenderEngine> ifcre;
 
 	void IFCRenderEngine::setConfig(String key, String value)
@@ -34,55 +38,74 @@ namespace ifcre {
 		else {
 			test_model = DefaultParser::load(model_file);
 		}
-		//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
-		m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
-		m_glrender = make_shared<GLRender>();
-
-		//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
-		//model_vb->upload(test_model->vertices, test_model->indices);
-		//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-		//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
-		//test_model->render_id = m_glrender->addModel(model_vb);
-
-		m_camera = make_shared<GLCamera>(m_view_pos);
-		m_render_window->setCamera(m_camera);
-		// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
+		String graphics_api = configs["render_api"];
+		if (graphics_api == "vulkan") {
+			m_render_api = VULKAN_RENDER_API;
+		}
+		
 		Real scale_factor = 0;
 		glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
 		ifc_test_model->setScaleFactor(scale_factor);
 
-		// add a rendered model
-		SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
-		SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
-		if (try_ifc) {
-			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
-			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
-			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
-			model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
-			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
+		if (m_render_api == OPENGL_RENDER_API) {
+			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
+			m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
+			m_glrender = make_shared<GLRender>();
+	
 
-			if (use_transparency) {
-				model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
-				model_vb->uploadTransElements(ifc_test_model->trans_ind);
+			//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
+			//model_vb->upload(test_model->vertices, test_model->indices);
+			//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
+			//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+			//test_model->render_id = m_glrender->addModel(model_vb);
+
+			m_camera = make_shared<GLCamera>(m_view_pos);
+			m_render_window->setCamera(m_camera);
+			// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
+
+			// add a rendered model
+			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
+			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
+			if (try_ifc) {
+				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
+				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
+				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
+				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
+				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
+
+				if (use_transparency) {
+					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
+					model_vb->uploadTransElements(ifc_test_model->trans_ind);
+				}
+				model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
+				model_vb->UploadElementEdge(ifc_test_model->edge_indices);
+				ifc_test_model->render_id = m_glrender->addModel(model_vb);
+
+				//bounding box needs a vertexBuffer as well
+				select_bbx_vb->uploadBBXData(ifc_test_model->generate_bbxs_by_vec({ 0 }), ifc_test_model->bbx_drawing_order);
+				select_bbx_vb->vertexAttribDesc(0, 3, sizeof(Real) * 3, (void*)0);
+				select_bbx_id = m_glrender->addModel(select_bbx_vb);
 			}
-			model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
-			model_vb->UploadElementEdge(ifc_test_model->edge_indices);
-			ifc_test_model->render_id = m_glrender->addModel(model_vb);
+			else
+			{
+				model_vb->upload(test_model->vertices, test_model->indices);
+				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
+				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
+				test_model->render_id = m_glrender->addModel(model_vb);
+			}
+		}
 
-			//bounding box needs a vertexBuffer as well
-			select_bbx_vb->uploadBBXData(ifc_test_model->generate_bbxs_by_vec({ 0 }), ifc_test_model->bbx_drawing_order);
-			select_bbx_vb->vertexAttribDesc(0, 3, sizeof(Real) * 3, (void*)0);
-			select_bbx_id = m_glrender->addModel(select_bbx_vb);
+		if (m_render_api == VULKAN_RENDER_API) {
+			m_scene.m_ifcObject = ifc_test_model.get();
+			m_ifcRender = make_shared<IFCVulkanRender>();
+			m_ifcRender->initialize(width, height);
 		}
-		else
-		{
-			model_vb->upload(test_model->vertices, test_model->indices);
-			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
-			test_model->render_id = m_glrender->addModel(model_vb);
+		else {
+			// TODO opengl api
 		}
+
 		m_init = true;
 	}
 
@@ -93,14 +116,30 @@ namespace ifcre {
 			return;
 		}
 
-		auto& m_window = *m_render_window;
-		while (!m_window.isClose()) {
-			m_window.pollEvents();
-			m_window.processInput();
+		switch (m_render_api) {
+		case OPENGL_RENDER_API: {
+			auto& m_window = *m_render_window;
+			while (!m_window.isClose()) {
+				m_window.pollEvents();
+				m_window.processInput();
 
-			drawFrame();
+				drawFrame();
 
-			m_window.swapBuffer();
+				m_window.swapBuffer();
+			}
+			break;
+		}
+		case VULKAN_RENDER_API: {
+			while (true) {
+				// TODO tick
+
+				if (!m_ifcRender->render(m_scene)) {
+					break;
+				}
+
+			}
+			break;
+		}
 		}
 	}
 
@@ -160,7 +199,7 @@ namespace ifcre {
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
-			m_window.switchRenderBack();
+			//m_window.switchRenderBack();
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
@@ -170,13 +209,14 @@ namespace ifcre {
 #ifndef TEST_COMP_ID_RES
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 #endif
-			m_window.switchRenderBack();
+			//m_window.switchRenderBack();
 #ifndef ONLY_DEPTH_NROMAL_RES
 			// 1. render scene
 			m_window.switchRenderColor();
 			m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
+			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, ALL);
 
 			//2. render transparency scene
 			m_render.setAlpha(0.5);
@@ -193,17 +233,17 @@ namespace ifcre {
 			}
 #endif
 
+
+			// -------------- render axis, not normal render procedure ---------------
+			m_render.renderAxis(*ifc_test_model
+				, clicked_coord
+				, m_camera->getViewPos()
+				, m_view_pos);
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
 		m_render.postRender(m_window);
-
-		// -------------- render axis, not normal render procedure ---------------
-		m_render.renderAxis(*ifc_test_model
-			, clicked_coord
-			, m_camera->getViewPos()
-			, m_view_pos);
-		// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 }

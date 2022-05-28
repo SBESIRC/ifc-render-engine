@@ -4,7 +4,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include "gl/gl_render_texture.h"
 #include "../common/std_types.h"
 
 namespace ifcre {

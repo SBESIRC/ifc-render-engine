@@ -1,4 +1,5 @@
 #include "gl_render.h"
+#include "gl/gl_uniform_buffer.h"
 
 #include "gl/shader_consts.h"
 #include "../common/ifc_util.h"
@@ -9,6 +10,15 @@ namespace ifcre {
 // ------------ construction ---------------------
 	GLRender::GLRender()
 	{
+		// mvp, trans_inv_model
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + 48);
+		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4));
+
+		m_uniform_buffer_map.transformsUBO->bindRange(0);
+		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
+		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
+
 #ifdef _DEBUG
 		// program init
 		String v_image_effect = util::read_file("shaders/image_effect.vert");
@@ -38,6 +48,7 @@ namespace ifcre {
 		String v_edge = util::read_file("shaders/edge.vert");
 		String f_edge = util::read_file("shaders/edge.frag");
 		m_edge_shader = make_unique<GLSLProgram>(v_edge.c_str(), f_edge.c_str());
+
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -48,6 +59,12 @@ namespace ifcre {
 		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_slct_bbx, sc::f_slct_bbx);
 		m_edge_shader= make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 #endif
+
+		m_test_shader->bindUniformBlock("TransformsUBO", 0);
+		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+
+		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
+		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -114,6 +131,7 @@ namespace ifcre {
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			m_test_shader->use();
+
 			m_test_shader->setMat4("modelview", m_modelview);
 			m_test_shader->setMat4("model", m_model);
 			m_test_shader->setMat4("view", m_view);
@@ -128,6 +146,7 @@ namespace ifcre {
 			glBlendEquation(GL_FUNC_ADD);
 
 			m_test_shader->use();
+
 			m_test_shader->setMat4("modelview", m_modelview);
 			m_test_shader->setMat4("model", m_model);
 			m_test_shader->setMat4("view", m_view);
@@ -152,6 +171,9 @@ namespace ifcre {
 			printf("The render_id[%u] is not existed.\n", render_id);
 			return;
 		}
+		auto& transformUBO = *m_uniform_buffer_map.transformsUBO;
+		auto& ifcRenderUBO = *m_uniform_buffer_map.ifcRenderUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
 			auto& color = m_depnor_value;
@@ -165,26 +187,28 @@ namespace ifcre {
 		}
 		case COMP_ID_WRITE: {
 			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w);
+			//glClearColor(color.x, color.y, color.z, color.w);
+			glClearColor(-2, 0, 0, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearDepthf(1.0);
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			m_comp_id_program->use();
-			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
 			break;
 		}
 		case DEFAULT_SHADING: {
 			auto& color = m_bg_color;
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			transformUBO.update(0, 64, glm::value_ptr(m_model));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camerapos));
+
 			m_test_shader->use();
-			m_test_shader->setMat4("modelview", m_modelview);
-			m_test_shader->setMat4("model", m_model);
-			m_test_shader->setMat4("view", m_view);
-			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraPos", m_camerapos);
-			m_test_shader->setInt("c_comp", m_compId);
-			m_test_shader->setInt("h_comp", m_hoverCompId);
-			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
@@ -192,15 +216,16 @@ namespace ifcre {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
+			transformUBO.update(0, 64, glm::value_ptr(m_model));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+
+			ifcRenderUBO.update(0, 4, &m_alpha);
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camerapos));
+
 			m_test_shader->use();
-			m_test_shader->setMat4("modelview", m_modelview);
-			m_test_shader->setMat4("model", m_model);
-			m_test_shader->setMat4("view", m_view);
-			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraPos", m_camerapos);
-			m_test_shader->setFloat("alpha", m_alpha);
-			m_test_shader->setInt("c_comp", m_compId);
-			m_test_shader->setInt("h_comp", m_hoverCompId);
 			break;
 		}
 		case BOUNDINGBOX_SHADING: {
@@ -276,7 +301,6 @@ namespace ifcre {
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			first = false;
 		}
-		m_axis_shader->use();
 		glm::vec3 model_center = ifc_model.getModelCenter();
 		glm::mat4 model = ifc_model.getModelMatrix();
 		float scale_factor = ifc_model.getScaleFactor();
@@ -297,7 +321,9 @@ namespace ifcre {
 		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
 		model = trans_click_center * model;
 
-		m_axis_shader->setMat4("mvp", m_projection * m_view * model);
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+		m_axis_shader->use();
 		glBindVertexArray(axis_vao);
 		glDisable(DEPTH_TEST);
 		glDepthFunc(GL_ALWAYS);

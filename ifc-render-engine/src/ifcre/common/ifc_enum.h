@@ -20,6 +20,11 @@ namespace ifcre {
 		BBX_LINE = 0x05,
 		EDGE_LINE = 0x06
 	};
+
+	enum RenderAPIEnum {
+		OPENGL_RENDER_API = 0x01,
+		VULKAN_RENDER_API = 0x02
+	};
 }
 
 #endif

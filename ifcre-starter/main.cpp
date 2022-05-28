@@ -1,10 +1,12 @@
 #include <iostream>
 #include <Windows.h>
+#include <string.h>
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
 //const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
 #ifdef _DEBUG
 	const char model[] = "resources\\models\\ifc_midfile\\temp3.midfile";
 #else
+	//const char model[] = "resources\\models\\ifc\\ff.ifc";
 	const char model[] = "resources\\models\\ifc\\0407.ifc";
 #endif // _DEBUG
 
@@ -23,6 +25,7 @@ void create_ifcre(ifcre* re) {
 	HMODULE module = LoadLibrary(L"ifc-render-engine.dll");
 	if (module == NULL)
 	{
+		std::cout << GetLastError() << "\n";
 		printf("load ifc-render-engine failed.\n");
 		return;
 	}
@@ -48,6 +51,17 @@ int main(int argc, char**argv) {
 	re.set_config("model_type", "ifc");
 	re.set_config("use_transparency", "true");
 	re.set_config("file", argc == 1? model : argv[1]);
+
+	if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
+		re.set_config("render_api", "vulkan");
+	}
+	else {
+		re.set_config("render_api", "opengl");
+	}
+
+//#ifdef _DEBUG
+//	re.set_config("render_api", "vulkan");
+//#endif
 
 	re.init();
 	re.run();

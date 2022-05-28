@@ -41,23 +41,46 @@ namespace ifcre {
 
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode) {
 
-        glm::vec3 getColor;
+        //glm::vec3 getColor;
+        //Real w = m_width, h = m_height;
+        ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
+        //m_cur_rt = m_comp_fb.m_comp_id_rt.get();
+        ////glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+        //glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+        //glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
+        //    m_mouse_status.click_comp_id = -1;
+        //    std::cout << "NO!" << std::endl;
+        //    return;
+        //}
+        //int clicked_comp_id = 0;
+        //clicked_comp_id += (int)round(getColor.x * 256) << 16;
+        //clicked_comp_id += (int)round(getColor.y * 256) << 8;
+        //clicked_comp_id += (int)round(getColor.z * 256);
+        //if (hover_mode)
+        //    m_mouse_status.hover_comp_id = clicked_comp_id;
+        //else
+        //    m_mouse_status.click_comp_id = clicked_comp_id;
+
+
+        glm::ivec4 comp_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
-            m_mouse_status.click_comp_id = -1;
-            std::cout << "NO!" << std::endl;
-            return;
-        }
-        int clicked_comp_id = 0;
-        clicked_comp_id += (int)round(getColor.x * 256) << 16;
-        clicked_comp_id += (int)round(getColor.y * 256) << 8;
-        clicked_comp_id += (int)round(getColor.z * 256);
+        //if (comp_id == -1) {
+        //    m_mouse_status.click_comp_id = -1;
+        //    //std::cout << "NO!" << std::endl;
+        //    return;
+        //}
+
+        //std::cout << comp_id.x << "\n";
+        
+        int clicked_comp_id = comp_id.x;
         if (hover_mode)
             m_mouse_status.hover_comp_id = clicked_comp_id;
         else
@@ -71,7 +94,6 @@ namespace ifcre {
     static void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         that->recreateFramebuffer(width, height);
-        glViewport(0, 0, width, height);
     }
 
     void RenderWindow::cursor_pos_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -149,7 +171,7 @@ namespace ifcre {
         float click_z = that->_getClickedDepthValue(click_x, click_y);
         if (click_z != 1.0) {
             that->_setClickedWorldCoords(click_x, click_y, click_z);
-            that->_setClickedWorldColors(click_x, click_y, false);
+            //that->_setClickedWorldColors(click_x, click_y, false);
         }
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
 
@@ -165,7 +187,7 @@ namespace ifcre {
         
     }
     
-    void RenderWindow::mouse_button_button_callback(GLFWwindow* window, int button, int action, int mods) {
+    void RenderWindow::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
@@ -199,7 +221,7 @@ namespace ifcre {
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
 #ifdef TEST_COMP_ID
-                    that->_setClickedWorldColors(click_x, click_y, false);
+                    //that->_setClickedWorldColors(click_x, click_y, false);
 #endif // TEST_COMP_ID
                     that->m_mouse_status.click_init_mask = 1;
                 }
@@ -246,7 +268,7 @@ namespace ifcre {
         // mouse callback
         glfwSetCursorPosCallback(m_window, cursor_pos_callback);
         glfwSetScrollCallback(m_window, scroll_callback);
-        glfwSetMouseButtonCallback(m_window, mouse_button_button_callback);
+        glfwSetMouseButtonCallback(m_window, mouse_button_callback);
         
 
         // load gl functions by glad
@@ -405,7 +427,12 @@ namespace ifcre {
     void RenderWindow::recreateFramebuffer(int w, int h)
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
+        while (w == 0 || h == 0) {
+            glfwGetFramebufferSize(m_window, &w, &h);
+            glfwWaitEvents();
+        }
         createFramebuffer(w, h);
+        glViewport(0, 0, w, h);
     }
 
     void RenderWindow::readPixels() {
@@ -519,7 +546,7 @@ namespace ifcre {
             //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, screenTexture, 0);	// we only need a color buffer
         }
         glCreateFramebuffers(1, &m_comp_fb.fbo_id);
-        m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, false, COLOR_R32I);
 
         m_cur_rt = mfb.m_default_rt.get();
 

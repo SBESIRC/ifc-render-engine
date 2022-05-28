@@ -9,6 +9,7 @@
 #include "render_window.h"
 #include "gl/glsl_program.h"
 #include "gl/gl_vertex_buffer.h"
+#include "gl/gl_uniform_buffer.h"
 #include "gl/gl_enum.h"
 #include "gl_camera.h"
 
@@ -64,7 +65,7 @@ namespace ifcre {
 
 	private:
 		Map<uint32_t, SharedPtr<GLVertexBuffer>> m_vertex_buffer_map;
-
+		GLUniformBufferMap  m_uniform_buffer_map;
 	private:
 
 		glm::mat4 m_modelview;

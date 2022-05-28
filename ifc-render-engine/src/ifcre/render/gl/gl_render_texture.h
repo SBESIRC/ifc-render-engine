@@ -9,7 +9,7 @@
 namespace ifcre {
 	class GLRenderTexture {
 	public:
-		GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth, bool open_aa = false);
+		GLRenderTexture(int32_t w, int32_t h, GLRTDepthFormatEnum depth, bool open_aa = false, GLRTColorFormatEnum color = COLOR_RGBA8);
 		~GLRenderTexture();
 
 		uint32_t getTexId();
@@ -32,7 +32,7 @@ namespace ifcre {
 
 		GLTexFilterEnum m_filter_mode;
 		GLWrapEnum m_wrap_mode;
-		GLRTFormatEnum m_rt_format;
+		GLRTColorFormatEnum m_rt_format;
 		GLRTDepthFormatEnum m_rt_depth_format;
 
 		bool m_open_aa;

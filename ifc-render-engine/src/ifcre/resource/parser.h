@@ -2,7 +2,7 @@
 #ifndef IFCRE_PARSER_H_
 #define IFCRE_PARSER_H_
 
-#include "OBJ_Loader.h.h"
+#include "OBJ_Loader.h"
 
 #include "../common/std_types.h"
 #include "model.h"

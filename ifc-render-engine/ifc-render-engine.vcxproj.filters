@@ -9,6 +9,17 @@
     <ClCompile Include="src\ifcre\render\gl\gl_vertex_buffer.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_render_texture.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_context.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_util.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_buffer.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_manager.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_pass_base.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\surface_io.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\ifc_vk_render.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\render_ui.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.cpp" />
+    <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -18,7 +29,7 @@
     <ClInclude Include="src\ifcre\ifc_render_engine.h" />
     <ClInclude Include="src\ifcre\resource\model.h" />
     <ClInclude Include="src\ifcre\render\render_window.h" />
-    <ClInclude Include="src\ifcre\resource\OBJ_Loader.h.h" />
+    <ClInclude Include="src\ifcre\resource\OBJ_Loader.h" />
     <ClInclude Include="src\ifcre\render\gl\shader_consts.h" />
     <ClInclude Include="src\ifcre\render\gl\glsl_program.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_vertex_buffer.h" />
@@ -30,6 +41,23 @@
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_context.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_util.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_buffer.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_manager.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_pass_base.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_mesh.h" />
+    <ClInclude Include="src\ifcre\ifcrender\ifc_render.h" />
+    <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
+    <ClInclude Include="src\ifcre\ifcrender\surface_io.h" />
+    <ClInclude Include="src\ifcre\ifcrender\scene.h" />
+    <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.h" />
+    <ClInclude Include="src\ifcre\render\gl\gl_uniform_buffer.h" />
+    <ClInclude Include="src\ifcre\ifcrender\uniform_obj.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
+    <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
+    <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
