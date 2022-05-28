@@ -67,8 +67,8 @@ namespace ifcre
         _updateBuffers(scene);
         // --------------------- Draw Scene ----------------------
         auto& ifc_object = *scene.m_ifcObject;
-        m_ifcBasePass.draw(ifc_object.render_id, scene.m_compId.clicked > 0);
-        //m_ifcPickPass.draw(ifc_object.render_id); TODO
+        m_ifcBasePass.draw(ifc_object.render_id, scene.m_compId.clicked >= 0);
+        m_ifcPickPass.draw(ifc_object.render_id);
 
         // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -411,7 +411,7 @@ namespace ifcre
 
         m_vulkanResources.update<TransformMVPUBO>(transform_mvp_axis_ubo, uniform_buffer_transform_mvp_axis);
 
-        if (scene.m_compId.clicked > 0 && scene.m_compId.clicked != m_vulkanResources.curBoundingBoxId) {
+        if (scene.m_compId.clicked >= 0 && scene.m_compId.clicked != m_vulkanResources.curBoundingBoxId) {
             std::vector<float> bounding_box_vertices = ifc_object.generate_bbxs_by_vec({ static_cast<uint32_t>(scene.m_compId.clicked) });
             m_vulkanResources.boundingBoxMeshBuffer.vertexBuffer->update<float>(bounding_box_vertices.data());
             m_vulkanResources.curBoundingBoxId = scene.m_compId.clicked;

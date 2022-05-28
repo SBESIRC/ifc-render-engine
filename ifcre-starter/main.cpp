@@ -59,9 +59,9 @@ int main(int argc, char**argv) {
 		re.set_config("render_api", "opengl");
 	}
 
-//#ifdef _DEBUG
-//	re.set_config("render_api", "vulkan");
-//#endif
+#ifdef _DEBUG
+	re.set_config("render_api", "vulkan");
+#endif
 
 	re.init();
 	re.run();

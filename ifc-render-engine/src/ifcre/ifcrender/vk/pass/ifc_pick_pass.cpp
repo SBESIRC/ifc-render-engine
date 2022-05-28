@@ -33,105 +33,15 @@ namespace ifcre {
 
 	void VulkanIFCPickPass::draw(uint32_t render_id)
 	{
-		// TODO
-
-		//auto& ctx = *m_vkContext;
-		//auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
-		//auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
-		//if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
-		//	return;
-		//}
-		//auto& mesh_buffer = mesh_it->second;
-		//VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
-		//VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
-		//{
-		//	VkRenderPassBeginInfo renderpass_begin_info{};
-		//	renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-		//	renderpass_begin_info.renderPass = m_framebuffer.render_pass;
-		//	renderpass_begin_info.framebuffer = m_pickFramebuffer;
-		//	renderpass_begin_info.renderArea.offset = { 0, 0 };
-		//	renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
-
-		//	std::array<VkClearValue, 2> clear_values;
-		//	clear_values[0].color = { {-2.0f, 0.0f, 0.0f, 0.0f} };
-		//	clear_values[1].depthStencil = { 1.0f, 0 };
-		//	renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
-		//	renderpass_begin_info.pClearValues = clear_values.data();
-		//	ctx.fp_vkCmdBeginRenderPass(cur_cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
-		//}
-		//ctx.fp_vkCmdBindPipeline(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].pipeline);
-		//ctx.fp_vkCmdSetViewport(cur_cmd_buffer, 0, 1, &m_commandInfo.viewport);
-		//ctx.fp_vkCmdSetScissor(cur_cmd_buffer, 0, 1, &m_commandInfo.scissor);
-
-		//VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
-		//VkDeviceSize offsets[] = { 0 };
-		//// render all
-		//ctx.fp_vkCmdBindVertexBuffers(cur_cmd_buffer, 0, 1, vertex_buffers, offsets);
-		//ctx.fp_vkCmdBindDescriptorSets(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].layout, 0, 1, &m_descriptorInfos[0].descriptor_set, 0, nullptr);
-		//ctx.fp_vkCmdBindIndexBuffer(cur_cmd_buffer, g_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-		//ctx.fp_vkCmdDrawIndexed(cur_cmd_buffer, g_index_buffer.getSize(), 1, 0, 0, 0);
-
-		//ctx.fp_vkCmdEndRenderPass(cur_cmd_buffer);
-	}
-
-	glm::ivec2 VulkanIFCPickPass::pick(uint32_t render_id, int32_t x, int32_t y, PickTypeEnum pick_type)
-	{
-		glm::ivec2 res;
+		auto& ctx = *m_vkContext;
+		auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
 		auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
 		if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
-			return glm::ivec2(-1, -1);
+			return;
 		}
 		auto& mesh_buffer = mesh_it->second;
 		VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
 		VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
-
-		auto& ctx = *m_vkContext;
-		auto cur_frame_index = *m_commandInfo.p_currentFrameIndex;
-		auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
-		auto cur_in_flight_fence = m_commandInfo.curInFlightFence;
-		VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device, 1, &cur_in_flight_fence, VK_TRUE, UINT64_MAX));
-
-		VkCommandBufferBeginInfo cmd_buffer_begin_info{};
-		cmd_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		cmd_buffer_begin_info.flags = 0;
-		cmd_buffer_begin_info.pInheritanceInfo = nullptr;
-		VK_CHECK_RESULT(ctx.fp_vkBeginCommandBuffer(cur_cmd_buffer, &cmd_buffer_begin_info));
-
-		{
-			std::array<VkImageMemoryBarrier,2> transfer_to_render_barriers{};
-			transfer_to_render_barriers[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			transfer_to_render_barriers[0].pNext = nullptr;
-			transfer_to_render_barriers[0].srcAccessMask = 0;
-			transfer_to_render_barriers[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-			transfer_to_render_barriers[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			transfer_to_render_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-			transfer_to_render_barriers[0].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-			transfer_to_render_barriers[0].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-			transfer_to_render_barriers[0].image = m_framebuffer.attachments[attach_comp_id].image;
-			transfer_to_render_barriers[0].subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-
-			transfer_to_render_barriers[1].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-			transfer_to_render_barriers[1].pNext = nullptr;
-			transfer_to_render_barriers[1].srcAccessMask = 0;
-			transfer_to_render_barriers[1].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-			transfer_to_render_barriers[1].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			transfer_to_render_barriers[1].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-			transfer_to_render_barriers[1].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-			transfer_to_render_barriers[1].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-			transfer_to_render_barriers[1].image = m_framebuffer.attachments[attach_depth].image;
-			transfer_to_render_barriers[1].subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
-			vkCmdPipelineBarrier(cur_cmd_buffer,
-				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-				0,
-				0,
-				nullptr,
-				0,
-				nullptr,
-				static_cast<uint32_t>(transfer_to_render_barriers.size()),
-				transfer_to_render_barriers.data());
-		}
-
 		{
 			VkRenderPassBeginInfo renderpass_begin_info{};
 			renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -160,33 +70,121 @@ namespace ifcre {
 		ctx.fp_vkCmdDrawIndexed(cur_cmd_buffer, g_index_buffer.getSize(), 1, 0, 0, 0);
 
 		ctx.fp_vkCmdEndRenderPass(cur_cmd_buffer);
-		ctx.fp_vkEndCommandBuffer(cur_cmd_buffer);
+	}
 
-		ctx.fp_vkResetFences(ctx.m_device, 1, &cur_in_flight_fence);
+	glm::ivec2 VulkanIFCPickPass::pick(uint32_t render_id, int32_t x, int32_t y, PickTypeEnum pick_type)
+	{
+		glm::ivec2 res;
+		auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
+		if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
+			return glm::ivec2(-1, -1);
+		}
+		auto& mesh_buffer = mesh_it->second;
+		VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
+		VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
 
-		VkSubmitInfo submit_info = {};
-		submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submit_info.waitSemaphoreCount = 0;
-		submit_info.pWaitSemaphores = nullptr;
-		submit_info.pWaitDstStageMask = nullptr;
-		submit_info.commandBufferCount = 1;
-		submit_info.pCommandBuffers = &cur_cmd_buffer;
-		submit_info.signalSemaphoreCount = 0;
-		submit_info.pSignalSemaphores = nullptr;
-		VK_CHECK_RESULT(vkQueueSubmit(ctx.m_graphicsQueue
-			, 1
-			, &submit_info
-			, cur_in_flight_fence));
+		auto& ctx = *m_vkContext;
+		//auto cur_frame_index = *m_commandInfo.p_currentFrameIndex;
+		//auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
+		//auto cur_in_flight_fence = m_commandInfo.curInFlightFence;
+		//VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device, 1, &cur_in_flight_fence, VK_TRUE, UINT64_MAX));
 
-		auto new_index = (*m_commandInfo.p_currentFrameIndex + 1) % m_commandInfo.maxFramesInFlight;
-		*m_commandInfo.p_currentFrameIndex = new_index;
+		//VkCommandBufferBeginInfo cmd_buffer_begin_info{};
+		//cmd_buffer_begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		//cmd_buffer_begin_info.flags = 0;
+		//cmd_buffer_begin_info.pInheritanceInfo = nullptr;
+		//VK_CHECK_RESULT(ctx.fp_vkBeginCommandBuffer(cur_cmd_buffer, &cmd_buffer_begin_info));
 
-		// implicit host read barrier
-		VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device,
-		                                                           m_commandInfo.maxFramesInFlight,
-		                                                           m_commandInfo.inFlightFences,
-		                                                           VK_TRUE,
-		                                                           UINT64_MAX));
+		//{
+		//	std::array<VkImageMemoryBarrier,2> transfer_to_render_barriers{};
+		//	transfer_to_render_barriers[0].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		//	transfer_to_render_barriers[0].pNext = nullptr;
+		//	transfer_to_render_barriers[0].srcAccessMask = 0;
+		//	transfer_to_render_barriers[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		//	transfer_to_render_barriers[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		//	transfer_to_render_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		//	transfer_to_render_barriers[0].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		//	transfer_to_render_barriers[0].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		//	transfer_to_render_barriers[0].image = m_framebuffer.attachments[attach_comp_id].image;
+		//	transfer_to_render_barriers[0].subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+
+		//	transfer_to_render_barriers[1].sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		//	transfer_to_render_barriers[1].pNext = nullptr;
+		//	transfer_to_render_barriers[1].srcAccessMask = 0;
+		//	transfer_to_render_barriers[1].dstAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+		//	transfer_to_render_barriers[1].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		//	transfer_to_render_barriers[1].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		//	transfer_to_render_barriers[1].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		//	transfer_to_render_barriers[1].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+		//	transfer_to_render_barriers[1].image = m_framebuffer.attachments[attach_depth].image;
+		//	transfer_to_render_barriers[1].subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+		//	vkCmdPipelineBarrier(cur_cmd_buffer,
+		//		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		//		VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		//		0,
+		//		0,
+		//		nullptr,
+		//		0,
+		//		nullptr,
+		//		static_cast<uint32_t>(transfer_to_render_barriers.size()),
+		//		transfer_to_render_barriers.data());
+		//}
+
+		//{
+		//	VkRenderPassBeginInfo renderpass_begin_info{};
+		//	renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		//	renderpass_begin_info.renderPass = m_framebuffer.render_pass;
+		//	renderpass_begin_info.framebuffer = m_pickFramebuffer;
+		//	renderpass_begin_info.renderArea.offset = { 0, 0 };
+		//	renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
+
+		//	std::array<VkClearValue, 2> clear_values;
+		//	clear_values[0].color = { {-2, 0, 0, 0} };
+		//	clear_values[1].depthStencil = { 1.0f, 0 };
+		//	renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+		//	renderpass_begin_info.pClearValues = clear_values.data();
+		//	ctx.fp_vkCmdBeginRenderPass(cur_cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+		//}
+		//ctx.fp_vkCmdBindPipeline(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].pipeline);
+		//ctx.fp_vkCmdSetViewport(cur_cmd_buffer, 0, 1, &m_commandInfo.viewport);
+		//ctx.fp_vkCmdSetScissor(cur_cmd_buffer, 0, 1, &m_commandInfo.scissor);
+
+		//VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
+		//VkDeviceSize offsets[] = { 0 };
+		//// render all
+		//ctx.fp_vkCmdBindVertexBuffers(cur_cmd_buffer, 0, 1, vertex_buffers, offsets);
+		//ctx.fp_vkCmdBindDescriptorSets(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].layout, 0, 1, &m_descriptorInfos[0].descriptor_set, 0, nullptr);
+		//ctx.fp_vkCmdBindIndexBuffer(cur_cmd_buffer, g_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		//ctx.fp_vkCmdDrawIndexed(cur_cmd_buffer, g_index_buffer.getSize(), 1, 0, 0, 0);
+
+		//ctx.fp_vkCmdEndRenderPass(cur_cmd_buffer);
+		//ctx.fp_vkEndCommandBuffer(cur_cmd_buffer);
+
+		//ctx.fp_vkResetFences(ctx.m_device, 1, &cur_in_flight_fence);
+
+		//VkSubmitInfo submit_info = {};
+		//submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		//submit_info.waitSemaphoreCount = 0;
+		//submit_info.pWaitSemaphores = nullptr;
+		//submit_info.pWaitDstStageMask = nullptr;
+		//submit_info.commandBufferCount = 1;
+		//submit_info.pCommandBuffers = &cur_cmd_buffer;
+		//submit_info.signalSemaphoreCount = 0;
+		//submit_info.pSignalSemaphores = nullptr;
+		//VK_CHECK_RESULT(vkQueueSubmit(ctx.m_graphicsQueue
+		//	, 1
+		//	, &submit_info
+		//	, cur_in_flight_fence));
+
+		//auto new_index = (*m_commandInfo.p_currentFrameIndex + 1) % m_commandInfo.maxFramesInFlight;
+		//*m_commandInfo.p_currentFrameIndex = new_index;
+
+		//// implicit host read barrier
+		//VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device,
+		//                                                           m_commandInfo.maxFramesInFlight,
+		//                                                           m_commandInfo.inFlightFences,
+		//                                                           VK_TRUE,
+		//                                                           UINT64_MAX));
 		//vkQueueWaitIdle(ctx.m_graphicsQueue);
 
 		// 
@@ -221,7 +219,8 @@ namespace ifcre {
 			copy_to_buffer_barrier.pNext = nullptr;
 			copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-			copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			//copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 			copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 			copy_to_buffer_barrier.srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
 			copy_to_buffer_barrier.dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();

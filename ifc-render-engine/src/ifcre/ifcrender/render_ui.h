@@ -73,6 +73,7 @@ namespace ifcre {
 		// -------- render time --------
 		float m_last_time = 0, m_delta_time = 0;
 		float m_hover_time = 0;
+		float m_move_time = 0;
 		// ----- ----- ----- ----- -----
 	private:
 		void onWindowResize(int width, int height);
