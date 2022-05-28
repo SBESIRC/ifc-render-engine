@@ -54,9 +54,11 @@ int main(int argc, char**argv) {
 
 	if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
 		re.set_config("render_api", "vulkan");
+		printf("rendering by vulkan\n");
 	}
 	else {
 		re.set_config("render_api", "opengl");
+		printf("rendering by opengl\n");
 	}
 
 #ifdef _DEBUG

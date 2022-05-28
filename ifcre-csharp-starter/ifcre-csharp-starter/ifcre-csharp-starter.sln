@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32413.511
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ifcre-csharp-starter", "ifcre-csharp-starter\ifcre-csharp-starter.csproj", "{CDE14FD8-B35C-4707-8CF5-DC71EE267299}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Debug|x64.ActiveCfg = Debug|x64
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Debug|x64.Build.0 = Debug|x64
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Release|x64.ActiveCfg = Release|x64
+		{CDE14FD8-B35C-4707-8CF5-DC71EE267299}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1C539847-14CD-49D7-B2EE-4EF9AE0EC778}
+	EndGlobalSection
+EndGlobal
