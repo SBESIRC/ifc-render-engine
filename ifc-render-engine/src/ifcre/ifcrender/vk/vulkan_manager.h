@@ -32,6 +32,8 @@ namespace ifcre {
 
         uint32_t addIFCMesh(IFCModelPayload& payload);
         float getDepthValue(Scene& scene, int32_t x, int32_t y);
+        int32_t getCompIdValue(Scene& scene, int32_t x, int32_t y);
+        glm::ivec2 getCompIdAndDepthValue(Scene& scene, int32_t x, int32_t y);
     private:
 
         // vulkan device context
@@ -57,14 +59,14 @@ namespace ifcre {
 
         VulkanResourceHandle m_vulkanResources;
     private:
-        void createCommandPool();
-        void createCommandBuffers();
-        void createDescriptorPool();
-        void createSyncObjects();
-        void createUniformBuffers();
-        void recreateSwapchain();
+        void _createCommandPool();
+        void _createCommandBuffers();
+        void _createDescriptorPool();
+        void _createSyncObjects();
+        void _createUniformBuffers();
+        void _recreateSwapchain();
         
-        void setupPasses();
+        void _setupPasses();
         void _createInnerMesh();
         void _updateUniform(Scene& scene);
     };

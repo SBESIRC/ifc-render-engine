@@ -92,7 +92,11 @@ namespace ifcre
         void createCommandPool();
 
     private:
+ #ifdef _DEBUG
         bool m_enableValidationLayer = true;
+#else
+        bool m_enableValidationLayer = false;
+#endif
         const std::vector<char const*> m_validationLayers = { "VK_LAYER_KHRONOS_validation" };
         const std::vector<const char*> m_deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
         uint32_t m_vulkanAPIVersion;

@@ -42,19 +42,23 @@ namespace ifcre {
 		ctx.fp_vkCmdSetViewport(cmd_buffer, 0, 1, &m_commandInfo.viewport);
 		ctx.fp_vkCmdSetScissor(cmd_buffer, 0, 1, &m_commandInfo.scissor);
 
-		VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
-		VkDeviceSize offsets[] = { 0 };
-        // render opaque
-		ctx.fp_vkCmdBindVertexBuffers(cmd_buffer, 0, 1, vertex_buffers, offsets);
-		ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
-		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, opaque_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-		ctx.fp_vkCmdDrawIndexed(cmd_buffer, opaque_index_buffer.getSize(), 1, 0, 0, 0);
+        VkDeviceSize offsets[] = { 0 };
+        if (opaque_index_buffer.getSize() > 0) {
+            VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
+            // render opaque
+            ctx.fp_vkCmdBindVertexBuffers(cmd_buffer, 0, 1, vertex_buffers, offsets);
+            ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_opaque].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
+            ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, opaque_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+            ctx.fp_vkCmdDrawIndexed(cmd_buffer, opaque_index_buffer.getSize(), 1, 0, 0, 0);
+        }
 
-        // render transparency
-        ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].pipeline);
-        ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
-		ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, transparency_index_bufer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
-		ctx.fp_vkCmdDrawIndexed(cmd_buffer, transparency_index_bufer.getSize(), 1, 0, 0, 0);
+        if (transparency_index_bufer.getSize() > 0) {
+            // render transparency
+            ctx.fp_vkCmdBindPipeline(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].pipeline);
+            ctx.fp_vkCmdBindDescriptorSets(cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[render_pipeline_transparency].layout, 0, 1, &m_descriptorInfos[layout_base].descriptor_set, 0, nullptr);
+            ctx.fp_vkCmdBindIndexBuffer(cmd_buffer, transparency_index_bufer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+            ctx.fp_vkCmdDrawIndexed(cmd_buffer, transparency_index_bufer.getSize(), 1, 0, 0, 0);
+        }
 
         // render axis
         VkBuffer axis_vertex_buffers[] = { axis_buffer.getBuffer() };
@@ -374,8 +378,13 @@ namespace ifcre {
         auto& ctx = *m_vkContext;
         m_renderPipeline.resize(render_pipeline_count);
         {
+#ifdef _DEBUG
             auto vert_code = VulkanUtil::compileFile("shaders/test.vert", shaderc_glsl_vertex_shader);
             auto frag_code = VulkanUtil::compileFile("shaders/test.frag", shaderc_glsl_fragment_shader);
+#else
+            auto vert_code = VulkanUtil::compileString(new_sc::v_test, shaderc_glsl_vertex_shader, true);
+            auto frag_code = VulkanUtil::compileString(new_sc::f_test, shaderc_glsl_fragment_shader, true);
+#endif
             VkShaderModule vert_shader_module = VulkanUtil::createShaderModule(ctx.m_device, vert_code);
             VkShaderModule frag_shader_module = VulkanUtil::createShaderModule(ctx.m_device, frag_code);
 
@@ -559,8 +568,13 @@ namespace ifcre {
         }
 
         {
-		    auto vert_code = VulkanUtil::compileFile("shaders/axis_vk.vert", shaderc_glsl_vertex_shader);
-		    auto frag_code = VulkanUtil::compileFile("shaders/axis.frag", shaderc_glsl_fragment_shader);
+#ifdef _DEBUG
+        auto vert_code = VulkanUtil::compileFile("shaders/axis_vk.vert", shaderc_glsl_vertex_shader);
+        auto frag_code = VulkanUtil::compileFile("shaders/axis.frag", shaderc_glsl_fragment_shader);
+#else
+        auto vert_code = VulkanUtil::compileString(new_sc::v_axis_vk, shaderc_glsl_vertex_shader, true);
+        auto frag_code = VulkanUtil::compileString(new_sc::f_axis, shaderc_glsl_fragment_shader, true);
+#endif
 		    VkShaderModule vert_shader_module = VulkanUtil::createShaderModule(ctx.m_device, vert_code);
 		    VkShaderModule frag_shader_module = VulkanUtil::createShaderModule(ctx.m_device, frag_code);
 

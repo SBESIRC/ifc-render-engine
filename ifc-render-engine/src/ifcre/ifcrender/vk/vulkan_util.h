@@ -63,6 +63,10 @@ namespace ifcre
             shaderc_shader_kind kind,
             bool optimize = false);
 
+        static std::vector<uint32_t> compileString(const std::string& src,
+            shaderc_shader_kind kind,
+            bool optimize = false);
+
         static VkShaderModule createShaderModule(VkDevice device, const std::vector<uint32_t>& code);
     };
 }

@@ -183,6 +183,7 @@
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
     <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
     <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
+    <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
     <ClInclude Include="src\ifcre\ifcrender\surface_io.h" />
     <ClInclude Include="src\ifcre\ifcrender\uniform_obj.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.h" />

@@ -158,7 +158,8 @@ namespace ifcre
 
         // physical device features
         VkPhysicalDeviceFeatures physical_device_features = {};
-        // physical_device_features.samplerAnisotropy = VK_TRUE;
+        physical_device_features.wideLines = VK_TRUE;
+        physical_device_features.fillModeNonSolid = VK_TRUE;
         // // support inefficient readback storage buffer
         // physical_device_features.fragmentStoresAndAtomics = VK_TRUE;
         // // support independent blending

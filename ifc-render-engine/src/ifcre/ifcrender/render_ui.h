@@ -35,7 +35,16 @@ namespace ifcre {
 		bool isMouseMove() { return (m_mouseStatus.horizontal_move != 0 || m_mouseStatus.vertical_move != 0); }
 		glm::vec3 getVirtualHoverWorldCoord() { return m_mouseStatus.hover_world_center; }
 
+		int32_t getClickedCompId() { return m_mouseStatus.click_comp_id; }
+		int32_t getHoveredCompId() { return m_mouseStatus.hover_comp_id; }
+
 		void reset() {
+			glfwSwapBuffers(m_io.window);
+			double now_time = glfwGetTime();
+			m_delta_time = now_time - m_last_time;
+			m_last_time = now_time;
+			m_hover_time += m_delta_time;
+
 			m_mouseStatus.horizontal_move = 0;
 			m_mouseStatus.vertical_move = 0;
 		}
@@ -52,12 +61,19 @@ namespace ifcre {
 			// 1: inside of model
 			// -1: outside of model
 			int32_t click_init_mask = 0;
+			int32_t click_comp_id = -1;
+			int32_t hover_comp_id = -1;
 		}m_mouseStatus;
 
 		struct {
 			float mouse_hori_vel = 0.015;
 			float mouse_vert_vel = 0.01;
 		}m_option;
+
+		// -------- render time --------
+		float m_last_time = 0, m_delta_time = 0;
+		float m_hover_time = 0;
+		// ----- ----- ----- ----- -----
 	private:
 		void onWindowResize(int width, int height);
 		void onMouseButton(int button, int action, int mods);

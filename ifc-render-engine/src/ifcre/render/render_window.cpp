@@ -171,7 +171,7 @@ namespace ifcre {
         float click_z = that->_getClickedDepthValue(click_x, click_y);
         if (click_z != 1.0) {
             that->_setClickedWorldCoords(click_x, click_y, click_z);
-            that->_setClickedWorldColors(click_x, click_y, false);
+            //that->_setClickedWorldColors(click_x, click_y, false);
         }
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
 
@@ -221,7 +221,7 @@ namespace ifcre {
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
 #ifdef TEST_COMP_ID
-                    that->_setClickedWorldColors(click_x, click_y, false);
+                    //that->_setClickedWorldColors(click_x, click_y, false);
 #endif // TEST_COMP_ID
                     that->m_mouse_status.click_init_mask = 1;
                 }

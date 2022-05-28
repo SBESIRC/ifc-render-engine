@@ -18,13 +18,13 @@ namespace ifcre
     {
         m_vkContext.initialize(window);
 
-        createCommandPool();
-        createCommandBuffers();
-        createDescriptorPool();
-        createSyncObjects();
-        createUniformBuffers();
+        _createCommandPool();
+        _createCommandBuffers();
+        _createDescriptorPool();
+        _createSyncObjects();
+        _createUniformBuffers();
 
-        setupPasses();
+        _setupPasses();
         _createInnerMesh();
     }
 
@@ -50,7 +50,7 @@ namespace ifcre
         if (result == VK_ERROR_OUT_OF_DATE_KHR) {
             // Swapchain has become incompatible with the surface.
             // Usually happens after a window resize.
-            recreateSwapchain();
+            _recreateSwapchain();
             return;
         }
         else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
@@ -64,10 +64,11 @@ namespace ifcre
         cmd_buffer_begin_info.pInheritanceInfo = nullptr;
         VK_CHECK_RESULT(m_vkContext.fp_vkBeginCommandBuffer(m_commandBuffers[m_currentFrameIndex], &cmd_buffer_begin_info));
 
-        // TODO Draw
         _updateUniform(scene);
+        // --------------------- Draw Scene ----------------------
         auto& ifc_object = *scene.m_ifcObject;
         m_ifcBasePass.draw(ifc_object.render_id);
+        //m_ifcPickPass.draw(ifc_object.render_id); TODO
 
         // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -106,7 +107,7 @@ namespace ifcre
 
         result = vkQueuePresentKHR(m_vkContext.m_presentQueue, &presentInfo);
         if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
-            recreateSwapchain();
+            _recreateSwapchain();
         }
         else if (result != VK_SUCCESS) {
             VK_CHECK_RESULT(result);
@@ -143,8 +144,8 @@ namespace ifcre
         //std::cout << "g_indices size: " << g_indices.size() << "\n";
 
 #ifndef _DEBUG
-        mesh_buffer.edgeIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
-        mesh_buffer.edgeIndexBuffer->create<uint32_t>(edge_indices.data(), edge_indices.size());
+        //mesh_buffer.edgeIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
+        //mesh_buffer.edgeIndexBuffer->create<uint32_t>(edge_indices.data(), edge_indices.size());
 #endif
 
         uint32_t id = util::get_next_globalid();
@@ -156,13 +157,30 @@ namespace ifcre
     float VulkanManager::getDepthValue(Scene& scene, int32_t x, int32_t y)
     {
         auto& ifc_obj = *scene.m_ifcObject;
-        glm::ivec2 res = m_ifcPickPass.pick(ifc_obj.render_id, x, y);
+        glm::ivec2 res = m_ifcPickPass.pick(ifc_obj.render_id, x, y, VulkanIFCPickPass::PickTypeEnum::pick_depth);
         return util::int_as_float(res.x);
     }
 
+    int32_t VulkanManager::getCompIdValue(Scene& scene, int32_t x, int32_t y)
+    {
+        auto& ifc_obj = *scene.m_ifcObject;
+        glm::ivec2 res = m_ifcPickPass.pick(ifc_obj.render_id, x, y, VulkanIFCPickPass::PickTypeEnum::pick_comp_id);
+        return res.y;
+    }
+
+    glm::ivec2 VulkanManager::getCompIdAndDepthValue(Scene& scene, int32_t x, int32_t y)
+    {
+        auto& ifc_obj = *scene.m_ifcObject;
+        uint32_t flag = VulkanIFCPickPass::PickTypeEnum::pick_comp_id | VulkanIFCPickPass::PickTypeEnum::pick_depth;
+        glm::ivec2 res = m_ifcPickPass.pick(ifc_obj.render_id, x, y, (VulkanIFCPickPass::PickTypeEnum)flag);
+        return res;
+    }
+
+    
+
     // ----------------------- initialize -------------------------
 
-    void VulkanManager::createCommandPool() {
+    void VulkanManager::_createCommandPool() {
         VkCommandPoolCreateInfo pool_create_info{};
         pool_create_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         pool_create_info.queueFamilyIndex = m_vkContext.m_queueFamilyIndices.graphicsFamily.value();
@@ -171,7 +189,7 @@ namespace ifcre
         VK_CHECK_RESULT(vkCreateCommandPool(m_vkContext.m_device, &pool_create_info, nullptr, &m_commandPool));
     }
 
-    void VulkanManager::createCommandBuffers() {
+    void VulkanManager::_createCommandBuffers() {
         m_commandBuffers.resize(m_maxFramesInFlight);
         VkCommandBufferAllocateInfo cmd_buffer_allocate_info{};
         cmd_buffer_allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -184,7 +202,7 @@ namespace ifcre
         }
     }
 
-    void VulkanManager::createDescriptorPool() {
+    void VulkanManager::_createDescriptorPool() {
         auto& ctx = m_vkContext;
         std::array<VkDescriptorPoolSize, 1> descpool_size;
         descpool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -199,7 +217,7 @@ namespace ifcre
         VK_CHECK_RESULT(vkCreateDescriptorPool(ctx.m_device, &descpool_ci, nullptr, &m_descriptorPool));
     }
 
-    void VulkanManager::createSyncObjects() {
+    void VulkanManager::_createSyncObjects() {
         // semaphonre for GPU-GPU synchronized
         // fence for CPU-GPU synchronized
         m_imageAvailableSemaphores.resize(m_maxFramesInFlight);
@@ -226,7 +244,7 @@ namespace ifcre
         }
     }
 
-    void VulkanManager::createUniformBuffers()
+    void VulkanManager::_createUniformBuffers()
     {
         VulkanContext* ctx = &m_vkContext;
         auto& uniform_buffer_map = m_vulkanResources.uniformBufferMap;
@@ -251,7 +269,7 @@ namespace ifcre
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- 
 
     // ----------------------- swapchain --------------------------
-    void VulkanManager::recreateSwapchain()
+    void VulkanManager::_recreateSwapchain()
     {
         // ------------------- Handling minimization -----------------------
         int width = 0, height = 0;
@@ -290,12 +308,13 @@ namespace ifcre
         m_ifcPickPass.recreateFramebuffers();
     }
 
-    void VulkanManager::setupPasses()
+    void VulkanManager::_setupPasses()
     {
         auto& ctx = m_vkContext;
         auto& cmd_info = VulkanPassBase::m_commandInfo;
         cmd_info.commandPool = m_commandPool;
         cmd_info.maxFramesInFlight = m_maxFramesInFlight;
+        cmd_info.inFlightFences = m_inFlightFences.data();
 
         cmd_info.viewport.x = 0.0f;
         cmd_info.viewport.y = 0.0f;
@@ -340,6 +359,8 @@ namespace ifcre
         IFCRenderUBO ifc_render_ubo{};
         ifc_render_ubo.alpha = 0.5;
         ifc_render_ubo.cameraPos = camera.getViewPos();
+        ifc_render_ubo.c_comp = scene.m_compId.clicked;
+        ifc_render_ubo.h_comp = scene.m_compId.hovered;
 
         TransformsUBO transforms_ubo{};
         transforms_ubo.model = ifc_object.getModelMatrix();

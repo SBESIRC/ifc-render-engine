@@ -184,6 +184,31 @@ namespace ifcre
         return { module.cbegin(), module.cend() };
     }
 
+    std::vector<uint32_t> VulkanUtil::compileString(const std::string& src, shaderc_shader_kind kind, bool optimize)
+    {
+
+        shaderc::Compiler compiler;
+        shaderc::CompileOptions options;
+
+        // Like -DMY_DEFINE=1
+        // options.AddMacroDefinition("MY_DEFINE", "1");
+        if (optimize) {
+            options.SetOptimizationLevel(shaderc_optimization_level_size);
+        }
+
+        //std::cout << src << "\n";
+        shaderc::SpvCompilationResult module =
+            compiler.CompileGlslToSpv(src, kind, "shader_consts.h", options);
+
+        if (module.GetCompilationStatus() != shaderc_compilation_status_success)
+        {
+             std::cerr << module.GetErrorMessage();
+            return std::vector<uint32_t>();
+        }
+
+        return { module.cbegin(), module.cend() };
+    }
+
     VkShaderModule VulkanUtil::createShaderModule(VkDevice device, const std::vector<uint32_t>& code) {
         VkShaderModuleCreateInfo shader_module_ci{};
         shader_module_ci.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

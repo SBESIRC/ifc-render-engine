@@ -38,9 +38,11 @@ namespace ifcre {
 			switch (action) {
 			case GLFW_PRESS: {
 				glfwGetCursorPos(m_io.window, &click_x, &click_y);
-				float click_depth = m_render->getDepthValue(click_x, click_y);
+				glm::ivec2 click_value = m_render->getCompIdAndDepthValue(click_x, click_y);
+				float click_depth = util::int_as_float(click_value.x);
 				if (click_depth != 1.0) {
 					_setClickedWorldCoords(click_x, click_y, click_depth);
+					status.click_comp_id = click_value.y;
 				}
 				status.lbtn_down = true;
 				break;
@@ -79,6 +81,11 @@ namespace ifcre {
 	{
 		auto& camera = *m_editCamera;
 		auto& status = m_mouseStatus;
+		if (m_hover_time > 0.1f) {
+			int32_t click_comp_id= m_render->getCompIdValue(xpos, ypos);
+			status.hover_comp_id = click_comp_id;
+			m_hover_time = 0;
+		}
 
 		if (status.lbtn_down || status.rbtn_down) {
 			if (status.last_mouse_x != xpos) {
@@ -91,6 +98,7 @@ namespace ifcre {
 		}
 
 		if (status.rbtn_down) {
+			//float click_depth = util::int_as_float(click_value.x);
 			float click_depth = m_render->getDepthValue(xpos, ypos);
 
 			auto& surface_io = *m_io.m_surfaceIO;

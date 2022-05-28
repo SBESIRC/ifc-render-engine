@@ -31,7 +31,50 @@ namespace ifcre {
 		_createFramebuffers();
 	}
 
-	glm::ivec2 VulkanIFCPickPass::pick(uint32_t render_id, int32_t x, int32_t y)
+	void VulkanIFCPickPass::draw(uint32_t render_id)
+	{
+		// TODO
+
+		//auto& ctx = *m_vkContext;
+		//auto cur_cmd_buffer = m_commandInfo.curCmdBuffer;
+		//auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
+		//if (mesh_it == m_vulkanResources->meshBufferMap.end()) {
+		//	return;
+		//}
+		//auto& mesh_buffer = mesh_it->second;
+		//VulkanBuffer& vertex_buffer = *(mesh_buffer.vertexBuffer);
+		//VulkanBuffer& g_index_buffer = *(mesh_buffer.gIndexBuffer);
+		//{
+		//	VkRenderPassBeginInfo renderpass_begin_info{};
+		//	renderpass_begin_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		//	renderpass_begin_info.renderPass = m_framebuffer.render_pass;
+		//	renderpass_begin_info.framebuffer = m_pickFramebuffer;
+		//	renderpass_begin_info.renderArea.offset = { 0, 0 };
+		//	renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
+
+		//	std::array<VkClearValue, 2> clear_values;
+		//	clear_values[0].color = { {-2.0f, 0.0f, 0.0f, 0.0f} };
+		//	clear_values[1].depthStencil = { 1.0f, 0 };
+		//	renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+		//	renderpass_begin_info.pClearValues = clear_values.data();
+		//	ctx.fp_vkCmdBeginRenderPass(cur_cmd_buffer, &renderpass_begin_info, VK_SUBPASS_CONTENTS_INLINE);
+		//}
+		//ctx.fp_vkCmdBindPipeline(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].pipeline);
+		//ctx.fp_vkCmdSetViewport(cur_cmd_buffer, 0, 1, &m_commandInfo.viewport);
+		//ctx.fp_vkCmdSetScissor(cur_cmd_buffer, 0, 1, &m_commandInfo.scissor);
+
+		//VkBuffer vertex_buffers[] = { vertex_buffer.getBuffer() };
+		//VkDeviceSize offsets[] = { 0 };
+		//// render all
+		//ctx.fp_vkCmdBindVertexBuffers(cur_cmd_buffer, 0, 1, vertex_buffers, offsets);
+		//ctx.fp_vkCmdBindDescriptorSets(cur_cmd_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_renderPipeline[0].layout, 0, 1, &m_descriptorInfos[0].descriptor_set, 0, nullptr);
+		//ctx.fp_vkCmdBindIndexBuffer(cur_cmd_buffer, g_index_buffer.getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+		//ctx.fp_vkCmdDrawIndexed(cur_cmd_buffer, g_index_buffer.getSize(), 1, 0, 0, 0);
+
+		//ctx.fp_vkCmdEndRenderPass(cur_cmd_buffer);
+	}
+
+	glm::ivec2 VulkanIFCPickPass::pick(uint32_t render_id, int32_t x, int32_t y, PickTypeEnum pick_type)
 	{
 		glm::ivec2 res;
 		auto mesh_it = m_vulkanResources->meshBufferMap.find(render_id);
@@ -61,7 +104,7 @@ namespace ifcre {
 			transfer_to_render_barriers[0].srcAccessMask = 0;
 			transfer_to_render_barriers[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 			transfer_to_render_barriers[0].oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			transfer_to_render_barriers[0].newLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			transfer_to_render_barriers[0].newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 			transfer_to_render_barriers[0].srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
 			transfer_to_render_barriers[0].dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
 			transfer_to_render_barriers[0].image = m_framebuffer.attachments[attach_comp_id].image;
@@ -139,76 +182,147 @@ namespace ifcre {
 		*m_commandInfo.p_currentFrameIndex = new_index;
 
 		// implicit host read barrier
-		//res_wait_for_fences = m_p_vulkan_context->_vkWaitForFences(m_p_vulkan_context->_device,
-		//                                                           m_command_info._max_frames_in_flight,
-		//                                                           m_command_info._is_frame_in_flight_fences,
-		//                                                           VK_TRUE,
-		//                                                           UINT64_MAX);
-		vkQueueWaitIdle(ctx.m_graphicsQueue);
+		VK_CHECK_RESULT(ctx.fp_vkWaitForFences(ctx.m_device,
+		                                                           m_commandInfo.maxFramesInFlight,
+		                                                           m_commandInfo.inFlightFences,
+		                                                           VK_TRUE,
+		                                                           UINT64_MAX));
+		//vkQueueWaitIdle(ctx.m_graphicsQueue);
 
 		// 
-		VkCommandBuffer command_buffer = ctx.beginSingleTimeCommand();
-		VkBufferImageCopy region{};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
-		region.imageOffset = { x, y, 0 };
-		region.imageExtent = { 1, 1, 1 };
+		if((pick_type & PickTypeEnum::pick_depth) != 0)
+		{
+			VkCommandBuffer command_buffer = ctx.beginSingleTimeCommand();
+			VkBufferImageCopy region{};
+			region.bufferOffset = 0;
+			region.bufferRowLength = 0;
+			region.bufferImageHeight = 0;
+			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
+			region.imageSubresource.mipLevel = 0;
+			region.imageSubresource.baseArrayLayer = 0;
+			region.imageSubresource.layerCount = 1;
+			region.imageOffset = { x, y, 0 };
+			region.imageExtent = { 1, 1, 1 };
 
-		uint32_t buffer_size = 4;
-		VkBuffer staging_buffer;
-		VkDeviceMemory staging_buffer_memory;
-		VulkanUtil::createBuffer(ctx.m_physicalDevice,
-			ctx.m_device,
-			buffer_size,
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-			staging_buffer,
-			staging_buffer_memory);
+			uint32_t buffer_size = 4;
+			VkBuffer staging_buffer;
+			VkDeviceMemory staging_buffer_memory;
+			VulkanUtil::createBuffer(ctx.m_physicalDevice,
+				ctx.m_device,
+				buffer_size,
+				VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				staging_buffer,
+				staging_buffer_memory);
 
-		VkImage depth_image = m_framebuffer.attachments[attach_depth].image;
-		VkImageMemoryBarrier copy_to_buffer_barrier{};
-		copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		copy_to_buffer_barrier.pNext = nullptr;
-		copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-		copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-		copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		copy_to_buffer_barrier.srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-		copy_to_buffer_barrier.dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
-		copy_to_buffer_barrier.image = depth_image;
-		copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
-		vkCmdPipelineBarrier(command_buffer,
-		    VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		    VK_PIPELINE_STAGE_TRANSFER_BIT,
-		    0,
-		    0,
-		    nullptr,
-		    0,
-		    nullptr,
-		    1,
-		    &copy_to_buffer_barrier);
+			VkImage depth_image = m_framebuffer.attachments[attach_depth].image;
+			VkImageMemoryBarrier copy_to_buffer_barrier{};
+			copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			copy_to_buffer_barrier.pNext = nullptr;
+			copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			copy_to_buffer_barrier.srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			copy_to_buffer_barrier.dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			copy_to_buffer_barrier.image = depth_image;
+			copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_DEPTH_BIT, 0, 1, 0, 1 };
+			vkCmdPipelineBarrier(command_buffer,
+				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+				VK_PIPELINE_STAGE_TRANSFER_BIT,
+				0,
+				0,
+				nullptr,
+				0,
+				nullptr,
+				1,
+				&copy_to_buffer_barrier);
 
-		vkCmdCopyImageToBuffer(command_buffer,
-			depth_image,
-			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-			staging_buffer,
-			1,
-			&region);
-		ctx.endSingleTimeCommand(command_buffer);
+			vkCmdCopyImageToBuffer(command_buffer,
+				depth_image,
+				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				staging_buffer,
+				1,
+				&region);
+			ctx.endSingleTimeCommand(command_buffer);
+	
 
-		float* data = nullptr;
-		vkMapMemory(ctx.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&data);
-		vkUnmapMemory(ctx.m_device, staging_buffer_memory);
+			float* depth_data = nullptr;
+			vkMapMemory(ctx.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&depth_data);
+			vkUnmapMemory(ctx.m_device, staging_buffer_memory);
 
-		vkDestroyBuffer(ctx.m_device, staging_buffer, nullptr);
-		vkFreeMemory(ctx.m_device, staging_buffer_memory, nullptr);
+			vkDestroyBuffer(ctx.m_device, staging_buffer, nullptr);
+			vkFreeMemory(ctx.m_device, staging_buffer_memory, nullptr);
 
-		res = glm::ivec2(util::float_as_int(data[0]), 0);
+			res.x = util::float_as_int(depth_data[0]);
+		}
+		
+		if ((pick_type & PickTypeEnum::pick_comp_id) != 0)
+		{
+			VkCommandBuffer command_buffer = ctx.beginSingleTimeCommand();
+			VkBufferImageCopy region{};
+			region.bufferOffset = 0;
+			region.bufferRowLength = 0;
+			region.bufferImageHeight = 0;
+			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.imageSubresource.mipLevel = 0;
+			region.imageSubresource.baseArrayLayer = 0;
+			region.imageSubresource.layerCount = 1;
+			region.imageOffset = { x, y, 0 };
+			region.imageExtent = { 1, 1, 1 };
+
+			uint32_t buffer_size = 4;
+			VkBuffer staging_buffer;
+			VkDeviceMemory staging_buffer_memory;
+			VulkanUtil::createBuffer(ctx.m_physicalDevice,
+				ctx.m_device,
+				buffer_size,
+				VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+				staging_buffer,
+				staging_buffer_memory);
+
+			VkImage comp_id_image = m_framebuffer.attachments[attach_comp_id].image;
+			VkImageMemoryBarrier copy_to_buffer_barrier{};
+			copy_to_buffer_barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			copy_to_buffer_barrier.pNext = nullptr;
+			copy_to_buffer_barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			copy_to_buffer_barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			copy_to_buffer_barrier.oldLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			copy_to_buffer_barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			copy_to_buffer_barrier.srcQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			copy_to_buffer_barrier.dstQueueFamilyIndex = ctx.m_queueFamilyIndices.graphicsFamily.value();
+			copy_to_buffer_barrier.image = comp_id_image;
+			copy_to_buffer_barrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			vkCmdPipelineBarrier(command_buffer,
+				VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+				VK_PIPELINE_STAGE_TRANSFER_BIT,
+				0,
+				0,
+				nullptr,
+				0,
+				nullptr,
+				1,
+				&copy_to_buffer_barrier);
+
+			vkCmdCopyImageToBuffer(command_buffer,
+				comp_id_image,
+				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				staging_buffer,
+				1,
+				&region);
+			ctx.endSingleTimeCommand(command_buffer);
+
+
+			int32_t* comp_id_data = nullptr;
+			vkMapMemory(ctx.m_device, staging_buffer_memory, 0, buffer_size, 0, (void**)&comp_id_data);
+			vkUnmapMemory(ctx.m_device, staging_buffer_memory);
+
+			vkDestroyBuffer(ctx.m_device, staging_buffer, nullptr);
+			vkFreeMemory(ctx.m_device, staging_buffer_memory, nullptr);
+
+			res.y = comp_id_data[0];
+		}
 
 		return res;
 	}
@@ -335,8 +449,8 @@ namespace ifcre {
 		color_attachment_description.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		color_attachment_description.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		color_attachment_description.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		color_attachment_description.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		color_attachment_description.finalLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		color_attachment_description.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+		color_attachment_description.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 		VkAttachmentDescription depth_attachment_description{};
 		depth_attachment_description.format = m_framebuffer.attachments[attach_depth].format;
@@ -382,8 +496,13 @@ namespace ifcre {
 		auto& ctx = *m_vkContext;
 
         m_renderPipeline.resize(1);
-        auto vert_code = VulkanUtil::compileFile("shaders/comp_id_write.vert", shaderc_glsl_vertex_shader);
-        auto frag_code = VulkanUtil::compileFile("shaders/comp_id_write.frag", shaderc_glsl_fragment_shader);
+#ifdef _DEBUG
+		auto vert_code = VulkanUtil::compileFile("shaders/comp_id_write.vert", shaderc_glsl_vertex_shader);
+		auto frag_code = VulkanUtil::compileFile("shaders/comp_id_write.frag", shaderc_glsl_fragment_shader);
+#else
+		auto vert_code = VulkanUtil::compileString(new_sc::v_comp_id_write, shaderc_glsl_vertex_shader, true);
+		auto frag_code = VulkanUtil::compileString(new_sc::f_comp_id_write, shaderc_glsl_fragment_shader, true);
+#endif
         VkShaderModule vert_shader_module = VulkanUtil::createShaderModule(ctx.m_device, vert_code);
         VkShaderModule frag_shader_module = VulkanUtil::createShaderModule(ctx.m_device, frag_code);
         

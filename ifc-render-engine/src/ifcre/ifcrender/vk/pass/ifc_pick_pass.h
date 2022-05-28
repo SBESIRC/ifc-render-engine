@@ -13,9 +13,14 @@ namespace ifcre {
 			attach_count
 		};
 	public:
+		enum PickTypeEnum :uint8_t {
+			pick_depth = 0x01,
+			pick_comp_id = 0x02
+		};
 		void initialize();
 		void recreateFramebuffers();
-		glm::ivec2 pick(uint32_t render_id, int32_t x, int32_t y);
+		void draw(uint32_t render_id);
+		glm::ivec2 pick(uint32_t render_id, int32_t x, int32_t y, PickTypeEnum pick_type);
 	private:
 		void _createAttachments();
 		void _createDescriptorSetLayouts();

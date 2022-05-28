@@ -11,6 +11,11 @@ namespace ifcre {
 		IFCCamera* m_editCamera;
 		IFCModel* m_ifcObject;
 		glm::vec3 m_pickWorldPos;
+		
+		struct {
+			int32_t hovered = -1;
+			int32_t clicked = -1;
+		}m_compId;
 	};
 
 };

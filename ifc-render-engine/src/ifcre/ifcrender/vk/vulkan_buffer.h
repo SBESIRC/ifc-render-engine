@@ -13,6 +13,8 @@ namespace ifcre {
 
         template<typename T>
         void create(T* data, uint32_t size) {
+            m_size = size;
+            if (size == 0)return;
             if (((m_flags & VK_BUFFER_USAGE_INDEX_BUFFER_BIT) != 0)
                 || ((m_flags & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) != 0)) {
                 _createWithStaging((void*)data, sizeof(T) * size);
@@ -20,7 +22,6 @@ namespace ifcre {
             else if (m_flags & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT) {
                 _createWithoutStaging(sizeof(T) * size);
             }
-            m_size = size;
         }
 
         template<typename T>

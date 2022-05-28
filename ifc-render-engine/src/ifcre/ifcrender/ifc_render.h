@@ -15,6 +15,8 @@ namespace ifcre {
 		virtual void updateWindow(int32_t x, int32_t y, int32_t w, int32_t h) = 0;
 
 		virtual float getDepthValue(int32_t x, int32_t y) = 0;
+		virtual int32_t getCompIdValue(int32_t x, int32_t y) = 0;
+		virtual glm::ivec2 getCompIdAndDepthValue(int32_t x, int32_t y) = 0;
 	};
 
 	class IFCVulkanRender : public IFCRender {
@@ -24,6 +26,8 @@ namespace ifcre {
 		virtual SurfaceIO* getSurfaceIO() override { return m_surfaceIO.get(); }
 		virtual void updateWindow(int32_t x, int32_t y, int32_t w, int32_t h) override;
 		virtual float getDepthValue(int32_t x, int32_t y) override;
+		virtual int32_t getCompIdValue(int32_t x, int32_t y) override;
+		virtual glm::ivec2 getCompIdAndDepthValue(int32_t x, int32_t y) override;
 
 	private:
 		VulkanManager m_vkManager;

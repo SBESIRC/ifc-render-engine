@@ -57,6 +57,7 @@
     <ClInclude Include="src\ifcre\ifcrender\uniform_obj.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
+    <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">

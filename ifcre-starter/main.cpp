@@ -1,5 +1,6 @@
 #include <iostream>
 #include <Windows.h>
+#include <string.h>
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
 //const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
 #ifdef _DEBUG
@@ -49,9 +50,18 @@ int main(int argc, char**argv) {
 	re.set_config("height", "900");
 	re.set_config("model_type", "ifc");
 	re.set_config("use_transparency", "true");
-	//re.set_config("render_api", "opengl");
-	re.set_config("render_api", "vulkan");
 	re.set_config("file", argc == 1? model : argv[1]);
+
+	if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
+		re.set_config("render_api", "vulkan");
+	}
+	else {
+		re.set_config("render_api", "opengl");
+	}
+
+//#ifdef _DEBUG
+//	re.set_config("render_api", "vulkan");
+//#endif
 
 	re.init();
 	re.run();

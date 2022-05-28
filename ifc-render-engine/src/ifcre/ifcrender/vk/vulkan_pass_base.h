@@ -9,6 +9,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
+#include "../shader_consts.h"
 
 namespace ifcre {
     extern VkDescriptorPool;
@@ -29,6 +30,7 @@ namespace ifcre {
         int32_t imageIndex;
         VkFence curInFlightFence;
         int32_t maxFramesInFlight;
+        VkFence* inFlightFences;
 	};
 
 
