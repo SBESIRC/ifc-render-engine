@@ -64,10 +64,10 @@ namespace ifcre
         cmd_buffer_begin_info.pInheritanceInfo = nullptr;
         VK_CHECK_RESULT(m_vkContext.fp_vkBeginCommandBuffer(m_commandBuffers[m_currentFrameIndex], &cmd_buffer_begin_info));
 
-        _updateUniform(scene);
+        _updateBuffers(scene);
         // --------------------- Draw Scene ----------------------
         auto& ifc_object = *scene.m_ifcObject;
-        m_ifcBasePass.draw(ifc_object.render_id);
+        m_ifcBasePass.draw(ifc_object.render_id, scene.m_compId.clicked > 0);
         //m_ifcPickPass.draw(ifc_object.render_id); TODO
 
         // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -144,8 +144,8 @@ namespace ifcre
         //std::cout << "g_indices size: " << g_indices.size() << "\n";
 
 #ifndef _DEBUG
-        //mesh_buffer.edgeIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
-        //mesh_buffer.edgeIndexBuffer->create<uint32_t>(edge_indices.data(), edge_indices.size());
+        mesh_buffer.edgeIndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
+        mesh_buffer.edgeIndexBuffer->create<uint32_t>(edge_indices.data(), edge_indices.size());
 #endif
 
         uint32_t id = util::get_next_globalid();
@@ -206,13 +206,13 @@ namespace ifcre
         auto& ctx = m_vkContext;
         std::array<VkDescriptorPoolSize, 1> descpool_size;
         descpool_size[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descpool_size[0].descriptorCount = 1 * static_cast<uint32_t>(ctx.m_swapchainImages.size());
+        descpool_size[0].descriptorCount = (2 + 1 + 1 + 1);
 
         VkDescriptorPoolCreateInfo descpool_ci{};
         descpool_ci.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         descpool_ci.poolSizeCount = static_cast<uint32_t>(descpool_size.size());
         descpool_ci.pPoolSizes = descpool_size.data();
-        descpool_ci.maxSets = static_cast<uint32_t>(ctx.m_swapchainImages.size());
+        descpool_ci.maxSets = 2 + 1 + 1 + 1;
 
         VK_CHECK_RESULT(vkCreateDescriptorPool(ctx.m_device, &descpool_ci, nullptr, &m_descriptorPool));
     }
@@ -348,9 +348,16 @@ namespace ifcre
         VulkanContext* ctx = &m_vkContext;
         m_vulkanResources.axisBuffer = MAKE_SHARED_VERTEX_BUFFER(ctx);
         m_vulkanResources.axisBuffer->create<float>(coord_axis, 18);
+
+        uint32_t bbx_drawing_order[] = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 };
+        float bbx_vertcies[24] = { 0 };
+        m_vulkanResources.boundingBoxMeshBuffer.IndexBuffer = MAKE_SHARED_INDEX_BUFFER(ctx);
+        m_vulkanResources.boundingBoxMeshBuffer.IndexBuffer->create<uint32_t>(bbx_drawing_order, 16);
+        m_vulkanResources.boundingBoxMeshBuffer.vertexBuffer = std::make_shared<VulkanBuffer>(ctx, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+        m_vulkanResources.boundingBoxMeshBuffer.vertexBuffer->create<float>(bbx_vertcies, 24);
     }
 
-    void VulkanManager::_updateUniform(Scene& scene)
+    void VulkanManager::_updateBuffers(Scene& scene)
     {
         auto& camera = *scene.m_editCamera;
         auto& ifc_object = *scene.m_ifcObject;
@@ -403,6 +410,12 @@ namespace ifcre
         m_vulkanResources.update<TransformMVPUBO>(transform_mvp_ubo, uniform_buffer_transform_mvp);
 
         m_vulkanResources.update<TransformMVPUBO>(transform_mvp_axis_ubo, uniform_buffer_transform_mvp_axis);
+
+        if (scene.m_compId.clicked > 0 && scene.m_compId.clicked != m_vulkanResources.curBoundingBoxId) {
+            std::vector<float> bounding_box_vertices = ifc_object.generate_bbxs_by_vec({ static_cast<uint32_t>(scene.m_compId.clicked) });
+            m_vulkanResources.boundingBoxMeshBuffer.vertexBuffer->update<float>(bounding_box_vertices.data());
+            m_vulkanResources.curBoundingBoxId = scene.m_compId.clicked;
+        }
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

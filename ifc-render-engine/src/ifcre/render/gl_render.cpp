@@ -56,7 +56,7 @@ namespace ifcre {
 		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
 		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
 		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
-		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_slct_bbx, sc::f_slct_bbx);
+		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
 		m_edge_shader= make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 #endif
 
@@ -65,6 +65,8 @@ namespace ifcre {
 
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -229,14 +231,15 @@ namespace ifcre {
 			break;
 		}
 		case BOUNDINGBOX_SHADING: {
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			m_select_bbx_shader->use();
-			m_select_bbx_shader->setMat4("modelview", m_modelview);
-			m_select_bbx_shader->setMat4("projection", m_projection);
+			//m_select_bbx_shader->setMat4("modelview", m_modelview);
+			//m_select_bbx_shader->setMat4("projection", m_projection);
 			break;
 		}
 		case EDGE_SHADING: {
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			m_edge_shader->use();
-			m_edge_shader->setMat4("mvp", m_projection * m_modelview);
 			break;
 		}
 		default:break;

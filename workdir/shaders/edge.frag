@@ -1,7 +1,7 @@
 #version 460
-in vec3 go_color;
-out vec4 FragColor;
+layout(location = 0)in vec3 vGoColor;
+layout(location = 0)out vec4 FragColor;
 void main()
 {
-    FragColor = vec4(go_color,1.0);
+    FragColor = vec4(vGoColor,1.0);
 }

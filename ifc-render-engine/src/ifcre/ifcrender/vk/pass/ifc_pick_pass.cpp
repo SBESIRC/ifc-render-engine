@@ -141,7 +141,7 @@ namespace ifcre {
 			renderpass_begin_info.renderArea.extent = ctx.m_swapchainExtent;
 
 			std::array<VkClearValue, 2> clear_values;
-			clear_values[0].color = { {-2.0f, 0.0f, 0.0f, 0.0f} };
+			clear_values[0].color = { {-2, 0, 0, 0} };
 			clear_values[1].depthStencil = { 1.0f, 0 };
 			renderpass_begin_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
 			renderpass_begin_info.pClearValues = clear_values.data();

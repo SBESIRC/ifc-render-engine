@@ -25,7 +25,7 @@ for file in file_list:
     #     ff = open(shader_output_dir + 'v_' + file[0:-5], 'w')
     # else:
     #     ff = open(shader_output_dir + 'f_' + file[0:-5], 'w')
-    ff.write('\t\tconst char* ')
+    ff.write('\t\tstatic const char* ')
     if file.endswith('.vert'):
         ff.write('v_' + file[0:-5])
     else:

@@ -29,6 +29,9 @@ namespace ifcre {
         std::vector<std::shared_ptr<VulkanBuffer>> uniformBufferMap;
 
         std::shared_ptr<VulkanBuffer> axisBuffer;
+        VulkanMeshBuffer boundingBoxMeshBuffer;
+        int32_t curBoundingBoxId = -1;
+        
 
         template<class T>
         void update(T ubo, UniformBufferEnum e) {

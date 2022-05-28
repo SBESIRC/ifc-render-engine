@@ -9,6 +9,8 @@ namespace ifcre {
 		enum LayoutType : uint8_t
 		{
 			layout_base = 0,
+			layout_edge,
+			layout_bounding_box,
 			layout_axis,
 			layout_type_count
 		};
@@ -17,7 +19,7 @@ namespace ifcre {
 			render_pipeline_opaque = 0,
 			render_pipeline_transparency,
 			render_pipeline_edge,
-			render_pipeline_bbx,
+			render_pipeline_bounding_box,
 			render_pipeline_axis,
 			render_pipeline_count
 		};
@@ -28,7 +30,7 @@ namespace ifcre {
 		};
 	public:
 
-		void draw(uint32_t mesh_id);
+		void draw(uint32_t mesh_id, bool bbx_draw);
 		void initialize();
 		void recreateFramebuffers();
 	private:

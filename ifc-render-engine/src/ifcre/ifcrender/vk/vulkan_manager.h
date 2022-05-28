@@ -68,7 +68,7 @@ namespace ifcre {
         
         void _setupPasses();
         void _createInnerMesh();
-        void _updateUniform(Scene& scene);
+        void _updateBuffers(Scene& scene);
     };
 }
 

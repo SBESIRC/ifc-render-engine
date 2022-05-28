@@ -31,7 +31,7 @@ namespace ifcre {
             {
                 auto ctx = *m_vkContext;
                 void* data;
-                uint32_t type_size = sizeof(T);
+                uint32_t type_size = sizeof(T) * m_size;
                 vkMapMemory(ctx.m_device, m_bufferMemory, 0, type_size, 0, &data);
                 memcpy(data, src_data, type_size);
                 vkUnmapMemory(ctx.m_device, m_bufferMemory);
