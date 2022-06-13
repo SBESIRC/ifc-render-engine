@@ -11,7 +11,7 @@
 #endif // _DEBUG
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
-typedef void (*ifcre_init)();
+typedef void (*ifcre_init)(void *);
 typedef void (*ifcre_run)();
 
 struct ifcre {
@@ -52,20 +52,20 @@ int main(int argc, char**argv) {
 	re.set_config("use_transparency", "true");
 	re.set_config("file", argc == 1? model : argv[1]);
 
-	if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
-		re.set_config("render_api", "vulkan");
-		printf("rendering by vulkan\n");
-	}
-	else {
+	//if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
+	//	re.set_config("render_api", "vulkan");
+	//	printf("rendering by vulkan\n");
+	//}
+	//else {
 		re.set_config("render_api", "opengl");
 		printf("rendering by opengl\n");
-	}
+	//}
 
-#ifdef _DEBUG
-	re.set_config("render_api", "vulkan");
-#endif
+//#ifdef _DEBUG
+//	re.set_config("render_api", "vulkan");
+//#endif
 
-	re.init();
+	re.init(NULL);
 	re.run();
 
 	return 0;

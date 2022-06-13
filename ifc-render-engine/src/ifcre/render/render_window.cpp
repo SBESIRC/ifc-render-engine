@@ -1,6 +1,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
+
+#define GLFW_EXPOSE_NATIVE_WIN32
+
+#include "glfw3native.h"
 #define TEST_COMP_ID
 
 namespace ifcre {
@@ -238,30 +242,55 @@ namespace ifcre {
             }
         }
     }
-    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+    void errorCallback(int error, const char* description) 
+    {
+        
+    }
+    bool RenderWindow::Init(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
+    {
+        glfwSetErrorCallback(errorCallback);
 
-    // --------------------- construction ----------------------
-	RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync)
-	{
-        glfwInit();
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        m_option.anti_aliasing = aa;
-        if (aa) {
-            glfwWindowHint(GLFW_SAMPLES, 4);
-        }
-
-        // glfw window creation
-        m_window = glfwCreateWindow(w, h, title, NULL, NULL);
-        m_lbutton_down = m_rbutton_down = false;
-        if (m_window == NULL)
+        if (NULL == wndPtr)
         {
+            //create new window
+            glfwInit();
+            m_option.anti_aliasing = aa;
+            m_lbutton_down = m_rbutton_down = false;
 
-            std::cout << "Failed to create GLFW window" << std::endl;
-            glfwTerminate();
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            if (aa) {
+                glfwWindowHint(GLFW_SAMPLES, 4);
+            }
+            // glfw window creation
+            m_window = glfwCreateWindow(w, h, title, NULL, NULL);
+            if (m_window == NULL)
+            {
+                std::cout << "Failed to create GLFW window" << std::endl;
+                glfwTerminate();
+                return false;
+            }
+
+            HWND hwNative = glfwGetWin32Window(m_window);
+            //HWND hwParent = glfwGetWin32Window(wndPtr);
+            //SetParent(hwNative, hwParent);
+
+            long style = GetWindowLong(hwNative, GWL_STYLE);
+            style &= ~(WS_POPUP | WS_CAPTION); // remove popup style
+            //style |= WS_CHILDWINDOW; // add childwindow style
+            SetWindowLong(hwNative, GWL_STYLE, style);
+            UpdateWindow(hwNative);
+            glfwMakeContextCurrent(m_window);
         }
-        glfwMakeContextCurrent(m_window);
+        else
+        {
+            //use existing
+            m_window = (GLFWwindow*)wndPtr;
+            //glfwMakeContextCurrent(m_window);
+        }
+        
+        m_window = glfwGetCurrentContext();
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
@@ -271,12 +300,14 @@ namespace ifcre {
         glfwSetMouseButtonCallback(m_window, mouse_button_callback);
 
         // load gl functions by glad
-		static bool load_gl = false;
-		if (!load_gl && !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-		{
-			load_gl = true;
-			std::cout << "Failed to initialize GLAD" << std::endl;
-		}
+        static bool load_gl = false;
+        int rst = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        if (!load_gl && !rst)
+        {
+            load_gl = true;
+            std::cout << "Failed to initialize GLAD" << std::endl;
+            return false;
+        }
 
         if (vsync) {
             glfwSwapInterval(1);
@@ -286,14 +317,25 @@ namespace ifcre {
         }
 
         createFramebuffer(w, h);
-        
+
+        return true;
+    }
+
+    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+    // --------------------- construction ----------------------
+    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
+    {
+        Init(title, w, h, aa, vsync, wndPtr);
 	}
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     RenderWindow::~RenderWindow()
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
-        glfwDestroyWindow(m_window);
+        auto handle = glfwGetWin32Window(m_window);
+        if (IsWindow(handle))
+            glfwDestroyWindow(m_window);
         glfwTerminate();
     }
 
@@ -335,8 +377,12 @@ namespace ifcre {
         return glfwWindowShouldClose(m_window);
     }
 
-    void RenderWindow::swapBuffer()
+    bool RenderWindow::swapBuffer()
     {
+        auto handle = glfwGetWin32Window(m_window);
+        if (!IsWindow(handle))
+            return false;
+
         glfwSwapBuffers(m_window);
         double now_time = glfwGetTime();
         m_delta_time = now_time - m_last_time;
@@ -344,6 +390,8 @@ namespace ifcre {
 
         m_mouse_status.horizontal_move = 0;
         m_mouse_status.vertical_move = 0;
+
+        return true;
     }
 
     void RenderWindow::pollEvents()
@@ -561,13 +609,13 @@ namespace ifcre {
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         auto& mfb = m_framebuffer;
-        //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
-        //glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mfb.m_default_rt->attach(m_framebuffer.fbo_id);
 
@@ -588,8 +636,6 @@ namespace ifcre {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
         }
     }
-
-
 
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 

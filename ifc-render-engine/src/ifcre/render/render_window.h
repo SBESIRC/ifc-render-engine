@@ -69,14 +69,14 @@ namespace ifcre {
 
 	class RenderWindow {
 	public:
-		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false);
+		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false , GLFWwindow* wndPtr = NULL);
 		~RenderWindow();
-
+		bool Init(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false,GLFWwindow* wndPtr = NULL);
 		void processInput();
 
 		bool isClose();
 
-		void swapBuffer();
+		bool swapBuffer();
 		void pollEvents();
 
 		void startRenderToWindow();

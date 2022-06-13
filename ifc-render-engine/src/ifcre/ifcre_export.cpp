@@ -9,11 +9,11 @@ void ifcre_set_config(const char* key, const char* value)
 	re.setConfig(key, value);
 }
 
-void ifcre_init()
+void ifcre_init(GLFWwindow * wndPtr)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
-	re.init();
+	re.init(wndPtr);
 }
 
 void ifcre_run()

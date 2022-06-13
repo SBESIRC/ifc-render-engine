@@ -18,7 +18,7 @@ extern "C" {
 	/// 
 	__declspec(dllexport) void ifcre_set_config(const char *key, const char *value);
 
-	__declspec(dllexport) void ifcre_init();
+	__declspec(dllexport) void ifcre_init(GLFWwindow * wndPtr);
 
 	__declspec(dllexport) void ifcre_run();
 

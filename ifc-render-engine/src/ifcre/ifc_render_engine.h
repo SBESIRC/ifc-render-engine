@@ -15,7 +15,7 @@ namespace ifcre {
 	class RenderEngine {
 	public:
 		virtual void setConfig(String key, String value) = 0;
-		virtual void init() = 0;
+		virtual void init(GLFWwindow *) = 0;
 		//virtual void initialize(Map<String, String> &configs) = 0;
 		virtual void run() = 0;
 	};
@@ -25,7 +25,7 @@ namespace ifcre {
 	public:
 		//void initialize(Map<String, String> &configs);
 		void setConfig(String key, String value);
-		void init();
+		void init(GLFWwindow *);
 		void run();
 
 	public:

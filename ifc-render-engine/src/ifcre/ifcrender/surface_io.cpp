@@ -43,7 +43,7 @@ namespace ifcre {
 		if (m_window == NULL) {
 			std::cout << "Failed to create GLFW window\n";
 			glfwTerminate();
-			return;
+			return; 
 		}
 		if (api == OPENGL_RENDER_API) {
 			glfwMakeContextCurrent(m_window);
