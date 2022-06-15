@@ -78,16 +78,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(SolutionDir)3rdparty\vulkan-1.2.189.2\include;$(SolutionDir)3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(SolutionDir)3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\3rdparty\glfw-3.3.5\lib-vc2019;$(ProjectDir)..\3rdparty\ifcReadingLib;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
     <TargetExt>
     </TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(SolutionDir)3rdparty\vulkan-1.2.189.2\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(SolutionDir)3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(SolutionDir)3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
@@ -140,8 +140,9 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)WorkDir\
-copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll E:\IFC\sourceCode\GLWpfControl\src\Example\bin\Debug\netcoreapp3.1\
-copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll E:\IFC\sourceCode\GLControl\OpenTK.WinForms.TestForm\bin\Debug\netcoreapp3.1\</Command>
+copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)Example\bin\debug\netcoreapp3.1
+
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -154,14 +155,22 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll E:\IFC\source
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <Optimization>Disabled</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;myOwnFile.lib;vulkan-1.lib;shaderc_shared.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3dll.lib;myOwnFile.lib;vulkan-1.lib;shaderc_shared.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)WorkDir\
+copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)Example\bin\release\netcoreapp3.1
+
+</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />

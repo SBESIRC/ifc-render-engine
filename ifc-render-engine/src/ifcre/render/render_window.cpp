@@ -272,24 +272,14 @@ namespace ifcre {
                 return false;
             }
 
-            HWND hwNative = glfwGetWin32Window(m_window);
-            //HWND hwParent = glfwGetWin32Window(wndPtr);
-            //SetParent(hwNative, hwParent);
-
-            long style = GetWindowLong(hwNative, GWL_STYLE);
-            style &= ~(WS_POPUP | WS_CAPTION); // remove popup style
-            //style |= WS_CHILDWINDOW; // add childwindow style
-            SetWindowLong(hwNative, GWL_STYLE, style);
-            UpdateWindow(hwNative);
             glfwMakeContextCurrent(m_window);
         }
         else
         {
             //use existing
             m_window = (GLFWwindow*)wndPtr;
-            //glfwMakeContextCurrent(m_window);
         }
-        
+        //glfwMakeContextCurrent(m_window);
         m_window = glfwGetCurrentContext();
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
