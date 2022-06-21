@@ -4,9 +4,26 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include "../common/std_types.h"
 
 namespace ifcre {
+
+    enum class Camera_Movement {
+        FORWARD,
+        BACKWORD,
+        LEFT,
+        RIGHT
+    };
+
+    // Default camera values
+    const float YAW = -90.0f;
+    const float PITCH = 0.0f;
+    const float SPEED = 2.5f;
+    const float SENSITIVITY = 0.1f;
+    const float FOV = 45.0f;
+
 	class GLCamera {
 	public:
 		GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
@@ -21,19 +38,7 @@ namespace ifcre {
             return glm::lookAt(m_pos, m_pos + m_front, m_up);
         }
 
-        glm::mat4 getModelMatrixByBBX(const glm::vec3 pMin,const glm::vec3 pMax) {
-            //Real mm = std::max(pMax.x - pMin.x, std::max(pMax.y - pMin.y, pMax.z - pMin.z));
-            Real scales = 1. / (pMax.x - pMin.x) * 15;
-            glm::vec3 offset = glm::vec3(-(pMin.x + pMax.x) / 2, -(pMin.y + pMax.y) / 2, -(pMin.z + pMax.z) / 2);
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(scales, scales, scales));
-            //scale(scales, scales, scales);
-            model = glm::translate(model, offset);
-            return model;
-        }
-
         void translateByScreenOp(float offx, float offy, float offz) {
-            glm::vec3 t(0.0f);
             if (offx != 0) {
                 m_pos += m_velocity.x * (offx > 0 ? m_right : -m_right);
             }
@@ -51,8 +56,15 @@ namespace ifcre {
             m_pos += vel * dir;
         }
 
+        void rotateInLocalSpace(glm::vec3& pick_center, float angle) {
+            rotateAlongPoint(pick_center, glm::vec3(0, 1, 0), angle);
+        }
+        void rotateInWorldSpace(glm::vec3& pick_center, float angle) {
+            rotateAlongPoint(pick_center, glm::vec3(1, 0, 0), angle);
+        }
         void reset() {
             //m_model = glm::mat4(1.0f);
+            m_right = glm::vec3(1.0f, 0.0f, 0.0f);
         }
 
         void rotateByScreenX(glm::vec3& center, float angleX) {
@@ -64,7 +76,23 @@ namespace ifcre {
             rot = glm::rotate(rot, angleX, glm::vec3(0, 1, 0));
             inv_trans = glm::translate(inv_trans, center);
             glm::vec3 new_pos = inv_trans * rot * trans * glm::vec4(m_pos, 1.0f);
-            _lookCenterX(center, new_pos);
+            m_front = rot * glm::vec4(m_front, 1.0f);
+            m_right = rot * glm::vec4(m_right, 1.0f);
+            m_pos = new_pos;
+            _updateCameraVectors();
+            //_lookCenterX(center, new_pos);
+        }
+        void rotateByScreenY(glm::vec3& center, float angleY) {
+            glm::mat4 trans(1.0f);
+            glm::mat4 rot(1.0f);
+            glm::mat4 inv_trans(1.0f);
+            trans = glm::translate(trans, -center);
+            rot = glm::rotate(rot, angleY, m_right);
+            inv_trans = glm::translate(inv_trans, center);
+            glm::vec3 new_pos = inv_trans * rot * trans * glm::vec4(m_pos, 1.0f);
+            m_front = rot * glm::vec4(m_front, 1.0f);
+            m_pos = new_pos;
+            _updateCameraVectors();
         }
 
         void translate(Real x, Real y) {
@@ -75,6 +103,10 @@ namespace ifcre {
         
         glm::vec3 getViewPos() {
             return m_pos;
+        }
+
+        glm::vec3 getViewForward() {
+            return m_front;
         }
 
 	private:
@@ -88,11 +120,11 @@ namespace ifcre {
             //front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
             //Front = glm::normalize(front);
             // also re-calculate the Right and Up vector
-            m_right = glm::normalize(glm::cross(m_front, m_worldup)); 
+            // m_right = glm::normalize(glm::cross(m_front, m_worldup)); 
             m_up = glm::normalize(glm::cross(m_right, m_front));
         }
 
-        // Rodrigues formula
+        // Rodrigues formula --perhaps it doesnt need
         void _lookCenterX(glm::vec3& center, glm::vec3& new_pos) {
             //m_front = glm::normalize(center - m_pos);
             glm::vec3 to_center = glm::normalize(center - m_pos);
@@ -108,9 +140,32 @@ namespace ifcre {
 
             glm::vec3 next_to_center = glm::normalize(center - new_pos);
             next_to_center.y = 0;
-            m_front = R * next_to_center;
+            // m_front = R * next_to_center;
             m_pos = new_pos;
             _updateCameraVectors();
+        }
+
+        void do_RotateInLocalCoords(glm::vec3 local_axis, float rad) {
+            glm::vec3 world_x = -glm::cross(m_up, m_front),
+                world_z = -m_front,
+                world_y = m_up;
+            glm::mat3 basis(world_x, world_y, world_z);
+
+            /*glm::mat3 inv_basis = glm::transpose(glm::inverse(basis));
+            local_axis = inv_basis * local_axis;*/
+
+            glm::mat4 basts(1.0f);
+            glm::mat3 rot = glm::mat3(glm::rotate(basts, -rad, local_axis));
+            basis = basis * rot;
+
+            m_front = -basis[2];
+            m_up = basis[1];
+        }
+
+        void rotateAlongPoint(glm::vec3& p, glm::vec3 local_axis, float rad) {
+            float dist = sqrt(glm::dot(p - m_pos, p - m_pos));
+            do_RotateInLocalCoords(local_axis, rad);
+            m_pos = p - (m_front * dist);
         }
 
         // ------------- camera attributes----------------
@@ -122,8 +177,8 @@ namespace ifcre {
 
         glm::vec3 m_worldup;
 
+
         const glm::vec3 m_velocity = glm::vec3(0.05f, 0.05f, 0.2f);
-        //glm::mat4 m_model;
         // ----- ----- ----- ----- ----- ----- -----  -----
 	};
 }

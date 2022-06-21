@@ -164,18 +164,25 @@ namespace ifcre {
 		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
 		if (m_window.isMouseHorizontalRot()) {
 			float angle = m_window.getMouseHorizontalVel();
-			ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
+			//ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
+			//todo: should change camera
+			m_camera->rotateByScreenX(clicked_coord, angle);
 		}
 		if (m_window.isMouseVerticalRot()) {
 			float angle = m_window.getMouseVerticalVel();
-			ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
+			//ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
+			//m_camera->rotateInWorldSpace(clicked_coord, angle);
+			m_camera->rotateByScreenY(clicked_coord, angle);
 		}
 
 		if (m_window.isRightMouseClicked()) {
 			if (m_window.isMouseMove() && m_last_rmclick) {
 				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
-				ifc_test_model->translate(step);
+				//ifc_test_model->translate(step);
+				//m_camera->translate(step.x, step.y);
+				m_camera->translateByScreenOp(step.x, step.y, 0);
+
 			}
 			m_last_hover_pos = clicked_coord;
 			m_last_rmclick = true;
@@ -190,12 +197,13 @@ namespace ifcre {
 		{
 			m_window.startRenderToWindow();
 			glm::mat4 view = m_camera->getViewMatrix();
+			glm::vec3 camera_forwad = m_camera->getViewForward();
 			m_render.setViewMatrix(view);
 			m_render.setModelMatrix(model_matrix);
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
-
+			m_render.setCameraDirection(camera_forwad);
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
@@ -224,7 +232,7 @@ namespace ifcre {
 			//m_window.readPixels();
 
 			//3. render edges (maybe
-			m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
+			// m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
 
 			//4. render bounding box
 			if(m_window.getClickCompId() != -1){

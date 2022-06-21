@@ -7,11 +7,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 namespace ifcre {
+
+	const glm::vec4 clip_plane(0, 1, 1, 2);
 // ------------ construction ---------------------
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + 48);
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
 		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4));
 
@@ -138,7 +140,7 @@ namespace ifcre {
 			m_test_shader->setMat4("model", m_model);
 			m_test_shader->setMat4("view", m_view);
 			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraPos", m_camerapos);
+			m_test_shader->setVec3("cameraDirection", m_camera_front);
 			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
 			break;
 		}
@@ -153,7 +155,7 @@ namespace ifcre {
 			m_test_shader->setMat4("model", m_model);
 			m_test_shader->setMat4("view", m_view);
 			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraPos", m_camerapos);
+			m_test_shader->setVec3("cameraDirection", m_camera_front);
 			m_test_shader->setFloat("alpha", m_alpha);
 			break;
 		}
@@ -202,13 +204,15 @@ namespace ifcre {
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			transformUBO.update(0, 64, glm::value_ptr(m_model));
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_model));
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camerapos));
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
 
 			m_test_shader->use();
 			break;
@@ -218,14 +222,16 @@ namespace ifcre {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
 
-			transformUBO.update(0, 64, glm::value_ptr(m_model));
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_model));
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camerapos));
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
 
 			m_test_shader->use();
 			break;
@@ -544,8 +550,8 @@ namespace ifcre {
 	void GLRender::setAlpha(const float& alpha) {
 		m_alpha = alpha;
 	}
-	void GLRender::setCameraPos(const glm::vec3& m_pos) {
-		m_camerapos = m_pos;
+	void GLRender::setCameraDirection(const glm::vec3& m_front) {
+		m_camera_front = m_front;
 	}
 	void GLRender::setCompId(const int& comp_id)
 	{

@@ -52,7 +52,7 @@ namespace ifcre {
 		void setAlpha(const float& alpha);
 		void setCompId(const int& comp_id);
 		void setHoverCompId(const int& comp_id);
-		void setCameraPos(const glm::vec3& m_pos);
+		void setCameraDirection(const glm::vec3& m_front);
 	// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
@@ -73,7 +73,7 @@ namespace ifcre {
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
 		float m_alpha;
-		glm::vec3 m_camerapos;
+		glm::vec3 m_camera_front;
 		int m_compId;
 		int m_hoverCompId;
 

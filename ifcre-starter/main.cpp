@@ -7,7 +7,7 @@
 	const char model[] = "resources\\models\\ifc_midfile\\temp3.midfile";
 #else
 	//const char model[] = "resources\\models\\ifc\\ff.ifc";
-	const char model[] = "resources\\models\\ifc\\0407.ifc";
+	const char model[] = /*"resources\\models\\ifc\\0407.ifc"*/"C:\\Users\\asus\\Desktop\\ifcs\\test.ifc";
 #endif // _DEBUG
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
