@@ -20,7 +20,7 @@ namespace ifcre {
 		m_cache_configs[key] = value;
 	}
 
-	void IFCRenderEngine::init()
+	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		if (m_init) {
 			return;
@@ -51,7 +51,7 @@ namespace ifcre {
 
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
-			m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true);
+			m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, wndPtr);
 			m_glrender = make_shared<GLRender>();
 	
 
