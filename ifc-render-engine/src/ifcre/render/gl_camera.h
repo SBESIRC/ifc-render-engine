@@ -38,18 +38,6 @@ namespace ifcre {
             return glm::lookAt(m_pos, m_pos + m_front, m_up);
         }
 
-        void translateByScreenOp(float offx, float offy, float offz) {
-            if (offx != 0) {
-                m_pos += m_velocity.x * (offx > 0 ? m_right : -m_right);
-            }
-            if (offy != 0) {
-                m_pos += m_velocity.y * (offy > 0 ? m_up : -m_up);
-            }
-            if (offz != 0) {
-                m_pos += m_velocity.z * (offz > 0 ? m_front : -m_front);
-            }
-        }
-
         void zoom(glm::vec3& target, Real d) {
             glm::vec3 dir = glm::normalize(target - m_pos) * d;
             float vel = glm::length(target - m_pos) * 0.15;
@@ -95,10 +83,22 @@ namespace ifcre {
             _updateCameraVectors();
         }
 
-        void translate(Real x, Real y) {
-            glm::vec3 trans = x * m_right + y * m_up;
-            trans *= 0.005;
-            m_pos += trans;
+        // based on IfcModel->translate(glm::vec3& step)
+        void translateByHoverDiv(glm::vec3& step) {
+            m_pos -= step.x*m_right;
+            m_pos -= step.y * m_up;
+        }
+
+        void translateByScreenOp(float offx, float offy, float offz) {
+            if (offx != 0) {
+                m_pos += m_velocity.x * (offx > 0 ? m_right : -m_right);
+            }
+            if (offy != 0) {
+                m_pos += m_velocity.y * (offy > 0 ? m_up : -m_up);
+            }
+            if (offz != 0) {
+                m_pos += m_velocity.z * (offz > 0 ? m_front : -m_front);
+            }
         }
         
         glm::vec3 getViewPos() {

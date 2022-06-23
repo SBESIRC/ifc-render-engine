@@ -53,11 +53,13 @@ namespace ifcre {
 		void setCompId(const int& comp_id);
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
+		void setClippingPlane(const glm::vec4& clip_plane);
 	// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
+		void renderClipPlane(const bool hidden, ClipPlane clip_plane);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
@@ -77,6 +79,8 @@ namespace ifcre {
 		int m_compId;
 		int m_hoverCompId;
 
+		glm::vec4 m_clip_plane;
+
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
 		UniquePtr<GLSLProgram> m_normal_depth_program;
@@ -85,6 +89,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_axis_shader;
 		UniquePtr<GLSLProgram> m_select_bbx_shader;
 		UniquePtr<GLSLProgram> m_edge_shader;
+		UniquePtr<GLSLProgram> m_clip_plane_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

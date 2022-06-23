@@ -179,9 +179,9 @@ namespace ifcre {
 			if (m_window.isMouseMove() && m_last_rmclick) {
 				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
-				//ifc_test_model->translate(step);
-				//m_camera->translate(step.x, step.y);
-				m_camera->translateByScreenOp(step.x, step.y, 0);
+				ifc_test_model->translate(step);
+				//wrong way here
+				//m_camera->translateByHoverDiv(step);
 
 			}
 			m_last_hover_pos = clicked_coord;
@@ -204,6 +204,7 @@ namespace ifcre {
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
 			m_render.setCameraDirection(camera_forwad);
+			m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
@@ -235,12 +236,11 @@ namespace ifcre {
 			// m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
 
 			//4. render bounding box
-			if(m_window.getClickCompId() != -1){
+			if (m_window.getClickCompId() >= 0) {
 				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ static_cast<uint32_t>(m_window.getClickCompId()) }));
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE); 
 			}
 #endif
-
 
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
@@ -248,6 +248,10 @@ namespace ifcre {
 				, m_camera->getViewPos()
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+			// -------------- render clipping plane, not normal render procedure ---------------
+			m_render.renderClipPlane(m_window.getHidden(), m_window.getClippingPlane());
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge

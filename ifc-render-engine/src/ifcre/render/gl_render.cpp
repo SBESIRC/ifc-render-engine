@@ -8,14 +8,13 @@
 #include <glm/gtc/type_ptr.hpp>
 namespace ifcre {
 
-	const glm::vec4 clip_plane(0, 1, 1, 2);
 // ------------ construction ---------------------
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4));
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4));
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
@@ -39,6 +38,10 @@ namespace ifcre {
 		String f_axis = util::read_file("shaders/axis.frag");
 		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
 
+		String v_clp_plane = util::read_file("shaders/clp_plane.vert");
+		String f_clp_plane = util::read_file("shaders/clp_plane.frag");
+		m_clip_plane_shader = make_unique<GLSLProgram>(v_clp_plane.c_str(), f_clp_plane.c_str());
+
 		String v_test = util::read_file("shaders/test.vert");
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
@@ -60,6 +63,7 @@ namespace ifcre {
 		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
 		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
 		m_edge_shader= make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
+		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -69,6 +73,7 @@ namespace ifcre {
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -196,6 +201,8 @@ namespace ifcre {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearDepthf(1.0);
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_comp_id_program->use();
 			break;
 		}
@@ -207,7 +214,7 @@ namespace ifcre {
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(clip_plane));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_model));
 
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -225,7 +232,7 @@ namespace ifcre {
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(clip_plane));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_model));
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
@@ -238,6 +245,8 @@ namespace ifcre {
 		}
 		case BOUNDINGBOX_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_select_bbx_shader->use();
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
 			//m_select_bbx_shader->setMat4("projection", m_projection);
@@ -245,6 +254,8 @@ namespace ifcre {
 		}
 		case EDGE_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_edge_shader->use();
 			break;
 		}
@@ -285,6 +296,47 @@ namespace ifcre {
 		}
 		}
 		glDisable(GL_BLEND);
+	}
+
+	void GLRender::renderClipPlane(const bool hidden, ClipPlane clip_plane) {
+		static uint32_t plane_vao;
+		static bool firstPlane = true;
+		if (firstPlane) {
+			float k = 15.f;
+			float coord_plane[] = {
+				-k,0.f,-k,
+				k,0.f,-k,
+				k,0.f,k,
+				k,0.f,k,
+				-k,0.f,k,
+				-k,0.f,-k
+			};
+			uint32_t plane_vbo;
+			glGenVertexArrays(1, &plane_vao);
+			glGenBuffers(1, &plane_vbo);
+			glBindVertexArray(plane_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, plane_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_plane), &coord_plane, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			firstPlane = false;
+		}
+
+		if (!hidden) {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+
+			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * clip_plane.toMat()));
+			m_clip_plane_shader->use();
+			glBindVertexArray(plane_vao);/*
+			glDisable(DEPTH_TEST);
+			glDepthFunc(GL_ALWAYS);*/
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glDisable(GL_BLEND);
+			_defaultConfig();
+		}
 	}
 
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
@@ -560,5 +612,9 @@ namespace ifcre {
 	void GLRender::setHoverCompId(const int& comp_id)
 	{
 		m_hoverCompId = comp_id;
+	}
+
+	void GLRender::setClippingPlane(const glm::vec4& clip_plane) {
+		m_clip_plane = clip_plane;
 	}
 } 

@@ -269,7 +269,6 @@ namespace ifcre {
         glfwSetCursorPosCallback(m_window, cursor_pos_callback);
         glfwSetScrollCallback(m_window, scroll_callback);
         glfwSetMouseButtonCallback(m_window, mouse_button_callback);
-        
 
         // load gl functions by glad
 		static bool load_gl = false;
@@ -302,6 +301,32 @@ namespace ifcre {
     {
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(m_window, true);
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
+            hidden = true;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS) {
+            hidden = false;
+        }
+        if (!hidden) {
+            if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
+                use_clip_plane.base_pos += use_clip_plane.moveSpeed * use_clip_plane.normal;
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
+                    use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+                    use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+                    use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
+                    use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+                    use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
+            }
         }
     }
 
@@ -473,6 +498,12 @@ namespace ifcre {
 
     glm::mat4 RenderWindow::getProjMatrix() {
         return m_projection;
+    }
+
+    ClipPlane RenderWindow::getClippingPlane() {
+        if (hidden)
+            return hidden_clip_plane;
+        return use_clip_plane;
     }
 
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)
