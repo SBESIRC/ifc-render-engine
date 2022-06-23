@@ -201,7 +201,7 @@ namespace ifcre {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearDepthf(1.0);
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_comp_id_program->use();
 			break;
@@ -215,7 +215,7 @@ namespace ifcre {
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_model));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -233,7 +233,7 @@ namespace ifcre {
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_model));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -245,7 +245,7 @@ namespace ifcre {
 		}
 		case BOUNDINGBOX_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_select_bbx_shader->use();
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
@@ -254,7 +254,7 @@ namespace ifcre {
 		}
 		case EDGE_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_modelview));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			m_edge_shader->use();
 			break;
@@ -328,7 +328,7 @@ namespace ifcre {
 			glBlendEquation(GL_FUNC_ADD);
 
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * clip_plane.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_plane.toMat()));
 			m_clip_plane_shader->use();
 			glBindVertexArray(plane_vao);/*
 			glDisable(DEPTH_TEST);
@@ -589,6 +589,14 @@ namespace ifcre {
 	
 	void GLRender::setModelMatrix(const glm::mat4& model) {
 		m_model = model;
+	}
+
+	void GLRender::setInitModelMatrix(const glm::mat4& init_model) {
+		m_init_model = init_model;
+	}
+
+	void GLRender::setMirrorModelMatrix(const glm::mat4& mirror) {
+		mirror_model = mirror;
 	}
 
 	void GLRender::setModelViewMatrix(const glm::mat4& mv)

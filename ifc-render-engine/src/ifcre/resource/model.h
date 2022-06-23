@@ -286,6 +286,7 @@ namespace ifcre {
 			glm::mat4 t(1.0f);
 			t = glm::translate(t, step);
 			m_model = t * m_model;
+			mirror_model = t * mirror_model;
 		}
 
 		glm::vec3 getModelCenter() {
@@ -302,9 +303,18 @@ namespace ifcre {
 
 		void setModelMatrix(const glm::mat4& model) {
 			m_model = model;
+			m_init_model = m_model;
+			mirror_model = glm::mat4(1.f);
 		}
 		glm::mat4 getModelMatrix() {
 			return m_model;
+		}
+		glm::mat4 getInitModelMatrix() {
+			return m_init_model;
+		}
+		
+		glm::mat4 getMirrorModelMatrix() {
+			return mirror_model;
 		}
 
 		uint32_t render_id;//seems a render_id combine with an array of vertex?
@@ -320,6 +330,8 @@ namespace ifcre {
 
 	private:
 		glm::mat4 m_model;
+		glm::mat4 m_init_model;
+		glm::mat4 mirror_model;
 		Real m_scale_factor;
 		glm::vec3 pMin, pMax;
 		glm::vec3 m_center;

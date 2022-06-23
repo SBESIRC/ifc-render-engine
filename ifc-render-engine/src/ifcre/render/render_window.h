@@ -55,6 +55,7 @@ namespace ifcre {
 				world_z = glm::vec4(-front, 0.),
 				world_y = glm::vec4(normal, 0.);
 			glm::vec4 add(base_pos, 1.);
+			//glm::vec4 add(0., 0., 0., 1.);
 			glm::mat4 basis(world_x, world_y, world_z, add);
 			//basis = glm::translate(basis, base_pos);
 			return basis;

@@ -85,8 +85,7 @@ namespace ifcre {
 
         // based on IfcModel->translate(glm::vec3& step)
         void translateByHoverDiv(glm::vec3& step) {
-            m_pos -= step.x*m_right;
-            m_pos -= step.y * m_up;
+            m_pos -= step;
         }
 
         void translateByScreenOp(float offx, float offy, float offz) {

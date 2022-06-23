@@ -200,6 +200,8 @@ namespace ifcre {
 			glm::vec3 camera_forwad = m_camera->getViewForward();
 			m_render.setViewMatrix(view);
 			m_render.setModelMatrix(model_matrix);
+			m_render.setInitModelMatrix(ifc_test_model->getInitModelMatrix());
+			m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);

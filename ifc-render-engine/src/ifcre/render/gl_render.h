@@ -47,6 +47,8 @@ namespace ifcre {
 
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
+		void setInitModelMatrix(const glm::mat4& init_model);
+		void setMirrorModelMatrix(const glm::mat4& mirror);
 		void setViewMatrix(const glm::mat4& view);
 		void setProjectionMatrix(const glm::mat4& projection);
 		void setAlpha(const float& alpha);
@@ -72,6 +74,8 @@ namespace ifcre {
 
 		glm::mat4 m_modelview;
 		glm::mat4 m_model;
+		glm::mat4 m_init_model;
+		glm::mat4 mirror_model;
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
 		float m_alpha;
