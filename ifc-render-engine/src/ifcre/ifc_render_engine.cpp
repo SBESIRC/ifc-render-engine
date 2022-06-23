@@ -164,11 +164,15 @@ namespace ifcre {
 		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
 		if (m_window.isMouseHorizontalRot()) {
 			float angle = m_window.getMouseHorizontalVel();
-			ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
+			//ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
+			//todo: should change camera
+			m_camera->rotateByScreenX(clicked_coord, angle);
 		}
 		if (m_window.isMouseVerticalRot()) {
 			float angle = m_window.getMouseVerticalVel();
-			ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
+			//ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
+			//m_camera->rotateInWorldSpace(clicked_coord, angle);
+			m_camera->rotateByScreenY(clicked_coord, angle);
 		}
 
 		if (m_window.isRightMouseClicked()) {
@@ -176,6 +180,9 @@ namespace ifcre {
 				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
 				ifc_test_model->translate(step);
+				//wrong way here
+				//m_camera->translateByHoverDiv(step);
+
 			}
 			m_last_hover_pos = clicked_coord;
 			m_last_rmclick = true;
@@ -190,12 +197,16 @@ namespace ifcre {
 		{
 			m_window.startRenderToWindow();
 			glm::mat4 view = m_camera->getViewMatrix();
+			glm::vec3 camera_forwad = m_camera->getViewForward();
 			m_render.setViewMatrix(view);
 			m_render.setModelMatrix(model_matrix);
+			m_render.setInitModelMatrix(ifc_test_model->getInitModelMatrix());
+			m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 			m_render.setModelViewMatrix(view * model_matrix);
 			m_render.setProjectionMatrix(m_window.getProjMatrix());
 			m_render.setAlpha(1.0);
-
+			m_render.setCameraDirection(camera_forwad);
+			m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
@@ -224,15 +235,14 @@ namespace ifcre {
 			//m_window.readPixels();
 
 			//3. render edges (maybe
-			m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
+			// m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
 
 			//4. render bounding box
-			if(m_window.getClickCompId() != -1){
+			if (m_window.getClickCompId() >= 0) {
 				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ static_cast<uint32_t>(m_window.getClickCompId()) }));
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE); 
 			}
 #endif
-
 
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
@@ -240,6 +250,10 @@ namespace ifcre {
 				, m_camera->getViewPos()
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+			// -------------- render clipping plane, not normal render procedure ---------------
+			m_render.renderClipPlane(m_window.getHidden(), m_window.getClippingPlane());
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge

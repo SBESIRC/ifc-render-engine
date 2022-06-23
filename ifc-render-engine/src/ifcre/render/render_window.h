@@ -10,6 +10,63 @@
 #include <glm/glm.hpp>
 namespace ifcre {
 
+	struct ClipPlane {
+		glm::vec3 normal;
+		glm::vec3 front;
+		glm::vec3 right;
+		Real moveSpeed = .01f;
+		Real rotateSpeed = .001f;
+		glm::vec3 base_pos;
+		ClipPlane(glm::vec4 p) {
+			normal = p;
+			base_pos = glm::vec3(0.);
+			front = glm::vec3(0., 0., -1.);
+			right = glm::normalize(glm::cross(front, normal));//1 0 0
+			
+		}
+		glm::vec4 out_as_vec4() {
+			return glm::vec4(normal, glm::dot(normal,base_pos));
+		}
+		void rotateByNormal(float angleA) {
+			glm::mat4 rot(1.0f);
+			rot = glm::rotate(rot, angleA, normal);
+			front = rot * glm::vec4(front, 1.f);
+			right = rot * glm::vec4(right, 1.f);
+		}
+
+		void rotateByFront(float angleB) {
+			glm::mat4 rot(1.0f);
+			rot = glm::rotate(rot, angleB, front);
+			normal = rot * glm::vec4(normal, 1.f);
+			right = rot * glm::vec4(right, 1.f);
+		}
+
+		void rotateByRight(float angleC) {
+			glm::mat4 rot(1.0f);
+			rot = glm::rotate(rot, angleC, right);
+			normal = rot * glm::vec4(normal, 1.f);
+			front = rot * glm::vec4(front, 1.f);
+		}
+		glm::mat4 toMat() {
+			//glm::mat4 ret(1.0f);
+			//ret = glm::lookAt(base_pos, base_pos + front, normal);
+			//ret = glm::lookAt(front, glm::vec3(0.),normal);
+			glm::vec4 world_x = glm::vec4(-glm::cross(normal, front), 0.),
+				world_z = glm::vec4(-front, 0.),
+				world_y = glm::vec4(normal, 0.);
+			glm::vec4 add(base_pos, 1.);
+			//glm::vec4 add(0., 0., 0., 1.);
+			glm::mat4 basis(world_x, world_y, world_z, add);
+			//basis = glm::translate(basis, base_pos);
+			return basis;
+		}
+
+	private:
+		void _updateVectors() {
+			normal = glm::normalize(glm::cross(right, front));
+		}
+	};
+
 	class RenderWindow {
 	public:
 		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false);
@@ -41,6 +98,9 @@ namespace ifcre {
 		int getHoverCompId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
+		bool getHidden() { return hidden; }
+		glm::vec3 getClippingPlanePos() { return use_clip_plane.base_pos; }
+		ClipPlane getClippingPlane();
 
 		void setCamera(SharedPtr<GLCamera> camera);
 		
@@ -123,6 +183,11 @@ namespace ifcre {
 
 		const Real m_znear = 0.1, m_zfar = 1000.0;
 		const Real fov = 45.0;
+
+		bool hidden = true;
+		ClipPlane hidden_clip_plane = glm::vec4(0.f, 0.f, 0.f, -1.f);
+		ClipPlane use_clip_plane = glm::vec4(0.f, 1.f, 0.f, 2.f);
+
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
