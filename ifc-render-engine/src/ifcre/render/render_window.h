@@ -117,7 +117,10 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- -----
 
 		// ---------- 
-
+		void setDefaultMouseStature() {
+			m_mouse_status.click_comp_id = -1;
+			m_mouse_status.hover_comp_id = -1;
+		}
 
 	private:
 

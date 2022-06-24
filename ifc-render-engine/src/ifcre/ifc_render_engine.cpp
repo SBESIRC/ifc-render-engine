@@ -40,6 +40,10 @@ namespace ifcre {
 			}
 			m_init = true;
 		}
+
+		m_render_window->setDefaultMouseStature();
+
+		//RenderWindow::m_mouse_status
 		
 		String model_file = configs["file"];
 		
