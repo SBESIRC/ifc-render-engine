@@ -14,33 +14,40 @@ namespace ifcre {
 
 	void IFCRenderEngine::setConfig(String key, String value)
 	{
-		if (m_init) {
-			return;
-		}
 		m_cache_configs[key] = value;
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
-		if (m_init) {
-			return;
-		}
 		auto& configs = m_cache_configs;
 
-		int width = atoi(configs["width"].c_str());
-		int height = atoi(configs["height"].c_str());
+		if (!m_init) {
+			int width = atoi(configs["width"].c_str());
+			int height = atoi(configs["height"].c_str());
+			try_ifc = configs["model_type"] == "ifc";
+			use_transparency = configs["use_transparency"] == "true";
+			String graphics_api = configs["render_api"];
+			if (graphics_api == "vulkan") {
+				m_render_api = VULKAN_RENDER_API;
+			}
+			if (m_render_api == OPENGL_RENDER_API) {
+				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
+			}
+			if (m_render_api == VULKAN_RENDER_API) {
+				m_scene.m_ifcObject = ifc_test_model.get();
+				m_ifcRender = make_shared<IFCVulkanRender>();
+				m_ifcRender->initialize(width, height);
+			}
+			m_init = true;
+		}
+		
 		String model_file = configs["file"];
-		try_ifc = configs["model_type"] == "ifc";
-		use_transparency = configs["use_transparency"] == "true";
+		
 		if (try_ifc) {
 			ifc_test_model = IFCParser::load(model_file);
 		}
 		else {
 			test_model = DefaultParser::load(model_file);
-		}
-		String graphics_api = configs["render_api"];
-		if (graphics_api == "vulkan") {
-			m_render_api = VULKAN_RENDER_API;
 		}
 		
 		Real scale_factor = 0;
@@ -51,7 +58,7 @@ namespace ifcre {
 
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
-			m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, wndPtr);
+			
 			m_glrender = make_shared<GLRender>();
 	
 
@@ -96,17 +103,6 @@ namespace ifcre {
 				test_model->render_id = m_glrender->addModel(model_vb);
 			}
 		}
-
-		if (m_render_api == VULKAN_RENDER_API) {
-			m_scene.m_ifcObject = ifc_test_model.get();
-			m_ifcRender = make_shared<IFCVulkanRender>();
-			m_ifcRender->initialize(width, height);
-		}
-		else {
-			// TODO opengl api
-		}
-
-		m_init = true;
 	}
 
 	void IFCRenderEngine::run()

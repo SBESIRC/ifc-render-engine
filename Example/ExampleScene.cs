@@ -25,17 +25,20 @@ namespace Example {
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_set_config(string key, string value);
 
-        public static unsafe void Init(IntPtr wndPtr, int width, int height)
+        public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {
             ifcre_set_config("width", width.ToString());
             ifcre_set_config("height", height.ToString());
             ifcre_set_config("model_type", "ifc");
             ifcre_set_config("use_transparency", "true");
-            var filePath = ".\\ff.ifc";
+            if(fileName == null)
+			{
+                fileName = ".\\ff.ifc";
 #if DEBUG
-            filePath = ".\\temp3.midfile";
+                fileName = ".\\temp3.midfile";
 #endif
-            ifcre_set_config("file", filePath);
+            }
+            ifcre_set_config("file", fileName);
             ifcre_set_config("render_api", "opengl");
             //ifcre_set_config("render_api", "vulkan");
             Window* ptrToWnd = (Window*)wndPtr.ToPointer();

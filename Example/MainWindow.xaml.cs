@@ -5,6 +5,8 @@ using System.Windows;
 using OpenTK;
 using OpenTK.WinForms;
 using System;
+using System.Windows.Forms;
+
 namespace Example {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
@@ -19,7 +21,16 @@ namespace Example {
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             //var childConrol = formHost.Child as GLControl;
-
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            var filter = "ifc files | *.ifc";
+#if DEBUG
+            filter = "Mid files | *.midfile";
+#endif
+            fileDialog.Filter = filter;
+            var dialogRst = fileDialog.ShowDialog();
+            if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
+            var fileName = fileDialog.FileName;
+            Example.ExampleScene.Init(glControl.Handle, 800, 600, fileName);
             Example.ExampleScene.Render();
         }
 
@@ -34,7 +45,6 @@ namespace Example {
             glControl.EnableNativeInput();
             (sender as WindowsFormsHost).Child = glControl;
             glControl.MakeCurrent();
-            Example.ExampleScene.Init(glControl.Handle, 800, 600);
         }
         const int WM_CLOSE = 0x0010;
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
