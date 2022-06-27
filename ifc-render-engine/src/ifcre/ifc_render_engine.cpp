@@ -2,7 +2,8 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
-
+#include <chrono>
+#include <thread>
 #include<iostream>
 
 //#define ONLY_DEPTH_NROMAL_RES
@@ -120,11 +121,11 @@ namespace ifcre {
 		case OPENGL_RENDER_API: {
 			auto& m_window = *m_render_window;
 			while (!m_window.isClose()) {
+				//sleep 1 ms to reduce cpu time
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 				m_window.pollEvents();
 				m_window.processInput();
-
 				drawFrame();
-
 				m_window.swapBuffer();
 			}
 			break;
