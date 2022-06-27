@@ -587,6 +587,12 @@ namespace ifcre {
     {
         return m_mouse_status.rbtn_down;
     }
+
+    void RenderWindow::setDefaultStatus() {
+        m_mouse_status.click_comp_id = -1;
+        m_mouse_status.hover_comp_id = -1;
+        hidden = true;
+    }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 // private:

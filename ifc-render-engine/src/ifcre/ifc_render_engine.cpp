@@ -41,7 +41,7 @@ namespace ifcre {
 			m_init = true;
 		}
 
-		m_render_window->setDefaultMouseStature();
+		m_render_window->setDefaultStatus();
 
 		//RenderWindow::m_mouse_status
 		
