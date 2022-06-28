@@ -68,13 +68,13 @@ namespace ifcre {
         //    m_mouse_status.click_comp_id = clicked_comp_id;
 
 
-        glm::ivec4 comp_id;
+        uint32_t clicked_comp_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
+        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_comp_id);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //if (comp_id == -1) {
         //    m_mouse_status.click_comp_id = -1;
@@ -84,7 +84,6 @@ namespace ifcre {
 
         //std::cout << comp_id.x << "\n";
         
-        int clicked_comp_id = comp_id.x;
         if (hover_mode)
             m_mouse_status.hover_comp_id = clicked_comp_id;
         else
