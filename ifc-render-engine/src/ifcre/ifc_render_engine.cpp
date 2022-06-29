@@ -236,7 +236,7 @@ namespace ifcre {
 			//m_window.readPixels();
 
 			//3. render edges (maybe
-			// m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
+			m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
 
 			//4. render bounding box
 			if (m_window.getClickCompId() >= 0) {
