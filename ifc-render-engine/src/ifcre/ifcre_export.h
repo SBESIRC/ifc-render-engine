@@ -22,6 +22,8 @@ extern "C" {
 
 	__declspec(dllexport) void ifcre_run();
 
+	__declspec(dllexport) int ifcre_get_comp_id();
+
 #ifdef __cplusplus
 }
 #endif

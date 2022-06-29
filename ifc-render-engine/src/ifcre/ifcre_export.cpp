@@ -22,3 +22,11 @@ void ifcre_run()
 	auto& re = *render_engine;
 	re.run();
 }
+
+int ifcre_get_comp_id()
+{
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	return re.getSelectedCompId();
+}
+

@@ -13,11 +13,13 @@
 typedef void (*ifcre_set_config)(const char* key, const char* value);
 typedef void (*ifcre_init)(void *);
 typedef void (*ifcre_run)();
+typedef int (*ifcre_get_comp_id)();
 
 struct ifcre {
 	ifcre_set_config set_config;
 	ifcre_init init;
 	ifcre_run run;
+	ifcre_get_comp_id get_comp_id;
 	bool loaded = false;
 };
 
@@ -32,9 +34,11 @@ void create_ifcre(ifcre* re) {
 	re->set_config = (ifcre_set_config)GetProcAddress(module, "ifcre_set_config");
 	re->init = (ifcre_init)GetProcAddress(module, "ifcre_init");
 	re->run = (ifcre_run)GetProcAddress(module, "ifcre_run");
+	re->get_comp_id = (ifcre_get_comp_id)GetProcAddress(module, "ifcre_get_comp_id");
 	if (re->set_config != nullptr
 		&& re->init != nullptr
-		&& re->run != nullptr) {
+		&& re->run != nullptr
+		&& re->get_comp_id != nullptr) {
 		re->loaded = true;
 	}
 	return;
@@ -67,6 +71,7 @@ int main(int argc, char**argv) {
 
 	re.init(NULL);
 	re.run();
-
+	printf("%d\n", re.get_comp_id());
+	
 	return 0;
 }

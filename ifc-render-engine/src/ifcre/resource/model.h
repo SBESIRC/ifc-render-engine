@@ -324,7 +324,7 @@ namespace ifcre {
 		Vector<uint32_t> trans_ind;
 		Vector<uint32_t> no_trans_ind;
 		Vector<uint32_t> edge_indices;
-		Vector<Vector<uint32_t>> c_indices;
+		Vector<Vector<uint32_t>> c_indices; // meshes` indicies with their vertices` indicies
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 };
 

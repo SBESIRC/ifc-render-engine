@@ -18,6 +18,7 @@ namespace ifcre {
 		virtual void init(GLFWwindow *) = 0;
 		//virtual void initialize(Map<String, String> &configs) = 0;
 		virtual void run() = 0;
+		virtual int getSelectedCompId() = 0;
 	};
 
 
@@ -27,6 +28,7 @@ namespace ifcre {
 		void setConfig(String key, String value);
 		void init(GLFWwindow *);
 		void run();
+		int getSelectedCompId();
 
 	public:
 		IFCRenderEngine() : m_init(false) {}

@@ -69,5 +69,12 @@ namespace Example {
             int msg,
             IntPtr wParam,
             string lParam);
+
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            var id = Example.ExampleScene.GetCurrentCompID();
+            System.Windows.Forms.MessageBox.Show(id.ToString());
+        }
     }
 }
