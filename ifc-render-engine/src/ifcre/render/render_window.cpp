@@ -306,7 +306,7 @@ namespace ifcre {
         }
 
         createFramebuffer(w, h);
-
+        glViewport(0, 0, w, h);
         return true;
     }
 
