@@ -1,26 +1,27 @@
 #include "glsl_program.h"
 #include <iostream>
 namespace ifcre {
-	GLSLProgram::GLSLProgram(const char* vertexCode, const char* fragmentCode)
+	GLSLProgram::GLSLProgram(const char* vertexCode, const char* fragmentCode) // 编译着色器
 	{
         uint32_t vertex, fragment;
-        // vertex shader
+        // vertex shader 顶点着色器
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vertexCode, NULL);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
-        // fragment Shader
+        // fragment Shader 片段着色器
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fragmentCode, NULL);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
-        // shader Program
+        // shader Program 着色器程序
         id = glCreateProgram();
         glAttachShader(id, vertex);
         glAttachShader(id, fragment);
-        glLinkProgram(id);
+        glLinkProgram(id); // 链接
         checkCompileErrors(id, "PROGRAM");
         // delete the shaders as they're linked into our program now and no longer necessery
+        // 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 	}
@@ -50,6 +51,8 @@ namespace ifcre {
     }
     void GLSLProgram::bindUniformBlock(const std::string& name, int index) const
     {
+        //1、Uniform块索引(Uniform Block Index)是着色器中已定义Uniform块的位置值索引, 通过glGetUniformBlockIndex找到
+        //2、再用glUniformBlockBinding将Uniform块绑定到一个特定的绑定点index中
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);
     }
     void GLSLProgram::use() const
@@ -58,7 +61,7 @@ namespace ifcre {
     }
 
 // private:
-    void GLSLProgram::checkCompileErrors(GLuint shader, String type)
+    void GLSLProgram::checkCompileErrors(GLuint shader, String type) // 检查glsl编译是否出错
     {
         GLint success;
         GLchar infoLog[1024];
