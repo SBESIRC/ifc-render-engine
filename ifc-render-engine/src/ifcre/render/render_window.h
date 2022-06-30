@@ -126,7 +126,6 @@ namespace ifcre {
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_default_rt;
-			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
 		
