@@ -30,7 +30,8 @@ namespace Example {
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
             var fileName = fileDialog.FileName;
-            Example.ExampleScene.Init(glControl.Handle, 800, 600, fileName);
+            var glControl = formHost.Child as GLControl;
+            Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
             Example.ExampleScene.Render();
         }
 
