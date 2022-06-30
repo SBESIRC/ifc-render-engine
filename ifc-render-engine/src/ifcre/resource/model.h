@@ -176,7 +176,8 @@ namespace ifcre {
 		}
 
 		void generateCompIds() { // comp_ids: 顶点索引找到对应的物件索引
-			comp_ids.resize(g_vertices.size()/3);
+			int vertexCnt = g_vertices.size() / 3;
+			comp_ids.resize(vertexCnt);
 			int j = 0;
 			for (int i = 0; i < c_indices.size(); i++) {
 				auto ix = c_indices[i];
