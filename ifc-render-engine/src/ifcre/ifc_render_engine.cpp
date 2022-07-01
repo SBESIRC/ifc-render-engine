@@ -39,15 +39,11 @@ namespace ifcre {
 				m_ifcRender = make_shared<IFCVulkanRender>();
 				m_ifcRender->initialize(width, height);
 			}
-			m_init = true;
 		}
-
 		m_render_window->setDefaultStatus();
 
-		//RenderWindow::m_mouse_status
-		
+		// ����ģ������
 		String model_file = configs["file"];
-		
 		if (try_ifc) {
 			ifc_test_model = IFCParser::load(model_file);
 		}
