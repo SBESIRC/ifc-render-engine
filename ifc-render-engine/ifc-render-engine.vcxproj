@@ -87,9 +87,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(SolutionDir)3rdparty\glfw-3.3.5\include;$(SolutionDir)3rdparty\glad\include;$(SolutionDir)3rdparty\glm-0.9.9.8;$(SolutionDir)3rdparty\ifcReadingInclude;$(SolutionDir)3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>$(SolutionDir)3rdparty\glfw-3.3.5\lib-vc2019;$(SolutionDir)3rdparty\ifcReadingLib;$(SolutionDir)3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)..\3rdparty\glfw-3.3.5\lib-vc2019;$(ProjectDir)..\3rdparty\ifcReadingLib;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
