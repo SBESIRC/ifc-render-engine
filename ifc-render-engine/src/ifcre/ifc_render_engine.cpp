@@ -140,12 +140,7 @@ namespace ifcre {
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
-		if (m_init) {
-			return m_render_window->getClickCompId();
-		}
-		else {
-			return -1;
-		}
+		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
 	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
