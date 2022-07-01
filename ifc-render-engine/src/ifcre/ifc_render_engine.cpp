@@ -113,34 +113,32 @@ namespace ifcre {
 	void IFCRenderEngine::run()
 	{
 		if (!m_init) {
-			std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
-			return;
-		}
-
-		switch (m_render_api) {
-		case OPENGL_RENDER_API: {
-			auto& m_window = *m_render_window;
-			while (!m_window.isClose()) {
-				//sleep 1 ms to reduce cpu time
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				m_window.pollEvents();
-				m_window.processInput();
-				drawFrame();
-				m_window.swapBuffer();
-			}
-			break;
-		}
-		case VULKAN_RENDER_API: {
-			while (true) {
-				// TODO tick
-
-				if (!m_ifcRender->render(m_scene)) {
+			//std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
+			m_init = true;
+			switch (m_render_api) {
+				case OPENGL_RENDER_API: {
+					auto& m_window = *m_render_window;
+					while (!m_window.isClose()) {
+						//sleep 1 ms to reduce cpu time
+						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						m_window.pollEvents();
+						m_window.processInput();
+						drawFrame();
+						m_window.swapBuffer();
+					}
 					break;
 				}
+				case VULKAN_RENDER_API: {
+					while (true) {
+						// TODO tick
 
+						if (!m_ifcRender->render(m_scene)) {
+							break;
+						}
+					}
+					break;
+				}
 			}
-			break;
-		}
 		}
 	}
 
