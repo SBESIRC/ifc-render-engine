@@ -39,15 +39,11 @@ namespace ifcre {
 				m_ifcRender = make_shared<IFCVulkanRender>();
 				m_ifcRender->initialize(width, height);
 			}
-			m_init = true;
 		}
-
 		m_render_window->setDefaultStatus();
 
-		//RenderWindow::m_mouse_status
-		
+		// ����ģ������
 		String model_file = configs["file"];
-		
 		if (try_ifc) {
 			ifc_test_model = IFCParser::load(model_file);
 		}
@@ -113,40 +109,38 @@ namespace ifcre {
 	void IFCRenderEngine::run()
 	{
 		if (!m_init) {
-			std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
-			return;
-		}
-
-		switch (m_render_api) {
-		case OPENGL_RENDER_API: {
-			auto& m_window = *m_render_window;
-			while (!m_window.isClose()) {
-				//sleep 1 ms to reduce cpu time
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				m_window.pollEvents();
-				m_window.processInput();
-				drawFrame();
-				m_window.swapBuffer();
-			}
-			break;
-		}
-		case VULKAN_RENDER_API: {
-			while (true) {
-				// TODO tick
-
-				if (!m_ifcRender->render(m_scene)) {
+			//std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
+			m_init = true;
+			switch (m_render_api) {
+				case OPENGL_RENDER_API: {
+					auto& m_window = *m_render_window;
+					while (!m_window.isClose()) {
+						//sleep 1 ms to reduce cpu time
+						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						m_window.pollEvents();
+						m_window.processInput();
+						drawFrame();
+						m_window.swapBuffer();
+					}
 					break;
 				}
+				case VULKAN_RENDER_API: {
+					while (true) {
+						// TODO tick
 
+						if (!m_ifcRender->render(m_scene)) {
+							break;
+						}
+					}
+					break;
+				}
 			}
-			break;
-		}
 		}
 	}
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
-		return m_render_window->getClickCompId();
+		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
 	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
