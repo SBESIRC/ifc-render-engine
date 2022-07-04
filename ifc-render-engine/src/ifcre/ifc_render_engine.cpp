@@ -117,10 +117,10 @@ namespace ifcre {
 					while (!m_window.isClose()) {
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(1));
-						m_window.pollEvents();
 						m_window.processInput();
 						drawFrame();
 						m_window.swapBuffer();
+						m_window.pollEvents();
 					}
 					break;
 				}
