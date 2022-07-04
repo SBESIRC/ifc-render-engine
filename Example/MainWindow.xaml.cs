@@ -22,10 +22,7 @@ namespace Example {
         {
             //var childConrol = formHost.Child as GLControl;
             OpenFileDialog fileDialog = new OpenFileDialog();
-            var filter = "ifc files | *.ifc";
-#if DEBUG
-            filter = "Mid files | *.midfile";
-#endif
+            var filter = "ifc files | *.ifc;*.midfile;";
             fileDialog.Filter = filter;
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;

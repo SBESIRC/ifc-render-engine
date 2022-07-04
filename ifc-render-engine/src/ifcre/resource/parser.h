@@ -13,13 +13,18 @@ namespace ifcre {
 		// TODO
     public:
         static SharedPtr<IFCModel> load(String file) {
-#ifdef _DEBUG
-            auto ret = make_shared<IFCModel>(file);
-#else
-            auto ge = generateIFCMidfile(file);
-            auto ret = make_shared<IFCModel>(ge);
-#endif
-			return ret;
+            if (endsWith(file, "midfile")) {
+                return make_shared<IFCModel>(file);
+            }
+            else {
+                auto ge = generateIFCMidfile(file);
+                auto ret = make_shared<IFCModel>(ge);
+                return ret;
+            }
+        }
+
+        static bool endsWith(string s, string sub) {
+            return s.rfind(sub) == (s.length() - sub.length());
         }
 	};
 
@@ -54,5 +59,4 @@ namespace ifcre {
 		}
 	};
 }
-
 #endif
