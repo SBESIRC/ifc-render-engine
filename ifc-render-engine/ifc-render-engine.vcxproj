@@ -140,7 +140,6 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)WorkDir\
-copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)Example\bin\debug\netcoreapp3.1
 
 </Command>
     </PostBuildEvent>
@@ -181,6 +180,7 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
+    <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
     <ClCompile Include="src\ifcre\render\gl\glad.c" />
     <ClCompile Include="src\ifcre\render\gl\glsl_program.cpp" />
     <ClCompile Include="src\ifcre\render\gl\gl_render_texture.cpp" />
@@ -205,6 +205,7 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
+    <ClInclude Include="src\ifcre\mesh_simplier.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_uniform_buffer.h" />
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_enum.h" />
@@ -246,6 +247,8 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />
     <None Include="..\workdir\shaders\normal_depth_write.vert" />
+    <None Include="..\workdir\shaders\test.frag" />
+    <None Include="..\workdir\shaders\test.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

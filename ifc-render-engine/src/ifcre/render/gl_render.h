@@ -44,6 +44,7 @@ namespace ifcre {
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
+		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices);
 
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
@@ -61,7 +62,7 @@ namespace ifcre {
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
-		void renderClipPlane(const bool hidden, ClipPlane clip_plane);
+		void renderClipBox(const bool hidden, ClipBox clip_box);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);

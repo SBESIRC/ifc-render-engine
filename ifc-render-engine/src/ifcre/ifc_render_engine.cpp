@@ -22,7 +22,9 @@ namespace ifcre {
 	{
 		auto& configs = m_cache_configs;
 
-		if (!m_init) {
+		if (!m_init) { //初次打开窗口
+			
+			// 获取config数据
 			int width = atoi(configs["width"].c_str());
 			int height = atoi(configs["height"].c_str());
 			try_ifc = configs["model_type"] == "ifc";
@@ -31,6 +33,9 @@ namespace ifcre {
 			if (graphics_api == "vulkan") {
 				m_render_api = VULKAN_RENDER_API;
 			}
+
+			//RenderWindow::m_mouse_status
+			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
 			}
@@ -42,7 +47,7 @@ namespace ifcre {
 		}
 		m_render_window->setDefaultStatus();
 
-		// 锟斤拷锟斤拷模锟斤拷锟斤拷锟斤拷
+		// 加载模型数据
 		String model_file = configs["file"];
 		if (try_ifc) {
 			ifc_test_model = IFCParser::load(model_file);
@@ -51,6 +56,7 @@ namespace ifcre {
 			test_model = DefaultParser::load(model_file);
 		}
 		
+		//获得整个模型的模型矩阵、以及缩放系数
 		Real scale_factor = 0;
 		glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
@@ -78,10 +84,10 @@ namespace ifcre {
 			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
 			if (try_ifc) {
 				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
-				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);
-				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));
-				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));
-				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));
+				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);						//位置
+				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));		//法向量
+				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));		//颜色
+				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));		//所在物件的索引
 
 				if (use_transparency) {
 					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
@@ -117,10 +123,15 @@ namespace ifcre {
 					while (!m_window.isClose()) {
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+						m_window.pollEvents();
 						m_window.processInput();
+
+						//test dynamic ebo of components
+						changeGeom();
+
 						drawFrame();
 						m_window.swapBuffer();
-						m_window.pollEvents();
 					}
 					break;
 				}
@@ -135,6 +146,19 @@ namespace ifcre {
 					break;
 				}
 			}
+		}
+	}
+
+	void IFCRenderEngine::changeGeom() {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+		geomframe = m_window.geomframe;
+		if (m_window.geomchanged) {
+			// memory leak here
+			m_render.DynamicUpdate(ifc_test_model->render_id
+				, ifc_test_model->no_trans_geom_random_chose(geomframe),
+				ifc_test_model->trans_geom_random_chose(geomframe));
+			m_window.geomchanged = false;
 		}
 	}
 
@@ -195,7 +219,7 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 		{
-			m_window.startRenderToWindow();
+			m_window.startRenderToWindow();  // 切换到当前frame buffer
 			glm::mat4 view = m_camera->getViewMatrix();
 			glm::vec3 camera_forwad = m_camera->getViewForward();
 			m_render.setViewMatrix(view);
@@ -209,7 +233,7 @@ namespace ifcre {
 			m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, ALL);
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL);
 			//m_window.switchRenderBack();
 #endif
 
@@ -226,12 +250,12 @@ namespace ifcre {
 			m_window.switchRenderColor();
 			m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, NO_TRANS);
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, ALL);
 
 			//2. render transparency scene
-			m_render.setAlpha(0.5);
-			use_transparency ? m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, TRANS) : void();
+			m_render.setAlpha(0.3);
+			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 			//m_window.readPixels();
 
 			//3. render edges (maybe
@@ -251,13 +275,13 @@ namespace ifcre {
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			// -------------- render clipping plane, not normal render procedure ---------------
-			m_render.renderClipPlane(m_window.getHidden(), m_window.getClippingPlane());
+			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
-		m_render.postRender(m_window);
+		m_render.postRender(m_window); // 后处理，清空缓冲
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 }

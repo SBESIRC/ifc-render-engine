@@ -5,12 +5,14 @@
 
 #include "../common/std_types.h"
 #include "../common/ifc_util.h"
+#include "../mesh_simplier.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Ifc2OpenGLDatas.h>
+#include <random>// just used for test dynamic geom
 
 extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
@@ -124,6 +126,21 @@ namespace ifcre {
 			divide_model_by_alpha();	// 根据透明度将顶点分为两组
 		}
 
+		Vector<uint32_t> generate_edges_by_msMeshes() {
+			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
+			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
+			Vector<uint32_t> new_edge_index;
+			for (mesh_simplier::Mesh mes : meshes) {
+#ifdef PAIRREP
+				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+#else
+				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
+#endif
+			}
+			edge_indices = new_edge_index;
+			return new_edge_index;
+		}
+
 		Vector<uint32_t> getgIndices() {
 			return this->g_indices;
 		}
@@ -201,14 +218,56 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
-			for (int i = 0; i < g_indices.size(); i++) {
+			/*for (int i = 0; i < g_indices.size(); i++) {
 				if (material_data[i / 3].alpha < 1)
 					transparency_ind.emplace_back(g_indices[i]);
 				else
 					no_transparency_ind.emplace_back(g_indices[i]);
+			}*/
+			int v_count = 0;
+			for (int i = 0; i < c_indices.size(); i++) {
+				if (material_data[v_count / 3].alpha < 1) {
+					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					trans_c_indices.emplace_back(c_indices[i]);
+				}
+				else {
+					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					no_trans_c_indices.emplace_back(c_indices[i]);
+				}
+				v_count += c_indices[i].size();
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
+		}
+
+		Vector<uint32_t> no_trans_geom_random_chose(int seed) {
+			if (seed == 0)
+				return no_trans_ind;
+			if (no_trans_c_indices.empty())
+				return {};
+			default_random_engine e(seed);
+			uniform_int_distribution<unsigned> u(0, no_trans_c_indices.size() - 1);
+			Vector<uint32_t> ret;
+			for (size_t i = 0; i < u(e); i++) {
+				auto thisk = u(e);
+				ret.insert(ret.end(), no_trans_c_indices[thisk].begin(), no_trans_c_indices[thisk].end());
+			}
+			return ret;
+		}
+
+		Vector<uint32_t> trans_geom_random_chose(int seed) {
+			if (seed == 0)
+				return trans_ind;
+			if (trans_c_indices.empty())
+				return {};
+			default_random_engine e(seed);
+			uniform_int_distribution<unsigned> u(0, trans_c_indices.size() - 1);
+			Vector<uint32_t> ret;
+			for (size_t i = 0; i < u(e); i++) {
+				auto thisk = u(e);
+				ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
+			}
+			return ret;
 		}
 
 		void generate_bbxs_by_comps() {
@@ -328,6 +387,8 @@ namespace ifcre {
 		Vector<uint32_t> edge_indices;			// 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
+		Vector<vector<uint32_t>> no_trans_c_indices;	// 不透明物体的索引
+		Vector<vector<uint32_t>> trans_c_indices;		// 透明物体的索引
 
 	private:
 		glm::mat4 m_model;						

@@ -25,11 +25,15 @@ namespace ifcre {
 		void drawEdges();
 		void drawByAddedEbo(uint32_t ebo_id);
 		void drawBBXLines();
+		void drawByDynamicEbo_no_trans();
+		void drawByDynamicEbo_trans();
+		void drawByDynamicEbo();
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
 		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
 		void UploadElementEdge(Vector<uint32_t>& edge_indices);
 		void uploadNoTransElements(Vector<uint32_t>& indices);
 		void uploadTransElements(Vector<uint32_t>& indices);
+		void upoadDynamicElementBuffer(const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans);
 
 		bool useIndex();
 		void destroy();
@@ -46,14 +50,30 @@ namespace ifcre {
 		uint32_t m_ssboid;
 		uint32_t ebo_id_trip = 0;
 
+		bool no_trans_generated = false;
 		uint32_t m_eboid_for_no_trans;
 		uint32_t no_trans_size;
+
+		bool trans_generated = false;
 		uint32_t m_eboid_for_trans;
 		uint32_t trans_size;
+
+		bool edge_generated = false;
 		uint32_t m_eboid_for_edge;
 		uint32_t edge_size;
+
+		bool list_generated = false;
 		Vector<uint32_t> m_eboid_list;
 		Vector<uint32_t> m_size_list;
+
+		//dynamic ebo for isolation
+		bool dyn_generated = false;
+		uint32_t m_dynamic_eboid;
+		uint32_t m_dynamic_eboid_for_no_trans;
+		uint32_t m_dynamic_eboid_for_trans;
+		uint32_t dynamic_size;
+		uint32_t no_tran_dynamic_size;
+		uint32_t tran_dynamic_size;
 	};
 }
 

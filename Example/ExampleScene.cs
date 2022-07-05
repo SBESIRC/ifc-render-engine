@@ -27,7 +27,6 @@ namespace Example {
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern int ifcre_get_comp_id();
-        
 
         public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {

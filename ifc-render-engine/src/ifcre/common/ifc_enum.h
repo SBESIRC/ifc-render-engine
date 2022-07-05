@@ -14,11 +14,14 @@ namespace ifcre {
 	};
 	enum RenderPartEnum {
 		ALL = 0x01,
-		ALL_WEG = 0x02,
+		DYNAMIC_ALL = 0x02,
 		NO_TRANS = 0x03,
 		TRANS = 0x04,
 		BBX_LINE = 0x05,
-		EDGE_LINE = 0x06
+		EDGE_LINE = 0x06,
+		DYNAMIC_NO_TRANS = 0x07,
+		DYNAMIC_TRANS = 0x08,
+		DYNAMIC_EDGE_LINE = 0x09
 	};
 
 	enum RenderAPIEnum {

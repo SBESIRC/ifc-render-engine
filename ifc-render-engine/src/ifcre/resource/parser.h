@@ -7,14 +7,155 @@
 #include "../common/std_types.h"
 #include "model.h"
 
+namespace ifcsaver {
+	void save_string_into_binary(const string& source, ofstream& os) {
+		size_t s = sizeof(char) * source.length();
+		os.write((const char*)&s, sizeof(size_t));
+		os.write(source.c_str(), s);
+	}
+
+	string read_string_from_binary(ifstream& is) {
+		size_t s;
+		char str[10000];
+		is.read((char*)&s, sizeof(size_t));
+		is.read(str, s);
+		string ret(str, s / sizeof(char));
+		return ret;
+	}
+
+	template <typename T>
+	void save_meta_into_binary(const T& source, ofstream& os) {
+		os.write((const char*)&source, sizeof(T));
+	}
+	template <typename T>
+	T read_meta_from_binary(ifstream& is) {
+		T ret;
+		is.read((char*)&ret, sizeof(T));
+		return ret;
+	}
+
+	template <typename T>
+	void save_vector_into_binary(const vector<T>& v, ofstream& os) {
+		size_t s = v.size();
+		os.write((const char*)&s, sizeof(size_t));
+		os.write((const char*)&v[0], s * sizeof(T));
+	}
+
+	template <typename T>
+	vector<T> read_vector_from_binary(ifstream& is) {
+		size_t s;
+		is.read((char*)&s, sizeof(size_t));
+		vector<T> ret(s);
+		is.read((char*)&ret[0], sizeof(T) * s);
+		return ret;
+	}
+
+	void save_properties_into_binary(const unordered_map<string, string>& source, ofstream& os) {
+		size_t s = source.size();
+		os.write((const char*)&s, sizeof(size_t));
+		for (auto& pset : source) {
+			save_string_into_binary(pset.first, os);
+			save_string_into_binary(pset.second, os);
+		}
+	}
+
+	unordered_map<string, string> read_properties_from_binary(ifstream& is) {
+		unordered_map<string, string> ret;
+		size_t s = read_meta_from_binary<size_t>(is);
+		for (size_t i = 0; i < s; i++) {
+			string first = read_string_from_binary(is);
+			ret[first] = read_string_from_binary(is);
+		}
+		return ret;
+	}
+
+	void save_datas4Component_into_binary(const Datas4Component& source, ofstream& os) {
+		save_meta_into_binary<unsigned int>(source.count_id, os);
+		save_meta_into_binary<unsigned int>(source.edge_index_start, os);
+		save_meta_into_binary<unsigned int>(source.edge_index_end, os);
+		save_meta_into_binary<unsigned int>(source.mat_index_start, os);
+		save_meta_into_binary<unsigned int>(source.mat_index_end, os);
+
+		save_string_into_binary(source.name, os);
+		save_string_into_binary(source.description, os);
+		save_string_into_binary(source.guid, os);
+		save_string_into_binary(source.type, os);
+
+		save_meta_into_binary<size_t>(source.propertySet.size(), os);
+		for (auto& pset : source.propertySet) {
+			save_properties_into_binary(pset.propertySet, os);
+		}
+	}
+
+	Datas4Component read_datas4Component_from_binary(ifstream& is) {
+		Datas4Component ret;
+		ret.count_id = read_meta_from_binary<unsigned int>(is);
+		ret.edge_index_start = read_meta_from_binary<unsigned int>(is);
+		ret.edge_index_end = read_meta_from_binary<unsigned int>(is);
+		ret.mat_index_start = read_meta_from_binary<unsigned int>(is);
+		ret.mat_index_end = read_meta_from_binary<unsigned int>(is);
+
+		ret.name = read_string_from_binary(is);
+		ret.description = read_string_from_binary(is);
+		ret.guid = read_string_from_binary(is);
+		ret.type = read_string_from_binary(is);
+
+		ret.propertySet.resize(read_meta_from_binary<size_t>(is));
+		for (size_t i = 0; i < ret.propertySet.size(); i++) {
+			ret.propertySet[i].propertySet = read_properties_from_binary(is);
+		}
+		return ret;
+	}
+
+	void save_data2OpenGL_into_binary(const Datas2OpenGL& source, string filename) {
+		ofstream os(filename.c_str(), ios::binary);
+		save_vector_into_binary<unsigned int>(source.vert_indices, os);
+		save_vector_into_binary<unsigned int>(source.edge_indices, os);
+		size_t s = source.search_m.size();
+		save_meta_into_binary<size_t>(s, os);
+		for (size_t i = 0; i < s; i++) {
+			save_vector_into_binary<unsigned int>(source.search_m[i], os);
+		}
+		save_vector_into_binary<real_t>(source.verts, os);
+		save_vector_into_binary<real_t>(source.vert_normals2, os);
+		save_vector_into_binary<Material_new>(source.face_mat, os);
+
+		s = source.componentDatas.size();
+		save_meta_into_binary<size_t>(s, os);
+		for (size_t i = 0; i < s; i++) {
+			save_datas4Component_into_binary(source.componentDatas[i], os);
+		}
+		os.close();
+	}
+
+	Datas2OpenGL read_datas2OpenGL_from_binary(ifstream& is) {
+		Datas2OpenGL ret;
+		ret.vert_indices = read_vector_from_binary<unsigned int>(is);
+		ret.edge_indices = read_vector_from_binary<unsigned int>(is);
+		ret.search_m.resize(read_meta_from_binary<size_t>(is));
+		for (size_t i = 0; i < ret.search_m.size(); i++) {
+			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
+		}
+		ret.verts = read_vector_from_binary<real_t>(is);
+		ret.vert_normals2 = read_vector_from_binary<real_t>(is);
+		ret.face_mat = read_vector_from_binary<Material_new>(is);
+
+		ret.componentDatas.resize(read_meta_from_binary<size_t>(is));
+		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
+			ret.componentDatas[i] = read_datas4Component_from_binary(is);
+		}
+		return ret;
+	}
+}
 namespace ifcre {
 	
 	class IFCParser {
 		// TODO
     public:
-        static SharedPtr<IFCModel> load(String file) {
+       static SharedPtr<IFCModel> load(String file) {
             if (endsWith(file, "midfile")) {
-                return make_shared<IFCModel>(file);
+                auto ret = make_shared<IFCModel>(file);
+                return ret;
             }
             else {
                 auto ge = generateIFCMidfile(file);
@@ -23,9 +164,22 @@ namespace ifcre {
             }
         }
 
-        static bool endsWith(string s, string sub) {
-            return s.rfind(sub) == (s.length() - sub.length());
-        }
+		/* static SharedPtr<IFCModel> load(String file) {
+#ifdef _DEBUG
+			 file += ".midfile";
+			 ifstream is(file.c_str(), std::ios::binary);
+			 Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			 is.close();
+#else
+			 Datas2OpenGL ge = generateIFCMidfile(file);
+			 ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+#endif
+			 auto ret = make_shared<IFCModel>(ge);
+			 return ret;
+		 }*/
+		static bool endsWith(const string s, const string sub) {
+			return s.rfind(sub) == (s.length() - sub.length());
+		}
 	};
 
 	class DefaultParser {

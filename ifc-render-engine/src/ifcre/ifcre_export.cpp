@@ -29,4 +29,3 @@ int ifcre_get_comp_id()
 	auto& re = *render_engine;
 	return re.getSelectedCompId();
 }
-

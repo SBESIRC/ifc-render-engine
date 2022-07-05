@@ -333,6 +333,15 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(m_window, true);
         }
+        if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && key_frame_stopper) {
+            key_frame_stopper = false;
+            geomframe++;
+            geomframe %= 3;
+            geomchanged = true;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_V) == GLFW_PRESS) {
+            key_frame_stopper = true;
+        }
         if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
             hidden = true;
         }
@@ -341,22 +350,55 @@ namespace ifcre {
         }
         if (!hidden) {
             if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
-                use_clip_plane.base_pos += use_clip_plane.moveSpeed * use_clip_plane.normal;
+                //use_clip_plane.base_pos += use_clip_plane.moveSpeed * use_clip_plane.normal;
+                use_clip_box.base_pos += use_clip_box.moveSpeed * use_clip_box.normal;
             }
             if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
-                    use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
+                //use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
+                use_clip_box.base_pos -= use_clip_box.moveSpeed * use_clip_box.normal;
             }
             if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                    use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
+                //use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
+                use_clip_box.rotateByFront(use_clip_box.rotateSpeed);
             }
             if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                    use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
+                //use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
+                use_clip_box.rotateByFront(-use_clip_box.rotateSpeed);
             }
             if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
-                    use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
+                //use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
+                use_clip_box.rotateByRight(use_clip_box.rotateSpeed);
             }
             if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                    use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
+                //use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
+                use_clip_box.rotateByRight(-use_clip_box.rotateSpeed);
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS) {
+                use_clip_box.length += .01f;
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
+                use_clip_box.length -= .01f;
+                if (use_clip_box.length < .01f) {
+                    use_clip_box.length = .01f;
+                }
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS) {
+                use_clip_box.width += .01f;
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS) {
+                use_clip_box.width -= .01f;
+                if (use_clip_box.width < .01f) {
+                    use_clip_box.width = .01f;
+                }
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS) {
+                use_clip_box.height += .01f;
+            }
+            if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS) {
+                use_clip_box.height -= .01f;
+                if (use_clip_box.height < .01f) {
+                    use_clip_box.height = .01f;
+                }
             }
         }
     }
@@ -396,10 +438,14 @@ namespace ifcre {
 
     void RenderWindow::endRenderToWindow()
     {
-        if (m_option.anti_aliasing) {
+        if (m_option.anti_aliasing) { //抗锯齿
+            // 将多重采样缓冲还原到中介FBO上
             m_framebuffer.m_default_rt->attach(m_framebuffer.fbo_id);
             glBindFramebuffer(GL_READ_FRAMEBUFFER, m_msaa_fb.fbo_id);
             glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_framebuffer.fbo_id);
+            //将多重缓冲获得的图像（4倍）缩小或者还原(Resolve)成普通大小的图像
+            //将一个帧缓冲中的某个区域复制到另一个帧缓冲中，并且将多重采样缓冲还原。
+            //根据GL_READ_FRAMEBUFFER与GL_DRAW_FRAMEBUFFER来判断哪个是源帧缓冲，哪个是目标帧缓冲
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
 
 
@@ -538,9 +584,15 @@ namespace ifcre {
     }
 
     ClipPlane RenderWindow::getClippingPlane() {
+        //if (hidden)
+        return hidden_clip_plane;
+        //return use_clip_plane;
+    }
+
+    Vector<glm::vec4> RenderWindow::getClippingBoxVectors() {
         if (hidden)
-            return hidden_clip_plane;
-        return use_clip_plane;
+            return hidden_box_vector;
+        return use_clip_box.out_as_vec4s();
     }
 
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)
@@ -591,6 +643,8 @@ namespace ifcre {
         m_mouse_status.click_comp_id = -1;
         m_mouse_status.hover_comp_id = -1;
         hidden = true;
+        geomframe = 0;
+        geomchanged = true;
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 

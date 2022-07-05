@@ -13,11 +13,12 @@ namespace ifcre {
 	{
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4);
-		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4));
-
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
+
+		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
+
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4));
 		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 
 #ifdef _DEBUG
@@ -33,26 +34,33 @@ namespace ifcre {
 		String v_comp_id_write = util::read_file("shaders/comp_id_write.vert");
 		String f_comp_id_write = util::read_file("shaders/comp_id_write.frag");
 		m_comp_id_program = make_unique<GLSLProgram>(v_comp_id_write.c_str(), f_comp_id_write.c_str());
+		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_axis = util::read_file("shaders/axis.vert");
 		String f_axis = util::read_file("shaders/axis.frag");
 		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
+		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_clp_plane = util::read_file("shaders/clp_plane.vert");
 		String f_clp_plane = util::read_file("shaders/clp_plane.frag");
 		m_clip_plane_shader = make_unique<GLSLProgram>(v_clp_plane.c_str(), f_clp_plane.c_str());
+		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_test = util::read_file("shaders/test.vert");
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
+		m_test_shader->bindUniformBlock("TransformsUBO", 0);
+		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
 
 		String v_bbx = util::read_file("shaders/bbx.vert");
 		String f_bbx = util::read_file("shaders/bbx.frag");
 		m_select_bbx_shader = make_unique<GLSLProgram>(v_bbx.c_str(), f_bbx.c_str());
+		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_edge = util::read_file("shaders/edge.vert");
 		String f_edge = util::read_file("shaders/edge.frag");
 		m_edge_shader = make_unique<GLSLProgram>(v_edge.c_str(), f_edge.c_str());
+		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 #else 
 		// program init
@@ -64,20 +72,18 @@ namespace ifcre {
 		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
 		m_edge_shader= make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
-#endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
-
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
-		// ----- ----- ----- ----- ----- -----
+#endif
 
 		// -------------- render init --------------
-		glLineWidth(3.0f);
+		glLineWidth(3.0f); //设置线宽
 		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
@@ -118,8 +124,8 @@ namespace ifcre {
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
 			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClearColor(color.x, color.y, color.z, color.w); // 设置背景颜色
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
 			glClearDepthf(1.0);
 			m_normal_depth_program->use();
 			m_normal_depth_program->setMat4("mvp", m_projection * m_modelview);
@@ -129,7 +135,7 @@ namespace ifcre {
 		case COMP_ID_WRITE: {
 			auto& color = m_depnor_value;
 			glClearColor(color.x, color.y, color.z, color.w);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
 			glClearDepthf(1.0);
 			m_comp_id_program->use();
 			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
@@ -138,7 +144,7 @@ namespace ifcre {
 		case DEFAULT_SHADING: {
 			auto& color = m_bg_color;
 			glClearColor(color.r, color.g, color.b, color.a);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
 			m_test_shader->use();
 
 			m_test_shader->setMat4("modelview", m_modelview);
@@ -151,7 +157,7 @@ namespace ifcre {
 		}
 		case TRANSPARENCY_SHADING: {
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// 清除颜色、深度缓冲
 			glBlendEquation(GL_FUNC_ADD);
 
 			m_test_shader->use();
@@ -225,9 +231,9 @@ namespace ifcre {
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
+			glEnable(GL_BLEND); //启用混合（可以使用透明物体）
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
+			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
 
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
@@ -290,6 +296,14 @@ namespace ifcre {
 			vb->drawEdges();
 			break;
 		}
+		case 7: {//draw dynamic no trans
+			vb->drawByDynamicEbo_no_trans();
+			break;
+		}
+		case 8: {//draw dynamic trans
+			vb->drawByDynamicEbo_trans();
+			break;
+		}
 		default: {
 			vb->drawByAddedEbo(local_render_id);
 			break;
@@ -298,25 +312,31 @@ namespace ifcre {
 		glDisable(GL_BLEND);
 	}
 
-	void GLRender::renderClipPlane(const bool hidden, ClipPlane clip_plane) {
+	void GLRender::renderClipBox(const bool hidden, ClipBox clip_box) {
 		static uint32_t plane_vao;
+		static uint32_t plane_vbo, plane_ebo;
+		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
 		static bool firstPlane = true;
 		if (firstPlane) {
-			float k = 15.f;
+			float k = .5f;
 			float coord_plane[] = {
-				-k,0.f,-k,
-				k,0.f,-k,
-				k,0.f,k,
-				k,0.f,k,
-				-k,0.f,k,
-				-k,0.f,-k
+				-k,-k, -k,
+				 k,-k, -k,
+				 k,-k, k,
+				-k,-k, k,
+				-k, k, -k,
+				 k, k, -k,
+				 k, k, k,
+				-k, k, k
 			};
-			uint32_t plane_vbo;
 			glGenVertexArrays(1, &plane_vao);
 			glGenBuffers(1, &plane_vbo);
+			glGenBuffers(1, &plane_ebo);
 			glBindVertexArray(plane_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, plane_vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_plane), &coord_plane, GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plane_ebo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_element_buffer_object.size() * sizeof(uint32_t), cube_element_buffer_object.data(), GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			firstPlane = false;
@@ -328,12 +348,12 @@ namespace ifcre {
 			glBlendEquation(GL_FUNC_ADD);
 
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_plane.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_box.toMat()));
 			m_clip_plane_shader->use();
-			glBindVertexArray(plane_vao);/*
-			glDisable(DEPTH_TEST);
-			glDepthFunc(GL_ALWAYS);*/
-			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glBindVertexArray(plane_vao);
+			glDepthMask(GL_FALSE);
+			glDrawElements(GL_TRIANGLES, cube_element_buffer_object.size(), GL_UNSIGNED_INT, 0);
+			glDepthMask(GL_TRUE);
 			glDisable(GL_BLEND);
 			_defaultConfig();
 		}
@@ -383,7 +403,7 @@ namespace ifcre {
 		model = trans_click_center * model;
 
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));// 更新mvp
 		m_axis_shader->use();
 		glBindVertexArray(axis_vao);
 		glDisable(DEPTH_TEST);
@@ -399,7 +419,7 @@ namespace ifcre {
 		static uint32_t off_vao;
 		if (first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords
+			// positions   // texCoords	// 位置 纹理坐标
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			-1.0f, -1.0f,  0.0f, 0.0f,
 			 1.0f, -1.0f,  1.0f, 0.0f,
@@ -415,9 +435,9 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);					
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); 
 			
 			first = false;
 		}
@@ -447,7 +467,7 @@ namespace ifcre {
 
 		if (!first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords
+			// positions   // texCoords	// 位置 纹理坐标
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			-1.0f, -1.0f,  0.0f, 0.0f,
 			 1.0f, -1.0f,  1.0f, 0.0f,
@@ -463,40 +483,40 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);						// 读入顶点数据
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));		//读入纹理数据
 
 			first = true;
 		}
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());
+		glActiveTexture(GL_TEXTURE0); // texture 0 // 在绑定之前激活相应的纹理单元
+		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());// 获取颜色纹理序号 并绑定
 		if (w.getDepthNormalTexId() != -1) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());
+			glActiveTexture(GL_TEXTURE1); // texture 1 // 在绑定之前激活相应的纹理单元
+			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());// 获取深度纹理序号 并绑定
 		}
-		m_offscreen_program->use();
+		m_offscreen_program->use(); // 激活着色器程序 //进行渲染
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
 
-		glm::vec2 win_size = w.getWindowSize();
-		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y);
-		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);
+		glm::vec2 win_size = w.getWindowSize(); //获取存储屏幕大小
+		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y); //获取纹理到屏幕缩放比例
+		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);//以uniform形式传给vertex shader
 
 		glDisable(GL_DEPTH_TEST);
 		glBindVertexArray(off_vao);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		glClear(GL_COLOR_BUFFER_BIT); // 清空颜色缓冲
+		glDrawArrays(GL_TRIANGLES, 0, 6); // 渲染两个三角形
 		_defaultConfig();
 	}
 
 	void GLRender::_defaultConfig()
 	{
-		glBindVertexArray(0);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		glEnable(GL_MULTISAMPLE);
+		glBindVertexArray(0);		// 当我们打算绘制物体的时候就拿出相应的VAO，绑定它，绘制完物体后，再解绑VAO
+		glEnable(GL_DEPTH_TEST);	// 启用深度测试
+		glDepthFunc(GL_LESS);		// 丢弃深度值大于等于当前深度缓冲值的所有片段 （默认设置，画家）
+		glEnable(GL_MULTISAMPLE);	// 启用多重采样
 	}
 
 	void GLRender::enableTest(GLTestEnum test)
@@ -524,7 +544,7 @@ namespace ifcre {
 		switch (test) {
 		case 0x01: {
 			glDisable(GL_DEPTH_TEST);
-			glDisable(GL_CULL_FACE);
+			glDisable(GL_CULL_FACE);  //启用面剔除 
 			break;
 		}
 		case 0x02: {
@@ -581,6 +601,10 @@ namespace ifcre {
 
 	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
+	}
+
+	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices) {
+		m_vertex_buffer_map[render_id]->upoadDynamicElementBuffer(no_trans_indices, trans_indices);
 	}
 
 	void GLRender::setViewMatrix(const glm::mat4& view) {

@@ -20,6 +20,7 @@
     <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
+    <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -58,6 +59,7 @@
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
+    <ClInclude Include="src\ifcre\mesh_simplier.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -96,6 +98,10 @@
     <None Include="..\workdir\shaders\edge.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="..\workdir\shaders\clp_plane.frag" />
+    <None Include="..\workdir\shaders\clp_plane.vert" />
+    <None Include="..\workdir\shaders\test.frag" />
+    <None Include="..\workdir\shaders\test.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

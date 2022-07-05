@@ -32,6 +32,38 @@ public:
     }
 };
 
+struct Properties {
+public:
+    unordered_map<string, string> propertySet;
+};
+
+struct Datas4Component {
+
+    unsigned int count_id;
+
+    //related to geometry datas
+    unsigned int edge_index_start;
+    unsigned int edge_index_end;
+
+    unsigned int mat_index_start;
+    unsigned int mat_index_end;
+
+    /*Datas2OpenGL* meta_datas;
+
+    vector<unsigned int> this_meshes_indices() {
+        return meta_datas->search_m[count_id];
+    }*/
+
+    //related to properties
+    string name;
+    string description;
+    string guid;
+    string type;
+
+    vector<Properties> propertySet;
+
+};
+
 struct Datas2OpenGL {
     vector<unsigned int> vert_indices;
     vector<unsigned int> edge_indices;
@@ -39,4 +71,6 @@ struct Datas2OpenGL {
     vector<real_t> verts;
     vector<real_t> vert_normals2;
     vector<Material_new> face_mat;
+
+    vector<Datas4Component> componentDatas;
 };
