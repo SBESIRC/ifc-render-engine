@@ -172,14 +172,13 @@ namespace ifcre {
 		geomframe = m_window.geomframe;
 
 		Vector<uint32_t> comp_ids;
-		//for (int i = 0; i < ifc_test_model->g_indices.size(); ++i) {
 		for (int i = 0; i < ifc_test_model->c_indices.size() / 3; ++i) {
 			comp_ids.emplace_back(i);
 		}
 
 		Vector<uint32_t> trans_comp_ids;
 		Vector<uint32_t> no_trans_comp_ids;
-		ifc_test_model->divide_chose_geom_by_alpha(geomframe, comp_ids, trans_comp_ids, no_trans_comp_ids, true);
+		ifc_test_model->divide_chose_geom_by_alpha(geomframe, comp_ids, trans_comp_ids, no_trans_comp_ids);
 		if (m_window.geomchanged) {
 			m_render.DynamicUpdate(ifc_test_model->render_id, no_trans_comp_ids, trans_comp_ids);
 			m_window.geomchanged = false;

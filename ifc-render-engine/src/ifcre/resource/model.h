@@ -243,8 +243,7 @@ namespace ifcre {
 			no_trans_ind = no_transparency_ind;
 		}
 
-		void divide_chose_geom_by_alpha(int seed, Vector<uint32_t> comp_ids,
-			Vector<uint32_t>& trans_comp_ids, Vector<uint32_t>& no_trans_comp_ids, bool reverse_select = false) {
+		void divide_chose_geom_by_alpha(int seed, Vector<uint32_t> comp_ids, Vector<uint32_t>& trans_comp_ids, Vector<uint32_t>& no_trans_comp_ids) {
 			if (seed == 0) {
 				trans_comp_ids = trans_ind;
 				no_trans_comp_ids = no_trans_ind;
@@ -255,40 +254,12 @@ namespace ifcre {
 				no_trans_comp_ids = {};
 				return;
 			}
-			if (reverse_select) {
-				unordered_set<uint32_t> trans_comp_ids_set;
-				unordered_set<uint32_t> no_trans_comp_ids_set;
-				int v_count = 0;
-				for (int i = 0; i < comp_ids.size(); ++i) {
-					//if (material_data[c_indices[comp_ids[i]][0] / 3].alpha < 1) {
-					if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
-						trans_comp_ids_set.insert(comp_ids[i]);
-					}
-					else {
-						no_trans_comp_ids_set.insert(comp_ids[i]);
-					}
+			for (int i = 0; i < comp_ids.size(); ++i) {
+				if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
+					trans_comp_ids.insert(trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
 				}
-				for (int i = 0; i < c_indices.size(); ++i) {
-					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
-						if (trans_comp_ids_set.find(i) == trans_comp_ids_set.end()) {
-							trans_comp_ids.insert(trans_comp_ids.end(), c_indices[i].begin(), c_indices[i].end());
-						}
-					}
-					else {
-						if (no_trans_comp_ids_set.find(i) == no_trans_comp_ids_set.end()) {
-							no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[i].begin(), c_indices[i].end());
-						}
-					}
-				}
-			}
-			else {
-				for (int i = 0; i < comp_ids.size(); ++i) {
-					if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
-						trans_comp_ids.insert(trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
-					}
-					else {
-						no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
-					}
+				else {
+					no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
 				}
 			}
 		}
