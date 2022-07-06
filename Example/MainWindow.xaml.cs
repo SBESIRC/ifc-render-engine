@@ -74,5 +74,16 @@ namespace Example {
             var id = Example.ExampleScene.GetCurrentCompID();
             System.Windows.Forms.MessageBox.Show(id.ToString());
         }
-    }
+
+		private void Button_Click_2(object sender, RoutedEventArgs e)
+		{
+            string s = "";
+            for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
+			{
+                s += i.ToString();
+                s += ",";
+			}
+            Example.ExampleScene.SetSelectCompIDs(s);
+        }
+	}
 }

@@ -28,6 +28,10 @@ namespace Example {
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern int ifcre_get_comp_id();
 
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_comp_ids();
+
+
         public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {
             ifcre_set_config("width", width.ToString());
@@ -61,6 +65,12 @@ namespace Example {
         {
             int i = ifcre_get_comp_id();
             return i;
+        }
+
+        public static void SetSelectCompIDs(string selected_comp_ids)
+        {
+            ifcre_set_config("selectIds", selected_comp_ids);
+            ifcre_set_comp_ids();
         }
     }
 }

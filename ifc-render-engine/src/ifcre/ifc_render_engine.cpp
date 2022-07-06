@@ -5,6 +5,7 @@
 #include <chrono>
 #include <thread>
 #include<iostream>
+#include <sstream>
 
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
@@ -169,24 +170,22 @@ namespace ifcre {
 	void IFCRenderEngine::changeGeom() {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
-		geomframe = m_window.geomframe;
 
-		Vector<uint32_t> comp_ids;
-		for (int i = 0; i < ifc_test_model->c_indices.size() / 3; ++i) {
-			comp_ids.emplace_back(i);
-		}
-
-		Vector<uint32_t> trans_comp_ids;
-		Vector<uint32_t> no_trans_comp_ids;
-		ifc_test_model->divide_chose_geom_by_alpha(geomframe, comp_ids, trans_comp_ids, no_trans_comp_ids);
 		if (m_window.geomchanged) {
-			m_render.DynamicUpdate(ifc_test_model->render_id, no_trans_comp_ids, trans_comp_ids);
+			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->cur_no_trans_ind, ifc_test_model->cur_trans_ind);
 			m_window.geomchanged = false;
 		}
 	}
 
-	void IFCRenderEngine::setSelectCompIds(Vector<uint32_t> comp_ids, bool reverse_select = false) {
+	void IFCRenderEngine::setSelectCompIds() {
+		auto& m_window = *m_render_window;
+		m_window.geomframe++;
+		m_window.geomframe %= 2;
+		geomframe = m_window.geomframe;
 
+		auto& configs = m_cache_configs;
+		ifc_test_model->divide_chose_geom_by_alpha(geomframe, configs["selectIds"]);
+		m_window.geomchanged = true;
 	}
 
 	int IFCRenderEngine::getSelectedCompId()

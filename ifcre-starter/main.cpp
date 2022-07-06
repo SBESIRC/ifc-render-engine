@@ -14,12 +14,14 @@ typedef void (*ifcre_set_config)(const char* key, const char* value);
 typedef void (*ifcre_init)(void *);
 typedef void (*ifcre_run)();
 typedef int (*ifcre_get_comp_id)();
+typedef void (*ifcre_set_comp_ids)();
 
 struct ifcre {
 	ifcre_set_config set_config;
 	ifcre_init init;
 	ifcre_run run;
 	ifcre_get_comp_id get_comp_id;
+	ifcre_set_comp_ids set_comp_ids;
 	bool loaded = false;
 };
 
@@ -35,6 +37,7 @@ void create_ifcre(ifcre* re) {
 	re->init = (ifcre_init)GetProcAddress(module, "ifcre_init");
 	re->run = (ifcre_run)GetProcAddress(module, "ifcre_run");
 	re->get_comp_id = (ifcre_get_comp_id)GetProcAddress(module, "ifcre_get_comp_id");
+	re->set_comp_ids = (ifcre_set_comp_ids)GetProcAddress(module, "ifcre_set_comp_ids");
 	if (re->set_config != nullptr
 		&& re->init != nullptr
 		&& re->run != nullptr

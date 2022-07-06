@@ -19,6 +19,7 @@ namespace ifcre {
 		//virtual void initialize(Map<String, String> &configs) = 0;
 		virtual void run() = 0;
 		virtual int getSelectedCompId() = 0;
+		virtual void setSelectCompIds() = 0;
 	};
 
 
@@ -29,7 +30,7 @@ namespace ifcre {
 		void init(GLFWwindow *);
 		void run();
 		int getSelectedCompId();
-		void setSelectCompIds(Vector<uint32_t> comp_ids, bool reverse_select);
+		void setSelectCompIds();
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();

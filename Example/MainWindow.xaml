@@ -10,15 +10,17 @@
     Height="1000" Closing="Window_Closing">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="80*"></RowDefinition>
+            <RowDefinition Height="70*"></RowDefinition>
+            <RowDefinition Height="10*"></RowDefinition>
             <RowDefinition Height="10*"></RowDefinition>
             <RowDefinition Height="10*"></RowDefinition>
         </Grid.RowDefinitions>
         <WindowsFormsHost Name="formHost" Width="auto" Height="auto" Initialized="formHost_Initialized">
         </WindowsFormsHost>
         <Button Click="Button_Click" Height="40" Grid.Row="1">Start</Button>
-        <Button Click="Button_Click_1" Height="40" Grid.Row="2">Show Component ID</Button>
+        <TextBox x:Name="tbIdsToShow" Grid.Row="2" Height="30" Width="100" HorizontalAlignment="Left"></TextBox>
+        <Button Click="Button_Click_1" Height="40" Grid.Row="3" Margin="845,30,0,29">Show Component ID</Button>
+        <Button Click="Button_Click_2" Height="40"  Grid.Row="3" Margin="0,30,834,29">Set selected ids</Button>
     </Grid>
-
 
 </Window>

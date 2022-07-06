@@ -164,7 +164,7 @@ namespace ifcre {
             }
         }
 
-		/* static SharedPtr<IFCModel> load(String file) {
+		/*static SharedPtr<IFCModel> load(String file) {
 #ifdef _DEBUG
 			 file += ".midfile";
 			 ifstream is(file.c_str(), std::ios::binary);
@@ -172,11 +172,11 @@ namespace ifcre {
 			 is.close();
 #else
 			 Datas2OpenGL ge = generateIFCMidfile(file);
-			 ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+			 ifcsaver::save_data2OpenGL_into_binary(ge, file) +".midfile");
 #endif
 			 auto ret = make_shared<IFCModel>(ge);
 			 return ret;
-		 }*/
+		}*/
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());
 		}

@@ -241,6 +241,8 @@ namespace ifcre {
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
+			cur_trans_ind = transparency_ind;
+			cur_no_trans_ind = no_transparency_ind;
 		}
 
 		void divide_chose_geom_by_alpha(int seed, Vector<uint32_t> comp_ids, Vector<uint32_t>& trans_comp_ids, Vector<uint32_t>& no_trans_comp_ids) {
@@ -264,6 +266,37 @@ namespace ifcre {
 			}
 		}
 
+		void divide_chose_geom_by_alpha(int seed, String s_comp_ids) {
+			if (seed == 0) {
+				cur_trans_ind = trans_ind;
+				cur_no_trans_ind = no_trans_ind;
+				return;
+			}
+			if (s_comp_ids.size() == 0) {
+				cur_trans_ind = {};
+				cur_no_trans_ind = {};
+				return;
+			}
+			cur_trans_ind = {};
+			cur_no_trans_ind = {};
+
+			String s_comp_id;
+			stringstream input(s_comp_ids);
+			uint32_t c_indices_size = c_indices.size() - 1;
+			while (getline(input, s_comp_id, ',')) {
+				uint32_t cur_index = stoi(s_comp_id);
+				if (cur_index > c_indices_size) {
+					continue;
+				}
+				if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
+					cur_trans_ind.insert(cur_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+				}
+				else {
+					cur_no_trans_ind.insert(cur_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+				}
+			}
+		}
+		
 		/*Vector<uint32_t> no_trans_geom_random_chose(int seed) {
 			if (seed == 0)
 				return no_trans_ind;
@@ -406,8 +439,8 @@ namespace ifcre {
 		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
 		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为顶点个数
-		Vector<uint32_t> trans_ind;				// 透明顶点的索引
-		Vector<uint32_t> no_trans_ind;			// 不透明顶点的索引
+		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
+		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
 		Vector<uint32_t> edge_indices;			// 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
@@ -415,6 +448,8 @@ namespace ifcre {
 		//Vector<vector<uint32_t>> trans_c_indices;			// 透明物体的的顶点的索引
 		unordered_set<uint32_t> no_trans_c_indices_set;		// 不透明物体的索引
 		unordered_set<uint32_t> trans_c_indices_set;		// 透明物体的索引
+		Vector<uint32_t> cur_trans_ind;			// 当前透明顶点的索引
+		Vector<uint32_t> cur_no_trans_ind;		// 当前不透明顶点的索引
 
 	private:
 		glm::mat4 m_model;						
