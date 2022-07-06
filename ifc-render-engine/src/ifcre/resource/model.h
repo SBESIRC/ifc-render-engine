@@ -9,6 +9,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <unordered_set>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Ifc2OpenGLDatas.h>
@@ -225,14 +226,16 @@ namespace ifcre {
 					no_transparency_ind.emplace_back(g_indices[i]);
 			}*/
 			int v_count = 0;
-			for (int i = 0; i < c_indices.size(); i++) {
+			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[v_count / 3].alpha < 1) {
 					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					trans_c_indices.emplace_back(c_indices[i]);
+					//trans_c_indices.emplace_back(c_indices[i]);
+					trans_c_indices_set.insert(i);
 				}
 				else {
 					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					no_trans_c_indices.emplace_back(c_indices[i]);
+					//no_trans_c_indices.emplace_back(c_indices[i]);
+					no_trans_c_indices_set.insert(i);
 				}
 				v_count += c_indices[i].size();
 			}
@@ -240,7 +243,57 @@ namespace ifcre {
 			no_trans_ind = no_transparency_ind;
 		}
 
-		Vector<uint32_t> no_trans_geom_random_chose(int seed) {
+		void divide_chose_geom_by_alpha(int seed, Vector<uint32_t> comp_ids,
+			Vector<uint32_t>& trans_comp_ids, Vector<uint32_t>& no_trans_comp_ids, bool reverse_select = false) {
+			if (seed == 0) {
+				trans_comp_ids = trans_ind;
+				no_trans_comp_ids = no_trans_ind;
+				return;
+			}
+			if (comp_ids.empty()) {
+				trans_comp_ids = {};
+				no_trans_comp_ids = {};
+				return;
+			}
+			if (reverse_select) {
+				unordered_set<uint32_t> trans_comp_ids_set;
+				unordered_set<uint32_t> no_trans_comp_ids_set;
+				int v_count = 0;
+				for (int i = 0; i < comp_ids.size(); ++i) {
+					//if (material_data[c_indices[comp_ids[i]][0] / 3].alpha < 1) {
+					if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
+						trans_comp_ids_set.insert(comp_ids[i]);
+					}
+					else {
+						no_trans_comp_ids_set.insert(comp_ids[i]);
+					}
+				}
+				for (int i = 0; i < c_indices.size(); ++i) {
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						if (trans_comp_ids_set.find(i) == trans_comp_ids_set.end()) {
+							trans_comp_ids.insert(trans_comp_ids.end(), c_indices[i].begin(), c_indices[i].end());
+						}
+					}
+					else {
+						if (no_trans_comp_ids_set.find(i) == no_trans_comp_ids_set.end()) {
+							no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[i].begin(), c_indices[i].end());
+						}
+					}
+				}
+			}
+			else {
+				for (int i = 0; i < comp_ids.size(); ++i) {
+					if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
+						trans_comp_ids.insert(trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
+					}
+					else {
+						no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
+					}
+				}
+			}
+		}
+
+		/*Vector<uint32_t> no_trans_geom_random_chose(int seed) {
 			if (seed == 0)
 				return no_trans_ind;
 			if (no_trans_c_indices.empty())
@@ -268,7 +321,7 @@ namespace ifcre {
 				ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
 			}
 			return ret;
-		}
+		}*/
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
@@ -387,8 +440,10 @@ namespace ifcre {
 		Vector<uint32_t> edge_indices;			// 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
-		Vector<vector<uint32_t>> no_trans_c_indices;	// 不透明物体的索引
-		Vector<vector<uint32_t>> trans_c_indices;		// 透明物体的索引
+		//Vector<vector<uint32_t>> no_trans_c_indices;		// 不透明物体的顶点的索引
+		//Vector<vector<uint32_t>> trans_c_indices;			// 透明物体的的顶点的索引
+		unordered_set<uint32_t> no_trans_c_indices_set;		// 不透明物体的索引
+		unordered_set<uint32_t> trans_c_indices_set;		// 透明物体的索引
 
 	private:
 		glm::mat4 m_model;						
@@ -401,7 +456,7 @@ namespace ifcre {
 		Vector<Real> g_vertices;				// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_kd_color;				// 依次存储各个顶点(漫反射项)颜色的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_normals;					// 依次存储各个顶点法向量的x、y、z信息，数量为顶点数量的三倍
-		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为定点的个数
+		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
 	};
 	
 

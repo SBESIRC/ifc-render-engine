@@ -29,6 +29,7 @@ namespace ifcre {
 		void init(GLFWwindow *);
 		void run();
 		int getSelectedCompId();
+		void setSelectCompIds(Vector<uint32_t> comp_ids, bool reverse_select);
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();

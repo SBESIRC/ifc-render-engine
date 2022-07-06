@@ -149,17 +149,45 @@ namespace ifcre {
 		}
 	}
 
+	//void IFCRenderEngine::changeGeom() {
+	//	auto& m_render = *m_glrender;
+	//	auto& m_window = *m_render_window;
+	//	geomframe = m_window.geomframe;
+	//	if (m_window.geomchanged) {
+	//		// memory leak here
+	//		/*m_render.DynamicUpdate(ifc_test_model->render_id
+	//			, ifc_test_model->no_trans_geom_random_chose(geomframe),
+	//			ifc_test_model->trans_geom_random_chose(geomframe));*/
+	//		
+	//		m_render.DynamicUpdate(ifc_test_model->render_id
+	//			, ifc_test_model->no_trans_geom_chose(geomframe, true),
+	//			ifc_test_model->trans_geom_chose(geomframe, true));
+	//		m_window.geomchanged = false;
+	//	}
+	//}
+
 	void IFCRenderEngine::changeGeom() {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 		geomframe = m_window.geomframe;
+
+		Vector<uint32_t> comp_ids;
+		//for (int i = 0; i < ifc_test_model->g_indices.size(); ++i) {
+		for (int i = 0; i < ifc_test_model->c_indices.size() / 3; ++i) {
+			comp_ids.emplace_back(i);
+		}
+
+		Vector<uint32_t> trans_comp_ids;
+		Vector<uint32_t> no_trans_comp_ids;
+		ifc_test_model->divide_chose_geom_by_alpha(geomframe, comp_ids, trans_comp_ids, no_trans_comp_ids, true);
 		if (m_window.geomchanged) {
-			// memory leak here
-			m_render.DynamicUpdate(ifc_test_model->render_id
-				, ifc_test_model->no_trans_geom_random_chose(geomframe),
-				ifc_test_model->trans_geom_random_chose(geomframe));
+			m_render.DynamicUpdate(ifc_test_model->render_id, no_trans_comp_ids, trans_comp_ids);
 			m_window.geomchanged = false;
 		}
+	}
+
+	void IFCRenderEngine::setSelectCompIds(Vector<uint32_t> comp_ids, bool reverse_select = false) {
+
 	}
 
 	int IFCRenderEngine::getSelectedCompId()
