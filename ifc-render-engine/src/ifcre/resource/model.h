@@ -267,14 +267,9 @@ namespace ifcre {
 		}
 
 		void divide_chose_geom_by_alpha(int seed, String s_comp_ids) {
-			if (seed == 0) {
+			if (seed == 0 || s_comp_ids.size() == 0) {
 				cur_trans_ind = trans_ind;
 				cur_no_trans_ind = no_trans_ind;
-				return;
-			}
-			if (s_comp_ids.size() == 0) {
-				cur_trans_ind = {};
-				cur_no_trans_ind = {};
 				return;
 			}
 			cur_trans_ind = {};

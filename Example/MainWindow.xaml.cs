@@ -78,11 +78,13 @@ namespace Example {
 		private void Button_Click_2(object sender, RoutedEventArgs e)
 		{
             string s = "";
-            for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
-			{
-                s += i.ToString();
-                s += ",";
-			}
+            if(tbIdsToShow.Text != ""){
+                for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
+                {
+                    s += i.ToString();
+                    s += ",";
+                }
+            }
             Example.ExampleScene.SetSelectCompIDs(s);
         }
 	}

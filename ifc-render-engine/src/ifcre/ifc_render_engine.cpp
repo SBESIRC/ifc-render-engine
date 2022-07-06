@@ -178,6 +178,9 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::setSelectCompIds() {
+		if (m_render_window == nullptr) {
+			return;
+		}
 		auto& m_window = *m_render_window;
 		m_window.geomframe++;
 		m_window.geomframe %= 2;
