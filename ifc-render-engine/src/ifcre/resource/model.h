@@ -245,27 +245,6 @@ namespace ifcre {
 			cur_no_trans_ind = no_transparency_ind;
 		}
 
-		void divide_chose_geom_by_alpha(int seed, Vector<uint32_t> comp_ids, Vector<uint32_t>& trans_comp_ids, Vector<uint32_t>& no_trans_comp_ids) {
-			if (seed == 0) {
-				trans_comp_ids = trans_ind;
-				no_trans_comp_ids = no_trans_ind;
-				return;
-			}
-			if (comp_ids.empty()) {
-				trans_comp_ids = {};
-				no_trans_comp_ids = {};
-				return;
-			}
-			for (int i = 0; i < comp_ids.size(); ++i) {
-				if (trans_c_indices_set.find(comp_ids[i]) != trans_c_indices_set.end()) {
-					trans_comp_ids.insert(trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
-				}
-				else {
-					no_trans_comp_ids.insert(no_trans_comp_ids.end(), c_indices[comp_ids[i]].begin(), c_indices[comp_ids[i]].end());
-				}
-			}
-		}
-
 		void divide_chose_geom_by_alpha(int seed, String s_comp_ids) {
 			if (seed == 0 || s_comp_ids.size() == 0) {
 				cur_trans_ind = trans_ind;
@@ -433,7 +412,7 @@ namespace ifcre {
 		uint32_t render_id;// seems a render_id combine with an array of vertex?
 		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
 		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
-		Vector<uint32_t> g_indices;				// 顶点的索引，数量为顶点个数
+		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
 		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
 		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
 		Vector<uint32_t> edge_indices;			// 
@@ -453,7 +432,7 @@ namespace ifcre {
 		Real m_scale_factor;					// 整个模型的缩放系数
 		glm::vec3 pMin, pMax;					// 整个模型的bbx信息
 		glm::vec3 m_center;						// 整个模型的中心信息
-		Vector<MaterialData> material_data;		// 存各个面的材质属性，每个面都有8项属性，数量为面的数量、顶点数量的1/3
+		Vector<MaterialData> material_data;		// 存各个面的材质属性，每个面都有8项属性，数量为面的数量
 		Vector<Real> g_vertices;				// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_kd_color;				// 依次存储各个顶点(漫反射项)颜色的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_normals;					// 依次存储各个顶点法向量的x、y、z信息，数量为顶点数量的三倍

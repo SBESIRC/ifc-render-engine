@@ -13,14 +13,13 @@
             <RowDefinition Height="70*"></RowDefinition>
             <RowDefinition Height="10*"></RowDefinition>
             <RowDefinition Height="10*"></RowDefinition>
-            <RowDefinition Height="10*"></RowDefinition>
         </Grid.RowDefinitions>
         <WindowsFormsHost Name="formHost" Width="auto" Height="auto" Initialized="formHost_Initialized">
         </WindowsFormsHost>
-        <Button Click="Button_Click" Height="40" Grid.Row="1">Start</Button>
-        <TextBox x:Name="tbIdsToShow" Grid.Row="2" Height="30" Width="100" HorizontalAlignment="Left"></TextBox>
-        <Button Click="Button_Click_1" Height="40" Grid.Row="3" Margin="845,30,0,29">Show Component ID</Button>
-        <Button Click="Button_Click_2" Height="40"  Grid.Row="3" Margin="0,30,834,29">Set selected ids</Button>
+        <Button Click="Button_Click" Grid.Row="1" Margin="0,10,805,10">Start</Button>
+        <TextBox x:Name="tbIdsToShow" Grid.Row="2" Width="158" HorizontalAlignment="Left" Margin="0,10,0,10"/>
+        <Button Click="Button_Click_1" Grid.Row="1" Margin="800,10,0,10">Show Component ID</Button>
+        <Button Click="Button_Click_2"  Grid.Row="2" Margin="163,10,0,10">Set selected ids</Button>
     </Grid>
 
 </Window>

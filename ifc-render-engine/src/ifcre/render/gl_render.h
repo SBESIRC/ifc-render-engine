@@ -25,11 +25,11 @@ namespace ifcre {
 		Real a;
 	};
 
-	class GLRender{
-	public: 
+	class GLRender {
+	public:
 		GLRender();
-		
-	// ----------- low-level interfaces ---------------
+
+		// ----------- low-level interfaces ---------------
 		void clearFrameBuffer(GLClearEnum clear, GLColor* color = nullptr, Real depth = 1.0f);
 
 		void enableTest(GLTestEnum test);
@@ -40,7 +40,7 @@ namespace ifcre {
 		void enableMultiSample();
 		void disableMultiSample();
 
-	// ----- ----- ----- ----- ----- ----- ----- -----
+		// ----- ----- ----- ----- ----- ----- ----- -----
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
@@ -57,7 +57,8 @@ namespace ifcre {
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
 		void setClippingPlane(const glm::vec4& clip_plane);
-	// --------------- render ----------------------
+		void setClippingBox(const Vector<glm::vec4>& clip_box);
+		// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
@@ -66,7 +67,7 @@ namespace ifcre {
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
-	// ----- ----- ----- ----- ----- ----- ----- -----
+		// ----- ----- ----- ----- ----- ----- ----- -----
 
 	private:
 		Map<uint32_t, SharedPtr<GLVertexBuffer>> m_vertex_buffer_map;
@@ -85,6 +86,7 @@ namespace ifcre {
 		int m_hoverCompId;
 
 		glm::vec4 m_clip_plane;
+		Vector<glm::vec4> m_clip_box;// m_clip_box.size() MUST be 6!
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
@@ -100,7 +102,7 @@ namespace ifcre {
 	private:
 		void _defaultConfig();
 
-	// render option
+		// render option
 	private:
 		const glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);

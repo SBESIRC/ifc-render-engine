@@ -152,31 +152,39 @@ namespace ifcre {
 	class IFCParser {
 		// TODO
     public:
-       static SharedPtr<IFCModel> load(String file) {
-            if (endsWith(file, "midfile")) {
-                auto ret = make_shared<IFCModel>(file);
-                return ret;
-            }
-            else {
-                auto ge = generateIFCMidfile(file);
-                auto ret = make_shared<IFCModel>(ge);
-                return ret;
-            }
-        }
+		//static SharedPtr<IFCModel> load(String file) {
+		//	if (endsWith(file, "midfile")) {
+		//		auto ret = make_shared<IFCModel>(file);
+		//		return ret;
+		//	}
+		//	else {
+		//		auto ge = generateIFCMidfile(file);
+		//		auto ret = make_shared<IFCModel>(ge);
+		//		return ret;
+		//	}
+		//}
 
-		/*static SharedPtr<IFCModel> load(String file) {
-#ifdef _DEBUG
-			 file += ".midfile";
-			 ifstream is(file.c_str(), std::ios::binary);
-			 Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-			 is.close();
+	   static SharedPtr<IFCModel> load(String file) {
+		   if (endsWith(file, "midfile")) {
+			   ifstream is(file.c_str(), std::ios::binary);
+			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			   is.close();
+			   return make_shared<IFCModel>(ge);
+		   }
+		   else {
+#if _DEBUG
+			   file += ".midfile";
+			   ifstream is(file.c_str(), std::ios::binary);
+			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			   is.close();
+			   return make_shared<IFCModel>(ge);
 #else
-			 Datas2OpenGL ge = generateIFCMidfile(file);
-			 ifcsaver::save_data2OpenGL_into_binary(ge, file) +".midfile");
+			   Datas2OpenGL ge = generateIFCMidfile(file);
+			   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+			   return make_shared<IFCModel>(ge);
 #endif
-			 auto ret = make_shared<IFCModel>(ge);
-			 return ret;
-		}*/
+		   }
+	   }
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());
 		}

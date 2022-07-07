@@ -12,13 +12,13 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4);
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
 
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4));
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 7);
 		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 
 #ifdef _DEBUG
@@ -83,7 +83,7 @@ namespace ifcre {
 #endif
 
 		// -------------- render init --------------
-		glLineWidth(3.0f); //设置线宽
+		glLineWidth(1.5f); //设置线宽
 		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
@@ -209,6 +209,7 @@ namespace ifcre {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
+			transformMVPUBO.update(144, 96, m_clip_box.data());
 			m_comp_id_program->use();
 			break;
 		}
@@ -222,6 +223,7 @@ namespace ifcre {
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -240,6 +242,7 @@ namespace ifcre {
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -248,11 +251,13 @@ namespace ifcre {
 
 			m_test_shader->use();
 			break;
+			break;
 		}
 		case BOUNDINGBOX_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
+			transformMVPUBO.update(144, 96, m_clip_box.data());
 			m_select_bbx_shader->use();
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
 			//m_select_bbx_shader->setMat4("projection", m_projection);
@@ -262,6 +267,7 @@ namespace ifcre {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
+			transformMVPUBO.update(144, 96, m_clip_box.data());
 			m_edge_shader->use();
 			break;
 		}
@@ -275,7 +281,7 @@ namespace ifcre {
 			break;
 		}
 		case 2: {
-			vb->draw();
+			vb->drawByDynamicEbo();
 			break;
 		}
 		case 3: {//draw no trans only
@@ -392,7 +398,7 @@ namespace ifcre {
 		trans_center = glm::translate(trans_center, model_center);
 		model = model * trans_center;
 		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
-		
+
 		float len_ref = glm::length(init_view_pos);
 		float len = glm::length(view_pos - pick_center);
 		//printf("%f\n", scale_factor);
@@ -403,7 +409,7 @@ namespace ifcre {
 		model = trans_click_center * model;
 
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));// 更新mvp
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
 		m_axis_shader->use();
 		glBindVertexArray(axis_vao);
 		glDisable(DEPTH_TEST);
@@ -435,10 +441,10 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);					
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))); 
-			
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
 			first = false;
 		}
 		glActiveTexture(GL_TEXTURE0);
@@ -450,7 +456,7 @@ namespace ifcre {
 		m_offscreen_program->use();
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
-		
+
 		glBindVertexArray(off_vao);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -610,7 +616,7 @@ namespace ifcre {
 	void GLRender::setViewMatrix(const glm::mat4& view) {
 		m_view = view;
 	}
-	
+
 	void GLRender::setModelMatrix(const glm::mat4& model) {
 		m_model = model;
 	}
@@ -648,5 +654,9 @@ namespace ifcre {
 
 	void GLRender::setClippingPlane(const glm::vec4& clip_plane) {
 		m_clip_plane = clip_plane;
+	}
+
+	void GLRender::setClippingBox(const Vector<glm::vec4>& clip_box) {
+		m_clip_box = clip_box;
 	}
 } 
