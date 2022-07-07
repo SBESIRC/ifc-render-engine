@@ -241,11 +241,15 @@ namespace ifcre {
             }
         }
     }
+   
+    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+    // --------------------- construction ---------------------- 
     void errorCallback(int error, const char* description) 
     {
-        
+
     }
-    bool RenderWindow::Init(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
+    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
     {
         glfwSetErrorCallback(errorCallback);
 
@@ -268,7 +272,7 @@ namespace ifcre {
             {
                 std::cout << "Failed to create GLFW window" << std::endl;
                 glfwTerminate();
-                return false;
+                return;
             }
 
             glfwMakeContextCurrent(m_window);
@@ -295,7 +299,7 @@ namespace ifcre {
         {
             load_gl = true;
             std::cout << "Failed to initialize GLAD" << std::endl;
-            return false;
+            return;
         }
 
         if (vsync) {
@@ -307,15 +311,6 @@ namespace ifcre {
 
         createFramebuffer(w, h);
         glViewport(0, 0, w, h);
-        return true;
-    }
-
-    // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
-    // --------------------- construction ----------------------
-    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
-    {
-        Init(title, w, h, aa, vsync, wndPtr);
 	}
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -658,13 +653,13 @@ namespace ifcre {
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         auto& mfb = m_framebuffer;
-        mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
+        //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
-        glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
+        /*glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
 
         mfb.m_default_rt->attach(m_framebuffer.fbo_id);
 
