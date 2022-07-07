@@ -241,12 +241,12 @@ namespace ifcre {
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
-			cur_trans_ind = transparency_ind;
-			cur_no_trans_ind = no_transparency_ind;
+			cur_trans_ind = trans_ind;
+			cur_no_trans_ind = no_trans_ind;
 		}
 
-		void divide_chose_geom_by_alpha(int seed, String s_comp_ids) {
-			if (seed == 0 || s_comp_ids.size() == 0) {
+		void divide_chose_geom_by_alpha(String s_comp_ids) {
+			if (s_comp_ids.size() == 0) {
 				cur_trans_ind = trans_ind;
 				cur_no_trans_ind = no_trans_ind;
 				return;

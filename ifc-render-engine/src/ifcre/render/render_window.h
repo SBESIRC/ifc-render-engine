@@ -168,6 +168,7 @@ namespace ifcre {
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_default_rt;
+			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
 		
@@ -246,6 +247,7 @@ namespace ifcre {
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
 		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
 	};
 
 }

@@ -47,7 +47,7 @@ namespace ifcre {
 		Map<String, String> m_cache_configs;
 		bool m_init;
 		bool try_ifc;
-		int geomframe = 0;
+		//int geomframe = 0;
 		bool use_transparency;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;

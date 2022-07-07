@@ -182,12 +182,9 @@ namespace ifcre {
 			return;
 		}
 		auto& m_window = *m_render_window;
-		m_window.geomframe++;
-		m_window.geomframe %= 2;
-		geomframe = m_window.geomframe;
 
 		auto& configs = m_cache_configs;
-		ifc_test_model->divide_chose_geom_by_alpha(geomframe, configs["selectIds"]);
+		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"]);
 		m_window.geomchanged = true;
 	}
 

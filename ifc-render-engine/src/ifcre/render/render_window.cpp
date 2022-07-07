@@ -333,7 +333,7 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(m_window, true);
         }
-        if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && key_frame_stopper) {
+        /*if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && key_frame_stopper) {
             key_frame_stopper = false;
             geomframe++;
             geomframe %= 3;
@@ -341,7 +341,7 @@ namespace ifcre {
         }
         if (glfwGetKey(m_window, GLFW_KEY_V) == GLFW_PRESS) {
             key_frame_stopper = true;
-        }
+        }*/
         if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
             hidden = true;
         }
@@ -643,7 +643,7 @@ namespace ifcre {
         m_mouse_status.click_comp_id = -1;
         m_mouse_status.hover_comp_id = -1;
         hidden = true;
-        geomframe = 0;
+        //geomframe = 0;
         geomchanged = true;
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -679,6 +679,7 @@ namespace ifcre {
         m_cur_rt = mfb.m_default_rt.get();
 
         mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
