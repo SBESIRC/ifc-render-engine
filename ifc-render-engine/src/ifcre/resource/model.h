@@ -53,93 +53,98 @@ namespace ifcre {
 				material_data[i].ns = datas.face_mat[i].ns;
 				material_data[i].alpha = datas.face_mat[i].a;
 			}
-			getVerColor();
-			generateCompIds();
-			generate_bbxs_by_comps();
-			getVerAttrib();
-			divide_model_by_alpha();
-			end = clock();
-			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
-		}
-		IFCModel(const String ifc_file_name) {
-			const String filename = ifc_file_name;
-
-			std::ifstream is(filename.c_str(), std::ios::binary);
-			if (!is.is_open()) {
-				std::cout << filename << " opened failed.\n";
-				exit(-1);
-			}
-
-			//vertices
-			size_t s;
-			is.read((char*)&s, sizeof(size_t));
-			this->g_vertices.resize(s); // xyzxyzxyz...
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_vertices[i], sizeof(Real));
-			}
-
-			//normals
-			is.read((char*)&s, sizeof(size_t));
-			this->g_normals.resize(s); // xyzxyzxyz...
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_normals[i], sizeof(Real));
-			}
-
-			//global_indices
-			is.read((char*)&s, sizeof(size_t));
-			this->g_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_indices[i], sizeof(unsigned int));
-				this->g_indices[i]--;
-			}
-			//components' indices
-			is.read((char*)&s, sizeof(size_t));
-			size_t tmps;
-			c_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&tmps, sizeof(size_t));
-				Vector<uint32_t> tmpvc(tmps);
-				for (int j = 0; j < tmps; j++) {
-					is.read((char*)&tmpvc[j], sizeof(unsigned int));
-					tmpvc[j]--;
-				}
-				c_indices[i] = tmpvc;
-			}
-
-			//material datas
-			is.read((char*)&s, sizeof(size_t));
-			material_data.resize(s); // 获取面的数量（顶点数量的1/3）
-			Vector<MtlData> mat_vec(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
-				is.read((char*)&mat_vec[i].data[7], sizeof(int));
-			}
-			for (int i = 0; i < s; i++) {
-				material_data[i] = MaterialData(
-					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
-					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
-					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
-			}
 			getVerColor();				// 生成顶点颜色数组
 			generateCompIds();			// 生成顶点到其包含物件的映射
 			generate_bbxs_by_comps();	// 生成各个物件的bbx
 			getVerAttrib();				// 生成顶点属性数组
 			divide_model_by_alpha();	// 根据透明度将顶点分为两组
+			generate_edges_by_msMeshes();
+			end = clock();
+			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
+		//IFCModel(const String ifc_file_name) {
+		//	const String filename = ifc_file_name;
+
+		//	std::ifstream is(filename.c_str(), std::ios::binary);
+		//	if (!is.is_open()) {
+		//		std::cout << filename << " opened failed.\n";
+		//		exit(-1);
+		//	}
+
+		//	//vertices
+		//	size_t s;
+		//	is.read((char*)&s, sizeof(size_t));
+		//	this->g_vertices.resize(s); // xyzxyzxyz...
+		//	for (int i = 0; i < s; i++) {
+		//		is.read((char*)&this->g_vertices[i], sizeof(Real));
+		//	}
+
+		//	//normals
+		//	is.read((char*)&s, sizeof(size_t));
+		//	this->g_normals.resize(s); // xyzxyzxyz...
+		//	for (int i = 0; i < s; i++) {
+		//		is.read((char*)&this->g_normals[i], sizeof(Real));
+		//	}
+
+		//	//global_indices
+		//	is.read((char*)&s, sizeof(size_t));
+		//	this->g_indices.resize(s);
+		//	for (int i = 0; i < s; i++) {
+		//		is.read((char*)&this->g_indices[i], sizeof(unsigned int));
+		//		this->g_indices[i]--;
+		//	}
+		//	//components' indices
+		//	is.read((char*)&s, sizeof(size_t));
+		//	size_t tmps;
+		//	c_indices.resize(s);
+		//	for (int i = 0; i < s; i++) {
+		//		is.read((char*)&tmps, sizeof(size_t));
+		//		Vector<uint32_t> tmpvc(tmps);
+		//		for (int j = 0; j < tmps; j++) {
+		//			is.read((char*)&tmpvc[j], sizeof(unsigned int));
+		//			tmpvc[j]--;
+		//		}
+		//		c_indices[i] = tmpvc;
+		//	}
+
+		//	//material datas
+		//	is.read((char*)&s, sizeof(size_t));
+		//	material_data.resize(s); // 获取面的数量
+		//	Vector<MtlData> mat_vec(s);
+		//	for (int i = 0; i < s; i++) {
+		//		is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
+		//		is.read((char*)&mat_vec[i].data[7], sizeof(int));
+		//	}
+		//	for (int i = 0; i < s; i++) {
+		//		material_data[i] = MaterialData(
+		//			glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
+		//			glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
+		//			mat_vec[i].data[6].f, mat_vec[i].data[7].i);
+		//	}
+		//	getVerColor();				// 生成顶点颜色数组
+		//	generateCompIds();			// 生成顶点到其包含物件的映射
+		//	generate_bbxs_by_comps();	// 生成各个物件的bbx
+		//	getVerAttrib();				// 生成顶点属性数组
+		//	divide_model_by_alpha();	// 根据透明度将顶点分为两组
+		//	//generate_edges_by_msMeshes();
+		//}
 
 		Vector<uint32_t> generate_edges_by_msMeshes() {
+			c_edge_indices.clear();
+			edge_indices.clear();
+			cur_edge_ind.clear();
 			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
 			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
-			Vector<uint32_t> new_edge_index;
 			for (mesh_simplier::Mesh mes : meshes) {
 #ifdef PAIRREP
-				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+				c_edge_indices.emplace_back(mes.edge_indexp);
 #else
 				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
 #endif
 			}
-			edge_indices = new_edge_index;
-			return new_edge_index;
+			cur_edge_ind = edge_indices;
+			return edge_indices;
 		}
 
 		Vector<uint32_t> getgIndices() {
@@ -235,7 +240,6 @@ namespace ifcre {
 				else {
 					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					//no_trans_c_indices.emplace_back(c_indices[i]);
-					no_trans_c_indices_set.insert(i);
 				}
 				v_count += c_indices[i].size();
 			}
@@ -251,22 +255,26 @@ namespace ifcre {
 				cur_no_trans_ind = no_trans_ind;
 				return;
 			}
-			cur_trans_ind = {};
-			cur_no_trans_ind = {};
+			cur_trans_ind.clear();
+			cur_no_trans_ind.clear();
+			cur_edge_ind.clear();
 
 			String s_comp_id;
 			stringstream input(s_comp_ids);
-			uint32_t c_indices_size = c_indices.size() - 1;
+			uint32_t c_indices_size = c_indices.size();
+			uint32_t edge_c_indices_size = c_edge_indices.size();
 			while (getline(input, s_comp_id, ',')) {
 				uint32_t cur_index = stoi(s_comp_id);
-				if (cur_index > c_indices_size) {
-					continue;
-				}
-				if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
-					cur_trans_ind.insert(cur_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-				}
-				else {
-					cur_no_trans_ind.insert(cur_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+				if (cur_index < c_indices_size) {
+					if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
+						cur_trans_ind.insert(cur_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+					}
+					else {
+						cur_no_trans_ind.insert(cur_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+					}
+					if (cur_index < edge_c_indices_size) {
+						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[cur_index].begin(), c_edge_indices[cur_index].end());
+					}
 				}
 			}
 		}
@@ -299,7 +307,19 @@ namespace ifcre {
 				ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
 			}
 			return ret;
-		}*/
+		}
+		
+		Vector<uint32_t> edge_random_chose() {
+			if (c_edge_indices.empty())
+				return {};
+			Vector<uint32_t> ret;
+			for (size_t i = 0; i <vislist.size(); i++) {
+				auto thisk = vislist[i];
+				ret.insert(ret.end(), c_edge_indices[thisk].begin(), c_edge_indices[thisk].end());
+			}
+			return ret;
+		}
+		*/
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
@@ -412,18 +432,26 @@ namespace ifcre {
 		uint32_t render_id;// seems a render_id combine with an array of vertex?
 		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
 		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
+
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
 		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
 		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
-		Vector<uint32_t> edge_indices;			// 
+		Vector<uint32_t> edge_indices;			// ebo of edge
+
+
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
-		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
+		Vector<Vector<uint32_t>> c_edge_indices;
+
 		//Vector<vector<uint32_t>> no_trans_c_indices;		// 不透明物体的顶点的索引
 		//Vector<vector<uint32_t>> trans_c_indices;			// 透明物体的的顶点的索引
-		unordered_set<uint32_t> no_trans_c_indices_set;		// 不透明物体的索引
+
 		unordered_set<uint32_t> trans_c_indices_set;		// 透明物体的索引
+
 		Vector<uint32_t> cur_trans_ind;			// 当前透明顶点的索引
 		Vector<uint32_t> cur_no_trans_ind;		// 当前不透明顶点的索引
+		Vector<uint32_t> cur_edge_ind;			// 当前物件包含的边的索引
+
+		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
 	private:
 		glm::mat4 m_model;						

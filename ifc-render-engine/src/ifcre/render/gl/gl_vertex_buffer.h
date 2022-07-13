@@ -28,12 +28,13 @@ namespace ifcre {
 		void drawByDynamicEbo_no_trans();
 		void drawByDynamicEbo_trans();
 		void drawByDynamicEbo();
+		void drawByDynamicEdge();
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
 		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
 		void UploadElementEdge(Vector<uint32_t>& edge_indices);
 		void uploadNoTransElements(Vector<uint32_t>& indices);
 		void uploadTransElements(Vector<uint32_t>& indices);
-		void upoadDynamicElementBuffer(const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans);
+		void upoadDynamicElementBuffer(const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans, const Vector<uint32_t>& dynamic_indices_edge);
 
 		bool useIndex();
 		void destroy();
@@ -71,9 +72,11 @@ namespace ifcre {
 		uint32_t m_dynamic_eboid;
 		uint32_t m_dynamic_eboid_for_no_trans;
 		uint32_t m_dynamic_eboid_for_trans;
+		uint32_t m_dynamic_eboid_for_edge;
 		uint32_t dynamic_size;
 		uint32_t no_tran_dynamic_size;
 		uint32_t tran_dynamic_size;
+		uint32_t edge_dynamic_size;
 	};
 }
 

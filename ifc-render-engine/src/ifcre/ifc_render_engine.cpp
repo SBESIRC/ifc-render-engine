@@ -150,29 +150,12 @@ namespace ifcre {
 		}
 	}
 
-	//void IFCRenderEngine::changeGeom() {
-	//	auto& m_render = *m_glrender;
-	//	auto& m_window = *m_render_window;
-	//	geomframe = m_window.geomframe;
-	//	if (m_window.geomchanged) {
-	//		// memory leak here
-	//		/*m_render.DynamicUpdate(ifc_test_model->render_id
-	//			, ifc_test_model->no_trans_geom_random_chose(geomframe),
-	//			ifc_test_model->trans_geom_random_chose(geomframe));*/
-	//		
-	//		m_render.DynamicUpdate(ifc_test_model->render_id
-	//			, ifc_test_model->no_trans_geom_chose(geomframe, true),
-	//			ifc_test_model->trans_geom_chose(geomframe, true));
-	//		m_window.geomchanged = false;
-	//	}
-	//}
-
 	void IFCRenderEngine::changeGeom() {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
 		if (m_window.geomchanged) {
-			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->cur_no_trans_ind, ifc_test_model->cur_trans_ind);
+			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->cur_no_trans_ind, ifc_test_model->cur_trans_ind, ifc_test_model->cur_edge_ind);
 			m_window.geomchanged = false;
 		}
 	}
@@ -285,7 +268,7 @@ namespace ifcre {
 			//m_window.readPixels();
 
 			//3. render edges (maybe
-			//m_render.render(ifc_test_model->render_id, EDGE_SHADING, EDGE_LINE);
+			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//4. render bounding box
 			if (m_window.getClickCompId() >= 0) {

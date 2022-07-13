@@ -3,7 +3,8 @@
 layout(location = 0) out int FragId;
 
 layout(location = 0) flat in int vCompId;
-layout(location = 1) flat in float vDistance;
+layout(location = 1) in float vDistance;
+layout(location = 2) in float vDistanceM[6];
 
 // vec3 int2rgb(int num){
 //     float b = (num % 256) / 256.;
@@ -15,8 +16,13 @@ layout(location = 1) flat in float vDistance;
 // }
 
 void main(){
+    for(int i=0;i<6;i++){
+		if(vDistanceM[i]<0.0)
+			discard;
+	}
+    if(vDistance<0.0)
+		  //FragId=-1;
+          discard;
     // FragId=vec4(int2rgb(comp),1.);
     FragId = vCompId;
-    if(vDistance<0.0)
-		FragId=-1;
 }

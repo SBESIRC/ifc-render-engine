@@ -310,6 +310,10 @@ namespace ifcre {
 			vb->drawByDynamicEbo_trans();
 			break;
 		}
+		case 9: {
+			vb->drawByDynamicEdge();
+			break;
+		}
 		default: {
 			vb->drawByAddedEbo(local_render_id);
 			break;
@@ -609,8 +613,8 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
-	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices) {
-		m_vertex_buffer_map[render_id]->upoadDynamicElementBuffer(no_trans_indices, trans_indices);
+	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
+		m_vertex_buffer_map[render_id]->upoadDynamicElementBuffer(no_trans_indices, trans_indices, edge_indices);
 	}
 
 	void GLRender::setViewMatrix(const glm::mat4& view) {

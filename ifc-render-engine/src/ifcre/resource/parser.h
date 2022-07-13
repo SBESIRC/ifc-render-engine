@@ -137,8 +137,8 @@ namespace ifcsaver {
 			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
 		}
 		ret.verts = read_vector_from_binary<real_t>(is);
-		ret.vert_normals2 = read_vector_from_binary<real_t>(is);
-		ret.face_mat = read_vector_from_binary<Material_new>(is);
+		ret.vert_normals2 = read_vector_from_binary<real_t>(is); // 读取法向量
+		ret.face_mat = read_vector_from_binary<Material_new>(is); // 读取每个面上的信息
 
 		ret.componentDatas.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
@@ -152,19 +152,19 @@ namespace ifcre {
 	class IFCParser {
 		// TODO
     public:
-		//static SharedPtr<IFCModel> load(String file) {
-		//	if (endsWith(file, "midfile")) {
-		//		auto ret = make_shared<IFCModel>(file);
-		//		return ret;
-		//	}
-		//	else {
-		//		auto ge = generateIFCMidfile(file);
-		//		auto ret = make_shared<IFCModel>(ge);
-		//		return ret;
-		//	}
-		//}
+		/*static SharedPtr<IFCModel> load(String file) {
+			if (endsWith(file, "midfile")) {
+				auto ret = make_shared<IFCModel>(file);
+				return ret;
+			}
+			else {
+				auto ge = generateIFCMidfile(file);
+				auto ret = make_shared<IFCModel>(ge);
+				return ret;
+			}
+		}*/
 
-	   static SharedPtr<IFCModel> load(String file) {
+	   /*static SharedPtr<IFCModel> load(String file) {
 		   if (endsWith(file, "midfile")) {
 			   ifstream is(file.c_str(), std::ios::binary);
 			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
@@ -184,7 +184,22 @@ namespace ifcre {
 			   return make_shared<IFCModel>(ge);
 #endif
 		   }
-	   }
+	   }*/
+
+		static SharedPtr<IFCModel> load(String file) {
+#ifdef _DEBUG
+			//file += ".midfile";
+			ifstream is(file.c_str(), std::ios::binary);
+			Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			is.close();
+#else
+			Datas2OpenGL ge = generateIFCMidfile(file);
+			ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+#endif
+			auto ret = make_shared<IFCModel>(ge);
+			return ret;
+		}
+
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());
 		}

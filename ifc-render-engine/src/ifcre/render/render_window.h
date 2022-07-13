@@ -226,7 +226,7 @@ namespace ifcre {
 		const Real m_znear = 0.1, m_zfar = 1000.0;
 		const Real fov = 45.0;
 
-		bool key_frame_stopper = true;
+		//bool key_frame_stopper = true;
 
 		bool hidden = true;
 		ClipPlane hidden_clip_plane = glm::vec4(0.f, 0.f, 0.f, -1.f);

@@ -24,9 +24,9 @@
 
 #define threadnum 8
 
-namespace mesh_simplier{
+namespace mesh_simplier {
     using namespace std;
-    using T= ifcre::Real;/*
+    using T = ifcre::Real;/*
     struct Vec3
     {
         T x,y,z;
@@ -40,29 +40,29 @@ namespace mesh_simplier{
             return Vec3(x/sum,y/sum,z/sum);
         }
     };*/
-    static T global_epsilon = 0.0001f;
+    static T global_epsilon = 0.001f;
     T dot(glm::vec3 a, glm::vec3 b);
-        
+
     glm::vec3 cross(glm::vec3 a, glm::vec3 b);
 
-    struct Vertex{
+    struct Vertex {
         glm::vec3 pos;
         glm::vec3 normal;
-        Vertex()=default;
-        Vertex(glm::vec3 p, glm::vec3 n):pos(p),normal(n){}
+        Vertex() = default;
+        Vertex(glm::vec3 p, glm::vec3 n) :pos(p), normal(n) {}
         void show_off_vertex();
     };
-    bool isSameVertex(const Vertex& v1,const Vertex& v2);
+    bool isSameVertex(const Vertex& v1, const Vertex& v2);
     T fabs(T f);
-    bool isSameVertex(const Vertex& v1,const Vertex& v2,T epsilon);
+    bool isSameVertex(const Vertex& v1, const Vertex& v2, T epsilon);
 
-    struct Face{
+    struct Face {
         glm::vec3 normal;
         vector<uint32_t> index;
 #ifdef PAIRREP
         vector<pair< uint32_t, uint32_t>> indexpair;
 #endif // PAIRREP
-        Face()=default;
+        Face() = default;
         void show_off_face();
     };
 
@@ -72,12 +72,12 @@ namespace mesh_simplier{
 
     void merge_save_vertex();
 
-    struct Mesh{
+    struct Mesh {
         vector<Face> faces;
-        int vnnum,vnum,fnum;
+        int vnnum, vnum, fnum;
         // T same_plane_epsilon=numeric_limits<T>::epsilon();
-        T same_plane_epsilon=global_epsilon;
-        Mesh()=default;
+        T same_plane_epsilon = global_epsilon;
+        Mesh() = default;
         Mesh(const vector<Face>& _faces) {
             faces = _faces;
         }
@@ -87,13 +87,13 @@ namespace mesh_simplier{
         vector<uint32_t> edge_indexp;
 #endif // PAIRREP
         void map_save_vertex();
-        void face_comb(int a,int b);
+        void face_comb(int a, int b);
         void merge_faces();
     };
     vector<Face> generateFace(const vector<uint32_t>& indices);
 
     vector<Mesh> generateMeshes(const vector<vector<uint32_t>>& c_indices);
-    
+
 }/*
 int main(int argc,char* argv[]){
     auto mesh = ms::Mesh(string(argv[1]));

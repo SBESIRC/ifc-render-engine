@@ -56,7 +56,7 @@ int main(int argc, char**argv) {
 	re.set_config("width", "1600");
 	re.set_config("height", "900");
 	re.set_config("model_type", "ifc");
-	re.set_config("use_transparency", "true");
+	//re.set_config("use_transparency", "true");
 	re.set_config("file", argc == 1? model : argv[1]);
 
 	//if (argc == 3 && strcmp(argv[2], "-vk") == 0) {
@@ -74,7 +74,6 @@ int main(int argc, char**argv) {
 
 	re.init(NULL);
 	re.run();
-	printf("%d\n", re.get_comp_id());
 	
 	return 0;
 }

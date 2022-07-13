@@ -118,6 +118,14 @@ namespace ifcre {
 		glBindVertexArray(0);
 	}
 
+	void GLVertexBuffer::drawByDynamicEdge() {
+		glBindVertexArray(m_vaoid);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_edge);
+		glDrawElements(GL_LINES, edge_dynamic_size, GL_UNSIGNED_INT, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+	}
+
 	inline bool GLVertexBuffer::useIndex()
 	{
 		return m_eboid != -1;
@@ -186,7 +194,7 @@ namespace ifcre {
 			trans_generated = true;
 	}
 
-	void GLVertexBuffer::upoadDynamicElementBuffer(const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans) {
+	void GLVertexBuffer::upoadDynamicElementBuffer(const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans, const Vector<uint32_t>& dynamic_indices_edge) {
 		//both, use for comp id
 		Vector<uint32_t> temp(dynamic_indices_no_trans);
 		temp.insert(temp.end(), dynamic_indices_trans.begin(), dynamic_indices_trans.end());
@@ -212,10 +220,18 @@ namespace ifcre {
 		glNamedBufferData(m_dynamic_eboid_for_trans, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
+		//edges
+		glDeleteBuffers(1, &m_dynamic_eboid_for_edge);
+		glGenBuffers(1, &m_dynamic_eboid_for_edge);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_edge);
+		glNamedBufferData(m_dynamic_eboid_for_edge, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 		glBindVertexArray(0);
 		dynamic_size = temp.size();
 		no_tran_dynamic_size = dynamic_indices_no_trans.size();
 		tran_dynamic_size = dynamic_indices_trans.size();
+		edge_dynamic_size = dynamic_indices_edge.size();
 		dyn_generated = true;
 	}
 

@@ -44,7 +44,7 @@ namespace ifcre {
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
-		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices);
+		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
