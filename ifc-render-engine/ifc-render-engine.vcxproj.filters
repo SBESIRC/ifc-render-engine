@@ -102,6 +102,10 @@
     <None Include="..\workdir\shaders\clp_plane.vert" />
     <None Include="..\workdir\shaders\test.frag" />
     <None Include="..\workdir\shaders\test.vert" />
+    <None Include="..\workdir\shaders\chosen_test.frag" />
+    <None Include="..\workdir\shaders\chosen_test.vert" />
+    <None Include="..\workdir\shaders\collision.vert" />
+    <None Include="..\workdir\shaders\collision.frag" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

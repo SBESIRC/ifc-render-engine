@@ -78,7 +78,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\bvh;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(ProjectDir)..\3rdparty\glfw-3.3.5\lib-vc2019;$(ProjectDir)..\3rdparty\ifcReadingLib;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
@@ -87,7 +87,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\bvh;$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(ProjectDir)..\3rdparty\glfw-3.3.5\lib-vc2019;$(ProjectDir)..\3rdparty\ifcReadingLib;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\lib;$(LibraryPath)</LibraryPath>
     <SourcePath>$(SourcePath)</SourcePath>
@@ -237,8 +237,12 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <None Include="..\workdir\shaders\axis.vert" />
     <None Include="..\workdir\shaders\bbx.frag" />
     <None Include="..\workdir\shaders\bbx.vert" />
+    <None Include="..\workdir\shaders\chosen_test.frag" />
+    <None Include="..\workdir\shaders\chosen_test.vert" />
     <None Include="..\workdir\shaders\clp_plane.frag" />
     <None Include="..\workdir\shaders\clp_plane.vert" />
+    <None Include="..\workdir\shaders\collision.frag" />
+    <None Include="..\workdir\shaders\collision.vert" />
     <None Include="..\workdir\shaders\comp_id_write.frag" />
     <None Include="..\workdir\shaders\comp_id_write.vert" />
     <None Include="..\workdir\shaders\edge.frag" />

@@ -1,6 +1,7 @@
 #include "mesh_simplier.h"
 //#define threaddbg
 //#define LOG0704
+#define FAKER
 namespace mesh_simplier {
 
     vector<Vertex> vertices;
@@ -19,10 +20,14 @@ namespace mesh_simplier {
         cout << "vn: " << this->normal.x << " " << this->normal.y << " " << this->normal.z << "\n";
     }
 
-    bool isSameVertex(const Vertex& v1, const Vertex& v2) {
-        if (v1.pos.x - v2.pos.x <= numeric_limits<T>::epsilon()) {
-            if (v1.pos.y - v2.pos.y <= numeric_limits<T>::epsilon()) {
-                if (v1.pos.z - v2.pos.z <= numeric_limits<T>::epsilon()) {
+    bool isSameVertex(const Vertex& v1, const Vertex& v2) {/*
+        if(v1.pos.x-v2.pos.x<=numeric_limits<T>::epsilon()){
+            if(v1.pos.y-v2.pos.y<=numeric_limits<T>::epsilon()){
+                if(v1.pos.z-v2.pos.z<=numeric_limits<T>::epsilon()){*/
+
+        if (fabs(v1.pos.x - v2.pos.x) <= global_epsilon) {
+            if (fabs(v1.pos.y - v2.pos.y) <= global_epsilon) {
+                if (fabs(v1.pos.z - v2.pos.z) <= global_epsilon) {
                     if (dot(v1.normal, v2.normal) > 0.9)
                         return true;
                 }
@@ -309,6 +314,11 @@ namespace mesh_simplier {
         uint32_t bsize = b.indexpair.size();
         auto [same_pair_map_a, same_pair_map_b] = get_opposite_edge(a, b);
         if (same_pair_map_a.size() == 0) {
+#ifdef FAKER
+            vector<pair< uint32_t, uint32_t>> new_face_indexp(a.indexpair.begin(), a.indexpair.end());
+            new_face_indexp.insert(new_face_indexp.end(), b.indexpair.begin(), b.indexpair.end());
+            a.indexpair = new_face_indexp;
+#else
             bool xlxmsc = false;
             for (int i = 0; i < asize; i++) {
                 for (int j = 0; j < bsize; j++) {
@@ -325,6 +335,7 @@ namespace mesh_simplier {
                 if (xlxmsc)
                     break;
             }
+#endif
             return;
         }
         vector<pair< uint32_t, uint32_t>> ret;
@@ -342,7 +353,39 @@ namespace mesh_simplier {
     }
 #endif
 
+    void update_new_index_list(Face & a, Face & b) {
+        int asize = a.indexpair.size();
+        int bsize = b.indexpair.size();
+        unordered_map<uint32_t, uint32_t> copymap;
+        for (int i = 0; i < asize; i++) {
+            for (int j = 0; j < bsize; j++) {
+                if (a.indexpair[i].first == b.indexpair[j].first)
+                    continue;
+                if (isSameVertex(vertices[a.indexpair[i].first], vertices[b.indexpair[j].first])) {
+                    if (same_vertex_map[a.indexpair[i].first] != -1) {
+                        same_vertex_map[b.indexpair[j].first] = same_vertex_map[a.indexpair[i].first];
+                        //b.indexpair[j].first = same_vertex_map[a.indexpair[i].first];
+                    }
+                    else {
+                        same_vertex_map[b.indexpair[j].first] = a.indexpair[i].first;
+                        //b.indexpair[j].first = a.indexpair[i].first;
+                    }
+                }
+            }
+        }
+        for (int j = 0; j < bsize; j++) {
+            if (same_vertex_map[b.indexpair[j].first] != -1) {
+                b.indexpair[j].first = same_vertex_map[b.indexpair[j].first];
+            }
+            if (same_vertex_map[b.indexpair[j].second] != -1) {
+                b.indexpair[j].second = same_vertex_map[b.indexpair[j].second];
+            }
+        }
+    }
+
     void Mesh::face_comb(int a, int b) {
+
+#ifndef FAKER
         int start1, start2;
         start1 = start2 = -1;
 
@@ -397,6 +440,9 @@ namespace mesh_simplier {
         unordered_map<int, int> m;
         vector<pair<int, int>> p;
         bool flag = false;
+#else
+        update_new_index_list(faces[a], faces[b]);
+#endif
 
 #ifdef PAIRREP
         /*
@@ -474,6 +520,7 @@ namespace mesh_simplier {
         flag = false;*/
         get_new_indepair(faces[a], faces[b]);
 #endif
+#ifndef FAKER
         for (int i = 0; i < asize; i++) {
             for (int j = bsize - 1; j >= 0; j--) {
                 if (faces[a].index[i] == faces[b].index[j]) {
@@ -549,6 +596,7 @@ namespace mesh_simplier {
             cout<<x+1<<"//"<<x+1<<" ";
         }
         cout<<endl;*/
+#endif
     }
     void Mesh::merge_faces() {
 
@@ -657,7 +705,7 @@ namespace mesh_simplier {
     void thread_task(int n, int end, int threadnum_t, vector<Mesh>&ret) {
 
         if (n >= end) {
-            cout << "Thread no." << n % threadnum_t << " finished.\n";
+            // cout << "Thread no." << n % threadnum_t << " finished.\n";
             return;
         }
         //ret[n].map_save_vertex();
