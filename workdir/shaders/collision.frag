@@ -4,7 +4,8 @@
 layout(location = 0)in float vDistance;
 layout(location = 1)in float vDistanceM[6];
 
-layout(location = 0)uniform vec2 u_resolution;
+uniform vec2 u_resolution;
+uniform float alpha;
 
 layout(location = 0)out vec4 FragColor;
 
@@ -44,5 +45,5 @@ void main()
 	fin=smoothstep(.04,.06,fin);
 	outColor=mix(outColor,one ,fin*.5);
 
-    FragColor = vec4(outColor,1.0);
+    FragColor = vec4(outColor, alpha);
 }

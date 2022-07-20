@@ -46,7 +46,6 @@ namespace ifcre {
 
 	class IFCModel {
 	public:
-		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
@@ -155,26 +154,6 @@ namespace ifcre {
 			cur_edge_ind = edge_indices;
 			return edge_indices;
 		}
-
-//		// using some thricks to generate correct edges
-//		Vector<uint32_t> generate_edges_by_msMeshes() {
-//			c_edge_indices.clear();
-//			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
-//			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
-//			Vector<uint32_t> new_edge_index;
-//			for (mesh_simplier::Mesh mes : meshes) {
-//#ifdef PAIRREP
-//				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
-//				c_edge_indices.emplace_back(mes.edge_indexp);
-//#else
-//				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
-//#endif
-//			}
-//			for (int i = 0; i < c_edge_indices.size(); i++)
-//				ind_of_all_c_indices.emplace_back(i);
-//			edge_indices = new_edge_index;
-//			return new_edge_index;
-//		}
 
 		Vector<uint32_t> getgIndices() {
 			return this->g_indices;
@@ -473,38 +452,8 @@ namespace ifcre {
 		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
-
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 		Vector<Vector<uint32_t>> c_edge_indices;//ebos of edge, generated after generate_edges_by_msMeshes();
-
-		//Vector<uint32_t> ind_of_all_c_indices;//indices of all component in c_indices
-		//Vector<uint32_t> ind_of_no_tran_c_indices;//indices of no-transparency component in c_indices
-		//Vector<uint32_t> ind_of_tran_c_indices;//indices of transparency component in c_indices
-
-		//Vector<vector<uint32_t>> no_trans_c_indices;//ebos of transparency meshes, but organized by component// 不透明物体的顶点的索引
-		////using for vis_no_trans_indices
-		////you can generate this based on ind_of_no_tran_c_indices & c_indices
-		//Vector<vector<uint32_t>> trans_c_indices;//ebos of no transparency meshes, but organized by component// 透明物体的的顶点的索引
-		////using for vis_trans_c_indices
-		////you can generate this based on ind_of_tran_c_indices & c_indices
-		//Vector<Vector<uint32_t>> c_edge_indices; //ebos of edge, generated after generate_edges_by_msMeshes();
-		////using for vis_edge_indices
-
-		//Vector<uint32_t> vis_no_trans_indices;//index of visable transparency meshes
-		//Vector<uint32_t> vis_trans_indices;//index of visable no-transparency meshes
-		//Vector<uint32_t> vis_edge_indices;//index of visable edges
-		//Vector<uint32_t> vis_no_trans_ebo;//ebo of visable transparency meshes, this is ready for GlUpload()
-		//Vector<uint32_t> vis_trans_ebo;//ebo of visable no-transparency meshes, this is ready for GlUpload()
-		//Vector<uint32_t> vis_edge_ebo;//ebo of visable edges , this is ready for GlUpload()
-
-		//Vector<uint32_t> chosen_no_trans_ebo;//ebo of chosen transparency meshes, this is ready for GlUpload()
-		//Vector<uint32_t> chosen_trans_ebo;//ebo of chosen no-transparency meshes, this is ready for GlUpload()
-
-		////Vector<uint32_t> vislist; //indices of components to be visable 
-
-		//Vector<CompState> comp_states;//recording components' states
-
-		/////I will use:
 
 		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 

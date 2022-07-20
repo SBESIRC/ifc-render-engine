@@ -95,6 +95,7 @@ namespace ifcre {
 				model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
 				model_vb->UploadElementEdge(ifc_test_model->edge_indices);
 
+				//hey bro 8 look here, its where your job should be!
 				model_vb->uploadCollisionElementBuffer(ifc_test_model->generate_ebo_from_component_ids(this->ifc_test_model->collision_pairs));
 
 				ifc_test_model->render_id = m_glrender->addModel(model_vb);
@@ -174,47 +175,6 @@ namespace ifcre {
 			m_window.geom_changed = false;
 		}
 	}
-
-
-
-
-	//void IFCRenderEngine::changeGeom() {
-	//	auto& m_render = *m_glrender;
-	//	auto& m_window = *m_render_window;
-	//	geomframe = m_window.geomframe;
-	//	bool geomchanged = false;
-	//	if (m_window.geomchanged) {
-	//		ifc_test_model->generate_geom_random_chose(geomframe);
-	//		m_window.geomchanged = false;
-	//		geomchanged = true;
-	//	}
-	//	if (m_window.chosen_changed && !m_window.chosen_list.empty()) {
-	//		m_window.chosen_changed = false;
-	//		ifc_test_model->generate_chosen_list(m_window.chosen_list);
-	//		geomchanged = true;
-	//	}
-	//	if (geomchanged) {
-	//		//cout << m_window.chosen_list.size() << "\n";
-
-	//		ifc_test_model->generate_vis_and_chosen_ebo_by_com_states();
-
-	//		m_render.DynamicUpdate(ifc_test_model->render_id,
-	//			ifc_test_model->dynamic_all_ebo(),
-	//			ifc_test_model->visable_no_trans_ebo(),
-	//			ifc_test_model->visable_trans_ebo(),
-	//			ifc_test_model->visable_edge_ebo());
-
-	//		m_render.ChosenGeomUpdate(ifc_test_model->render_id, 
-	//			ifc_test_model->chosen_no_trans_ebo, 
-	//			ifc_test_model->chosen_trans_ebo );
-
-	//		geomchanged = false;
-	//	}
-	//}
-
-
-
-
 
 	void IFCRenderEngine::setSelectCompIds() {
 		if (m_render_window == nullptr) {
@@ -351,7 +311,6 @@ namespace ifcre {
 			//3. render transparency scene
 			m_render.setAlpha(0.3);
 			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
-			//m_window.readPixels();
 
 			//4. render chosen scene, no transparency
 			m_render.render(ifc_test_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
@@ -360,7 +319,7 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
-			//m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {

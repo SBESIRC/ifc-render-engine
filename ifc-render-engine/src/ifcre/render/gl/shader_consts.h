@@ -151,7 +151,8 @@ namespace ifcre {
 			"#define PI 3.14159265358979323846\r\n"
 			"layout(location = 0)in float vDistance;\r\n"
 			"layout(location = 1)in float vDistanceM[6];\r\n"
-			"layout(location = 0)uniform vec2 u_resolution;\r\n"
+			"uniform vec2 u_resolution;\r\n"
+			"uniform float alpha;\r\n"
 			"layout(location = 0)out vec4 FragColor;\r\n"
 			"vec2 rotate2D(vec2 _st,float _angle){\r\n"
 			"_st-=0.5;\r\n"
@@ -180,7 +181,7 @@ namespace ifcre {
 			"float fin = mod(st.x,.1);\r\n"
 			"fin=smoothstep(.04,.06,fin);\r\n"
 			"outColor=mix(outColor,one ,fin*.5);\r\n"
-			"FragColor = vec4(outColor,1.0);\r\n"
+			"FragColor = vec4(outColor, alpha);\r\n"
 			"}\r\n";
 
 		static const char* v_collision = "#version 460\r\n"

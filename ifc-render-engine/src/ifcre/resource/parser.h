@@ -3,7 +3,7 @@
 #define IFCRE_PARSER_H_
 
 #include "OBJ_Loader.h"
-//#include "../collider.h"
+#include "../collider.h"
 #include "../common/std_types.h"
 #include "model.h"
 
@@ -179,11 +179,11 @@ namespace ifcre {
 		// TODO
     public:
 	   static SharedPtr<IFCModel> load(String file) {
+		   Datas2OpenGL ge;
 		   if (endsWith(file, ".midfile")) {
 			   ifstream is(file.c_str(), std::ios::binary);
-			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 			   is.close();
-			   return make_shared<IFCModel>(ge);
 		   }
 		   else {
 #if _DEBUG
@@ -191,13 +191,18 @@ namespace ifcre {
 			   ifstream is(file.c_str(), std::ios::binary);
 			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 			   is.close();
-			   return make_shared<IFCModel>(ge);
 #else
-			   Datas2OpenGL ge = generateIFCMidfile(file);
+			   ge = generateIFCMidfile(file);
 			   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
-			   return make_shared<IFCModel>(ge);
 #endif
 		   }
+		   auto ret = make_shared<IFCModel>(ge);
+		   Collider collider;
+		   collider.bufferData(&ge);
+		   collider.addFilter([](const Datas4Component& hcg) {return true; });
+		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
+		   ret->collision_pairs.clear();// = collider.getIndexArr();
+		   return ret;
 	   }
 
 //	   static SharedPtr<IFCModel> load(String file) {
