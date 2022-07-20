@@ -34,7 +34,7 @@ namespace ifcre {
 
         void zoom(glm::vec3& target, Real d) {
             glm::vec3 dir = glm::normalize(target - m_pos) * d;
-            float vel = glm::length(target - m_pos) * 0.15;
+            float vel = glm::length(target - m_pos) * 0.15f;
             m_pos += vel * dir;
             _updateViewMatrix();
         }

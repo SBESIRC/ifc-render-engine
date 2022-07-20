@@ -89,8 +89,8 @@ namespace ifcre {
         else {
             m_mouse_status.click_comp_id = clicked_comp_id;
             if (clicked_comp_id > 0) {
+                chosen_changed_w = true;
                 if (multichoose) {
-                    chosen_changed_w = true;
                     chosen_list.insert(static_cast<uint32_t>(clicked_comp_id));
                 }
                 else {

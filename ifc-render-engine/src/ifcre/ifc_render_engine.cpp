@@ -156,21 +156,65 @@ namespace ifcre {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
+		if (m_window.chosen_changed_w && !m_window.chosen_list.empty()) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_w = false;
+		}
+		else if (m_window.chosen_changed_x && !m_window.chosen_list.empty()) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_x = false;
+		}
+
 		if (m_window.geom_changed) {
+			ifc_test_model->update_chosen_and_vis_list();
+			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, ifc_test_model->cur_chosen_trans_ind);
 			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->cur_vis_no_trans_ind, ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
 			m_window.geom_changed = false;
 		}
-
-		if (m_window.chosen_changed_w && !m_window.chosen_list.empty()) {
-			ifc_test_model->update_chosen_list(m_window.chosen_list);
-			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, ifc_test_model->cur_chosen_trans_ind);
-			m_window.chosen_changed_w = false;
-		}
-		else if (m_window.chosen_changed_x) {
-			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, ifc_test_model->cur_chosen_trans_ind);
-			m_window.chosen_changed_x = false;
-		}
 	}
+
+
+
+
+	//void IFCRenderEngine::changeGeom() {
+	//	auto& m_render = *m_glrender;
+	//	auto& m_window = *m_render_window;
+	//	geomframe = m_window.geomframe;
+	//	bool geomchanged = false;
+	//	if (m_window.geomchanged) {
+	//		ifc_test_model->generate_geom_random_chose(geomframe);
+	//		m_window.geomchanged = false;
+	//		geomchanged = true;
+	//	}
+	//	if (m_window.chosen_changed && !m_window.chosen_list.empty()) {
+	//		m_window.chosen_changed = false;
+	//		ifc_test_model->generate_chosen_list(m_window.chosen_list);
+	//		geomchanged = true;
+	//	}
+	//	if (geomchanged) {
+	//		//cout << m_window.chosen_list.size() << "\n";
+
+	//		ifc_test_model->generate_vis_and_chosen_ebo_by_com_states();
+
+	//		m_render.DynamicUpdate(ifc_test_model->render_id,
+	//			ifc_test_model->dynamic_all_ebo(),
+	//			ifc_test_model->visable_no_trans_ebo(),
+	//			ifc_test_model->visable_trans_ebo(),
+	//			ifc_test_model->visable_edge_ebo());
+
+	//		m_render.ChosenGeomUpdate(ifc_test_model->render_id, 
+	//			ifc_test_model->chosen_no_trans_ebo, 
+	//			ifc_test_model->chosen_trans_ebo );
+
+	//		geomchanged = false;
+	//	}
+	//}
+
+
+
+
 
 	void IFCRenderEngine::setSelectCompIds() {
 		if (m_render_window == nullptr) {
@@ -179,8 +223,15 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 
 		auto& configs = m_cache_configs;
-		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"]);
-		m_window.geom_changed = true;
+
+		int command = 0;  // command 0、设置显示一些物件；1、高亮选中一些物件
+		if (command == 0) {
+			m_window.geom_changed = true;
+		}
+		else if (command == 1) {
+			m_window.chosen_changed_x = true;
+		}
+		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"], command, m_window.chosen_list);
 	}
 
 	//to be write

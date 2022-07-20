@@ -51,7 +51,7 @@ namespace ifcre {
 			clock_t start, end;
 			start = clock();
 
-			//comp_states.resize(c_indices.size(), DUMP);
+			comp_states.resize(c_indices.size(), VIS);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
 			material_data.resize(facs);
@@ -253,29 +253,7 @@ namespace ifcre {
 			return g_kd_color;
 		}
 
-		////divide components into 2 vectors by their transparence
-		//void divide_model_by_alpha() {
-		//	Vector<uint32_t> transparency_ind;
-		//	Vector<uint32_t> no_transparency_ind;
-		//	int v_count = 0;
-		//	is_trans.resize(c_indices.size(), false);
-		//	for (int i = 0; i < c_indices.size(); i++) {
-		//		if (material_data[v_count / 3].alpha < 1) {
-		//			transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-		//			trans_c_indices.emplace_back(c_indices[i]);
-		//			ind_of_tran_c_indices.emplace_back(i);
-		//			is_trans[i] = true;
-		//		}
-		//		else {
-		//			no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-		//			no_trans_c_indices.emplace_back(c_indices[i]);
-		//			ind_of_no_tran_c_indices.emplace_back(i);
-		//		}
-		//		v_count += c_indices[i].size();
-		//	}
-		//	trans_ind = transparency_ind;
-		//	no_trans_ind = no_transparency_ind;
-		//}
+		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
@@ -297,20 +275,18 @@ namespace ifcre {
 		}
 
 		// 将选中的一些列物体区分为透明和不透明
-		void divide_chose_geom_by_alpha(String s_comp_ids, int command = 0) {
+		void divide_chose_geom_by_alpha(String s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
 			if (s_comp_ids.size() == 0) {
 				cur_vis_trans_ind = trans_ind;
 				cur_vis_no_trans_ind = no_trans_ind;
 				return;
 			}
 			if (command == 0) {
-				cur_vis_trans_ind.clear();
-				cur_vis_no_trans_ind.clear();
-				cur_edge_ind.clear();
+				comp_states.clear();
+				comp_states.resize(c_indices.size(), DUMP);
 			}
 			else if (command == 1) {
-				cur_chosen_trans_ind.clear();
-				cur_chosen_no_trans_ind.clear();
+				chosen_list.clear();
 			}
 
 			String s_comp_id;
@@ -320,178 +296,53 @@ namespace ifcre {
 			while (getline(input, s_comp_id, ',')) {
 				uint32_t cur_index = stoi(s_comp_id);
 				if (cur_index < c_indices_size) {
-					if (0 == command) { // visit
-						if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
-							cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-						}
-						else {
-							cur_vis_no_trans_ind.insert(cur_vis_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-						}
-						if (cur_index < edge_c_indices_size) {
-							cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[cur_index].begin(), c_edge_indices[cur_index].end());
-						}
+					if (0 == command) {
+						comp_states[cur_index] = VIS;
 					}
-					else if (1 == command) { // chosen
-						if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
-							cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-						}
-						else {
-							cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-						}
+					else if (1 == command) {
+						chosen_list.insert(cur_index);
 					}
 				}
 			}
 		}
 
-		//// randomly select some no-transparency components
-		//void generate_no_trans_geom_random_chose(int seed) {
-		//	if (ind_of_no_tran_c_indices.empty())
-		//		return;
-		//	default_random_engine e(seed);
-		//	uniform_int_distribution<unsigned> u(0, ind_of_no_tran_c_indices.size() - 1);
-		//	Vector<uint32_t> ret;
-		//	for (size_t i = 0; i < u(e); i++) {
-		//		auto thisk = u(e);
-		//		vislist.emplace_back(ind_of_no_tran_c_indices[thisk]);
-		//		comp_states[ind_of_no_tran_c_indices[thisk]] = VIS;
-		//		vis_no_trans_indices.emplace_back(ind_of_no_tran_c_indices[thisk]);
-		//		//ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
-		//	}
-		//}
-
-		//Vector<uint32_t> visable_no_trans_ebo() {
-		//	/*Vector<uint32_t> ret;
-		//	for (size_t i = 0; i < vis_no_trans_indices.size(); i++) {
-		//		ret.insert(ret.end(), c_indices[vis_no_trans_indices[i]].begin(), c_indices[vis_no_trans_indices[i]].end());
-		//	}
-		//	return ret;*/
-		//	return vis_no_trans_ebo;
-		//}
-
-		//// randomly select some transparency components
-		//void generate_trans_geom_random_chose(int seed) {
-		//	if (ind_of_tran_c_indices.empty())
-		//		return;
-		//	default_random_engine e(seed);
-		//	uniform_int_distribution<unsigned> u(0, ind_of_tran_c_indices.size() - 1);
-		//	Vector<uint32_t> ret;
-		//	for (size_t i = 0; i < u(e); i++) {
-		//		auto thisk = u(e);
-		//		vislist.emplace_back(ind_of_tran_c_indices[thisk]);
-		//		comp_states[ind_of_tran_c_indices[thisk]] = VIS;
-		//		vis_trans_indices.emplace_back(ind_of_tran_c_indices[thisk]);
-		//		//ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
-		//	}
-		//}
-
-		//Vector<uint32_t> visable_trans_ebo() {
-		//	/*Vector<uint32_t> ret;
-		//	for (size_t i = 0; i < vis_trans_indices.size(); i++) {
-		//		ret.insert(ret.end(), c_indices[vis_trans_indices[i]].begin(), c_indices[vis_trans_indices[i]].end());
-		//	}
-		//	return ret;*/
-		//	return vis_trans_ebo;
-		//}
-		//
-		//// after random selection, the edges should be 
-		//void generate_edge_random_chose() {
-		//	size_t s = vislist.size();
-		//	for (size_t i = 0; i < s; i++) {
-		//		vis_edge_indices.emplace_back(vislist[i]);
-		//	}
-		//}
-
-
-		//void clear_vislist() {
-		//	vislist.clear();
-		//	comp_states.resize(c_indices.size(), DUMP);
-		//	vis_edge_indices.clear();
-		//	vis_no_trans_indices.clear();
-		//	vis_trans_indices.clear();
-		//}
-
-		//void generate_geom_random_chose(int seed) {
-		//	if (!seed) {
-		//		vis_edge_indices = vislist = ind_of_all_c_indices;
-		//		comp_states.resize(c_indices.size(), VIS);
-		//		vis_no_trans_indices = ind_of_no_tran_c_indices;
-		//		vis_trans_indices = ind_of_tran_c_indices;
-		//		return;
-		//	}
-		//	clear_vislist();
-		//	generate_trans_geom_random_chose(seed);
-		//	generate_no_trans_geom_random_chose(seed);
-		//	generate_edge_random_chose();
-		//}
-
-		//Vector<uint32_t> visable_edge_ebo() {
-		//	/*if (c_edge_indices.empty())
-		//		return {};
-		//	Vector<uint32_t> ret;
-		//	for (size_t i = 0; i <vislist.size(); i++) {
-		//		auto thisk = vislist[i];
-		//		ret.insert(ret.end(), c_edge_indices[thisk].begin(), c_edge_indices[thisk].end());
-		//	}
-		//	return ret;*/
-		//	return vis_edge_ebo;
-		//}
-
-		//Vector<uint32_t> dynamic_all_ebo() {
-		//	Vector<uint32_t> ret;
-		//	for (auto i : vislist) {
-		//		ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
-		//	}
-		//	return ret;
-		//}
-
-		//void generate_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
-		//	for (auto i : vislist) {
-		//		comp_states[i] = VIS;
-		//	}
-		//	for (auto i : chosen_list) {
-		//		comp_states[i] = CHOSEN;
-		//	}
-		//}
-
-		//void generate_vis_and_chosen_ebo_by_com_states() {
-		//	chosen_trans_ebo.clear();
-		//	vis_trans_ebo.clear();
-		//	for (auto i : vis_trans_indices) {
-		//		if (comp_states[i] == CHOSEN) {
-		//			chosen_trans_ebo.insert(chosen_trans_ebo.end(), c_indices[i].begin(), c_indices[i].end());
-		//		}
-		//		else {
-		//			vis_trans_ebo.insert(vis_trans_ebo.end(), c_indices[i].begin(), c_indices[i].end());
-		//		}
-		//	}
-
-		//	chosen_no_trans_ebo.clear();
-		//	vis_no_trans_ebo.clear();
-		//	for (auto i : vis_no_trans_indices) {
-		//		if (comp_states[i] == CHOSEN) {
-		//			chosen_no_trans_ebo.insert(chosen_no_trans_ebo.end(), c_indices[i].begin(), c_indices[i].end());
-		//		}
-		//		else {
-		//			vis_no_trans_ebo.insert(vis_no_trans_ebo.end(), c_indices[i].begin(), c_indices[i].end());
-		//		}
-		//	}
-
-		//	vis_edge_ebo.clear();
-		//	for (auto i : vis_edge_indices) {
-		//		vis_edge_ebo.insert(vis_edge_ebo.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
-		//	}
-		//}
-
-
 		void update_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
+			for (auto& comp_state : comp_states) {
+				if (comp_state != DUMP) {
+					comp_state = VIS;
+				}
+			}
+			for (auto cur_index : chosen_list) {
+				comp_states[cur_index] = CHOSEN;
+			}
+		}
+
+		void update_chosen_and_vis_list() {
+			cur_vis_trans_ind.clear();
+			cur_vis_no_trans_ind.clear();
+			cur_edge_ind.clear();
 			cur_chosen_trans_ind.clear();
 			cur_chosen_no_trans_ind.clear();
-			for (auto cur_index : chosen_list) {
-				if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
-					cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+			uint32_t edge_c_indices_size = c_edge_indices.size();
+			for (int i = 0; i < comp_states.size(); ++i) {
+				if (comp_states[i] == VIS) {
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_vis_no_trans_ind.insert(cur_vis_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					if (i < edge_c_indices_size) {
+						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
+					}
 				}
-				else {
-					cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+				else if (comp_states[i] == CHOSEN) {
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
 				}
 			}
 		}
@@ -654,6 +505,9 @@ namespace ifcre {
 		//Vector<CompState> comp_states;//recording components' states
 
 		/////I will use:
+
+		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
+
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
 		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
 

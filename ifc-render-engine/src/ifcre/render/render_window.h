@@ -156,7 +156,7 @@ namespace ifcre {
 
 		// ----- ----- ----- ----- ----- -----
 		//int geomframe = 0;
-		bool geom_changed = false;
+		bool geom_changed = true;
 		bool chosen_changed_w = false;
 		bool chosen_changed_x = false;
 		void setDefaultStatus();
