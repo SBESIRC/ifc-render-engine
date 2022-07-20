@@ -49,7 +49,7 @@ namespace ifcre {
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
-
+			comp_states.clear();
 			comp_states.resize(c_indices.size(), VIS);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
@@ -60,99 +60,52 @@ namespace ifcre {
 				material_data[i].ns = datas.face_mat[i].ns;
 				material_data[i].alpha = datas.face_mat[i].a;
 			}
-			getVerColor();				// 生成顶点颜色数组
-			generateCompIds();			// 生成顶点到其包含物件的映射
-			generate_bbxs_by_comps();	// 生成各个物件的bbx
-			getVerAttrib();				// 生成顶点属性数组
-			divide_model_by_alpha();	// 根据透明度将顶点分为两组
-			//generate_edges_by_msMeshes();// 生成边 // 多文件切换有bug，暂时封印
+			getVerColor();					// 生成顶点颜色数组
+			generateCompIds();				// 生成顶点到其包含物件的映射
+			generate_bbxs_by_comps();		// 生成各个物件的bbx
+			getVerAttrib();					// 生成顶点属性数组
+			divide_model_by_alpha();		// 根据透明度将顶点分为两组
+			generate_edges_by_msMeshes();	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
-		// generate IFCModel using myownfile.dll directly, no use anymore
-		IFCModel(const String ifc_file_name) {
-			const String filename = ifc_file_name;
 
-			std::ifstream is(filename.c_str(), std::ios::binary);
-			if (!is.is_open()) {
-				std::cout << filename << " opened failed.\n";
-				exit(-1);
-			}
-
-			//vertices
-			size_t s;
-			is.read((char*)&s, sizeof(size_t));
-			this->g_vertices.resize(s); // xyzxyzxyz...
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_vertices[i], sizeof(Real));
-			}
-
-			//normals
-			is.read((char*)&s, sizeof(size_t));
-			this->g_normals.resize(s); // xyzxyzxyz...
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_normals[i], sizeof(Real));
-			}
-
-			//global_indices
-			is.read((char*)&s, sizeof(size_t));
-			this->g_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_indices[i], sizeof(unsigned int));
-				this->g_indices[i]--;
-			}
-			//components' indices
-			is.read((char*)&s, sizeof(size_t));
-			size_t tmps;
-			c_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&tmps, sizeof(size_t));
-				Vector<uint32_t> tmpvc(tmps);
-				for (int j = 0; j < tmps; j++) {
-					is.read((char*)&tmpvc[j], sizeof(unsigned int));
-					tmpvc[j]--;
-				}
-				c_indices[i] = tmpvc;
-			}
-
-			//material datas
-			is.read((char*)&s, sizeof(size_t));
-			material_data.resize(s); // 获取面的数量
-			Vector<MtlData> mat_vec(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
-				is.read((char*)&mat_vec[i].data[7], sizeof(int));
-			}
-			for (int i = 0; i < s; i++) {
-				material_data[i] = MaterialData(
-					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
-					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
-					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
-			}
-			getVerColor();				// 生成顶点颜色数组
-			generateCompIds();			// 生成顶点到其包含物件的映射
-			generate_bbxs_by_comps();	// 生成各个物件的bbx
-			getVerAttrib();				// 生成顶点属性数组
-			divide_model_by_alpha();	// 根据透明度将顶点分为两组
-			//generate_edges_by_msMeshes();
-		}
-
+//		Vector<uint32_t> generate_edges_by_msMeshes() {
+//			c_edge_indices = {};
+//			edge_indices = {};
+//			cur_edge_ind = {}; // to be removed
+//			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
+//			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
+//			for (mesh_simplier::Mesh mes : meshes) {
+//#ifdef PAIRREP
+//				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+//				c_edge_indices.emplace_back(mes.edge_indexp);
+//#else
+//				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
+//#endif
+//			}
+//			cur_edge_ind = edge_indices;
+//			return edge_indices;
+//		}
 		Vector<uint32_t> generate_edges_by_msMeshes() {
+			c_edge_indices.resize(0);
 			c_edge_indices.clear();
-			edge_indices.clear();
-			cur_edge_ind.clear();
 			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
 			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
+			Vector<uint32_t> new_edge_index;
 			for (mesh_simplier::Mesh mes : meshes) {
 #ifdef PAIRREP
-				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
 				c_edge_indices.emplace_back(mes.edge_indexp);
 #else
 				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
 #endif
 			}
-			cur_edge_ind = edge_indices;
-			return edge_indices;
+			/*for (int i = 0; i < c_edge_indices.size(); i++)
+				ind_of_all_c_indices.emplace_back(i);*/
+			edge_indices = new_edge_index;
+			cur_edge_ind = new_edge_index;
+			return new_edge_index;
 		}
 
 		Vector<uint32_t> getgIndices() {
@@ -190,6 +143,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
+			ver_attrib.clear();// to be removed
 			ver_attrib.resize(s / 3 * 10);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
@@ -210,6 +164,7 @@ namespace ifcre {
 
 		// just add compid attribute for each vertex on which component it is
 		void generateCompIds() { // comp_ids: 顶点索引找到对应的物件索引
+			comp_ids.clear();// to be removed
 			comp_ids.resize(g_vertices.size() / 3);
 			int j = 0;
 			for (int i = 0; i < c_indices.size(); i++) {
@@ -223,6 +178,7 @@ namespace ifcre {
 
 		// add color attribute for each vertex
 		Vector<Real> getVerColor() {
+			g_kd_color.clear();
 			g_kd_color.resize(g_vertices.size());
 			for (int i = 0; i < g_indices.size(); i++) {
 				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
@@ -236,6 +192,7 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
+			trans_c_indices_set.clear();
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[v_count / 3].alpha < 1) {
@@ -264,9 +221,9 @@ namespace ifcre {
 				comp_states.clear();
 				comp_states.resize(c_indices.size(), DUMP);
 			}
-			else if (command == 1) {
+			//else if (command == 1) {
 				chosen_list.clear();
-			}
+			//}
 
 			String s_comp_id;
 			stringstream input(s_comp_ids);
@@ -291,8 +248,11 @@ namespace ifcre {
 					comp_state = VIS;
 				}
 			}
+			uint32_t c_indices_size = c_indices.size();
 			for (auto cur_index : chosen_list) {
-				comp_states[cur_index] = CHOSEN;
+				if (cur_index < c_indices_size) {
+					comp_states[cur_index] = CHOSEN;
+				}
 			}
 		}
 
@@ -328,6 +288,7 @@ namespace ifcre {
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
+			comps_bbx.clear();
 			comps_bbx.resize(cindicessize * 6);		// 每个物件对应6个float值
 			Real a_min[3], a_max[3];
 			int bbx_offset = 0;
@@ -364,7 +325,11 @@ namespace ifcre {
 
 		Vector<Real> generate_bbxs_by_vec(const unordered_set<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
+			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
+				if (id > c_indices_size) {
+					continue;
+				}
 				for (int i = 0; i < 3; i++) {
 					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
 				}

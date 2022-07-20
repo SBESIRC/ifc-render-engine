@@ -4,7 +4,7 @@
 //const char bunny_model[] = "resources\\models\\bunny\\bunny.obj";
 //const char bunny_model[] = "resources\\models\\ifc_midfile\\rectangle.midfile";
 #ifdef _DEBUG
-	const char model[] = "resources\\models\\ifc_midfile\\temp3.midfile";
+	const char model[] = "resources\\models\\colid7.20\\0407.ifc.midfile";
 #else
 	//const char model[] = "resources\\models\\ifc\\ff.ifc";
 	//const char model[] = "resources\\models\\ifc\\0407.ifc";

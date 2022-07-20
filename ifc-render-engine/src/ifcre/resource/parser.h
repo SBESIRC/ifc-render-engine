@@ -99,9 +99,9 @@ namespace ifcsaver {
 		ret.description = read_string_from_binary(is);
 		ret.guid = read_string_from_binary(is);
 		ret.type = read_string_from_binary(is);
-
 		ret.propertySet.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.propertySet.size(); i++) {
+			ret.propertySet[i].propertySet.clear();
 			ret.propertySet[i].propertySet = read_properties_from_binary(is);
 		}
 		return ret;
@@ -132,14 +132,16 @@ namespace ifcsaver {
 		Datas2OpenGL ret;
 		ret.vert_indices = read_vector_from_binary<unsigned int>(is);
 		ret.edge_indices = read_vector_from_binary<unsigned int>(is);
+		ret.search_m.clear();
 		ret.search_m.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.search_m.size(); i++) {
+			ret.search_m[i].clear();
 			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
 		}
 		ret.verts = read_vector_from_binary<real_t>(is);
 		ret.vert_normals2 = read_vector_from_binary<real_t>(is); // 读取法向量
 		ret.face_mat = read_vector_from_binary<Material_new>(is); // 读取每个面上的信息
-
+		//ret.componentDatas.clear();
 		ret.componentDatas.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
 			ret.componentDatas[i] = read_datas4Component_from_binary(is);
@@ -197,11 +199,11 @@ namespace ifcre {
 #endif
 		   }
 		   auto ret = make_shared<IFCModel>(ge);
-		   Collider collider;
+		   /*Collider collider;
 		   collider.bufferData(&ge);
 		   collider.addFilter([](const Datas4Component& hcg) {return true; });
 		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
-		   ret->collision_pairs.clear();// = collider.getIndexArr();
+		   ret->collision_pairs = collider.getIndexArr();*/
 		   return ret;
 	   }
 

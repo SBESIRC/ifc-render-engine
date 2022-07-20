@@ -80,6 +80,7 @@ namespace mesh_simplier {
                 glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]));
         }
         //merge_save_vertex();
+        same_vertex_map.clear();
         same_vertex_map.resize(vertices.size(), -1);
 #ifdef coutlog
         cout << "vertices built, its size:" << vertices.size() << "\n";
