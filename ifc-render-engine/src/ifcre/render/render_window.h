@@ -13,12 +13,13 @@
 namespace ifcre {
 
 	struct ClipPlane {
+	public:
 		glm::vec3 normal;
 		glm::vec3 front;
 		glm::vec3 right;
 		Real moveSpeed = .01f;
 		Real rotateSpeed = .001f;
-		glm::vec3 base_pos; 
+		glm::vec3 base_pos;
 		ClipPlane() {}
 		~ClipPlane() {}
 		ClipPlane(glm::vec4 p) {
@@ -26,10 +27,10 @@ namespace ifcre {
 			base_pos = glm::vec3(0.);
 			front = glm::vec3(0., 0., -1.);
 			right = glm::normalize(glm::cross(front, normal));//1 0 0
-			
+
 		}
 		glm::vec4 out_as_vec4() {
-			return glm::vec4(normal, glm::dot(normal,base_pos));
+			return glm::vec4(normal, glm::dot(normal, base_pos));
 		}
 		void rotateByNormal(float angleA) {
 			glm::mat4 rot(1.0f);
@@ -65,7 +66,7 @@ namespace ifcre {
 			return basis;
 		}
 
-	private:
+	protected:
 		void _updateVectors() {
 			normal = glm::normalize(glm::cross(right, front));
 		}
@@ -76,8 +77,7 @@ namespace ifcre {
 		ClipBox() {}
 		~ClipBox() {}
 		ClipBox(glm::vec3 pos, glm::vec3 up, glm::vec3 _right, Real len, Real wid, Real hei) :length(len), width(wid), height(hei)
-			/*,base_pos(pos), normal(up), right(_right)*/
-		{
+			/*,base_pos(pos), normal(up), right(_right)*/ {
 			base_pos = pos;
 			normal = up;
 			right = _right;
@@ -100,7 +100,7 @@ namespace ifcre {
 			glm::vec4 add(base_pos, 1.);
 			glm::mat4 basis(world_x, world_y, world_z, add);
 			glm::mat4 ret(1.0f);
-			ret = glm::scale(ret, glm::vec3(width / 2., height / 2., length / 2.));
+			ret = glm::scale(ret, glm::vec3(width, height, length));
 
 			return basis * ret;
 		}
@@ -155,9 +155,10 @@ namespace ifcre {
 		bool isRightMouseClicked();
 
 		// ----- ----- ----- ----- ----- -----
-		int geomframe = 0;
-		bool geomchanged = true;
-
+		//int geomframe = 0;
+		bool geom_changed = true;
+		bool chosen_changed_w = false;
+		bool chosen_changed_x = false;
 		void setDefaultStatus();
 		// ---------- 
 
@@ -235,6 +236,11 @@ namespace ifcre {
 		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 
 		const Vector<glm::vec4> hidden_box_vector = Vector<glm::vec4>(6, glm::vec4(0.f, 0.f, 0.f, -1.f));
+
+		bool multichoose = false;
+	public:
+		//------ chosen list
+		std::unordered_set<uint32_t> chosen_list;
 
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

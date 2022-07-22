@@ -19,6 +19,12 @@ extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const floa
 
 namespace ifcre {
 
+	enum CompState {
+		DUMP = 0x00,
+		VIS = 0x01,
+		CHOSEN = 0x02
+	};
+
 	union MtlMetaData {
 		Real f;
 		int i;
@@ -33,19 +39,22 @@ namespace ifcre {
 		glm::vec3 kd;		// 漫反射rgb
 		glm::vec3 ks;		// 高光项rgb(specular)
 		float alpha;		// 透明度
-		int ns;				// cos的指数(specularity)
+		int ns;				// cos的指数(specularity)32/18
 		MaterialData() {}
 		MaterialData(glm::vec4 a, glm::vec4 b, float c, int d) :kd(a), ks(b), alpha(c), ns(d) {}
 	};
 
 	class IFCModel {
 	public:
-		IFCModel(Vector<uint32_t> ids, Vector<Real> vers, Vector<Real> norms) :g_indices(ids), g_vertices(vers), g_normals(norms) {}
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
+			comp_states.clear();
+			comp_states.shrink_to_fit();
+			comp_states.resize(c_indices.size(), VIS);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
+
 			material_data.resize(facs);
 			for (size_t i = 0; i < facs; i++) {
 				material_data[i].kd = glm::vec3(datas.face_mat[i].ka_r, datas.face_mat[i].ka_g, datas.face_mat[i].ka_b);
@@ -53,86 +62,47 @@ namespace ifcre {
 				material_data[i].ns = datas.face_mat[i].ns;
 				material_data[i].alpha = datas.face_mat[i].a;
 			}
-			getVerColor();				// 生成顶点颜色数组
-			generateCompIds();			// 生成顶点到其包含物件的映射
-			generate_bbxs_by_comps();	// 生成各个物件的bbx
-			getVerAttrib();				// 生成顶点属性数组
-			divide_model_by_alpha();	// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes();
+			getVerColor();					// 生成顶点颜色数组
+			generateCompIds();				// 生成顶点到其包含物件的映射
+			generate_bbxs_by_comps();		// 生成各个物件的bbx
+			getVerAttrib();					// 生成顶点属性数组
+			divide_model_by_alpha();		// 根据透明度将顶点分为两组
+			generate_edges_by_msMeshes();	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
-		//IFCModel(const String ifc_file_name) {
-		//	const String filename = ifc_file_name;
 
-		//	std::ifstream is(filename.c_str(), std::ios::binary);
-		//	if (!is.is_open()) {
-		//		std::cout << filename << " opened failed.\n";
-		//		exit(-1);
-		//	}
+		IFCModel(Vector<uint32_t> _g_indices, Vector<Real> _g_vertices, Vector<Real> _g_normals, Vector<Vector<uint32_t>> _c_indices, Vector<float> _face_mat) :
+			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
+			clock_t start, end;
+			start = clock();
+			comp_states.clear();
+			comp_states.shrink_to_fit();
+			comp_states.resize(c_indices.size(), VIS);
 
-		//	//vertices
-		//	size_t s;
-		//	is.read((char*)&s, sizeof(size_t));
-		//	this->g_vertices.resize(s); // xyzxyzxyz...
-		//	for (int i = 0; i < s; i++) {
-		//		is.read((char*)&this->g_vertices[i], sizeof(Real));
-		//	}
+			size_t faces = _face_mat.size() / 8;// 获取面的数量
+			material_data.resize(faces);
+			for (size_t i = 0,j = 0 ; i < faces; ++i, j+=8) {
+				material_data[i].kd = glm::vec3(_face_mat[j], _face_mat[j+1], _face_mat[j+2]);
+				material_data[i].ks = glm::vec3(_face_mat[j+3], _face_mat[j+4], _face_mat[j+5]);
+				material_data[i].ns = _face_mat[j+6];
+				material_data[i].alpha = _face_mat[j+7];
+			}
 
-		//	//normals
-		//	is.read((char*)&s, sizeof(size_t));
-		//	this->g_normals.resize(s); // xyzxyzxyz...
-		//	for (int i = 0; i < s; i++) {
-		//		is.read((char*)&this->g_normals[i], sizeof(Real));
-		//	}
-
-		//	//global_indices
-		//	is.read((char*)&s, sizeof(size_t));
-		//	this->g_indices.resize(s);
-		//	for (int i = 0; i < s; i++) {
-		//		is.read((char*)&this->g_indices[i], sizeof(unsigned int));
-		//		this->g_indices[i]--;
-		//	}
-		//	//components' indices
-		//	is.read((char*)&s, sizeof(size_t));
-		//	size_t tmps;
-		//	c_indices.resize(s);
-		//	for (int i = 0; i < s; i++) {
-		//		is.read((char*)&tmps, sizeof(size_t));
-		//		Vector<uint32_t> tmpvc(tmps);
-		//		for (int j = 0; j < tmps; j++) {
-		//			is.read((char*)&tmpvc[j], sizeof(unsigned int));
-		//			tmpvc[j]--;
-		//		}
-		//		c_indices[i] = tmpvc;
-		//	}
-
-		//	//material datas
-		//	is.read((char*)&s, sizeof(size_t));
-		//	material_data.resize(s); // 获取面的数量
-		//	Vector<MtlData> mat_vec(s);
-		//	for (int i = 0; i < s; i++) {
-		//		is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
-		//		is.read((char*)&mat_vec[i].data[7], sizeof(int));
-		//	}
-		//	for (int i = 0; i < s; i++) {
-		//		material_data[i] = MaterialData(
-		//			glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
-		//			glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
-		//			mat_vec[i].data[6].f, mat_vec[i].data[7].i);
-		//	}
-		//	getVerColor();				// 生成顶点颜色数组
-		//	generateCompIds();			// 生成顶点到其包含物件的映射
-		//	generate_bbxs_by_comps();	// 生成各个物件的bbx
-		//	getVerAttrib();				// 生成顶点属性数组
-		//	divide_model_by_alpha();	// 根据透明度将顶点分为两组
-		//	//generate_edges_by_msMeshes();
-		//}
+			getVerColor();					// 生成顶点颜色数组
+			generateCompIds();				// 生成顶点到其包含物件的映射
+			generate_bbxs_by_comps();		// 生成各个物件的bbx
+			getVerAttrib();					// 生成顶点属性数组
+			divide_model_by_alpha();		// 根据透明度将顶点分为两组
+			//generate_edges_by_msMeshes();	// 生成边
+			end = clock();
+			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+		}
 
 		Vector<uint32_t> generate_edges_by_msMeshes() {
-			c_edge_indices.clear();
-			edge_indices.clear();
-			cur_edge_ind.clear();
+			Vector<Vector<uint32_t>>().swap(c_edge_indices);
+			Vector<uint32_t>().swap(edge_indices);
+			//cur_edge_ind = {}; // to be removed
 			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
 			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
 			for (mesh_simplier::Mesh mes : meshes) {
@@ -146,6 +116,26 @@ namespace ifcre {
 			cur_edge_ind = edge_indices;
 			return edge_indices;
 		}
+//		Vector<uint32_t> generate_edges_by_msMeshes() {
+//			c_edge_indices.resize(0);
+//			c_edge_indices.clear();
+//			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
+//			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
+//			Vector<uint32_t> new_edge_index;
+//			for (mesh_simplier::Mesh mes : meshes) {
+//#ifdef PAIRREP
+//				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+//				c_edge_indices.emplace_back(mes.edge_indexp);
+//#else
+//				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
+//#endif
+//			}
+//			/*for (int i = 0; i < c_edge_indices.size(); i++)
+//				ind_of_all_c_indices.emplace_back(i);*/
+//			edge_indices = new_edge_index;
+//			cur_edge_ind = new_edge_index;
+//			return new_edge_index;
+//		}
 
 		Vector<uint32_t> getgIndices() {
 			return this->g_indices;
@@ -160,6 +150,7 @@ namespace ifcre {
 			return this->comp_ids;
 		}
 
+		// figure out the right bounding box of current IfcModel
 		void setBBX(glm::vec3 pa, glm::vec3 pb) {
 			pMin = pa;
 			pMax = pb;
@@ -174,12 +165,15 @@ namespace ifcre {
 		glm::vec3 getpMax()const {
 			return pMax;
 		}
-		union tempa{
+		/*union tempa{
 			Real f;
 			int i;
-		};
+		};*/
+		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
+			ver_attrib.clear();
+			ver_attrib.shrink_to_fit();
 			ver_attrib.resize(s / 3 * 10);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
@@ -198,9 +192,10 @@ namespace ifcre {
 			return ver_attrib;
 		}
 
+		// just add compid attribute for each vertex on which component it is
 		void generateCompIds() { // comp_ids: 顶点索引找到对应的物件索引
-			int vertexCnt = g_vertices.size() / 3;
-			comp_ids.resize(vertexCnt);
+			comp_ids.clear();
+			comp_ids.resize(g_vertices.size() / 3);
 			int j = 0;
 			for (int i = 0; i < c_indices.size(); i++) {
 				auto ix = c_indices[i];
@@ -211,53 +206,56 @@ namespace ifcre {
 			}
 		}
 
+		// add color attribute for each vertex
 		Vector<Real> getVerColor() {
 			g_kd_color.resize(g_vertices.size());
+			//g_kd_color.shrink_to_fit();
 			for (int i = 0; i < g_indices.size(); i++) {
 				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
 				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
 				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
 			}
-			return g_kd_color;
+			return vector<Real>();
+			//return g_kd_color;
 		}
 
+		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
-			/*for (int i = 0; i < g_indices.size(); i++) {
-				if (material_data[i / 3].alpha < 1)
-					transparency_ind.emplace_back(g_indices[i]);
-				else
-					no_transparency_ind.emplace_back(g_indices[i]);
-			}*/
+			trans_c_indices_set.clear();
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[v_count / 3].alpha < 1) {
 					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					//trans_c_indices.emplace_back(c_indices[i]);
 					trans_c_indices_set.insert(i);
 				}
 				else {
 					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					//no_trans_c_indices.emplace_back(c_indices[i]);
 				}
 				v_count += c_indices[i].size();
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
-			cur_trans_ind = trans_ind;
-			cur_no_trans_ind = no_trans_ind;
+			cur_vis_trans_ind = trans_ind;
+			cur_vis_no_trans_ind = no_trans_ind;
 		}
 
-		void divide_chose_geom_by_alpha(String s_comp_ids) {
+		// 将选中的一些列物体区分为透明和不透明
+		void divide_chose_geom_by_alpha(String s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
 			if (s_comp_ids.size() == 0) {
-				cur_trans_ind = trans_ind;
-				cur_no_trans_ind = no_trans_ind;
+				cur_vis_trans_ind = trans_ind;
+				cur_vis_no_trans_ind = no_trans_ind;
 				return;
 			}
-			cur_trans_ind.clear();
-			cur_no_trans_ind.clear();
-			cur_edge_ind.clear();
+			if (command == 0) {
+				comp_states.clear();
+				comp_states.shrink_to_fit();
+				comp_states.resize(c_indices.size(), DUMP);
+			}
+			//else if (command == 1) {
+				chosen_list.clear();
+			//}
 
 			String s_comp_id;
 			stringstream input(s_comp_ids);
@@ -266,70 +264,76 @@ namespace ifcre {
 			while (getline(input, s_comp_id, ',')) {
 				uint32_t cur_index = stoi(s_comp_id);
 				if (cur_index < c_indices_size) {
-					if (trans_c_indices_set.find(cur_index) != trans_c_indices_set.end()) {
-						cur_trans_ind.insert(cur_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
+					if (0 == command) {
+						comp_states[cur_index] = VIS;
 					}
-					else {
-						cur_no_trans_ind.insert(cur_no_trans_ind.end(), c_indices[cur_index].begin(), c_indices[cur_index].end());
-					}
-					if (cur_index < edge_c_indices_size) {
-						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[cur_index].begin(), c_edge_indices[cur_index].end());
+					else if (1 == command) {
+						chosen_list.insert(cur_index);
 					}
 				}
 			}
 		}
-		
-		/*Vector<uint32_t> no_trans_geom_random_chose(int seed) {
-			if (seed == 0)
-				return no_trans_ind;
-			if (no_trans_c_indices.empty())
-				return {};
-			default_random_engine e(seed);
-			uniform_int_distribution<unsigned> u(0, no_trans_c_indices.size() - 1);
-			Vector<uint32_t> ret;
-			for (size_t i = 0; i < u(e); i++) {
-				auto thisk = u(e);
-				ret.insert(ret.end(), no_trans_c_indices[thisk].begin(), no_trans_c_indices[thisk].end());
+
+		void update_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
+			for (auto& comp_state : comp_states) {
+				if (comp_state != DUMP) {
+					comp_state = VIS;
+				}
 			}
-			return ret;
+			uint32_t c_indices_size = c_indices.size();
+			for (auto cur_index : chosen_list) {
+				if (cur_index < c_indices_size) {
+					comp_states[cur_index] = CHOSEN;
+				}
+			}
 		}
 
-		Vector<uint32_t> trans_geom_random_chose(int seed) {
-			if (seed == 0)
-				return trans_ind;
-			if (trans_c_indices.empty())
-				return {};
-			default_random_engine e(seed);
-			uniform_int_distribution<unsigned> u(0, trans_c_indices.size() - 1);
-			Vector<uint32_t> ret;
-			for (size_t i = 0; i < u(e); i++) {
-				auto thisk = u(e);
-				ret.insert(ret.end(), trans_c_indices[thisk].begin(), trans_c_indices[thisk].end());
+		void update_chosen_and_vis_list() {
+			cur_vis_trans_ind.clear();
+			cur_vis_trans_ind.shrink_to_fit();
+			cur_vis_no_trans_ind.clear();
+			cur_vis_no_trans_ind.shrink_to_fit();
+			cur_edge_ind.clear();
+			cur_edge_ind.shrink_to_fit();
+			cur_chosen_trans_ind.clear();
+			cur_chosen_trans_ind.shrink_to_fit();
+			cur_chosen_no_trans_ind.clear();
+			cur_chosen_no_trans_ind.shrink_to_fit();
+			uint32_t edge_c_indices_size = c_edge_indices.size();
+			for (int i = 0; i < comp_states.size(); ++i) {
+				if (comp_states[i] == VIS) {
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_vis_no_trans_ind.insert(cur_vis_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					if (i < edge_c_indices_size) {
+						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
+					}
+				}
+				else if (comp_states[i] == CHOSEN) {
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+				}
 			}
-			return ret;
 		}
-		
-		Vector<uint32_t> edge_random_chose() {
-			if (c_edge_indices.empty())
-				return {};
-			Vector<uint32_t> ret;
-			for (size_t i = 0; i <vislist.size(); i++) {
-				auto thisk = vislist[i];
-				ret.insert(ret.end(), c_edge_indices[thisk].begin(), c_edge_indices[thisk].end());
-			}
-			return ret;
-		}
-		*/
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
+			comps_bbx.clear();
+			comps_bbx.shrink_to_fit();
 			comps_bbx.resize(cindicessize * 6);		// 每个物件对应6个float值
 			Real a_min[3], a_max[3];
 			int bbx_offset = 0;
 			for (auto& ix : c_indices) {
 				size_t s = ix.size();
-				a_min[0] = a_min[1] = a_min[2] = FLT_MAX;
-				a_max[0] = a_max[1] = a_max[2] = -FLT_MAX;
+				a_min[0] = a_min[1] = a_min[2] = numeric_limits<real_t>::max();
+				a_max[0] = a_max[1] = a_max[2] = numeric_limits<real_t>::lowest();
 				for (size_t i = 0; i < s; i++) {
 					for (int j = 0; j < 3; j++) {
 						a_min[j] = std::min(g_vertices[3 * ix[i] + j], a_min[j]);
@@ -357,9 +361,13 @@ namespace ifcre {
 			m_center = (pMin + pMax) * 0.5f;
 		}
 
-		Vector<Real> generate_bbxs_by_vec(const Vector<uint32_t>& comp_indices) {
+		Vector<Real> generate_bbxs_by_vec(const unordered_set<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
+			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
+				if (id > c_indices_size) {
+					continue;
+				}
 				for (int i = 0; i < 3; i++) {
 					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
 				}
@@ -374,6 +382,14 @@ namespace ifcre {
 				ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
 			}
 			return ret2;
+		}
+
+		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t> input_comp_ids) {
+			Vector<uint32_t> ret;
+			for (auto i : input_comp_ids) {
+				ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
+			}
+			return ret;
 		}
 
 		void rotateInLocalSpace(glm::vec3& pick_center, float angle) {
@@ -429,27 +445,29 @@ namespace ifcre {
 			return mirror_model;
 		}
 
-		uint32_t render_id;// seems a render_id combine with an array of vertex?
-		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
-		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
+		Vector<uint32_t> collision_pairs = {}; // collision pairs
+		uint32_t render_id = {};// seems a render_id combine with an array of vertex?
+		Vector<Real> ver_attrib = {};				// 每个顶点有10个属性，数量为顶点数量的十倍
+		Vector<Real> comps_bbx = {};					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
 
-		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
-		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
-		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
-		Vector<uint32_t> edge_indices;			// ebo of edge
+		Vector<uint32_t> g_indices = {};				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
+		Vector<uint32_t> trans_ind = {};				// 原始透明顶点的索引
+		Vector<uint32_t> no_trans_ind = {};			// 原始不透明顶点的索引
+		Vector<uint32_t> edge_indices = {};			// ebo of edge
 
+		Vector<Vector<uint32_t>> c_indices = {};		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
+		Vector<Vector<uint32_t>> c_edge_indices = {};//ebos of edge, generated after generate_edges_by_msMeshes();
 
-		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
-		Vector<Vector<uint32_t>> c_edge_indices;
+		Vector<CompState> comp_states = {};					// 记录每个comp的状态：隐藏、显示、高亮
 
-		//Vector<vector<uint32_t>> no_trans_c_indices;		// 不透明物体的顶点的索引
-		//Vector<vector<uint32_t>> trans_c_indices;			// 透明物体的的顶点的索引
+		Vector<uint32_t> cur_chosen_trans_ind = {};			// 当前要高亮(多选)的透明顶点的索引
+		Vector<uint32_t> cur_chosen_no_trans_ind = {};		// 当前要高亮(多选)的不透明顶点的索引
 
-		unordered_set<uint32_t> trans_c_indices_set;		// 透明物体的索引
+		Vector<uint32_t> cur_vis_trans_ind = {};				// 当前要显示的透明顶点的索引	
+		Vector<uint32_t> cur_vis_no_trans_ind = {};			// 当前要显示的不透明顶点的索引	
+		Vector<uint32_t> cur_edge_ind = {};					// 当前要显示的物件包含的边的索引
 
-		Vector<uint32_t> cur_trans_ind;			// 当前透明顶点的索引
-		Vector<uint32_t> cur_no_trans_ind;		// 当前不透明顶点的索引
-		Vector<uint32_t> cur_edge_ind;			// 当前物件包含的边的索引
+		unordered_set<uint32_t> trans_c_indices_set = {};	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
@@ -465,6 +483,8 @@ namespace ifcre {
 		Vector<Real> g_kd_color;				// 依次存储各个顶点(漫反射项)颜色的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_normals;					// 依次存储各个顶点法向量的x、y、z信息，数量为顶点数量的三倍
 		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
+
+		Vector<bool> is_trans;
 	};
 	
 

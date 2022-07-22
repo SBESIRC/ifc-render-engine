@@ -86,8 +86,18 @@ namespace ifcre {
         
         if (hover_mode)
             m_mouse_status.hover_comp_id = clicked_comp_id;
-        else
+        else {
             m_mouse_status.click_comp_id = clicked_comp_id;
+            if (clicked_comp_id > 0) {
+                chosen_changed_w = true;
+                if (multichoose) {
+                    chosen_list.insert(static_cast<uint32_t>(clicked_comp_id));
+                }
+                else {
+                    chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
+                }
+            }
+        }
     }
 
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -245,29 +255,27 @@ namespace ifcre {
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ---------------------- 
-    void errorCallback(int error, const char* description) 
+    /*void errorCallback(int error, const char* description) 
     {
 
-    }
+    }*/
     RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
     {
-        glfwSetErrorCallback(errorCallback);
-
+        //glfwSetErrorCallback(errorCallback);
         if (NULL == wndPtr)
         {
             //create new window
             glfwInit();
-            m_option.anti_aliasing = aa;
-            m_lbutton_down = m_rbutton_down = false;
-
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            m_option.anti_aliasing = aa;
             if (aa) {
                 glfwWindowHint(GLFW_SAMPLES, 4);
             }
             // glfw window creation
             m_window = glfwCreateWindow(w, h, title, NULL, NULL);
+            m_lbutton_down = m_rbutton_down = false;
             if (m_window == NULL)
             {
                 std::cout << "Failed to create GLFW window" << std::endl;
@@ -294,8 +302,7 @@ namespace ifcre {
 
         // load gl functions by glad
         static bool load_gl = false;
-        int rst = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-        if (!load_gl && !rst)
+        if (!load_gl && !gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
         {
             load_gl = true;
             std::cout << "Failed to initialize GLAD" << std::endl;
@@ -325,9 +332,12 @@ namespace ifcre {
 
     void RenderWindow::processInput()
     {
-        if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        /*if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             glfwSetWindowShouldClose(m_window, true);
-        }
+        }*/
+        /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            geomchanged ? geomchanged = false : geomchanged = true;
+        }*/
         /*if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && key_frame_stopper) {
             key_frame_stopper = false;
             geomframe++;
@@ -395,6 +405,13 @@ namespace ifcre {
                     use_clip_box.height = .01f;
                 }
             }
+        }
+
+        if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+            multichoose = true;
+        }
+        else if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+            multichoose = false;
         }
     }
 
@@ -635,11 +652,15 @@ namespace ifcre {
     }
 
     void RenderWindow::setDefaultStatus() {
+        m_mouse_status.click_init_mask = 0;
         m_mouse_status.click_comp_id = -1;
         m_mouse_status.hover_comp_id = -1;
         hidden = true;
         //geomframe = 0;
-        geomchanged = true;
+        geom_changed = true;
+        chosen_changed_w = false;
+        chosen_changed_x = false;
+        chosen_list.clear();
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 

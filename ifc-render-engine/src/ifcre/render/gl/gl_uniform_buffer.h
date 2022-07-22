@@ -29,7 +29,6 @@ namespace ifcre {
 		}
 
 		void bindRange(int index, int offset = 0) { // 将 m_uniform_id 链接到 index 绑定点
-			// glBindBufferBase(GL_UNIFORM_BUFFER, index, m_uniform_id); 
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, m_uniform_id, offset, m_buffer_size);
 		}
 

@@ -15,11 +15,22 @@ namespace ifcre {
 	class RenderEngine {
 	public:
 		virtual void setConfig(String key, String value) = 0;
+
+		virtual void clear_model_data() = 0;
+		virtual void set_g_indices(int val) = 0;
+		virtual void set_g_vertices(float val) = 0;
+		virtual void set_g_normals(float val) = 0;
+		virtual void set_c_indices(int val) = 0;
+		virtual void set_face_mat(float val) = 0;
+
 		virtual void init(GLFWwindow *) = 0;
+		//virtual void init2(GLFWwindow* ) = 0;
 		//virtual void initialize(Map<String, String> &configs) = 0;
+		//virtual void setFloat() = 0;
 		virtual void run() = 0;
 		virtual int getSelectedCompId() = 0;
 		virtual void setSelectCompIds() = 0;
+
 	};
 
 
@@ -27,10 +38,21 @@ namespace ifcre {
 	public:
 		//void initialize(Map<String, String> &configs);
 		void setConfig(String key, String value);
+
+		void clear_model_data();
+		void set_g_indices(int val);
+		void set_g_vertices(float val);
+		void set_g_normals(float val);
+		void set_c_indices(int val);
+		void set_face_mat(float val);
+
+		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow *);
 		void run();
 		int getSelectedCompId();
 		void setSelectCompIds();
+
+
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();
@@ -39,7 +61,7 @@ namespace ifcre {
 		IFCRenderEngine() : m_init(false) {}
 		// not thread safety
 		static SharedPtr<RenderEngine> getSingleton();
-
+		int key;
 	private:
 		void drawFrame();
 		
@@ -47,14 +69,21 @@ namespace ifcre {
 		Map<String, String> m_cache_configs;
 		bool m_init;
 		bool try_ifc;
-		//int geomframe = 0;
-		bool use_transparency;
+		//int geomframe = 0; // no use to be......zzl
+		const bool use_transparency = true;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
 		SharedPtr<GLCamera> m_camera;
 
 		SharedPtr<DefaultModel> test_model;
 		SharedPtr<IFCModel> ifc_test_model;
+
+		Vector<uint32_t> _g_indices;
+		Vector<Real> _g_vertices;
+		Vector<Real> _g_normals;
+		Vector<uint32_t> _tmp_c_indices;
+		Vector<Vector<uint32_t>> _c_indices;
+		Vector<float> _face_mat;
 
 	private:
 		SharedPtr<IFCRender> m_ifcRender;

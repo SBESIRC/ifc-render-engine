@@ -13,12 +13,11 @@ namespace ifcre {
 	{
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
-		m_uniform_buffer_map.transformsUBO->bindRange(0);
-
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
-		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
-
 		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 7);
+
+		m_uniform_buffer_map.transformsUBO->bindRange(0);
+		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
 		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 
 #ifdef _DEBUG
@@ -34,33 +33,34 @@ namespace ifcre {
 		String v_comp_id_write = util::read_file("shaders/comp_id_write.vert");
 		String f_comp_id_write = util::read_file("shaders/comp_id_write.frag");
 		m_comp_id_program = make_unique<GLSLProgram>(v_comp_id_write.c_str(), f_comp_id_write.c_str());
-		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_axis = util::read_file("shaders/axis.vert");
 		String f_axis = util::read_file("shaders/axis.frag");
 		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
-		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_clp_plane = util::read_file("shaders/clp_plane.vert");
 		String f_clp_plane = util::read_file("shaders/clp_plane.frag");
 		m_clip_plane_shader = make_unique<GLSLProgram>(v_clp_plane.c_str(), f_clp_plane.c_str());
-		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_test = util::read_file("shaders/test.vert");
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
-		m_test_shader->bindUniformBlock("TransformsUBO", 0);
-		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+
+		String v_chosen_test = util::read_file("shaders/chosen_test.vert");
+		String f_chosen_test = util::read_file("shaders/chosen_test.frag");
+		m_chosen_shader = make_unique<GLSLProgram>(v_chosen_test.c_str(), f_chosen_test.c_str());
 
 		String v_bbx = util::read_file("shaders/bbx.vert");
 		String f_bbx = util::read_file("shaders/bbx.frag");
 		m_select_bbx_shader = make_unique<GLSLProgram>(v_bbx.c_str(), f_bbx.c_str());
-		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 
 		String v_edge = util::read_file("shaders/edge.vert");
 		String f_edge = util::read_file("shaders/edge.frag");
 		m_edge_shader = make_unique<GLSLProgram>(v_edge.c_str(), f_edge.c_str());
-		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
+
+		String v_collision = util::read_file("shaders/collision.vert");
+		String f_collision = util::read_file("shaders/collision.frag");
+		m_collision_shader = make_unique<GLSLProgram>(v_collision.c_str(), f_collision.c_str());
 
 #else 
 		// program init
@@ -69,21 +69,30 @@ namespace ifcre {
 		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
 		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
 		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
+		m_chosen_shader = make_unique<GLSLProgram>(sc::v_chosen_test, sc::f_chosen_test);
 		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
-		m_edge_shader= make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
+		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
+		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
+#endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+
+		m_chosen_shader->bindUniformBlock("TransformsUBO", 0);
+		m_chosen_shader->bindUniformBlock("IFCRenderUBO", 1);
+
+		m_collision_shader->bindUniformBlock("TransformMVPUBO", 2);
+
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
-#endif
+		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
-		glLineWidth(1.5f); //ÉèÖÃÏß¿í
+		glLineWidth(3.0f);
 		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
@@ -251,7 +260,6 @@ namespace ifcre {
 
 			m_test_shader->use();
 			break;
-			break;
 		}
 		case BOUNDINGBOX_SHADING: {
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
@@ -271,54 +279,106 @@ namespace ifcre {
 			m_edge_shader->use();
 			break;
 		}
+		case CHOSEN_SHADING: {
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+
+			m_chosen_shader->use();
+			break;
+		}
+		case CHOSEN_TRANS_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+
+			m_chosen_shader->use();
+			break;
+		}
+		case COLLISION_RENDER: {
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
+			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
+			transformMVPUBO.update(144, 96, m_clip_box.data());
+			m_collision_shader->use();
+			m_collision_shader->setVec2("u_resolution", glm::vec2(1600.f, 900.f));
+			break;
+		}
 		default:break;
 		}
 		SharedPtr<GLVertexBuffer> vb = it->second;
-		switch (local_render_id)
-		{
-		case 1: {
-			vb->draw();
-			break;
-		}
-		case 2: {
-			vb->drawByDynamicEbo();
-			break;
-		}
-		case 3: {//draw no trans only
-			vb->drawNoTrans();
-			break;
-		}
-		case 4: {//draw trans only
-			vb->drawTrans();
-			break;
-		}
-		case 5: {//draw bbx line
-			glDisable(GL_DEPTH_TEST);
-			vb->drawBBXLines();
-			glEnable(GL_DEPTH_TEST);
-			break;
-		}
-		case 6: {//draw edges
-			vb->drawEdges();
-			break;
-		}
-		case 7: {//draw dynamic no trans
-			vb->drawByDynamicEbo_no_trans();
-			break;
-		}
-		case 8: {//draw dynamic trans
-			vb->drawByDynamicEbo_trans();
-			break;
-		}
-		case 9: {
-			vb->drawByDynamicEdge();
-			break;
-		}
-		default: {
-			vb->drawByAddedEbo(local_render_id);
-			break;
-		}
-		}
+
+		vb->run_draw_func(local_render_id);
+		//switch (local_render_id)
+		//{
+		//case ALL: {
+		//	vb->draw();
+		//	break;
+		//}
+		//case DYNAMIC_ALL: {
+		//	vb->drawByDynamicEbo();
+		//	break;
+		//}
+		//case NO_TRANS: {//draw no trans only
+		//	vb->drawNoTrans();
+		//	break;
+		//}
+		//case TRANS: {//draw trans only
+		//	vb->drawTrans();
+		//	break;
+		//}
+		//case BBX_LINE: {//draw bbx line
+		//	vb->drawBBXLines();
+		//	break;
+		//}
+		//case EDGE_LINE: {//draw edges
+		//	vb->drawEdges();
+		//	break;
+		//}
+		//case DYNAMIC_NO_TRANS: {//draw dynamic no trans
+		//	vb->drawByDynamicEbo_no_trans();
+		//	break;
+		//}
+		//case DYNAMIC_TRANS: {//draw dynamic trans
+		//	vb->drawByDynamicEbo_trans();
+		//	break;
+		//}
+		//case DYNAMIC_EDGE_LINE: {
+		//	vb->drawByDynamicEdge();
+		//	break;
+		//}
+		//case CHOSEN_NO_TRANS: {
+		//	
+		//	break;
+		//}
+		//case CHOSEN_TRANS: {
+		//	break;
+		//}
+		//case COLLISION: {
+		//	break;
+		//}
+		//default: {
+		//	vb->drawByAddedEbo(local_render_id);
+		//	break;
+		//}
+		//}
 		glDisable(GL_BLEND);
 	}
 
@@ -613,8 +673,15 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
+	/*void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
+		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, no_trans_indices, trans_indices, edge_indices);
+	}*/
 	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
 		m_vertex_buffer_map[render_id]->upoadDynamicElementBuffer(no_trans_indices, trans_indices, edge_indices);
+	}
+
+	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo) {
+		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_no_trans_ebo, chosen_trans_ebo);
 	}
 
 	void GLRender::setViewMatrix(const glm::mat4& view) {

@@ -45,4 +45,8 @@
         <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       </None>
     </ItemGroup>
+
+    <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+      <Exec Command="xcopy /Y $(SolutionDir)\WorkDir  $(TargetDir)\" />
+    </Target>
 </Project>

@@ -3,7 +3,7 @@
 #define IFCRE_PARSER_H_
 
 #include "OBJ_Loader.h"
-
+#include "../collider.h"
 #include "../common/std_types.h"
 #include "model.h"
 
@@ -99,9 +99,9 @@ namespace ifcsaver {
 		ret.description = read_string_from_binary(is);
 		ret.guid = read_string_from_binary(is);
 		ret.type = read_string_from_binary(is);
-
 		ret.propertySet.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.propertySet.size(); i++) {
+			ret.propertySet[i].propertySet.clear();
 			ret.propertySet[i].propertySet = read_properties_from_binary(is);
 		}
 		return ret;
@@ -132,44 +132,60 @@ namespace ifcsaver {
 		Datas2OpenGL ret;
 		ret.vert_indices = read_vector_from_binary<unsigned int>(is);
 		ret.edge_indices = read_vector_from_binary<unsigned int>(is);
+		ret.search_m.clear();
 		ret.search_m.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.search_m.size(); i++) {
+			ret.search_m[i].clear();
 			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
 		}
 		ret.verts = read_vector_from_binary<real_t>(is);
 		ret.vert_normals2 = read_vector_from_binary<real_t>(is); // 读取法向量
 		ret.face_mat = read_vector_from_binary<Material_new>(is); // 读取每个面上的信息
-
+		//ret.componentDatas.clear();
 		ret.componentDatas.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
 			ret.componentDatas[i] = read_datas4Component_from_binary(is);
 		}
 		return ret;
 	}
+#ifdef _DEBUG
+//this bbx generation fuction is for collision detection
+vector<real_t> generate_bbx_for_collision(const Datas2OpenGL& datas) {
+	size_t comp_size = datas.search_m.size();
+	vector<real_t> ret(6 * comp_size);
+	for (size_t i = 0; i < comp_size; i++) {
+		real_t x_min, x_max, y_min, y_max, z_min, z_max;
+		x_min = y_min = z_min = numeric_limits<real_t>::max();
+		x_max = y_max = z_max = numeric_limits<real_t>::lowest();
+		for (size_t j = 0; j < datas.search_m[i].size(); j++) {
+			//x
+			x_min = min(x_min, datas.verts[datas.search_m[i][j] * 3]);
+			x_max = max(x_max, datas.verts[datas.search_m[i][j] * 3]);
+			//y
+			y_min = min(y_min, datas.verts[datas.search_m[i][j] * 3 + 1]);
+			y_max = max(y_max, datas.verts[datas.search_m[i][j] * 3 + 1]);
+			//z
+			z_min = min(z_min, datas.verts[datas.search_m[i][j] * 3 + 2]);
+			z_max = max(z_max, datas.verts[datas.search_m[i][j] * 3 + 2]);
+		}
+		ret[6 * i] = x_min, ret[6 * i + 1] = y_min, ret[6 * i + 2] = z_min;
+		ret[6 * i + 3] = x_max, ret[6 * i + 4] = y_max, ret[6 * i + 5] = z_max;
+	}
+	return ret;
+}
+#endif
 }
 namespace ifcre {
 	
 	class IFCParser {
 		// TODO
     public:
-		/*static SharedPtr<IFCModel> load(String file) {
-			if (endsWith(file, "midfile")) {
-				auto ret = make_shared<IFCModel>(file);
-				return ret;
-			}
-			else {
-				auto ge = generateIFCMidfile(file);
-				auto ret = make_shared<IFCModel>(ge);
-				return ret;
-			}
-		}*/
-
-	   /*static SharedPtr<IFCModel> load(String file) {
-		   if (endsWith(file, "midfile")) {
+	   static SharedPtr<IFCModel> load(String file) {
+		   Datas2OpenGL ge;
+		   if (endsWith(file, ".midfile")) {
 			   ifstream is(file.c_str(), std::ios::binary);
-			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 			   is.close();
-			   return make_shared<IFCModel>(ge);
 		   }
 		   else {
 #if _DEBUG
@@ -177,28 +193,40 @@ namespace ifcre {
 			   ifstream is(file.c_str(), std::ios::binary);
 			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 			   is.close();
-			   return make_shared<IFCModel>(ge);
 #else
-			   Datas2OpenGL ge = generateIFCMidfile(file);
-			   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
-			   return make_shared<IFCModel>(ge);
+			   auto getmp = generateIFCMidfile(file);
+			   ifcsaver::save_data2OpenGL_into_binary(getmp, file + ".midfile");
+			   ifstream is((file + ".midfile").c_str(), std::ios::binary);
+			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 #endif
 		   }
-	   }*/
+		   auto ret = make_shared<IFCModel>(ge);
+		   /*Collider collider;
+		   collider.bufferData(&ge);
+		   collider.addFilter([](const Datas4Component& hcg) {return true; });
+		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
+		   ret->collision_pairs = collider.getIndexArr();*/
+		   return ret;
+	   }
 
-		static SharedPtr<IFCModel> load(String file) {
-#ifdef _DEBUG
-			//file += ".midfile";
-			ifstream is(file.c_str(), std::ios::binary);
-			Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-			is.close();
-#else
-			Datas2OpenGL ge = generateIFCMidfile(file);
-			ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
-#endif
-			auto ret = make_shared<IFCModel>(ge);
-			return ret;
-		}
+//	   static SharedPtr<IFCModel> load(String file) {
+//#ifdef _DEBUG
+//		   file += ".midfile";
+//		   ifstream is(file.c_str(), std::ios::binary);
+//		   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+//		   is.close();
+//#else
+//		   Datas2OpenGL ge = generateIFCMidfile(file);
+//		   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+//#endif
+//		   auto ret = make_shared<IFCModel>(ge);
+//		   //Collider collider;
+//		   //collider.bufferData(&ge);
+//		   //collider.addFilter([](const Datas4Component& hcg) {return true; });
+//		   //collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
+//		   //ret->collision_pairs = collider.getIndexArr();
+//		   return ret;
+//	   }
 
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());

@@ -21,6 +21,8 @@
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_base_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
+    <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
+    <ClCompile Include="src\ifcre\collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -60,6 +62,7 @@
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
     <ClInclude Include="src\ifcre\mesh_simplier.h" />
+    <ClInclude Include="src\ifcre\collider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -102,6 +105,10 @@
     <None Include="..\workdir\shaders\clp_plane.vert" />
     <None Include="..\workdir\shaders\test.frag" />
     <None Include="..\workdir\shaders\test.vert" />
+    <None Include="..\workdir\shaders\chosen_test.frag" />
+    <None Include="..\workdir\shaders\chosen_test.vert" />
+    <None Include="..\workdir\shaders\collision.vert" />
+    <None Include="..\workdir\shaders\collision.frag" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
