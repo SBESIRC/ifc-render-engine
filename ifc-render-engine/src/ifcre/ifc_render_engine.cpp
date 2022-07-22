@@ -18,7 +18,42 @@ namespace ifcre {
 	{
 		m_cache_configs[key] = value;
 	}
-
+	void IFCRenderEngine::clear_model_data() {
+		_g_indices.clear();
+		_g_indices.shrink_to_fit();
+		_g_vertices.clear();
+		_g_vertices.shrink_to_fit();
+		_g_normals.clear();
+		_g_normals.shrink_to_fit();
+		_c_indices.clear();
+		_c_indices.shrink_to_fit();
+		_face_mat.clear();
+		_face_mat.shrink_to_fit();
+	}
+	void IFCRenderEngine::set_g_indices(int val) {
+		_g_indices.emplace_back(val);
+	}
+	void IFCRenderEngine::set_g_vertices(float val) {
+		_g_vertices.emplace_back(val);
+	}
+	void IFCRenderEngine::set_g_normals(float val) {
+		_g_normals.emplace_back(val);
+	}
+	void IFCRenderEngine::set_c_indices(int val) {
+		if (val == -1) {
+			if (_tmp_c_indices.size() > 0) {
+				_c_indices.emplace_back(_tmp_c_indices);
+			}
+			_tmp_c_indices.clear();
+			_tmp_c_indices.shrink_to_fit();
+		}
+		else {
+			_tmp_c_indices.emplace_back(val);
+		}
+	}
+	void IFCRenderEngine::set_face_mat(float val) {
+		_face_mat.emplace_back(val);
+	}
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		auto& configs = m_cache_configs;
@@ -50,12 +85,18 @@ namespace ifcre {
 
 		// 加载模型数据
 		try_ifc = configs["model_type"] == "ifc";
-		String model_file = configs["file"];
-		if (try_ifc) {
-			ifc_test_model = IFCParser::load(model_file);
+
+		if (_g_indices.size() > 0) {
+			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat);
 		}
 		else {
-			test_model = DefaultParser::load(model_file);
+			String model_file = configs["file"];
+			if (try_ifc) {
+				ifc_test_model = IFCParser::load(model_file);
+			}
+			else {
+				test_model = DefaultParser::load(model_file);
+			}
 		}
 		
 		//获得整个模型的模型矩阵、以及缩放系数
@@ -193,6 +234,8 @@ namespace ifcre {
 		}
 		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"], command, m_window.chosen_list);
 	}
+
+
 
 	//to be write
 	/*void IFCRenderEngine::setChosenCompIds() {

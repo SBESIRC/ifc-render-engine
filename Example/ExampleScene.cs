@@ -14,6 +14,19 @@ namespace Example {
 
         private static readonly Stopwatch _stopwatch = Stopwatch.StartNew();
 
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_clear_model_data();
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_g_indices(int val);
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_g_vertices(float val);
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_g_normals(float val);
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_c_indices(int val);
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_face_mat(float val);
+
         [DllImport("ifc-render-engine.dll")]//, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
 #pragma warning disable CS3001 // 参数类型不符合 CLS
 		public static unsafe extern void ifcre_init(Window* wndPtr);
@@ -32,6 +45,8 @@ namespace Example {
         public static extern void ifcre_set_comp_ids();
 
 
+        
+
         public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {
             ifcre_set_config("width", width.ToString());
@@ -49,7 +64,44 @@ namespace Example {
             ifcre_set_config("render_api", "opengl");
             //ifcre_set_config("render_api", "vulkan");
             Window* ptrToWnd = (Window*)wndPtr.ToPointer();
-            ifcre_init(ptrToWnd);
+
+            ////
+			//ifcre_clear_model_data();
+			//{ // set model datas
+			//	for (int i = 0; i < 999999; i++)
+			//	{
+			//		ifcre_set_g_indices(i);
+			//	}
+			//	for (int i = 0; i < 988899; i++)
+			//	{
+			//		ifcre_set_g_vertices(i);
+			//	}
+			//	for (int i = 0; i < 999777; i++)
+			//	{
+			//		ifcre_set_g_normals(i);
+			//	}
+			//	for (int i = 0; i < 999666; i++)
+			//	{
+			//		ifcre_set_c_indices(i);
+			//	}
+			//	for (int i = 0; i < 99555; i++)
+			//	{
+			//		if (i % 36 == 0)
+			//		{
+			//			ifcre_set_c_indices(-1);
+			//		}
+			//		else
+			//		{
+			//			ifcre_set_c_indices(i);
+			//		}
+			//	}
+			//	for (int i = 0; i < 999555; i++)
+			//	{
+			//		ifcre_set_face_mat(i);
+			//	}
+			//}
+
+			ifcre_init(ptrToWnd);
         }
         public static void Ready() {
             Console.WriteLine("GlWpfControl is now ready");

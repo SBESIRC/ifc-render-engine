@@ -20,6 +20,13 @@ extern "C" {
 
 	__declspec(dllexport) void ifcre_init(GLFWwindow * wndPtr);
 
+	__declspec(dllexport) void ifcre_clear_model_data();
+	__declspec(dllexport) void ifcre_set_g_indices(int val);
+	__declspec(dllexport) void ifcre_set_g_vertices(float val);
+	__declspec(dllexport) void ifcre_set_g_normals(float val);
+	__declspec(dllexport) void ifcre_set_c_indices(int val);
+	__declspec(dllexport) void ifcre_set_face_mat(float val);
+
 	__declspec(dllexport) void ifcre_run();
 
 	__declspec(dllexport) int ifcre_get_comp_id();

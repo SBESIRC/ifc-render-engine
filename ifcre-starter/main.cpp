@@ -13,13 +13,23 @@
 
 typedef void (*ifcre_set_config)(const char* key, const char* value);
 typedef void (*ifcre_init)(void *);
+
 typedef void (*ifcre_run)();
 typedef int (*ifcre_get_comp_id)();
 typedef void (*ifcre_set_comp_ids)();
 
+typedef void (*ifcre_clear_model_data)();
+typedef void (*ifcre_set_g_indices)(void*);
+typedef void (*ifcre_set_g_vertices)(void*);
+typedef void (*ifcre_set_g_normals)(void*);
+typedef void (*ifcre_set_c_indices)(void*);
+typedef void (*ifcre_set_face_mat)(void*);
+
 struct ifcre {
 	ifcre_set_config set_config;
 	ifcre_init init;
+	ifcre_clear_model_data clear_model_data;
+	/*ifcre_set_float set_float;*/
 	ifcre_run run;
 	ifcre_get_comp_id get_comp_id;
 	ifcre_set_comp_ids set_comp_ids;
@@ -36,6 +46,7 @@ void create_ifcre(ifcre* re) {
 	}
 	re->set_config = (ifcre_set_config)GetProcAddress(module, "ifcre_set_config");
 	re->init = (ifcre_init)GetProcAddress(module, "ifcre_init");
+	re->clear_model_data = (ifcre_clear_model_data)GetProcAddress(module, "clear_model_data");
 	re->run = (ifcre_run)GetProcAddress(module, "ifcre_run");
 	re->get_comp_id = (ifcre_get_comp_id)GetProcAddress(module, "ifcre_get_comp_id");
 	re->set_comp_ids = (ifcre_set_comp_ids)GetProcAddress(module, "ifcre_set_comp_ids");
