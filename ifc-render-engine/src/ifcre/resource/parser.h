@@ -194,8 +194,10 @@ namespace ifcre {
 			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 			   is.close();
 #else
-			   ge = generateIFCMidfile(file);
-			   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
+			   auto getmp = generateIFCMidfile(file);
+			   ifcsaver::save_data2OpenGL_into_binary(getmp, file + ".midfile");
+			   ifstream is((file + ".midfile").c_str(), std::ios::binary);
+			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
 #endif
 		   }
 		   auto ret = make_shared<IFCModel>(ge);
