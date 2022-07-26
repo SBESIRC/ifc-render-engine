@@ -72,6 +72,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)..\3rdparty\glfw-3.3.5\include\GLFW;$(ProjectDir)..\3rdparty\bvh;$(ProjectDir)..\3rdparty\vulkan-1.2.189.2\include;$(ProjectDir)..\3rdparty\ifcReadingInclude;$(ProjectDir)..\3rdparty\glm-0.9.9.8;$(ProjectDir)..\3rdparty\glad\include;$(ProjectDir)..\3rdparty\glfw-3.3.5\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)..\3rdparty\ifcReadingLib;$(ProjectDir)..\3rdparty\glfw-3.3.5\lib-vc2019;$(LibraryPath)</LibraryPath>
+    <SourcePath>$(SourcePath);</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
