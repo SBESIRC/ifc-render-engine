@@ -44,11 +44,7 @@ namespace ifcre {
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
-		//void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
-		
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
-
-
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
 
 		void setModelViewMatrix(const glm::mat4& mv);
@@ -114,7 +110,6 @@ namespace ifcre {
 		const glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		//glm::vec4 m_bg_color = glm::vec4(.0f, .0f, .0f, 1.0f);
 		const int m_default_com_id = -1;
 	};
 };

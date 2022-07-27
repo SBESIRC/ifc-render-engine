@@ -59,7 +59,6 @@ namespace ifcre {
 		auto& configs = m_cache_configs;
 
 		if (!m_init) { //初次打开窗口
-			
 			// 获取config数据
 			int width = atoi(configs["width"].c_str());
 			int height = atoi(configs["height"].c_str());
