@@ -76,8 +76,9 @@ namespace ifcre {
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
 			clock_t start, end;
 			start = clock();
-			comp_states.clear();
-			comp_states.shrink_to_fit();
+			/*comp_states.clear();
+			comp_states.shrink_to_fit();*/
+			Vector<CompState>().swap(comp_states);
 			comp_states.resize(c_indices.size(), VIS);
 
 			size_t faces = _face_mat.size() / 8;// 获取面的数量
@@ -85,8 +86,8 @@ namespace ifcre {
 			for (size_t i = 0,j = 0 ; i < faces; ++i, j+=8) {
 				material_data[i].kd = glm::vec3(_face_mat[j], _face_mat[j+1], _face_mat[j+2]);
 				material_data[i].ks = glm::vec3(_face_mat[j+3], _face_mat[j+4], _face_mat[j+5]);
-				material_data[i].ns = _face_mat[j+6];
-				material_data[i].alpha = _face_mat[j+7];
+				material_data[i].alpha = _face_mat[j + 6];
+				material_data[i].ns = _face_mat[j+7];
 			}
 
 			getVerColor();					// 生成顶点颜色数组
@@ -116,26 +117,6 @@ namespace ifcre {
 			cur_edge_ind = edge_indices;
 			return edge_indices;
 		}
-//		Vector<uint32_t> generate_edges_by_msMeshes() {
-//			c_edge_indices.resize(0);
-//			c_edge_indices.clear();
-//			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
-//			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
-//			Vector<uint32_t> new_edge_index;
-//			for (mesh_simplier::Mesh mes : meshes) {
-//#ifdef PAIRREP
-//				new_edge_index.insert(new_edge_index.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
-//				c_edge_indices.emplace_back(mes.edge_indexp);
-//#else
-//				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
-//#endif
-//			}
-//			/*for (int i = 0; i < c_edge_indices.size(); i++)
-//				ind_of_all_c_indices.emplace_back(i);*/
-//			edge_indices = new_edge_index;
-//			cur_edge_ind = new_edge_index;
-//			return new_edge_index;
-//		}
 
 		Vector<uint32_t> getgIndices() {
 			return this->g_indices;
@@ -172,8 +153,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
-			ver_attrib.clear();
-			ver_attrib.shrink_to_fit();
+			Vector<Real>().swap(ver_attrib);
 			ver_attrib.resize(s / 3 * 10);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
@@ -215,8 +195,7 @@ namespace ifcre {
 				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
 				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
 			}
-			return vector<Real>();
-			//return g_kd_color;
+			return g_kd_color;
 		}
 
 		//divide components into 2 vectors by their transparence
@@ -249,8 +228,7 @@ namespace ifcre {
 				return;
 			}
 			if (command == 0) {
-				comp_states.clear();
-				comp_states.shrink_to_fit();
+				Vector<CompState>().swap(comp_states);
 				comp_states.resize(c_indices.size(), DUMP);
 			}
 			//else if (command == 1) {
@@ -268,6 +246,7 @@ namespace ifcre {
 						comp_states[cur_index] = VIS;
 					}
 					else if (1 == command) {
+						comp_states[cur_index] = CHOSEN;
 						chosen_list.insert(cur_index);
 					}
 				}
@@ -289,16 +268,12 @@ namespace ifcre {
 		}
 
 		void update_chosen_and_vis_list() {
-			cur_vis_trans_ind.clear();
-			cur_vis_trans_ind.shrink_to_fit();
-			cur_vis_no_trans_ind.clear();
-			cur_vis_no_trans_ind.shrink_to_fit();
-			cur_edge_ind.clear();
-			cur_edge_ind.shrink_to_fit();
-			cur_chosen_trans_ind.clear();
-			cur_chosen_trans_ind.shrink_to_fit();
-			cur_chosen_no_trans_ind.clear();
-			cur_chosen_no_trans_ind.shrink_to_fit();
+			Vector<uint32_t>().swap(cur_vis_trans_ind);
+			Vector<uint32_t>().swap(cur_vis_no_trans_ind);
+			Vector<uint32_t>().swap(cur_edge_ind);
+			Vector<uint32_t>().swap(cur_chosen_trans_ind);
+			Vector<uint32_t>().swap(cur_chosen_no_trans_ind);
+
 			uint32_t edge_c_indices_size = c_edge_indices.size();
 			for (int i = 0; i < comp_states.size(); ++i) {
 				if (comp_states[i] == VIS) {
@@ -325,8 +300,7 @@ namespace ifcre {
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
-			comps_bbx.clear();
-			comps_bbx.shrink_to_fit();
+			Vector<Real>().swap(comps_bbx);
 			comps_bbx.resize(cindicessize * 6);		// 每个物件对应6个float值
 			Real a_min[3], a_max[3];
 			int bbx_offset = 0;
@@ -445,29 +419,29 @@ namespace ifcre {
 			return mirror_model;
 		}
 
-		Vector<uint32_t> collision_pairs = {}; // collision pairs
-		uint32_t render_id = {};// seems a render_id combine with an array of vertex?
-		Vector<Real> ver_attrib = {};				// 每个顶点有10个属性，数量为顶点数量的十倍
-		Vector<Real> comps_bbx = {};					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
+		Vector<uint32_t> collision_pairs; // collision pairs
+		uint32_t render_id;// seems a render_id combine with an array of vertex?
+		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
+		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
 
-		Vector<uint32_t> g_indices = {};				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
-		Vector<uint32_t> trans_ind = {};				// 原始透明顶点的索引
-		Vector<uint32_t> no_trans_ind = {};			// 原始不透明顶点的索引
-		Vector<uint32_t> edge_indices = {};			// ebo of edge
+		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
+		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
+		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
+		Vector<uint32_t> edge_indices;			// ebo of edge
 
-		Vector<Vector<uint32_t>> c_indices = {};		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
-		Vector<Vector<uint32_t>> c_edge_indices = {};//ebos of edge, generated after generate_edges_by_msMeshes();
+		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
+		Vector<Vector<uint32_t>> c_edge_indices;//ebos of edge, generated after generate_edges_by_msMeshes();
 
-		Vector<CompState> comp_states = {};					// 记录每个comp的状态：隐藏、显示、高亮
+		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 
-		Vector<uint32_t> cur_chosen_trans_ind = {};			// 当前要高亮(多选)的透明顶点的索引
-		Vector<uint32_t> cur_chosen_no_trans_ind = {};		// 当前要高亮(多选)的不透明顶点的索引
+		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
+		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
 
-		Vector<uint32_t> cur_vis_trans_ind = {};				// 当前要显示的透明顶点的索引	
-		Vector<uint32_t> cur_vis_no_trans_ind = {};			// 当前要显示的不透明顶点的索引	
-		Vector<uint32_t> cur_edge_ind = {};					// 当前要显示的物件包含的边的索引
+		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
+		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
+		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
 
-		unordered_set<uint32_t> trans_c_indices_set = {};	// 透明物体的索引, 用来快速分类，一次建立，多次查询
+		unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
