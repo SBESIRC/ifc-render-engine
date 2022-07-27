@@ -43,7 +43,7 @@ namespace ifcre {
 		void vertexAttribDesc(uint32_t index, int32_t size, int32_t stride, const void* pointer);
 		[[deprecated("No use in this project.")]]
 		void ssboAttribUpload(Vector<MaterialData>& mtlData);
-		
+
 		// sending ebos of all components' geometry to GPU
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
 		// sending ebos of all components' geometry to GPU
@@ -58,16 +58,13 @@ namespace ifcre {
 		// sending ebos of filtered components' geometry to GPU
 		// the first parameter is vector of all filtered components' geometry, no matter it's transparency or not
 		// the second & third parameters are components' ebo divided by their transparency
-		//void uploadDynamicElementBuffer(const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans, const Vector<uint32_t>& dynamic_indices_edge);
-		
 		void uploadDynamicElementBuffer(const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans, const Vector<uint32_t>& dynamic_indices_edge);
-
-		
 		// sending ebos of chosen components' geometry to GPU
 		// the input parameters are components' ebo divided by their transparency
 		void uploadChosenElementBuffer(const Vector<uint32_t>& chosen_indices_no_trans, const Vector<uint32_t>& chosen_indices_trans);
 		// sending ebos of collision components' geometry to GPU
 		void uploadCollisionElementBuffer(const Vector<uint32_t>& collision_ebo);
+
 		void run_draw_func(uint32_t draw_id);
 
 		bool useIndex();
