@@ -286,6 +286,7 @@ namespace ifcre {
 					if (i < edge_c_indices_size) {
 						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
 					}
+					all_ind.insert(all_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 				else if (comp_states[i] == CHOSEN) {
 					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
@@ -294,6 +295,7 @@ namespace ifcre {
 					else {
 						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					}
+					all_ind.insert(all_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 			}
 		}
@@ -440,6 +442,8 @@ namespace ifcre {
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
 		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
+
+		Vector<uint32_t> all_ind;						// 所有会显示的顶点的合集
 
 		unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
