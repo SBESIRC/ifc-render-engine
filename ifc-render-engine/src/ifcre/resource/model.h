@@ -80,17 +80,11 @@ namespace ifcre {
 
 			size_t faces = _face_mat.size() / 8;// 获取面的数量
 			material_data.resize(faces);
-
 			for (size_t i = 0,j = 0 ; i < faces; ++i, j+=8) {
 				material_data[i].kd = glm::vec3(_face_mat[j], _face_mat[j+1], _face_mat[j+2]);
 				material_data[i].ks = glm::vec3(_face_mat[j+3], _face_mat[j+4], _face_mat[j+5]);
-<<<<<<< HEAD
-				material_data[i].ns = _face_mat[j+7];
-				material_data[i].alpha = _face_mat[j+6];
-=======
 				material_data[i].alpha = _face_mat[j + 6];
 				material_data[i].ns = _face_mat[j+7];
->>>>>>> 471a816dd30fc753318f80fa8ced8dcbf1b7beda
 			}
 
 			getVerColor();					// 生成顶点颜色数组
@@ -208,10 +202,6 @@ namespace ifcre {
 					g_kd_color[3 * c_indices[i][j] + 2] = material_data[i].kd.z;
 				}
 			}
-<<<<<<< HEAD
-			//return vector<Real>();
-=======
->>>>>>> 471a816dd30fc753318f80fa8ced8dcbf1b7beda
 			return g_kd_color;
 		}
 		//divide components into 2 vectors by their transparence
