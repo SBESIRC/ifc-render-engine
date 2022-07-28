@@ -360,3 +360,5 @@ workdir/myOwnFileOld.dll
 3rdparty/ifcReadingLib/old/myOwnFile.exp
 workdir/myOwnFile1.dll
 *.midfile
+*.ifc
+workdir/myOwnFile715.dll

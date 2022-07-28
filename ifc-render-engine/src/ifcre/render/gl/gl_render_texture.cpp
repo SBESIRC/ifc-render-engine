@@ -125,8 +125,8 @@ namespace ifcre {
 			glNamedFramebufferTexture(fbo_id, GL_COLOR_ATTACHMENT0, m_tex_id, 0);
 			if (m_rt_depth_format == DEPTH_WRITE_ONLY) {
 				glNamedFramebufferRenderbuffer(fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depth_id);
-			}                                                                                                                           
-			else if(m_rt_depth_format != DEPTH0){
+			}
+			else if (m_rt_depth_format != DEPTH0) {
 				if (m_rt_depth_format == DEPTH24) {
 					glNamedFramebufferTexture(fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_depth_id, 0);
 				}

@@ -63,43 +63,8 @@ namespace Example {
             ifcre_set_config("file", fileName);
             ifcre_set_config("render_api", "opengl");
             //ifcre_set_config("render_api", "vulkan");
+            ifcre_set_config("reset_view_pos", ""); // 设置为空则不改变视口，不为空则改变当前视口
             Window* ptrToWnd = (Window*)wndPtr.ToPointer();
-
-            ////
-			//ifcre_clear_model_data();
-			//{ // set model datas
-			//	for (int i = 0; i < 999999; i++)
-			//	{
-			//		ifcre_set_g_indices(i);
-			//	}
-			//	for (int i = 0; i < 988899; i++)
-			//	{
-			//		ifcre_set_g_vertices(i);
-			//	}
-			//	for (int i = 0; i < 999777; i++)
-			//	{
-			//		ifcre_set_g_normals(i);
-			//	}
-			//	for (int i = 0; i < 999666; i++)
-			//	{
-			//		ifcre_set_c_indices(i);
-			//	}
-			//	for (int i = 0; i < 99555; i++)
-			//	{
-			//		if (i % 36 == 0)
-			//		{
-			//			ifcre_set_c_indices(-1);
-			//		}
-			//		else
-			//		{
-			//			ifcre_set_c_indices(i);
-			//		}
-			//	}
-			//	for (int i = 0; i < 999555; i++)
-			//	{
-			//		ifcre_set_face_mat(i);
-			//	}
-			//}
 
 			ifcre_init(ptrToWnd);
         }

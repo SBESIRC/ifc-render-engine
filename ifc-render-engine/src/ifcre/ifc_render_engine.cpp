@@ -20,15 +20,15 @@ namespace ifcre {
 	}
 	void IFCRenderEngine::clear_model_data() {
 		_g_indices.clear();
-		_g_indices.shrink_to_fit();
+		_g_indices.reserve(1024);
 		_g_vertices.clear();
-		_g_vertices.shrink_to_fit();
+		_g_vertices.reserve(1024);
 		_g_normals.clear();
-		_g_normals.shrink_to_fit();
+		_g_normals.reserve(1024);
 		_c_indices.clear();
-		_c_indices.shrink_to_fit();
+		_c_indices.reserve(1024);
 		_face_mat.clear();
-		_face_mat.shrink_to_fit();
+		_face_mat.reserve(1024);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -59,7 +59,6 @@ namespace ifcre {
 		auto& configs = m_cache_configs;
 
 		if (!m_init) { //初次打开窗口
-			
 			// 获取config数据
 			int width = atoi(configs["width"].c_str());
 			int height = atoi(configs["height"].c_str());
@@ -114,9 +113,10 @@ namespace ifcre {
 			//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
 			//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 			//test_model->render_id = m_glrender->addModel(model_vb);
-
-			m_camera = make_shared<GLCamera>(m_view_pos);
-			m_render_window->setCamera(m_camera);
+			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定视角位置
+				m_camera = make_shared<GLCamera>(m_view_pos);
+				m_render_window->setCamera(m_camera);
+			}
 			// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
 
 			// add a rendered model
@@ -211,8 +211,10 @@ namespace ifcre {
 
 		if (m_window.geom_changed) {
 			ifc_test_model->update_chosen_and_vis_list();
-			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, ifc_test_model->cur_chosen_trans_ind);
-			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->cur_vis_no_trans_ind, ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
+			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->all_ind, ifc_test_model->cur_vis_no_trans_ind,
+				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
+			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, 
+				ifc_test_model->cur_chosen_trans_ind);
 			m_window.geom_changed = false;
 		}
 	}

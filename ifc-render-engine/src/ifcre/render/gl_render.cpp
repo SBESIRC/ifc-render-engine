@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 namespace ifcre {
 
-// ------------ construction ---------------------
+	// ------------ construction ---------------------
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
@@ -92,34 +92,34 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
-		glLineWidth(3.0f);
+		glLineWidth(1.5f);
 		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
 
 	}
-// ----- ----- ----- ----- ----- ----- ----- ----- 
+	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 	void GLRender::clearFrameBuffer(GLClearEnum clear, GLColor* color, Real depth)
 	{
 		switch (clear) {
-			case 0x01: {
-				auto& c = *color;
-				glClearColor(c.r, c.g, c.b, c.a);
-				glClear(GL_COLOR_BUFFER_BIT);
-				break;
-			}
-			case 0x03: {
-				auto& c = *color;
-				glClearColor(c.r, c.g, c.b, c.a);
-				glClearDepthf(depth);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				break;
-			}
-			case 0x07: {
-				break;
-			}
-			default:break;
+		case 0x01: {
+			auto& c = *color;
+			glClearColor(c.r, c.g, c.b, c.a);
+			glClear(GL_COLOR_BUFFER_BIT);
+			break;
+		}
+		case 0x03: {
+			auto& c = *color;
+			glClearColor(c.r, c.g, c.b, c.a);
+			glClearDepthf(depth);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			break;
+		}
+		case 0x07: {
+			break;
+		}
+		default:break;
 		}
 	}
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
@@ -313,12 +313,16 @@ namespace ifcre {
 			break;
 		}
 		case COLLISION_RENDER: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
 			m_collision_shader->use();
 			m_collision_shader->setVec2("u_resolution", glm::vec2(1600.f, 900.f));
+			m_collision_shader->setFloat("alpha", 0.02f);
 			break;
 		}
 		default:break;
@@ -673,11 +677,8 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
-	/*void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
+	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
 		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, no_trans_indices, trans_indices, edge_indices);
-	}*/
-	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
-		m_vertex_buffer_map[render_id]->upoadDynamicElementBuffer(no_trans_indices, trans_indices, edge_indices);
 	}
 
 	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo) {
