@@ -183,16 +183,6 @@ namespace ifcre {
 		}
 
 		// add color attribute for each vertex
-		//Vector<Real> getVerColor() {
-		//	g_kd_color.resize(g_vertices.size());
-		//	//g_kd_color.shrink_to_fit();
-		//	for (int i = 0; i < g_indices.size(); i++) {
-		//		g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
-		//		g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
-		//		g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
-		//	}
-		//	return g_kd_color;
-		//}
 		Vector<Real> getVerColor() {
 			g_kd_color.resize(g_vertices.size());
 			for (int i = 0; i < c_indices.size(); i++) {
@@ -205,26 +195,6 @@ namespace ifcre {
 			return g_kd_color;
 		}
 		//divide components into 2 vectors by their transparence
-		/*void divide_model_by_alpha() {
-			Vector<uint32_t> transparency_ind;
-			Vector<uint32_t> no_transparency_ind;
-			trans_c_indices_set.clear();
-			int v_count = 0;
-			for (int i = 0; i < c_indices.size(); ++i) {
-				if (material_data[v_count / 3].alpha < 1) {
-					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					trans_c_indices_set.insert(i);
-				}
-				else {
-					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-				}
-				v_count += c_indices[i].size();
-			}
-			trans_ind = transparency_ind;
-			no_trans_ind = no_transparency_ind;
-			cur_vis_trans_ind = trans_ind;
-			cur_vis_no_trans_ind = no_trans_ind;
-		}*/
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
