@@ -92,7 +92,7 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
-		glLineWidth(3.0f);
+		glLineWidth(1.5f);
 		_defaultConfig();
 
 		// ----- ----- ----- ----- ----- ----- -----
