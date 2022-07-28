@@ -49,8 +49,7 @@ namespace ifcre {
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
-			comp_states.clear();
-			comp_states.shrink_to_fit();
+			Vector<CompState>().swap(comp_states);
 			comp_states.resize(c_indices.size(), VIS);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
@@ -76,8 +75,6 @@ namespace ifcre {
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
 			clock_t start, end;
 			start = clock();
-			/*comp_states.clear();
-			comp_states.shrink_to_fit();*/
 			Vector<CompState>().swap(comp_states);
 			comp_states.resize(c_indices.size(), VIS);
 
@@ -103,7 +100,6 @@ namespace ifcre {
 		Vector<uint32_t> generate_edges_by_msMeshes() {
 			Vector<Vector<uint32_t>>().swap(c_edge_indices);
 			Vector<uint32_t>().swap(edge_indices);
-			//cur_edge_ind = {}; // to be removed
 			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
 			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
 			for (mesh_simplier::Mesh mes : meshes) {
@@ -187,25 +183,55 @@ namespace ifcre {
 		}
 
 		// add color attribute for each vertex
+		//Vector<Real> getVerColor() {
+		//	g_kd_color.resize(g_vertices.size());
+		//	//g_kd_color.shrink_to_fit();
+		//	for (int i = 0; i < g_indices.size(); i++) {
+		//		g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
+		//		g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
+		//		g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+		//	}
+		//	return g_kd_color;
+		//}
 		Vector<Real> getVerColor() {
 			g_kd_color.resize(g_vertices.size());
-			//g_kd_color.shrink_to_fit();
-			for (int i = 0; i < g_indices.size(); i++) {
-				g_kd_color[3 * g_indices[i]] = material_data[i / 3].kd.x;
-				g_kd_color[3 * g_indices[i] + 1] = material_data[i / 3].kd.y;
-				g_kd_color[3 * g_indices[i] + 2] = material_data[i / 3].kd.z;
+			for (int i = 0; i < c_indices.size(); i++) {
+				for (int j = 0; j < c_indices[i].size(); j++) {
+					g_kd_color[3 * c_indices[i][j]] = material_data[i].kd.x;
+					g_kd_color[3 * c_indices[i][j] + 1] = material_data[i].kd.y;
+					g_kd_color[3 * c_indices[i][j] + 2] = material_data[i].kd.z;
+				}
 			}
 			return g_kd_color;
 		}
-
 		//divide components into 2 vectors by their transparence
-		void divide_model_by_alpha() {
+		/*void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
 			trans_c_indices_set.clear();
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[v_count / 3].alpha < 1) {
+					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					trans_c_indices_set.insert(i);
+				}
+				else {
+					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				}
+				v_count += c_indices[i].size();
+			}
+			trans_ind = transparency_ind;
+			no_trans_ind = no_transparency_ind;
+			cur_vis_trans_ind = trans_ind;
+			cur_vis_no_trans_ind = no_trans_ind;
+		}*/
+		void divide_model_by_alpha() {
+			Vector<uint32_t> transparency_ind;
+			Vector<uint32_t> no_transparency_ind;
+			trans_c_indices_set.clear();
+			int v_count = 0;
+			for (int i = 0; i < c_indices.size(); ++i) {
+				if (material_data[i].alpha < 1) {
 					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					trans_c_indices_set.insert(i);
 				}
