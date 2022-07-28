@@ -238,7 +238,6 @@ namespace ifcre {
 	}
 
 
-
 	//to be write
 	/*void IFCRenderEngine::setChosenCompIds() {
 		if (m_render_window == nullptr) {
