@@ -252,9 +252,9 @@ namespace ifcre {
 		}
 
 		void update_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
-			for (auto& comp_state : comp_states) {
-				if (comp_state != DUMP) {
-					comp_state = VIS;
+			for (const int i : cur_c_indices) {
+				if (comp_states[i] != VIS) {
+					comp_states[i] = VIS;
 				}
 			}
 			uint32_t c_indices_size = c_indices.size();
@@ -263,9 +263,6 @@ namespace ifcre {
 			}
 			else {
 				for (auto cur_index : chosen_list) {
-					if (comp_states[cur_index] == DUMP) {
-						continue;
-					}
 					if (cur_index < c_indices_size) {
 						comp_states[cur_index] = CHOSEN;
 					}
@@ -444,13 +441,10 @@ namespace ifcre {
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
 		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
 
-		Vector<uint32_t> cur_c_indices;
+		Vector<uint32_t> cur_c_indices;					// 当前要显示的物件的索引
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
 		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
-
-
-		//Vector<uint32_t> all_ind;						// 所有会显示的顶点的合集
 
 		unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
