@@ -43,6 +43,7 @@ namespace ifcre {
 		if (val == -1) {
 			if (_tmp_c_indices.size() > 0) {
 				_c_indices.emplace_back(_tmp_c_indices);
+				//_g_indices.insert(_g_indices.end(), _tmp_c_indices.begin(), _tmp_c_indices.end()); //this can remove set_g_indices API
 			}
 			_tmp_c_indices.clear();
 			_tmp_c_indices.shrink_to_fit();
@@ -198,12 +199,12 @@ namespace ifcre {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
-		if (m_window.chosen_changed_w && !m_window.chosen_list.empty()) {
+		if (m_window.chosen_changed_w) {
 			ifc_test_model->update_chosen_list(m_window.chosen_list);
 			m_window.geom_changed = true;
 			m_window.chosen_changed_w = false;
 		}
-		else if (m_window.chosen_changed_x && !m_window.chosen_list.empty()) {
+		else if (m_window.chosen_changed_x) {
 			ifc_test_model->update_chosen_list(m_window.chosen_list);
 			m_window.geom_changed = true;
 			m_window.chosen_changed_x = false;

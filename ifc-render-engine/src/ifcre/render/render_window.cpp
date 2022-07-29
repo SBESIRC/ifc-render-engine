@@ -44,7 +44,6 @@ namespace ifcre {
     }
 
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode) {
-
         //glm::vec3 getColor;
         //Real w = m_width, h = m_height;
         ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
@@ -215,6 +214,10 @@ namespace ifcre {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
                     that->_setClickedWorldColors(click_x, click_y, false);
                 }
+                else if(!that->multichoose) {   // 点击空白区域取消选中
+                    that->chosen_changed_w = true;
+                    that->chosen_list.clear();
+                }
                 status.lbtn_down = true;
                 break;
             }
@@ -332,9 +335,11 @@ namespace ifcre {
 
     void RenderWindow::processInput()
     {
-        /*if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            glfwSetWindowShouldClose(m_window, true);
-        }*/
+        if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+            //glfwSetWindowShouldClose(m_window, true);
+            chosen_changed_w = true;
+            chosen_list.clear();
+        }
         /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             geomchanged ? geomchanged = false : geomchanged = true;
         }*/
@@ -656,7 +661,7 @@ namespace ifcre {
         m_mouse_status.click_comp_id = -1;
         m_mouse_status.hover_comp_id = -1;
         hidden = true;
-        //geomframe = 0;
+        
         geom_changed = true;
         chosen_changed_w = false;
         chosen_changed_x = false;

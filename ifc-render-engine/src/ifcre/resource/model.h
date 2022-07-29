@@ -256,9 +256,14 @@ namespace ifcre {
 				}
 			}
 			uint32_t c_indices_size = c_indices.size();
-			for (auto cur_index : chosen_list) {
-				if (cur_index < c_indices_size) {
-					comp_states[cur_index] = CHOSEN;
+			if (c_indices_size == 1 && (*chosen_list.begin() >= c_indices_size)) {
+				chosen_list.clear();
+			}
+			else {
+				for (auto cur_index : chosen_list) {
+					if (cur_index < c_indices_size) {
+						comp_states[cur_index] = CHOSEN;
+					}
 				}
 			}
 		}
