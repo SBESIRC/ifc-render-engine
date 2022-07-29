@@ -212,7 +212,7 @@ namespace ifcre {
 
 		if (m_window.geom_changed) {
 			ifc_test_model->update_chosen_and_vis_list();
-			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->all_ind, ifc_test_model->cur_vis_no_trans_ind,
+			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices), ifc_test_model->cur_vis_no_trans_ind,
 				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
 			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, 
 				ifc_test_model->cur_chosen_trans_ind);

@@ -199,6 +199,7 @@ namespace ifcre {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
 			trans_c_indices_set.clear();
+			Vector<uint32_t>().swap(cur_c_indices);
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[i].alpha < 1) {
@@ -209,6 +210,7 @@ namespace ifcre {
 					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 				v_count += c_indices[i].size();
+				cur_c_indices.emplace_back(i);
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
@@ -219,13 +221,12 @@ namespace ifcre {
 		// 将选中的一些列物体区分为透明和不透明
 		void divide_chose_geom_by_alpha(String s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
 			if (s_comp_ids.size() == 0) {
-				cur_vis_trans_ind = trans_ind;
-				cur_vis_no_trans_ind = no_trans_ind;
 				return;
 			}
 			if (command == 0) {
 				Vector<CompState>().swap(comp_states);
 				comp_states.resize(c_indices.size(), DUMP);
+				Vector<uint32_t>().swap(cur_c_indices);
 			}
 			//else if (command == 1) {
 				chosen_list.clear();
@@ -240,6 +241,7 @@ namespace ifcre {
 				if (cur_index < c_indices_size) {
 					if (0 == command) {
 						comp_states[cur_index] = VIS;
+						cur_c_indices.emplace_back(cur_index);
 					}
 					else if (1 == command) {
 						comp_states[cur_index] = CHOSEN;
@@ -261,6 +263,9 @@ namespace ifcre {
 			}
 			else {
 				for (auto cur_index : chosen_list) {
+					if (comp_states[cur_index] == DUMP) {
+						continue;
+					}
 					if (cur_index < c_indices_size) {
 						comp_states[cur_index] = CHOSEN;
 					}
@@ -276,7 +281,8 @@ namespace ifcre {
 			Vector<uint32_t>().swap(cur_chosen_no_trans_ind);
 
 			uint32_t edge_c_indices_size = c_edge_indices.size();
-			for (int i = 0; i < comp_states.size(); ++i) {
+
+			for (const int i : cur_c_indices) {
 				if (comp_states[i] == VIS) {
 					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
 						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
@@ -287,7 +293,6 @@ namespace ifcre {
 					if (i < edge_c_indices_size) {
 						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
 					}
-					all_ind.insert(all_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 				else if (comp_states[i] == CHOSEN) {
 					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
@@ -296,7 +301,6 @@ namespace ifcre {
 					else {
 						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					}
-					all_ind.insert(all_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 			}
 		}
@@ -361,7 +365,7 @@ namespace ifcre {
 			return ret2;
 		}
 
-		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t> input_comp_ids) {
+		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;
 			for (auto i : input_comp_ids) {
 				ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
@@ -440,11 +444,13 @@ namespace ifcre {
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
 		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
 
+		Vector<uint32_t> cur_c_indices;
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
 		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
 
-		Vector<uint32_t> all_ind;						// 所有会显示的顶点的合集
+
+		//Vector<uint32_t> all_ind;						// 所有会显示的顶点的合集
 
 		unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
