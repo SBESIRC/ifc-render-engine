@@ -224,7 +224,7 @@ namespace ifcre {
 		double m_last_time = 0, m_delta_time = 0;
 		// ----- ----- ----- ----- -----
 
-		const Real m_znear = 0.1, m_zfar = 1000.0;
+		const Real m_znear = 0.1f, m_zfar = 1000.0f;
 		const Real fov = 45.0;
 
 		//bool key_frame_stopper = true;

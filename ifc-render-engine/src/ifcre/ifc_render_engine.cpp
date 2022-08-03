@@ -169,7 +169,6 @@ namespace ifcre {
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-						m_window.pollEvents();
 						m_window.processInput();
 
 						//test dynamic ebo of components
@@ -177,7 +176,10 @@ namespace ifcre {
 
 						drawFrame();
 
-						m_window.swapBuffer();
+						if (!m_window.swapBuffer()) {
+							break;
+						}
+						m_window.pollEvents();
 					}
 					break;
 				}
@@ -237,24 +239,6 @@ namespace ifcre {
 		}
 		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"], command, m_window.chosen_list);
 	}
-
-
-	//to be write
-	/*void IFCRenderEngine::setChosenCompIds() {
-		if (m_render_window == nullptr) {
-			return;
-		}
-		auto& m_window = *m_render_window;
-
-		auto& configs = m_cache_configs;
-		ifc_test_model->divide_chosen_geom_by_alpha(configs["selectIds"]);
-		m_window.chosenchanged = true;
-	}*/
-
-
-	/*getSelectedCompIds() {
-
-	}*/
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
