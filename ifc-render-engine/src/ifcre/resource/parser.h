@@ -199,11 +199,13 @@ namespace ifcre {
 #endif
 		   }
 		   auto ret = make_shared<IFCModel>(ge);
-		  /* Collider collider;
+		   Collider collider;
 		   collider.bufferData(&ge);
 		   collider.addFilter([](const Datas4Component& hcg) {return true; });
-		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
-		   ret->collision_pairs = collider.getIndexArr();*/
+		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {
+			   return( hcg1.type == "ifcBeam" ) && (hcg2.type == "ifcBeam");
+			   });
+		   ret->collision_pairs = collider.getIndexArr();
 		   return ret;
 	   }
 

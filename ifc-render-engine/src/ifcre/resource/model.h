@@ -219,7 +219,7 @@ namespace ifcre {
 		}
 
 		// 将选中的一些列物体区分为透明和不透明
-		void divide_chose_geom_by_alpha(String s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
+		void divide_chose_geom_by_alpha(const String& s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
 			if (s_comp_ids.size() == 0) {
 				return;
 			}

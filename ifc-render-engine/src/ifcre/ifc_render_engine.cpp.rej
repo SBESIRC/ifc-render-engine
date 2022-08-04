@@ -1,0 +1,6 @@
+diff a/ifc-render-engine/src/ifcre/ifc_render_engine.cpp b/ifc-render-engine/src/ifcre/ifc_render_engine.cpp	(rejected hunks)
+@@ -232,4 +232,2 @@
+ 
+-		auto& configs = m_cache_configs;
+-
+ 		int command = 0;  // command 0��������ʾһЩ�����1������ѡ��һЩ���

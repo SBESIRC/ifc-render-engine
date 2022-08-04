@@ -80,3 +80,9 @@ void ifcre_set_comp_ids()
 	auto& re = *render_engine;
 	re.setSelectCompIds();
 }
+
+void ifcre_set_sleep_time(int val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.SetSleepTime(val);
+}

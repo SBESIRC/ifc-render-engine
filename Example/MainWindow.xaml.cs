@@ -77,15 +77,18 @@ namespace Example {
 
 		private void Button_Click_2(object sender, RoutedEventArgs e)
 		{
-            string s = "";
-            if(tbIdsToShow.Text != ""){
-                for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
-                {
-                    s += i.ToString();
-                    s += ",";
-                }
-            }
-            Example.ExampleScene.SetSelectCompIDs(s);
-        }
+			string s = "";
+			if (tbIdsToShow.Text != "")
+			{
+				for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
+				{
+					s += i.ToString();
+					s += ",";
+				}
+			}
+			Example.ExampleScene.SetSelectCompIDs(s);
+
+			//Example.ExampleScene.SetSleepTime(int.Parse(tbIdsToShow.Text));
+		}
 	}
 }

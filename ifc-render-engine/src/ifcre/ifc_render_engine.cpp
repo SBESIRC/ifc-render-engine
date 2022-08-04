@@ -155,6 +155,8 @@ namespace ifcre {
 				test_model->render_id = m_glrender->addModel(model_vb);
 			}
 		}
+
+		sleep_time = 10;
 	}
 
 	void IFCRenderEngine::run()
@@ -167,7 +169,7 @@ namespace ifcre {
 					auto& m_window = *m_render_window;
 					while (!m_window.isClose()) {
 						//sleep 1 ms to reduce cpu time
-						std::this_thread::sleep_for(std::chrono::milliseconds(1));
+						std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
 						m_window.processInput();
 
@@ -228,8 +230,6 @@ namespace ifcre {
 		}
 		auto& m_window = *m_render_window;
 
-		auto& configs = m_cache_configs;
-
 		int command = 0;  // command 0、设置显示一些物件；1、高亮选中一些物件
 		if (command == 0) {
 			m_window.geom_changed = true;
@@ -237,12 +237,20 @@ namespace ifcre {
 		else if (command == 1) {
 			m_window.chosen_changed_x = true;
 		}
-		ifc_test_model->divide_chose_geom_by_alpha(configs["selectIds"], command, m_window.chosen_list);
+		ifc_test_model->divide_chose_geom_by_alpha(m_cache_configs["selectIds"], command, m_window.chosen_list);
+	}
+
+	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
+		sleep_time = sleepTime;
 	}
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
+	}
+
+	void IFCRenderEngine::getSelectedCompIds() {
+		m_render_window->chosen_list;
 	}
 
 	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()

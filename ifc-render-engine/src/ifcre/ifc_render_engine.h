@@ -31,6 +31,7 @@ namespace ifcre {
 		virtual int getSelectedCompId() = 0;
 		virtual void setSelectCompIds() = 0;
 
+		virtual void SetSleepTime(int val) = 0;
 	};
 
 
@@ -50,7 +51,9 @@ namespace ifcre {
 		void init(GLFWwindow *);
 		void run();
 		int getSelectedCompId();
+		void getSelectedCompIds();
 		void setSelectCompIds();
+		void SetSleepTime(int val);
 
 
 
@@ -69,6 +72,7 @@ namespace ifcre {
 		Map<String, String> m_cache_configs;
 		bool m_init;
 		bool try_ifc;
+		uint32_t sleep_time;
 		const bool use_transparency = true;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
