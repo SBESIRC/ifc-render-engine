@@ -479,6 +479,28 @@ namespace ifcre {
 			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
+		static const char* f_text = "#version 460\r\n"
+			"in vec2 TexCoords;\r\n"
+			"out vec4 color;\r\n"
+			"uniform sampler2D text;\r\n"
+			"uniform vec3 textColor;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\r\n"
+			"color = vec4(textColor, 1.0) * sampled;\r\n"
+			"}\r\n";
+
+		static const char* v_text = "#version 460\r\n"
+			"layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>\r\n"
+			"out vec2 TexCoords;\r\n"
+			"uniform vec2 offset;\r\n"
+			"uniform mat4 projection;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"vec2 truepos = offset + vertex.xy;\r\n"
+			"gl_Position = projection * vec4(truepos, 0.0, 1.0);\r\n"
+			"TexCoords = vertex.zw;\r\n"
+			"}\r\n";
 	}// shader_consts
 
 }

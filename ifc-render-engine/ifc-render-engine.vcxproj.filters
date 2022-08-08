@@ -63,6 +63,8 @@
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
     <ClInclude Include="src\ifcre\mesh_simplier.h" />
     <ClInclude Include="src\ifcre\collider.h" />
+    <ClInclude Include="src\ifcre\bmp.h" />
+    <ClInclude Include="src\ifcre\Character.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -109,6 +111,8 @@
     <None Include="..\workdir\shaders\chosen_test.vert" />
     <None Include="..\workdir\shaders\collision.vert" />
     <None Include="..\workdir\shaders\collision.frag" />
+    <None Include="..\workdir\shaders\text.frag" />
+    <None Include="..\workdir\shaders\text.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

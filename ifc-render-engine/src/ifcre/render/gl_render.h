@@ -12,6 +12,7 @@
 #include "gl/gl_uniform_buffer.h"
 #include "gl/gl_enum.h"
 #include "gl_camera.h"
+#include "../Character.h"
 
 #include "../common/ifc_enum.h"
 #include "../resource/model.h"
@@ -59,12 +60,15 @@ namespace ifcre {
 		void setCameraDirection(const glm::vec3& m_front);
 		void setClippingPlane(const glm::vec4& clip_plane);
 		void setClippingBox(const Vector<glm::vec4>& clip_box);
+		glm::vec4 get_test_matrix(const glm::vec4& a) const;
+		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 		// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderClipBox(const bool hidden, ClipBox clip_box);
+		void renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
@@ -100,6 +104,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_edge_shader;
 		UniquePtr<GLSLProgram> m_clip_plane_shader;
 		UniquePtr<GLSLProgram> m_collision_shader;
+		UniquePtr<GLSLProgram> m_text_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
@@ -111,6 +116,8 @@ namespace ifcre {
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
+		//TextData textdata = TextData("resources/fonts/default.ttf");
+		TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 	};
 };
 

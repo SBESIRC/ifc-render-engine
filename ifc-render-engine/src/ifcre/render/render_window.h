@@ -143,7 +143,9 @@ namespace ifcre {
 		Vector<glm::vec4> getClippingBoxVectors();
 		ClipBox getClipBox() { return use_clip_box; }
 		void setCamera(SharedPtr<GLCamera> camera);
-		
+		int get_width() { return m_width; }
+		int get_height() { return m_height; }
+
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
 		glm::vec3 getVirtualHoverWorldCoord();

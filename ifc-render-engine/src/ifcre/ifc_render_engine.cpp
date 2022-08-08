@@ -4,7 +4,7 @@
 #include "ifcrender/render_ui.h"
 #include <chrono>
 #include <thread>
-#include<iostream>
+#include <iostream>
 #include <sstream>
 
 //#define ONLY_DEPTH_NROMAL_RES
@@ -371,6 +371,12 @@ namespace ifcre {
 				, m_camera->getViewPos()
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+			
+			// ----------------------------- render text -----------------------------
+			auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
+
+			m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

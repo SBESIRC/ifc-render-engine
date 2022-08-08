@@ -324,7 +324,7 @@ namespace objl
             std::vector<std::string>& out,
             std::string token)
         {
-            out.clear();
+            std::vector<std::string>().swap(out);
 
             std::string temp;
 
@@ -337,7 +337,7 @@ namespace objl
                     if (!temp.empty())
                     {
                         out.push_back(temp);
-                        temp.clear();
+                        temp.resize(0);
                         i += (int)token.size() - 1;
                     }
                     else
