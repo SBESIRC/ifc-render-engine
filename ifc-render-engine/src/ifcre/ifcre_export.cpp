@@ -74,11 +74,11 @@ int ifcre_get_comp_id()
 	return re.getSelectedCompId();
 }
 
-void ifcre_set_comp_ids()
+void ifcre_set_comp_ids(const int val)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
-	re.setSelectCompIds();
+	re.setSelectCompIds(val);
 }
 
 void ifcre_set_sleep_time(int val) {

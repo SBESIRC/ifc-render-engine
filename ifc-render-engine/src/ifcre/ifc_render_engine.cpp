@@ -224,13 +224,12 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::setSelectCompIds() {
+	void IFCRenderEngine::setSelectCompIds(int command = 0) {
 		if (m_render_window == nullptr) {
 			return;
 		}
 		auto& m_window = *m_render_window;
-
-		int command = 0;  // command 0、设置显示一些物件；1、高亮选中一些物件
+		// command 0、设置显示一些物件；1、高亮选中一些物件
 		if (command == 0) {
 			m_window.geom_changed = true;
 		}
