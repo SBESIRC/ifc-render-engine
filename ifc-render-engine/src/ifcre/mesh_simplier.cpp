@@ -79,8 +79,7 @@ namespace mesh_simplier {
             vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]),
                 glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]));
         }
-        //same_vertex_map.clear();
-        //same_vertex_map.shrink_to_fit();
+        vector<int>().swap(same_vertex_map); // ±ØÐë
         same_vertex_map.resize(vertices.size(), -1);
 #ifdef coutlog
         cout << "vertices built, its size:" << vertices.size() << "\n";
