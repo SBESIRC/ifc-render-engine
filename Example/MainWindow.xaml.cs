@@ -86,9 +86,27 @@ namespace Example {
 					s += ",";
 				}
 			}
-			Example.ExampleScene.SetSelectCompIDs(s);
-
-			//Example.ExampleScene.SetSleepTime(int.Parse(tbIdsToShow.Text));
+			Example.ExampleScene.SetSelectCompIDs(s, 0);
 		}
+
+		private void Button_Click_onelooptime(object sender, RoutedEventArgs e)
+        {
+            int time = int.Parse(tbIdsToShow.Text);
+            Example.ExampleScene.SetSleepTime(time);
+        }
+
+        private void Button_Click_multichose(object sender, RoutedEventArgs e)
+		{
+            string s = "";
+            if (tbIdsToShow.Text != "")
+            {
+                for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
+                {
+                    s += i.ToString();
+                    s += ",";
+                }
+            }
+            Example.ExampleScene.SetSelectCompIDs(s, 1);
+        }
 	}
 }

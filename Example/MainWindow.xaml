@@ -17,9 +17,11 @@
         <WindowsFormsHost Name="formHost" Width="auto" Height="auto" Initialized="formHost_Initialized">
         </WindowsFormsHost>
         <Button Click="Button_Click" Grid.Row="1" Margin="0,10,805,10">Start</Button>
-        <TextBox x:Name="tbIdsToShow" Grid.Row="2" Width="158" HorizontalAlignment="Left" Margin="0,10,0,10"/>
+        <TextBox x:Name="tbIdsToShow" Grid.Row="2" Width="404" HorizontalAlignment="Left" Margin="0,10,0,10"/>
         <Button Click="Button_Click_1" Grid.Row="1" Margin="800,10,0,10">Show Component ID</Button>
-        <Button Click="Button_Click_2"  Grid.Row="2" Margin="163,10,0,10">Set selected ids</Button>
+        <Button Click="Button_Click_2"  Grid.Row="2" Margin="1129,10,0,10">Set selected ids</Button>
+        <Button Click="Button_Click_multichose"  Grid.Row="2" Margin="800,10,476,10" Content="mutichose"/>
+        <Button Click="Button_Click_onelooptime"  Grid.Row="2" Margin="409,10,805,10" Content="one loop time"/>
     </Grid>
 
 </Window>

@@ -290,10 +290,14 @@ namespace ifcre {
         }
         else
         {
+            m_option.anti_aliasing = aa;
+            if (aa) {
+                glfwWindowHint(GLFW_SAMPLES, 4);
+            }
             //use existing
             m_window = (GLFWwindow*)wndPtr;
+            //glfwMakeContextCurrent(m_window);
         }
-        //glfwMakeContextCurrent(m_window);
         m_window = glfwGetCurrentContext();
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
@@ -428,8 +432,9 @@ namespace ifcre {
     bool RenderWindow::swapBuffer()
     {
         auto handle = glfwGetWin32Window(m_window);
-        if (!IsWindow(handle))
+        if (!IsWindow(handle)) {
             return false;
+        }
 
         glfwSwapBuffers(m_window);
         double now_time = glfwGetTime();

@@ -13,7 +13,8 @@ namespace ifcre {
 		EDGE_SHADING = 0x06,
 		CHOSEN_SHADING = 0x07,
 		CHOSEN_TRANS_SHADING = 0x08,
-		COLLISION_RENDER = 0x09
+		COLLISION_RENDER = 0x09,
+		TEXT_RENDER = 0x0a
 	};
 	enum RenderPartEnum {
 		ALL = 0x01,
@@ -25,9 +26,9 @@ namespace ifcre {
 		DYNAMIC_NO_TRANS = 0x07,
 		DYNAMIC_TRANS = 0x08,
 		DYNAMIC_EDGE_LINE = 0x09,
-		CHOSEN_NO_TRANS = 0x10,
-		CHOSEN_TRANS = 0x11,
-		COLLISION = 0x12
+		CHOSEN_NO_TRANS = 0x0a,
+		CHOSEN_TRANS = 0x0b,
+		COLLISION = 0x0c
 	};
 
 	enum RenderAPIEnum {

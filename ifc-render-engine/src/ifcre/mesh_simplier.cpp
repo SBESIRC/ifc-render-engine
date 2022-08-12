@@ -72,19 +72,14 @@ namespace mesh_simplier {
 
     void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) {
         assert(g_vertices.size() == g_normals.size());
+        vector<Vertex>().swap(vertices);
         int s = g_vertices.size();
-        vertices.clear();
-        vertices.shrink_to_fit();
-        //vertices.reserve(g_vertices.size() / 3);
         vertices.resize(g_vertices.size() / 3);
         for (int i = 0; i < s / 3; i++) {
             vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]),
                 glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]));
         }
-        //merge_save_vertex();
-        same_vertex_map.clear();
-        //same_vertex_map.swap(same_vertex_map);
-        same_vertex_map.shrink_to_fit();
+        vector<int>().swap(same_vertex_map); // ±ØÐë
         same_vertex_map.resize(vertices.size(), -1);
 #ifdef coutlog
         cout << "vertices built, its size:" << vertices.size() << "\n";
@@ -93,7 +88,7 @@ namespace mesh_simplier {
 
     void merge_save_vertex() {
         int s = vertices.size();
-        same_vertex_map.clear();
+        //same_vertex_map.clear();
         same_vertex_map.resize(s, -1);
         for (int i = 0; i < s - 1; i++) {
             if (same_vertex_map[i] != -1)
@@ -138,10 +133,10 @@ namespace mesh_simplier {
                 fnum++;
         }
         assert(vnum == vnnum);
-        //vertices.resize(vnum);
-        vertices.reserve(vnum);
-        //faces.resize(fnum);
-        faces.reserve(fnum);
+        //vertices.reserve(vnum);
+        //faces.reserve(fnum);
+        vertices.resize(vnum);
+        faces.resize(fnum);
         file.close();
         string s0, s1, s2, s3, s4;
         int vnn, vn, fn;

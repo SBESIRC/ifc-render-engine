@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+
 namespace ifcre {
 
 	// ------------ construction ---------------------
@@ -62,6 +64,10 @@ namespace ifcre {
 		String f_collision = util::read_file("shaders/collision.frag");
 		m_collision_shader = make_unique<GLSLProgram>(v_collision.c_str(), f_collision.c_str());
 
+		String v_text = util::read_file("shaders/text.vert");
+		String f_text = util::read_file("shaders/text.frag");
+		m_text_shader = make_unique<GLSLProgram>(v_text.c_str(), f_text.c_str());
+
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -74,6 +80,7 @@ namespace ifcre {
 		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
 		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
+		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -433,6 +440,31 @@ namespace ifcre {
 		}
 	}
 
+	void GLRender::renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	{
+		const wchar_t text[] = L"Ifc-Render-Engine-For-Tianha-Corp";
+		const wchar_t text2[] = L"中文测试字样";
+		m_text_shader->use();
+		m_text_shader->setVec3("textColor", color);
+		m_text_shader->setVec2("offset", glm::vec2(position));
+		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // ortho正交投影
+		glDisable(DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
+		glDepthMask(GL_FALSE);
+		//textdata.render_text(text, glm::vec3(position), scale);
+		texturefont.drawText(text);
+
+		m_text_shader->setVec2("offset", glm::vec2(position) + glm::vec2(100.f, 100.f));
+		texturefont.drawText(text2);
+		/*static bool lockk = false;
+		if (!lockk) {
+			texturefont.init_bmp();
+			lockk = true;
+		}*/
+		glDepthMask(GL_TRUE);
+		_defaultConfig();
+	}
+
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
@@ -730,5 +762,16 @@ namespace ifcre {
 
 	void GLRender::setClippingBox(const Vector<glm::vec4>& clip_box) {
 		m_clip_box = clip_box;
+	}
+	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
+		return m_projection * m_modelview * a;
+	}
+
+	glm::vec3 GLRender::get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const {
+		glm::vec4 sxaswd1 = get_test_matrix(model_pos);
+		sxaswd1 /= sxaswd1.w;
+		sxaswd1.x = (1. + sxaswd1.x) / 2 * window_width;
+		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
+		return glm::vec3(sxaswd1);
 	}
 } 

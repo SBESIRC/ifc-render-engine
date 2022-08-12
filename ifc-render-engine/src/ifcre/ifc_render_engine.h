@@ -29,7 +29,7 @@ namespace ifcre {
 		//virtual void setFloat() = 0;
 		virtual void run() = 0;
 		virtual int getSelectedCompId() = 0;
-		virtual void setSelectCompIds() = 0;
+		virtual void setSelectCompIds(int val) = 0;
 
 		virtual void SetSleepTime(int val) = 0;
 	};
@@ -52,7 +52,7 @@ namespace ifcre {
 		void run();
 		int getSelectedCompId();
 		void getSelectedCompIds();
-		void setSelectCompIds();
+		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 
 

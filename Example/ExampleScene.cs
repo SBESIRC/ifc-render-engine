@@ -42,7 +42,7 @@ namespace Example {
         public static extern int ifcre_get_comp_id();
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
-        public static extern void ifcre_set_comp_ids();
+        public static extern void ifcre_set_comp_ids(int val);
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_set_sleep_time(int val);
@@ -85,10 +85,10 @@ namespace Example {
             return i;
         }
 
-        public static void SetSelectCompIDs(string selected_comp_ids)
+        public static void SetSelectCompIDs(string selected_comp_ids, int val)
         {
 			ifcre_set_config("selectIds", selected_comp_ids);
-			ifcre_set_comp_ids();
+			ifcre_set_comp_ids(val);
 		}
 
         public static void SetSleepTime(int val)
