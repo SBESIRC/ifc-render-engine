@@ -71,8 +71,8 @@ namespace ifcre {
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
-		IFCModel(Vector<uint32_t> _g_indices, Vector<Real> _g_vertices, Vector<Real> _g_normals, Vector<Vector<uint32_t>> _c_indices, Vector<float> _face_mat) :
-			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
+		IFCModel(Vector<uint32_t> _g_indices, Vector<Real> _g_vertices, Vector<Real> _g_normals, Vector<Vector<uint32_t>> _c_indices, Vector<float> _face_mat, Vector<uint32_t> _edge_indices) :
+			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices)  {
 			clock_t start, end;
 			start = clock();
 			Vector<CompState>().swap(comp_states);
@@ -92,7 +92,9 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			//generate_edges_by_msMeshes();	// 生成边
+			if (edge_indices.size() > 0) {
+				generate_edges_by_msMeshes();	// 生成边
+			}
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}

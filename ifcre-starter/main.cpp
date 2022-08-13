@@ -24,6 +24,7 @@ typedef void (*ifcre_set_g_vertices)(void*);
 typedef void (*ifcre_set_g_normals)(void*);
 typedef void (*ifcre_set_c_indices)(void*);
 typedef void (*ifcre_set_face_mat)(void*);
+typedef void (*ifcre_set_edge_indices)(void*);
 
 struct ifcre {
 	ifcre_set_config set_config;
