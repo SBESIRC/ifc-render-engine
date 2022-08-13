@@ -60,6 +60,12 @@ void ifcre_set_face_mat(const float a) {
 	re.set_face_mat(a);
 }
 
+void ifcre_set_edge_indices(const int a) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_edge_indices(a);
+}
+
 void ifcre_run()
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();

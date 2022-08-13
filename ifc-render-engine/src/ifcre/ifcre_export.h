@@ -26,6 +26,7 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_g_normals(float val);
 	__declspec(dllexport) void ifcre_set_c_indices(int val);
 	__declspec(dllexport) void ifcre_set_face_mat(float val);
+	__declspec(dllexport) void ifcre_set_edge_indices(int val);
 
 	__declspec(dllexport) void ifcre_run();
 

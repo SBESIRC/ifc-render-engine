@@ -22,6 +22,8 @@ namespace ifcre {
 		virtual void set_g_normals(float val) = 0;
 		virtual void set_c_indices(int val) = 0;
 		virtual void set_face_mat(float val) = 0;
+		virtual void set_edge_indices(int val) = 0;
+
 
 		virtual void init(GLFWwindow *) = 0;
 		//virtual void init2(GLFWwindow* ) = 0;
@@ -46,6 +48,7 @@ namespace ifcre {
 		void set_g_normals(float val);
 		void set_c_indices(int val);
 		void set_face_mat(float val);
+		void set_edge_indices(int val);
 
 		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow *);
@@ -87,6 +90,7 @@ namespace ifcre {
 		Vector<uint32_t> _tmp_c_indices;
 		Vector<Vector<uint32_t>> _c_indices;
 		Vector<float> _face_mat;
+		Vector<uint32_t> _edge_indices;
 
 	private:
 		SharedPtr<IFCRender> m_ifcRender;

@@ -29,6 +29,8 @@ namespace ifcre {
 		_c_indices.reserve(1024);
 		_face_mat.clear();
 		_face_mat.reserve(1024);
+		_edge_indices.clear();
+		_edge_indices.reserve(1024);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -54,6 +56,9 @@ namespace ifcre {
 	}
 	void IFCRenderEngine::set_face_mat(float val) {
 		_face_mat.emplace_back(val);
+	}
+	void IFCRenderEngine::set_edge_indices(int val) {
+		_edge_indices.emplace_back(val);
 	}
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
@@ -183,6 +188,7 @@ namespace ifcre {
 						}
 						m_window.pollEvents();
 					}
+					m_init = false;
 					break;
 				}
 				case VULKAN_RENDER_API: {
