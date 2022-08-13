@@ -92,7 +92,7 @@ namespace ifcre {
 		try_ifc = configs["model_type"] == "ifc";
 
 		if (_g_indices.size() > 0) {
-			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat);
+			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
 		}
 		else {
 			String model_file = configs["file"];
