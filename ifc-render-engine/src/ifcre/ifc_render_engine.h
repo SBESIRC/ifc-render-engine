@@ -75,6 +75,8 @@ namespace ifcre {
 		Map<String, String> m_cache_configs;
 		bool m_init;
 		bool try_ifc;
+		Real scale_factor = 0;
+		glm::mat4 ifc_m_matrix;
 		uint32_t sleep_time;
 		const bool use_transparency = true;
 		SharedPtr<GLRender> m_glrender;
