@@ -103,14 +103,18 @@ namespace ifcre {
 				test_model = DefaultParser::load(model_file);
 			}
 		}
-		
-		//获得整个模型的模型矩阵、以及缩放系数
-		Real scale_factor = 0;
-		glm::mat4 ifc_model_matrix;
-		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-		ifc_test_model->setModelMatrix(ifc_model_matrix);
-		ifc_test_model->setScaleFactor(scale_factor);
 
+		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
+			//获得整个模型的模型矩阵、以及缩放系数
+			scale_factor = 0;
+			glm::mat4 ifc_model_matrix;
+			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+			ifc_test_model->setModelMatrix(ifc_model_matrix);
+			ifc_test_model->setScaleFactor(scale_factor);
+		}
+		else { // 固定模型矩阵（观察位置）
+			ifc_test_model->setModelMatrix(ifc_m_matrix);
+		}
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -119,7 +123,7 @@ namespace ifcre {
 			//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
 			//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 			//test_model->render_id = m_glrender->addModel(model_vb);
-			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定视角位置
+			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
 				m_render_window->setCamera(m_camera);
 			}
@@ -306,7 +310,7 @@ namespace ifcre {
 			m_last_rmclick = false;
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
-
+		ifc_m_matrix = model_matrix;
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 		{
