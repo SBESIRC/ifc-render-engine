@@ -172,7 +172,7 @@ namespace ifcre {
 
 		// just add compid attribute for each vertex on which component it is
 		void generateCompIds() { // comp_ids: 顶点索引找到对应的物件索引
-			comp_ids.clear();
+			Vector<uint32_t>().swap(comp_ids);
 			comp_ids.resize(g_vertices.size() / 3);
 			int j = 0;
 			for (int i = 0; i < c_indices.size(); i++) {

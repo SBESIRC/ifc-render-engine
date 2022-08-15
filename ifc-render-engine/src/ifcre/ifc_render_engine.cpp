@@ -19,18 +19,12 @@ namespace ifcre {
 		m_cache_configs[key] = value;
 	}
 	void IFCRenderEngine::clear_model_data() {
-		_g_indices.clear();
-		_g_indices.reserve(1024);
-		_g_vertices.clear();
-		_g_vertices.reserve(1024);
-		_g_normals.clear();
-		_g_normals.reserve(1024);
-		_c_indices.clear();
-		_c_indices.reserve(1024);
-		_face_mat.clear();
-		_face_mat.reserve(1024);
-		_edge_indices.clear();
-		_edge_indices.reserve(1024);
+		Vector<uint32_t>().swap(_g_indices);
+		Vector<Real>().swap(_g_vertices);
+		Vector<Real>().swap(_g_normals);
+		Vector<Vector<uint32_t>>().swap(_c_indices);
+		Vector<Real>().swap(_face_mat);
+		Vector<uint32_t>().swap(_edge_indices);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -47,8 +41,7 @@ namespace ifcre {
 				_c_indices.emplace_back(_tmp_c_indices);
 				//_g_indices.insert(_g_indices.end(), _tmp_c_indices.begin(), _tmp_c_indices.end()); //this can remove set_g_indices API
 			}
-			_tmp_c_indices.clear();
-			_tmp_c_indices.shrink_to_fit();
+			Vector<uint32_t>().swap(_tmp_c_indices);
 		}
 		else {
 			_tmp_c_indices.emplace_back(val);
