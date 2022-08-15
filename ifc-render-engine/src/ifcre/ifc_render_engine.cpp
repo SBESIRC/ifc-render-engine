@@ -107,6 +107,7 @@ namespace ifcre {
 		}
 		else { // 固定模型矩阵（观察位置）
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
+			ifc_test_model->setScaleFactor(scale_factor);
 		}
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
