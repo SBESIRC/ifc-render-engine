@@ -66,8 +66,9 @@ void Collider::buildData() {
 	#pragma omp parallel for schedule(static, 8)
 	for (std::size_t i = 0; i < mFilterIndex.size(); ++i) 
 		mBuildDat[i] = std::move(Componment(mRawData->search_m[mFilterIndex[i]], mRawData->verts));
-	mFilterIndex.clear();
-	mFilterIndex.shrink_to_fit();
+	vector<unsigned>().swap(mFilterIndex);
+	/*mFilterIndex.clear();
+	mFilterIndex.shrink_to_fit();*/
 }
 
 #if defined(COLLIDER_USE_BVH)
