@@ -398,7 +398,7 @@ namespace ifcre {
 		static uint32_t plane_vbo, plane_ebo;
 		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
 		static bool firstPlane = true;
-		if (firstPlane) {
+		if (firstPlane) { // ´«Êý¾Ý
 			float k = .5f;
 			float coord_plane[] = {
 				-k,-k, -k,
@@ -423,7 +423,7 @@ namespace ifcre {
 			firstPlane = false;
 		}
 
-		if (!hidden) {
+		if (!hidden) { // äÖÈ¾
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
