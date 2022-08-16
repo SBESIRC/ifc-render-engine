@@ -100,6 +100,10 @@ namespace Example {
 
         public static void SetSleepTime(int val)
 		{
+            if(val > 1000)
+            {
+                val = 1000;
+            }
             ifcre_set_sleep_time(val);
         }
     }
