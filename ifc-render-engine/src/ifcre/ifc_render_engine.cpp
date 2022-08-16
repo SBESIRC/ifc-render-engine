@@ -53,6 +53,7 @@ namespace ifcre {
 	void IFCRenderEngine::set_edge_indices(int val) {
 		_edge_indices.emplace_back(val);
 	}
+
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		auto& configs = m_cache_configs;
@@ -228,19 +229,40 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::setSelectCompIds(int command = 0) {
-		if (m_render_window == nullptr) {
-			return;
+	void IFCRenderEngine::setSelectCompIds(int val = 0) {
+		switch (val) {
+		case -1: // start
+			if (m_render_window == nullptr) {
+				return;
+			}
+			to_show_states = stoi(m_cache_configs["to_show_states"]);
+			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+			if (to_show_states == 0) {
+				m_render_window->geom_changed = true;
+			}
+			else if (to_show_states == 1) {
+				m_render_window->chosen_changed_x = true;
+			}
+			if (to_show_states == 0) {
+				Vector<CompState>().swap(ifc_test_model->comp_states);
+				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), DUMP);
+				Vector<uint32_t>().swap(ifc_test_model->cur_c_indices);
+			}
+			m_render_window->chosen_list.clear();
+			break;
+		default:
+			if (val < ifc_test_model->c_indices.size()) {
+				if (0 == to_show_states) {
+					ifc_test_model->comp_states[val] = VIS;
+					ifc_test_model->cur_c_indices.emplace_back(val);
+				}
+				else if (1 == to_show_states) {
+					ifc_test_model->comp_states[val] = CHOSEN;
+					m_render_window->chosen_list.insert(val);
+				}
+			}
+			break;
 		}
-		auto& m_window = *m_render_window;
-		// command 0、设置显示一些物件；1、高亮选中一些物件
-		if (command == 0) {
-			m_window.geom_changed = true;
-		}
-		else if (command == 1) {
-			m_window.chosen_changed_x = true;
-		}
-		ifc_test_model->divide_chose_geom_by_alpha(m_cache_configs["selectIds"], command, m_window.chosen_list);
 	}
 
 	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
