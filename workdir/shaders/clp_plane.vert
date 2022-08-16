@@ -1,4 +1,4 @@
-#version 460
+#version 430
 layout(location = 0) in vec3 aPos;
 layout(std140, binding = 0)uniform TransformMVPUBO{
 	mat4 proj_view_model;       // 0 ~ 64
