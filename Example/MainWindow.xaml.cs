@@ -77,16 +77,7 @@ namespace Example {
 
 		private void Button_Click_2(object sender, RoutedEventArgs e)
 		{
-			string s = "";
-			if (tbIdsToShow.Text != "")
-			{
-				for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
-				{
-					s += i.ToString();
-					s += ",";
-				}
-			}
-			Example.ExampleScene.SetSelectCompIDs(s, 0);
+			Example.ExampleScene.SetSelectCompIDs("0", Convert.ToInt32(tbIdsToShow.Text));
 		}
 
 		private void Button_Click_onelooptime(object sender, RoutedEventArgs e)
@@ -97,16 +88,7 @@ namespace Example {
 
         private void Button_Click_multichose(object sender, RoutedEventArgs e)
 		{
-            string s = "";
-            if (tbIdsToShow.Text != "")
-            {
-                for (int i = 1; i < Convert.ToInt32(tbIdsToShow.Text); ++i)
-                {
-                    s += i.ToString();
-                    s += ",";
-                }
-            }
-            Example.ExampleScene.SetSelectCompIDs(s, 1);
+            Example.ExampleScene.SetSelectCompIDs("1", Convert.ToInt32(tbIdsToShow.Text));
         }
 	}
 }

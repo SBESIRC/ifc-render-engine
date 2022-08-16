@@ -87,10 +87,15 @@ namespace Example {
             return i;
         }
 
-        public static void SetSelectCompIDs(string selected_comp_ids, int val)
+        public static void SetSelectCompIDs(string to_show_states, int val)
         {
-			ifcre_set_config("selectIds", selected_comp_ids);
-			ifcre_set_comp_ids(val);
+            // to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+            ifcre_set_config("to_show_states", to_show_states);
+            ifcre_set_comp_ids(-1);
+            for (int i = 0; i < val; ++i)
+            {
+                ifcre_set_comp_ids(i);
+            }
 		}
 
         public static void SetSleepTime(int val)

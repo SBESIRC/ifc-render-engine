@@ -220,39 +220,6 @@ namespace ifcre {
 			cur_vis_no_trans_ind = no_trans_ind;
 		}
 
-		// 将选中的一些列物体区分为透明和不透明
-		void divide_chose_geom_by_alpha(const String& s_comp_ids, int command, std::unordered_set<uint32_t>& chosen_list) {
-			if (s_comp_ids.size() == 0) {
-				return;
-			}
-			if (command == 0) {
-				Vector<CompState>().swap(comp_states);
-				comp_states.resize(c_indices.size(), DUMP);
-				Vector<uint32_t>().swap(cur_c_indices);
-			}
-			//else if (command == 1) {
-				chosen_list.clear();
-			//}
-
-			String s_comp_id;
-			stringstream input(s_comp_ids);
-			uint32_t c_indices_size = c_indices.size();
-			uint32_t edge_c_indices_size = c_edge_indices.size();
-			while (getline(input, s_comp_id, ',')) {
-				uint32_t cur_index = stoi(s_comp_id);
-				if (cur_index < c_indices_size) {
-					if (0 == command) {
-						comp_states[cur_index] = VIS;
-						cur_c_indices.emplace_back(cur_index);
-					}
-					else if (1 == command) {
-						comp_states[cur_index] = CHOSEN;
-						chosen_list.insert(cur_index);
-					}
-				}
-			}
-		}
-
 		void update_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
 			for (const int i : cur_c_indices) {
 				if (comp_states[i] != VIS) {
