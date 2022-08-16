@@ -4,13 +4,13 @@
 
 namespace ifcre {
 	namespace sc {
-		static const char* f_axis = "#version 460\r\n"
+		static const char* f_axis = "#version 430\r\n"
 			"layout(location = 0) flat in vec3 color;\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
 			"void main(){\r\n"
 			"FragColor = vec4(color, 1.0);\r\n"
 			"}\r\n";
-		static const char* v_axis = "#version 460\r\n"
+		static const char* v_axis = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 0) flat out vec3 color;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
@@ -27,7 +27,7 @@ namespace ifcre {
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_axis_vk = "#version 460\r\n"
+		static const char* v_axis_vk = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 0) flat out vec3 color;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
@@ -43,14 +43,14 @@ namespace ifcre {
 			"}\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_bbx = "#version 460\r\n"
+		static const char* f_bbx = "#version 430\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
 			"void main()\r\n"
 			"{\r\n"
 			"FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_bbx = "#version 460\r\n"
+		static const char* v_bbx = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
 			"mat4 proj_view_model;       // 0 ~ 64\r\n"
@@ -62,7 +62,7 @@ namespace ifcre {
 			"// gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_chosen_test = "#version 460\r\n"
+		static const char* f_chosen_test = "#version 430\r\n"
 			"layout(location = 0) in vec3 vGoColor;\r\n"
 			"layout(location = 1) in vec3 vNormal;\r\n"
 			"layout(location = 2) in vec3 vFragPos;\r\n"
@@ -94,7 +94,7 @@ namespace ifcre {
 			"FragColor = vec4(color, ubo.alpha);\r\n"
 			"}\r\n";
 
-		static const char* v_chosen_test = "#version 460\r\n"
+		static const char* v_chosen_test = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 1) in vec3 aNormal;\r\n"
 			"layout(location = 2) in vec3 aColor;\r\n"
@@ -131,13 +131,13 @@ namespace ifcre {
 			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_clp_plane = "#version 460\r\n"
+		static const char* f_clp_plane = "#version 430\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
 			"void main(){\r\n"
 			"FragColor = vec4(0. ,1. ,1. , .2);\r\n"
 			"}\r\n";
 
-		static const char* v_clp_plane = "#version 460\r\n"
+		static const char* v_clp_plane = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
 			"mat4 proj_view_model;       // 0 ~ 64\r\n"
@@ -147,7 +147,7 @@ namespace ifcre {
 			"// gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_collision = "#version 460\r\n"
+		static const char* f_collision = "#version 430\r\n"
 			"#define PI 3.14159265358979323846\r\n"
 			"layout(location = 0)in float vDistance;\r\n"
 			"layout(location = 1)in float vDistanceM[6];\r\n"
@@ -184,7 +184,7 @@ namespace ifcre {
 			"FragColor = vec4(outColor, alpha);\r\n"
 			"}\r\n";
 
-		static const char* v_collision = "#version 460\r\n"
+		static const char* v_collision = "#version 430\r\n"
 			"layout (location = 0) in vec3 aPos;\r\n"
 			"layout (location = 1) in vec3 aNormal;\r\n"
 			"layout (location = 2) in vec3 aColor;\r\n"
@@ -207,7 +207,7 @@ namespace ifcre {
 			"}\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_comp_id_write = "#version 460\r\n"
+		static const char* f_comp_id_write = "#version 430\r\n"
 			"layout(location = 0) out int FragId;\r\n"
 			"layout(location = 0) flat in int vCompId;\r\n"
 			"layout(location = 1) in float vDistance;\r\n"
@@ -232,7 +232,7 @@ namespace ifcre {
 			"FragId = vCompId;\r\n"
 			"}\r\n";
 
-		static const char* v_comp_id_write = "#version 460\r\n"
+		static const char* v_comp_id_write = "#version 430\r\n"
 			"layout (location = 0) in vec3 aPos;\r\n"
 			"layout (location = 1) in vec3 aNormal;\r\n"
 			"layout (location = 2) in vec3 aColor;\r\n"
@@ -262,7 +262,7 @@ namespace ifcre {
 			"// gl_Position = mvp * vec4(pos, 1.0);\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_edge = "#version 460\r\n"
+		static const char* f_edge = "#version 430\r\n"
 			"layout(location = 0)in vec3 vGoColor;\r\n"
 			"layout(location = 1)in float vDistance;\r\n"
 			"layout(location = 2)in float vDistanceM[6];\r\n"
@@ -278,7 +278,7 @@ namespace ifcre {
 			"FragColor = vec4(vGoColor,1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_edge = "#version 460\r\n"
+		static const char* v_edge = "#version 430\r\n"
 			"layout (location = 0) in vec3 aPos;\r\n"
 			"layout (location = 1) in vec3 aNormal;\r\n"
 			"layout (location = 2) in vec3 aColor;\r\n"
@@ -307,7 +307,7 @@ namespace ifcre {
 			"}\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_image_effect = "#version 460\r\n"
+		static const char* f_image_effect = "#version 430\r\n"
 			"out vec4 FragColor;\r\n"
 			"in vec2 f_texcoord[5];\r\n"
 			"uniform sampler2D screenTexture;\r\n"
@@ -353,7 +353,7 @@ namespace ifcre {
 			"#endif\r\n"
 			"}\r\n";
 
-		static const char* v_image_effect = "#version 460\r\n"
+		static const char* v_image_effect = "#version 430\r\n"
 			"layout(location = 0) in vec2 pos;\r\n"
 			"layout(location = 1) in vec2 texcoord;\r\n"
 			"out vec2 f_texcoord[5];\r\n"
@@ -367,7 +367,7 @@ namespace ifcre {
 			"f_texcoord[4] = texcoord + screenTexTexelSize.xy * vec2(1, -1) * _SampleDistance;\r\n"
 			"gl_Position = vec4(pos.x, pos.y, 0.0, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_normal_depth_write = "#version 460\r\n"
+		static const char* f_normal_depth_write = "#version 430\r\n"
 			"out vec4 FragColor;\r\n"
 			"in vec3 f_normal;\r\n"
 			"vec2 EncodeViewNormalStereo( vec3 n )\r\n"
@@ -397,7 +397,7 @@ namespace ifcre {
 			"// FragColor = vec4(1.0,1.0,1.0,1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_normal_depth_write = "#version 460\r\n"
+		static const char* v_normal_depth_write = "#version 430\r\n"
 			"layout (location = 0) in vec3 pos;\r\n"
 			"layout (location = 1) in vec3 normal;\r\n"
 			"uniform mat3 t_inv_model;\r\n"
@@ -410,7 +410,7 @@ namespace ifcre {
 			"// transform to [0, 1]\r\n"
 			"f_normal = t_inv_model * normal;\r\n"
 			"}\r\n";
-		static const char* f_test = "#version 460\r\n"
+		static const char* f_test = "#version 430\r\n"
 			"layout(location = 0) in vec3 vGoColor;\r\n"
 			"layout(location = 1) in vec3 vNormal;\r\n"
 			"layout(location = 2) in vec3 vFragPos;\r\n"
@@ -442,7 +442,7 @@ namespace ifcre {
 			"FragColor = vec4(color, ubo.alpha);\r\n"
 			"}\r\n";
 
-		static const char* v_test = "#version 460\r\n"
+		static const char* v_test = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 1) in vec3 aNormal;\r\n"
 			"layout(location = 2) in vec3 aColor;\r\n"
@@ -479,7 +479,7 @@ namespace ifcre {
 			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_text = "#version 460\r\n"
+		static const char* f_text = "#version 430\r\n"
 			"in vec2 TexCoords;\r\n"
 			"out vec4 color;\r\n"
 			"uniform sampler2D text;\r\n"
@@ -490,7 +490,7 @@ namespace ifcre {
 			"color = vec4(textColor, 1.0) * sampled;\r\n"
 			"}\r\n";
 
-		static const char* v_text = "#version 460\r\n"
+		static const char* v_text = "#version 430\r\n"
 			"layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>\r\n"
 			"out vec2 TexCoords;\r\n"
 			"uniform vec2 offset;\r\n"

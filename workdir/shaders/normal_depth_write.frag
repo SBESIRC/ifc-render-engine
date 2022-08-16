@@ -1,4 +1,4 @@
-#version 460
+#version 430
 out vec4 FragColor;
 
 in vec3 f_normal;

@@ -1,4 +1,4 @@
-#version 460
+#version 430
 layout(location = 0)in vec3 vGoColor;
 layout(location = 1)in float vDistance;
 layout(location = 2)in float vDistanceM[6];
