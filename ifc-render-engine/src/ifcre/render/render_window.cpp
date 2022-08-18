@@ -1,10 +1,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
-
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 #include "glfw3native.h"
+#include "FreeImage.h"
 #define TEST_COMP_ID
 
 namespace ifcre {
@@ -713,5 +713,25 @@ namespace ifcre {
     }
 
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
+    bool RenderWindow::SaveImage(const char* imgpath, const int width, const int height)
+    {
+        unsigned char* mpixels = new unsigned char[width * height * 4];
+        glReadBuffer(GL_FRONT);
+        glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, mpixels);
+        glReadBuffer(GL_NONE);
+        FIBITMAP* bitmap = FreeImage_Allocate(width, height, 32, 8, 8, 8);
+        for (int y = 0; y < FreeImage_GetHeight(bitmap); ++y) {
+            BYTE* bits = FreeImage_GetScanLine(bitmap, y);
+            for (int x = 0; x < FreeImage_GetWidth(bitmap); ++x) {
+                bits[0] = mpixels[(y * width + x) * 4];
+                bits[1] = mpixels[(y * width + x) * 4 + 1];
+                bits[2] = mpixels[(y * width + x) * 4 + 2];
+                bits[3] = 255;
+                bits += 4;
+            }
+        }
+        bool bSuccess = FreeImage_Save(FIF_PNG, bitmap, imgpath, PNG_DEFAULT);
+        FreeImage_Unload(bitmap);
+        return bSuccess;
+    }
 }

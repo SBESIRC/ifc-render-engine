@@ -34,6 +34,7 @@ namespace ifcre {
 		virtual void setSelectCompIds(int val) = 0;
 
 		virtual void SetSleepTime(int val) = 0;
+		virtual bool saveImage(const char* filePath) = 0;
 	};
 
 
@@ -57,8 +58,7 @@ namespace ifcre {
 		void getSelectedCompIds();
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
-
-
+		bool saveImage(const char* filePath);
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();
@@ -107,6 +107,9 @@ namespace ifcre {
 		uint32_t select_bbx_id;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
+
+		int width;
+		int height;
 	};
 }
 

@@ -129,7 +129,7 @@ namespace ifcre {
 		void recreateFramebuffer(int w, int h);
 
 		void readPixels();
-
+		bool  SaveImage(const char* imgpath, const int width, const int height);
 		uint32_t getFBOId();
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
