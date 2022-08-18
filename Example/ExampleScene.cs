@@ -49,6 +49,8 @@ namespace Example {
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_set_sleep_time(int val);
 
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern bool ifcre_save_image(string value);
 
         public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {
@@ -105,6 +107,11 @@ namespace Example {
                 val = 1000;
             }
             ifcre_set_sleep_time(val);
+        }
+
+        public static bool SaveImage(string filePath)
+        {
+            return ifcre_save_image(filePath);
         }
     }
 }

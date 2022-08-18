@@ -90,5 +90,23 @@ namespace Example {
 		{
             Example.ExampleScene.SetSelectCompIDs("1", Convert.ToInt32(tbIdsToShow.Text));
         }
-	}
+
+        private void Button_Click_SaveImage(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog save = new SaveFileDialog();
+            save.Filter = "(*.png)|*.png";
+            save.Title = "请选择保存位置和文件名";
+            if (save.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                if (Example.ExampleScene.SaveImage(save.FileName))
+                {
+                    System.Windows.Forms.MessageBox.Show("保存图像成功");
+                }
+                else
+                {
+                    System.Windows.Forms.MessageBox.Show("保存图像失败");
+                }
+            }
+        }
+    }
 }

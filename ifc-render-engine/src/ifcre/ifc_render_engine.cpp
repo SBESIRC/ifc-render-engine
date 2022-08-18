@@ -282,6 +282,10 @@ namespace ifcre {
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
+	bool IFCRenderEngine::saveImage(const char* filePath) {
+		return m_render_window->SaveImage(filePath, width, height);
+	}
+
 	void IFCRenderEngine::getSelectedCompIds() {
 		m_render_window->chosen_list;
 	}
