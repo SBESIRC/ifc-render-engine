@@ -1,10 +1,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
-
 #define GLFW_EXPOSE_NATIVE_WIN32
 
 #include "glfw3native.h"
+#include "FreeImage.h"
 #define TEST_COMP_ID
 
 namespace ifcre {
@@ -713,5 +713,36 @@ namespace ifcre {
     }
 
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+    bool RenderWindow::SaveImage(const char* imgpath, const int width, const int height)
+    {
+        //创建一块内存
+        unsigned char* mpixels = new unsigned char[width * height * 4];
+        //glReadBuffer函数指明要从哪个颜色缓存中读取数据
+        glReadBuffer(GL_FRONT);
+        //glReadPixels 做了实际的读取工作
+        glReadPixels(0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, mpixels);
+        glReadBuffer(GL_NONE);
+        /*for (int i = 0; i < (int)800 * 600 * 4; i += 4)
+        {
+            mpixels[i] ^= mpixels[i + 2] ^= mpixels[i] ^= mpixels[i + 2];
+        }*/
+        FIBITMAP* bitmap = FreeImage_Allocate(width, height, 32, 8, 8, 8);
 
+        for (int y = 0; y < FreeImage_GetHeight(bitmap); ++y) {
+            //bits返回指向位图数据位中给定扫描行开头的指针
+            BYTE* bits = FreeImage_GetScanLine(bitmap, y);
+            for (int x = 0; x < FreeImage_GetWidth(bitmap); ++x) {
+                bits[0] = mpixels[(y * width + x) * 4];
+                bits[1] = mpixels[(y * width + x) * 4 + 1];
+                bits[2] = mpixels[(y * width + x) * 4 + 2];
+                bits[3] = 255;
+                bits += 4;
+            }
+        }
+        //将先前加载的FIBITMAP保存到文件中
+        bool bSuccess = FreeImage_Save(FIF_PNG, bitmap, imgpath, PNG_DEFAULT);
+        //释放位图
+        FreeImage_Unload(bitmap);
+        return bSuccess;
+    }
 }

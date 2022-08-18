@@ -107,6 +107,9 @@ namespace ifcre {
 		uint32_t select_bbx_id;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
+
+		int width;
+		int height;
 	};
 }
 

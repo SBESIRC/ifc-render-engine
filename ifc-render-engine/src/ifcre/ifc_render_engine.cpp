@@ -60,8 +60,8 @@ namespace ifcre {
 
 		if (!m_init) { //初次打开窗口
 			// 获取config数据
-			int width = atoi(configs["width"].c_str());
-			int height = atoi(configs["height"].c_str());
+			width = atoi(configs["width"].c_str());
+			height = atoi(configs["height"].c_str());
 			// use_transparency = configs["use_transparency"] == "true";
 			String graphics_api = configs["render_api"];
 			if (graphics_api == "vulkan") {
@@ -100,7 +100,6 @@ namespace ifcre {
 
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
-			scale_factor = 0;
 			glm::mat4 ifc_model_matrix;
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_model_matrix);
@@ -271,6 +270,15 @@ namespace ifcre {
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
+		auto& configs = m_cache_configs;
+		//m_render_window->SaveImage("E:\\ifc_engine.png", width, height);
+		/*glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix);
+		ifc_test_model->setScaleFactor(scale_factor);
+
+		m_camera = make_shared<GLCamera>(m_view_pos);
+		m_render_window->setCamera(m_camera);*/
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
@@ -293,10 +301,12 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 		//m_render.enableTest(DEPTH_TEST);
 		//m_render.depthFunc(LESS_FUNC);
-		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
+		//GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
 
 		// -------------- ifc model transform by mouse ---------------
+		//glm::vec3 screen_center(0, 0, 0);
 		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
+		//glm::vec3 clicked_coord = m_window.getVirtualHoverWorldCoord();
 		if (m_window.isMouseHorizontalRot()) {
 			float angle = m_window.getMouseHorizontalVel();
 			//ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
