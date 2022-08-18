@@ -271,7 +271,6 @@ namespace ifcre {
 	int IFCRenderEngine::getSelectedCompId()
 	{
 		auto& configs = m_cache_configs;
-		//m_render_window->SaveImage("E:\\ifc_engine.png", width, height);
 		/*glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
