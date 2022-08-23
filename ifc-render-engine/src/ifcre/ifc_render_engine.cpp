@@ -400,10 +400,10 @@ namespace ifcre {
 #endif
 
 			// -------------- render axis, not normal render procedure ---------------
-			m_render.renderAxis(*ifc_test_model
+			/*m_render.renderAxis(*ifc_test_model
 				, clicked_coord
 				, m_camera->getViewPos()
-				, m_view_pos);
+				, m_view_pos);*/
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ----------------------------- render text -----------------------------
