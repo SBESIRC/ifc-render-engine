@@ -394,8 +394,7 @@ namespace ifcre {
 	}
 
 	void GLRender::renderClipBox(const bool hidden, ClipBox clip_box) {
-		static uint32_t plane_vao;
-		static uint32_t plane_vbo, plane_ebo;
+		static uint32_t plane_vao, plane_vbo, plane_ebo;
 		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
 		static bool firstPlane = true;
 		if (firstPlane) { // ´«Êý¾Ý

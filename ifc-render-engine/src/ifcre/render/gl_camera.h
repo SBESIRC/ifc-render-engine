@@ -35,7 +35,7 @@ namespace ifcre {
         }
 
         glm::mat4 getViewMatrix() {
-            return glm::lookAt(m_pos, m_pos + m_front, m_up);
+            return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix
         }
 
         void zoom(glm::vec3& target, Real d) {
@@ -168,13 +168,15 @@ namespace ifcre {
         }
 
         // ------------- camera attributes----------------
-        glm::vec3 m_pos;
-        glm::vec3 m_front;
+        public:
+        glm::vec3 m_pos; // 相机的位置
+        glm::vec3 m_front; // 相机看向物体
+        glm::vec3 m_up; // 相机坐标的上方
+        private:
         // calculated by worldup 
-        glm::vec3 m_up;
-        glm::vec3 m_right;
+        glm::vec3 m_right; // 相机坐标的右方
 
-        glm::vec3 m_worldup;
+        glm::vec3 m_worldup; // 世界y正方向
 
 
         const glm::vec3 m_velocity = glm::vec3(0.05f, 0.05f, 0.2f);

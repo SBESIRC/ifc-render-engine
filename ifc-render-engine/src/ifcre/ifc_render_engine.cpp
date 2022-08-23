@@ -14,8 +14,7 @@ namespace ifcre {
 	extern IFCVulkanRender;
 	SharedPtr<IFCRenderEngine> ifcre;
 
-	void IFCRenderEngine::setConfig(String key, String value)
-	{
+	void IFCRenderEngine::setConfig(String key, String value) {
 		m_cache_configs[key] = value;
 	}
 	void IFCRenderEngine::clear_model_data() {
@@ -270,14 +269,11 @@ namespace ifcre {
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
-		auto& configs = m_cache_configs;
 		/*glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
-		ifc_test_model->setScaleFactor(scale_factor);
+		m_camera->m_pos = m_view_pos;*/
 
-		m_camera = make_shared<GLCamera>(m_view_pos);
-		m_render_window->setCamera(m_camera);*/
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
@@ -404,10 +400,10 @@ namespace ifcre {
 #endif
 
 			// -------------- render axis, not normal render procedure ---------------
-			m_render.renderAxis(*ifc_test_model
+			/*m_render.renderAxis(*ifc_test_model
 				, clicked_coord
 				, m_camera->getViewPos()
-				, m_view_pos);
+				, m_view_pos);*/
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ----------------------------- render text -----------------------------
