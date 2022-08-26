@@ -57,7 +57,7 @@ namespace ifcre {
     }
     void GLSLProgram::use() const
     {
-        glUseProgram(id);
+        glUseProgram(id); // 用刚创建的程序对象作为它的参数，以激活这个程序对象
     }
 
 // private:

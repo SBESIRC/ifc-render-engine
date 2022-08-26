@@ -394,8 +394,7 @@ namespace ifcre {
 	}
 
 	void GLRender::renderClipBox(const bool hidden, ClipBox clip_box) {
-		static uint32_t plane_vao;
-		static uint32_t plane_vbo, plane_ebo;
+		static uint32_t plane_vao, plane_vbo, plane_ebo;
 		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
 		static bool firstPlane = true;
 		if (firstPlane) { // 传数据
@@ -465,29 +464,84 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
+	//void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
+	//{
+	//	static bool first = true;
+	//	static uint32_t axis_vao;
+	//	if (first) {
+	//		float coord_axis[] = {
+	//			0.0, 0.0, 0.0,
+	//			1.0, 0.0, 0.0,	// x-axis
+	//			0.0, 0.0, 0.0,
+	//			0.0, 1.0, 0.0,	// y-axis
+	//			0.0, 0.0, 0.0,
+	//			0.0, 0.0, 1.0	// z-axis
+	//		};
+	//		uint32_t axis_vbo;
+	//		glGenVertexArrays(1, &axis_vao);
+	//		glGenBuffers(1, &axis_vbo);
+	//		glBindVertexArray(axis_vao);
+	//		glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
+	//		glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
+	//		glEnableVertexAttribArray(0);
+	//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	//		first = false;
+	//	}
+	//	glm::vec3 model_center = ifc_model.getModelCenter();
+	//	glm::mat4 model = ifc_model.getModelMatrix();
+	//	float scale_factor = ifc_model.getScaleFactor();
+
+	//	//model[3][0] = model[3][1] = model[3][2] = 0;
+	//	glm::mat4 trans_center(1.0f);
+	//	glm::mat4 trans_click_center(1.0f);
+	//	trans_center = glm::translate(trans_center, model_center);
+	//	model = model * trans_center;
+	//	glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
+
+	//	float len_ref = glm::length(init_view_pos);
+	//	float len = glm::length(view_pos - pick_center);
+	//	//printf("%f\n", scale_factor);
+	//	float scale = len / len_ref / scale_factor * 0.25f;
+	//	model = glm::scale(model, glm::vec3(scale, scale, scale));
+
+	//	trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
+	//	model = trans_click_center * model;
+
+	//	auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+	//	transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+	//	m_axis_shader->use();
+	//	glBindVertexArray(axis_vao);
+	//	glDisable(DEPTH_TEST);
+	//	glDepthFunc(GL_ALWAYS);
+	//	glDrawArrays(GL_LINES, 0, 6);
+	//	_defaultConfig();
+
+	//}
+
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
 		static uint32_t axis_vao;
-		if (first) {
+		if (first) { // 初始化 (一般只运行一次。除非物体频繁改变)
 			float coord_axis[] = {
 				0.0, 0.0, 0.0,
-				1.0, 0.0, 0.0,	// x-axis
+				100.0, 0.0, 0.0,	// x-axis
 				0.0, 0.0, 0.0,
-				0.0, 1.0, 0.0,	// y-axis
+				0.0, 100.0, 0.0,	// y-axis
 				0.0, 0.0, 0.0,
-				0.0, 0.0, 1.0	// z-axis
+				0.0, 0.0, 100.0		// z-axis
 			};
 			uint32_t axis_vbo;
 			glGenVertexArrays(1, &axis_vao);
-			glGenBuffers(1, &axis_vbo);
-			glBindVertexArray(axis_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glGenBuffers(1, &axis_vbo); // 创建一个缓冲
+			glBindVertexArray(axis_vao); // 绑定VAO
+			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // 设置缓冲类型
+			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // 把用户定义的数据复制到当前绑定缓冲(显存)
+			glEnableVertexAttribArray(0); // 以顶点属性位置值作为参数，启用顶点属性
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // 告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上） 从此时绑定到GL_ARRAY_BUFFER的VBO获取数据
 			first = false;
 		}
+		// 绘制物体（渲染循环）
 		glm::vec3 model_center = ifc_model.getModelCenter();
 		glm::mat4 model = ifc_model.getModelMatrix();
 		float scale_factor = ifc_model.getScaleFactor();
@@ -500,21 +554,24 @@ namespace ifcre {
 		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
 
 		float len_ref = glm::length(init_view_pos);
-		float len = glm::length(view_pos - pick_center);
+		glm::vec3 center = glm::vec3(0, 0, 0);
+		//glm::vec3 center = ifc_model.getModelCenter();
+		float len = glm::length(view_pos - center);
 		//printf("%f\n", scale_factor);
 		float scale = len / len_ref / scale_factor * 0.25f;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
-		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
+		trans_click_center = glm::translate(trans_click_center, center - world_pos);
 		model = trans_click_center * model;
 
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
 		m_axis_shader->use();
-		glBindVertexArray(axis_vao);
-		glDisable(DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS);
-		glDrawArrays(GL_LINES, 0, 6);
+		glBindVertexArray(axis_vao); // 使用上面那一套VAO
+		//glDisable(DEPTH_TEST);
+		glDepthFunc(GL_LESS);
+		//glDepthFunc(GL_ALWAYS);
+		glDrawArrays(GL_LINES, 0, 6); // 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
 		_defaultConfig();
 
 	}
