@@ -185,7 +185,8 @@ namespace ifcre {
 		}
 
 		// add color attribute for each vertex
-		Vector<Real> getVerColor() {
+		Vector<Real>& getVerColor() {
+			Vector<Real>().swap(g_kd_color);
 			g_kd_color.resize(g_vertices.size());
 			for (int i = 0; i < c_indices.size(); i++) {
 				for (int j = 0; j < c_indices[i].size(); j++) {
