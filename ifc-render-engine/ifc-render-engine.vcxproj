@@ -199,6 +199,7 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_manager.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_pass_base.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\vulkan_util.cpp" />
+    <ClCompile Include="src\ifcre\stb_image.cpp" />
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -207,6 +208,7 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <ClInclude Include="src\ifcre\collider.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
+    <ClInclude Include="src\ifcre\Gizmo.h" />
     <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
     <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
@@ -242,6 +244,7 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <ClInclude Include="src\ifcre\resource\parser.h" />
     <ClInclude Include="src\ifcre\resource\plugin.h" />
     <ClInclude Include="src\ifcre\ifcrender\scene.h" />
+    <ClInclude Include="src\ifcre\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\axis.frag" />
@@ -258,6 +261,10 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <None Include="..\workdir\shaders\comp_id_write.vert" />
     <None Include="..\workdir\shaders\edge.frag" />
     <None Include="..\workdir\shaders\edge.vert" />
+    <None Include="..\workdir\shaders\gizmo.frag" />
+    <None Include="..\workdir\shaders\gizmo.vert" />
+    <None Include="..\workdir\shaders\gizmo_ui.frag" />
+    <None Include="..\workdir\shaders\gizmo_ui.vert" />
     <None Include="..\workdir\shaders\image_effect.frag" />
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />

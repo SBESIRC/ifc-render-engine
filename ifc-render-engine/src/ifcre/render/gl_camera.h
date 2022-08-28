@@ -35,7 +35,13 @@ namespace ifcre {
         }
 
         glm::mat4 getViewMatrix() {
+            //glm::mat4 ret(1.0f);
             return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix
+        }
+
+        glm::mat4 getCubeRotateMatrix() {
+            glm::vec3 v_pos = 30.f * glm::normalize(-m_front);
+            return glm::lookAt(v_pos, v_pos + m_front, m_up);
         }
 
         void zoom(glm::vec3& target, Real d) {
@@ -53,6 +59,7 @@ namespace ifcre {
         void reset() {
             //m_model = glm::mat4(1.0f);
             m_right = glm::vec3(1.0f, 0.0f, 0.0f);
+            //translating = glm::vec3(0.f, 0.f, 0.f);
         }
 
         void rotateByScreenX(glm::vec3& center, float angleX) {
@@ -81,11 +88,63 @@ namespace ifcre {
             m_front = rot * glm::vec4(m_front, 1.0f);
             m_pos = new_pos;
             _updateCameraVectors();
+            /*std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+            std::cout << "m_front:" << m_front.x << " " << m_front.y << " " << m_front.z << "\n";
+            std::cout << "m_up:" << m_up.x << " " << m_up.y << " " << m_up.z << "\n";
+            std::cout << "m_right:" << m_right.x << " " << m_right.y << " " << m_right.z << "\n";*/
+
         }
 
         // based on IfcModel->translate(glm::vec3& step)
         void translateByHoverDiv(glm::vec3& step) {
+            //translating -= step;
             m_pos -= step;
+            std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+        }
+
+        void RotateToCubeDirection(int num) {
+            m_pos = m_precomputing_pos[num];
+            m_front = m_precomputing_front[num];
+            m_up = m_precomputing_up[num];
+            m_right = m_precomputing_right[num];
+        }
+
+        void PrecomputingCubeDireciton(glm::vec3 view_pos) {
+
+            view_pos *= 1.5f;
+
+            m_precomputing_pos.clear();
+            m_precomputing_front.clear();
+            m_precomputing_up.clear();
+            m_precomputing_right.clear();
+
+            m_precomputing_pos.push_back(glm::vec3(-view_pos.x, view_pos.y, -view_pos.z));//back
+            m_precomputing_pos.push_back(glm::vec3(-view_pos.z, view_pos.y, view_pos.x));//left
+            m_precomputing_pos.push_back(view_pos);//front
+            m_precomputing_pos.push_back(glm::vec3(view_pos.z, view_pos.y, -view_pos.x));//right
+            m_precomputing_pos.push_back(glm::vec3(-view_pos.x, view_pos.z, -view_pos.y));//up
+            m_precomputing_pos.push_back(glm::vec3(view_pos.x, -view_pos.z, view_pos.y));//bottom
+
+            m_precomputing_front.push_back(glm::vec3(0.f, 0.f, 1.f));//back
+            m_precomputing_front.push_back(glm::vec3(1.f, 0.f, 0.f));//left
+            m_precomputing_front.push_back(glm::vec3(0.f, 0.f, -1.f));//front
+            m_precomputing_front.push_back(glm::vec3(-1.f, 0.f, 0.f));//right
+            m_precomputing_front.push_back(glm::vec3(0.f, -1.f, 0.f));//up
+            m_precomputing_front.push_back(glm::vec3(0.f, 1.f, 0.f));//bottom
+
+            m_precomputing_up.push_back(glm::vec3(0.f, 1.f, 0.f));//back
+            m_precomputing_up.push_back(glm::vec3(0.f, 1.f, 0.f));//left
+            m_precomputing_up.push_back(glm::vec3(0.f, 1.f, 0.f));//front
+            m_precomputing_up.push_back(glm::vec3(0.f, 1.f, 0.f));//right
+            m_precomputing_up.push_back(glm::vec3(0.f, 0.f, -1.f));//up
+            m_precomputing_up.push_back(glm::vec3(0.f, 0.f, 1.f));//bottom
+
+            m_precomputing_right.push_back(glm::vec3(-1.f, 0.f, 0.f));//back
+            m_precomputing_right.push_back(glm::vec3(0.f, 0.f, 1.f));//left
+            m_precomputing_right.push_back(glm::vec3(1.f, 0.f, 0.f));//front
+            m_precomputing_right.push_back(glm::vec3(0.f, 0.f, -1.f));//up
+            m_precomputing_right.push_back(glm::vec3(1.f, 0.f, 0.f));//right
+            m_precomputing_right.push_back(glm::vec3(1.f, 0.f, 0.f));//bottom
         }
 
         void translateByScreenOp(float offx, float offy, float offz) {
@@ -181,6 +240,11 @@ namespace ifcre {
 
         const glm::vec3 m_velocity = glm::vec3(0.05f, 0.05f, 0.2f);
         // ----- ----- ----- ----- ----- ----- -----  -----
+
+        Vector<glm::vec3> m_precomputing_pos;
+        Vector<glm::vec3> m_precomputing_front;
+        Vector<glm::vec3> m_precomputing_up;
+        Vector<glm::vec3> m_precomputing_right;
 	};
 }
 

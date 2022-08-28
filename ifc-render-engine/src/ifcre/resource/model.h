@@ -369,6 +369,31 @@ namespace ifcre {
 			return m_center;
 		}
 
+		void PrecomputingCubeDirection() {
+			m_cube_direction_transform.clear();
+			m_cube_direction_transform.resize(6, glm::vec3(0.f, 0.f, 0.f));
+			/*glm::vec3 temp = pMax - pMin;
+			glm::vec3 div = temp / 2.f;
+			m_cube_direction_transform.push_back(-glm::vec3(div.x, 0., 0.));
+			m_cube_direction_transform.push_back(glm::vec3(div.x, 0., 0.));
+			m_cube_direction_transform.push_back(-glm::vec3(0., div.y, 0.));
+			m_cube_direction_transform.push_back(glm::vec3(0., div.y, 0.));
+			m_cube_direction_transform.push_back(-glm::vec3(0., 0., div.z));
+			m_cube_direction_transform.push_back(glm::vec3(0., 0., div.z));
+
+			for (auto& dr : m_cube_direction_transform) {
+				dr /= temp.x;
+			}*/
+		}
+
+		void TranslateToCubeDirection(int num) {
+			util::get_model_matrix_byBBX(pMin, pMax, m_model, m_scale_factor);
+			m_init_model = m_model;
+			mirror_model = glm::mat4(1.f);
+
+			translate(m_cube_direction_transform[num]);
+		}
+
 		void setScaleFactor(Real scale) {
 			m_scale_factor = scale;
 		}
@@ -434,6 +459,7 @@ namespace ifcre {
 		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
 
 		Vector<bool> is_trans;
+		Vector<glm::vec3> m_cube_direction_transform;
 	};
 	
 

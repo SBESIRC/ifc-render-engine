@@ -13,6 +13,7 @@
 #include "gl/gl_enum.h"
 #include "gl_camera.h"
 #include "../Character.h"
+#include "../Gizmo.h"
 
 #include "../common/ifc_enum.h"
 #include "../resource/model.h"
@@ -69,6 +70,8 @@ namespace ifcre {
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderClipBox(const bool hidden, ClipBox clip_box);
 		void renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
+		void renderGizmo(const glm::mat4& rotate_matrix);
+		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
@@ -104,6 +107,8 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_edge_shader;
 		UniquePtr<GLSLProgram> m_clip_plane_shader;
 		UniquePtr<GLSLProgram> m_collision_shader;
+		UniquePtr<GLSLProgram> m_gizmo_shader;
+		UniquePtr<GLSLProgram> m_gizmo_UI_shader;
 		UniquePtr<GLSLProgram> m_text_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
@@ -118,6 +123,7 @@ namespace ifcre {
 		const int m_default_com_id = -1;
 		//TextData textdata = TextData("resources/fonts/default.ttf");
 		TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
+		SceneGizmo gizmo;
 	};
 };
 

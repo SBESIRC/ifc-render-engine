@@ -2,18 +2,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
-
 #include "glfw3native.h"
 #include "FreeImage.h"
 #define TEST_COMP_ID
-
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
     double lastX, lastY, curX, curY;
     double rlastX, rlastY, rcurX, rcurY;
-
     // --------------------- event helper ----------------------
-
     void RenderWindow::_setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z) {
         // OpenGL Screen space:
         //  ^y
@@ -43,7 +39,7 @@ namespace ifcre {
         return z;
     }
 
-    void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode) {
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode, bool is_comp) {
         //glm::vec3 getColor;
         //Real w = m_width, h = m_height;
         ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
@@ -67,14 +63,24 @@ namespace ifcre {
         //    m_mouse_status.click_comp_id = clicked_comp_id;
 
 
-        uint32_t clicked_comp_id;
+        uint32_t clicked_comp_id; // glm::ivec4 comp_id;
+        float clicked_ui_id; // glm::fvec4 ui_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
-        m_cur_rt = m_comp_fb.m_comp_id_rt.get();
-        //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-        glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_comp_id);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        if (is_comp) {
+            m_cur_rt = m_comp_fb.m_comp_id_rt.get();
+            //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_comp_id); // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+        else {
+            m_cur_rt = m_ui_fb.m_ui_id_rt.get();
+            //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, m_ui_fb.fbo_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_ui_id);  // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
         //if (comp_id == -1) {
         //    m_mouse_status.click_comp_id = -1;
         //    //std::cout << "NO!" << std::endl;
@@ -83,18 +89,30 @@ namespace ifcre {
 
         //std::cout << comp_id.x << "\n";
         
-        if (hover_mode)
-            m_mouse_status.hover_comp_id = clicked_comp_id;
+
+        if (is_comp) {
+            //int clicked_comp_id = comp_id.x;
+            if (hover_mode)
+                m_mouse_status.hover_comp_id = clicked_comp_id;
+            else {
+                m_mouse_status.click_comp_id = clicked_comp_id;
+                if (clicked_comp_id > 0) {
+                    chosen_changed_w = true;
+                    if (multichoose) {
+                        chosen_list.insert(static_cast<uint32_t>(clicked_comp_id));
+                    }
+                    else {
+                        chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
+                    }
+                }
+            }
+        }
         else {
-            m_mouse_status.click_comp_id = clicked_comp_id;
-            if (clicked_comp_id > 0) {
-                chosen_changed_w = true;
-                if (multichoose) {
-                    chosen_list.insert(static_cast<uint32_t>(clicked_comp_id));
-                }
-                else {
-                    chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
-                }
+            // float clicked_ui_id = ui_id.x;
+            if (hover_mode) {}
+            else {
+                m_mouse_status.chosen_ui_id = clicked_ui_id;
+                //std::cout << m_mouse_status.chosen_ui_id << std::endl;
             }
         }
     }
@@ -113,7 +131,8 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& cur_rt = *(that->m_cur_rt);
         auto& status = that->m_mouse_status;
-        that->_setClickedWorldColors(xpos, ypos, true);
+        that->_setClickedWorldColors(xpos, ypos, true, true);
+        that->_setClickedWorldColors(xpos, ypos, true, false);
         if (status.lbtn_down || status.rbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
@@ -148,7 +167,7 @@ namespace ifcre {
                 status.click_y = (-pos.y + 1) * 0.5 * h;
             }
             Real x, y;
-            if (click_z != 1.0 
+            if (click_z != 1.0
                 && (ypos >= 0 && ypos < h && xpos >= 0 && xpos < w)
                 && status.click_init_mask == 1) {
                 y = (h - ypos - 1) / h * 2 - 1;
@@ -159,13 +178,13 @@ namespace ifcre {
                 x = (status.click_x + (xpos - status.last_mouse_x)) / w * 2 - 1;
             }
 
-			glm::vec4 ndc(x, y, status.click_z, 1.0f);
-			glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
-			glm::vec4 t = vp_inv * ndc;
-			t = t / t.w;
-			status.hover_world_center = t;
-			//status.click_world_center.x = t.x;
-			//status.click_world_center.y = t.y;
+            glm::vec4 ndc(x, y, status.click_z, 1.0f);
+            glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+            glm::vec4 t = vp_inv * ndc;
+            t = t / t.w;
+            status.hover_world_center = t;
+            //status.click_world_center.x = t.x;
+            //status.click_world_center.y = t.y;
             status.click_world_center = t;
             status.click_y = status.click_y + (ypos - status.last_mouse_y);
             status.click_x = status.click_x + (xpos - status.last_mouse_x);
@@ -203,7 +222,6 @@ namespace ifcre {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
-
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
@@ -212,7 +230,7 @@ namespace ifcre {
                 float click_z = that->_getClickedDepthValue(click_x, click_y);
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(click_x, click_y, click_z);
-                    that->_setClickedWorldColors(click_x, click_y, false);
+                    that->_setClickedWorldColors(click_x, click_y, false, true);
                 }
                 else if(!that->multichoose) {   // 点击空白区域取消选中
                     that->chosen_changed_w = true;
@@ -226,9 +244,7 @@ namespace ifcre {
                 break;
             }
         }
-        
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-
             switch (action) {
             case GLFW_PRESS: {
                 double click_x, click_y;
@@ -254,17 +270,11 @@ namespace ifcre {
             }
         }
     }
-   
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ---------------------- 
-    /*void errorCallback(int error, const char* description) 
-    {
-
-    }*/
     RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
     {
-        //glfwSetErrorCallback(errorCallback);
         if (NULL == wndPtr)
         {
             //create new window
@@ -422,6 +432,14 @@ namespace ifcre {
         else if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
             multichoose = false;
         }
+        if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS && !cube_lock) {
+            cube_test_num = (cube_test_num + 1) % 6;
+            cube_test_change = true;
+            cube_lock = true;
+        }
+        else if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) {
+            cube_lock = false;
+        }
     }
 
     bool RenderWindow::isClose()
@@ -502,6 +520,12 @@ namespace ifcre {
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         m_cur_rt->attach(m_comp_fb.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
+    }
+
+    void RenderWindow::switchRenderUI() {
+        m_cur_rt = m_ui_fb.m_ui_id_rt.get();
+        m_cur_rt->attach(m_ui_fb.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_ui_fb.fbo_id);
     }
 
     void RenderWindow::switchRenderDepthNormal()
@@ -594,6 +618,14 @@ namespace ifcre {
     int RenderWindow::getHoverCompId()
     {
         return m_mouse_status.hover_comp_id;
+    }
+
+    int RenderWindow::getClickedUIId() {
+        //if (m_mouse_status.chosen_ui_id > -.5f)std::cout << m_mouse_status.chosen_ui_id << std::endl;
+        auto temp = std::lround(m_mouse_status.chosen_ui_id);
+        //if (m_mouse_status.chosen_ui_id > -.5f)std::cout << temp << std::endl;
+        m_mouse_status.chosen_ui_id = -1;
+        return temp;
     }
 
     glm::vec2 RenderWindow::getWindowSize()
@@ -701,6 +733,9 @@ namespace ifcre {
         }
         glCreateFramebuffers(1, &m_comp_fb.fbo_id);
         m_comp_fb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, false, COLOR_R32I);
+
+        glCreateFramebuffers(1, &m_ui_fb.fbo_id);
+        m_ui_fb.m_ui_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY, false, COLOR_R32I);
 
         m_cur_rt = mfb.m_default_rt.get();
 

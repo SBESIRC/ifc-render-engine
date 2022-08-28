@@ -7,6 +7,7 @@
 #include "../common/std_types.h"
 #include "gl/gl_render_texture.h"
 #include "gl_camera.h"
+#include "../common/ifc_util.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -122,6 +123,7 @@ namespace ifcre {
 		void endRenderToWindow();
 
 		void switchRenderCompId();
+		void switchRenderUI();
 		void switchRenderBack();
 		void switchRenderDepthNormal();
 		void switchRenderColor();
@@ -135,6 +137,7 @@ namespace ifcre {
 		uint32_t getDepthNormalTexId();
 		int getClickCompId();
 		int getHoverCompId();
+		int getClickedUIId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 		bool getHidden() { return hidden; }
@@ -157,13 +160,16 @@ namespace ifcre {
 		bool isRightMouseClicked();
 
 		// ----- ----- ----- ----- ----- -----
+
+		// ---------- 
 		//int geomframe = 0;
 		bool geom_changed = true;
 		bool chosen_changed_w = false;
 		bool chosen_changed_x = false;
 		void setDefaultStatus();
-		// ---------- 
-
+		int cube_test_num = 0;
+		bool cube_test_change = false;
+		bool cube_lock = false;
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -184,6 +190,11 @@ namespace ifcre {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_comp_id_rt;
 		}m_comp_fb;
+
+		struct {
+			uint32_t fbo_id;
+			SharedPtr<GLRenderTexture> m_ui_id_rt;
+		}m_ui_fb;
 		
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
@@ -213,6 +224,8 @@ namespace ifcre {
 			Real click_z = 1.0;
 			int click_comp_id = -1;
 			int hover_comp_id = -1;
+
+			float chosen_ui_id = -1.f;
 		}m_mouse_status;
 
 		struct {
@@ -240,6 +253,7 @@ namespace ifcre {
 		const Vector<glm::vec4> hidden_box_vector = Vector<glm::vec4>(6, glm::vec4(0.f, 0.f, 0.f, -1.f));
 
 		bool multichoose = false;
+
 	public:
 		//------ chosen list
 		std::unordered_set<uint32_t> chosen_list;
@@ -253,7 +267,7 @@ namespace ifcre {
 	private:
 		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
-		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode);
+		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp);
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 	};

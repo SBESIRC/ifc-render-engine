@@ -68,6 +68,7 @@ namespace ifcre {
 		// not thread safety
 		static SharedPtr<RenderEngine> getSingleton();
 		int key;
+		int ui_key;
 	private:
 		void drawFrame();
 		
@@ -106,6 +107,9 @@ namespace ifcre {
 		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;
 
+		// gizmo sets
+		int cube_num = 0;
+		bool cube_change_log = false;
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;

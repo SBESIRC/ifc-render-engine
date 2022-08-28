@@ -64,6 +64,14 @@ namespace ifcre {
 		String f_collision = util::read_file("shaders/collision.frag");
 		m_collision_shader = make_unique<GLSLProgram>(v_collision.c_str(), f_collision.c_str());
 
+		String v_gizmo = util::read_file("shaders/gizmo.vert");
+		String f_gizmo = util::read_file("shaders/gizmo.frag");
+		m_gizmo_shader = make_unique<GLSLProgram>(v_gizmo.c_str(), f_gizmo.c_str());
+
+		String v_gizmo_ui = util::read_file("shaders/gizmo_ui.vert");
+		String f_gizmo_ui = util::read_file("shaders/gizmo_ui.frag");
+		m_gizmo_UI_shader = make_unique<GLSLProgram>(v_gizmo_ui.c_str(), f_gizmo_ui.c_str());
+
 		String v_text = util::read_file("shaders/text.vert");
 		String f_text = util::read_file("shaders/text.frag");
 		m_text_shader = make_unique<GLSLProgram>(v_text.c_str(), f_text.c_str());
@@ -80,6 +88,8 @@ namespace ifcre {
 		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
 		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
+		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
+		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
 		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
 #endif
 
@@ -96,6 +106,8 @@ namespace ifcre {
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -105,7 +117,7 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- -----
 
 	}
-	// ----- ----- ----- ----- ----- ----- ----- ----- 
+// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 	void GLRender::clearFrameBuffer(GLClearEnum clear, GLColor* color, Real depth)
 	{
@@ -394,7 +406,8 @@ namespace ifcre {
 	}
 
 	void GLRender::renderClipBox(const bool hidden, ClipBox clip_box) {
-		static uint32_t plane_vao, plane_vbo, plane_ebo;
+		static uint32_t plane_vao;
+		static uint32_t plane_vbo, plane_ebo;
 		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
 		static bool firstPlane = true;
 		if (firstPlane) { // 传数据
@@ -464,73 +477,19 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
-	//void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
-	//{
-	//	static bool first = true;
-	//	static uint32_t axis_vao;
-	//	if (first) {
-	//		float coord_axis[] = {
-	//			0.0, 0.0, 0.0,
-	//			1.0, 0.0, 0.0,	// x-axis
-	//			0.0, 0.0, 0.0,
-	//			0.0, 1.0, 0.0,	// y-axis
-	//			0.0, 0.0, 0.0,
-	//			0.0, 0.0, 1.0	// z-axis
-	//		};
-	//		uint32_t axis_vbo;
-	//		glGenVertexArrays(1, &axis_vao);
-	//		glGenBuffers(1, &axis_vbo);
-	//		glBindVertexArray(axis_vao);
-	//		glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
-	//		glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
-	//		glEnableVertexAttribArray(0);
-	//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	//		first = false;
-	//	}
-	//	glm::vec3 model_center = ifc_model.getModelCenter();
-	//	glm::mat4 model = ifc_model.getModelMatrix();
-	//	float scale_factor = ifc_model.getScaleFactor();
-
-	//	//model[3][0] = model[3][1] = model[3][2] = 0;
-	//	glm::mat4 trans_center(1.0f);
-	//	glm::mat4 trans_click_center(1.0f);
-	//	trans_center = glm::translate(trans_center, model_center);
-	//	model = model * trans_center;
-	//	glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
-
-	//	float len_ref = glm::length(init_view_pos);
-	//	float len = glm::length(view_pos - pick_center);
-	//	//printf("%f\n", scale_factor);
-	//	float scale = len / len_ref / scale_factor * 0.25f;
-	//	model = glm::scale(model, glm::vec3(scale, scale, scale));
-
-	//	trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
-	//	model = trans_click_center * model;
-
-	//	auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-	//	transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
-	//	m_axis_shader->use();
-	//	glBindVertexArray(axis_vao);
-	//	glDisable(DEPTH_TEST);
-	//	glDepthFunc(GL_ALWAYS);
-	//	glDrawArrays(GL_LINES, 0, 6);
-	//	_defaultConfig();
-
-	//}
-
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
 		static uint32_t axis_vao;
 		if (first) { // 初始化 (一般只运行一次。除非物体频繁改变)
-			float coord_axis[] = {
-				0.0, 0.0, 0.0,
-				100.0, 0.0, 0.0,	// x-axis
-				0.0, 0.0, 0.0,
-				0.0, 100.0, 0.0,	// y-axis
-				0.0, 0.0, 0.0,
-				0.0, 0.0, 100.0		// z-axis
-			};
+			float coord_axis[] = {	//float coord_axis[] = {
+				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+				1.0, 0.0, 0.0,		//	100.0, 0.0, 0.0,	// x-axis
+				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+				0.0, 1.0, 0.0,		//	0.0, 100.0, 0.0,	// y-axis
+				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+				0.0, 0.0, 1.0		//	0.0, 0.0, 100.0		// z-axis
+			};						//};
 			uint32_t axis_vbo;
 			glGenVertexArrays(1, &axis_vao);
 			glGenBuffers(1, &axis_vbo); // 创建一个缓冲
@@ -540,9 +499,8 @@ namespace ifcre {
 			glEnableVertexAttribArray(0); // 以顶点属性位置值作为参数，启用顶点属性
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // 告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上） 从此时绑定到GL_ARRAY_BUFFER的VBO获取数据
 			first = false;
-		}
-		// 绘制物体（渲染循环）
-		glm::vec3 model_center = ifc_model.getModelCenter();
+		} 
+		glm::vec3 model_center = ifc_model.getModelCenter(); // 绘制物体（渲染循环）
 		glm::mat4 model = ifc_model.getModelMatrix();
 		float scale_factor = ifc_model.getScaleFactor();
 
@@ -554,23 +512,20 @@ namespace ifcre {
 		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
 
 		float len_ref = glm::length(init_view_pos);
-		glm::vec3 center = glm::vec3(0, 0, 0);
-		//glm::vec3 center = ifc_model.getModelCenter();
-		float len = glm::length(view_pos - center);
+		float len = glm::length(view_pos - pick_center);//float len = glm::length(view_pos - center); //glm::vec3 center = ifc_model.getModelCenter(); //glm::vec3 center = glm::vec3(0, 0, 0);
 		//printf("%f\n", scale_factor);
 		float scale = len / len_ref / scale_factor * 0.25f;
 		model = glm::scale(model, glm::vec3(scale, scale, scale));
 
-		trans_click_center = glm::translate(trans_click_center, center - world_pos);
+		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos); //trans_click_center = glm::translate(trans_click_center, center - world_pos);
 		model = trans_click_center * model;
 
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
 		m_axis_shader->use();
 		glBindVertexArray(axis_vao); // 使用上面那一套VAO
-		//glDisable(DEPTH_TEST);
-		glDepthFunc(GL_LESS);
-		//glDepthFunc(GL_ALWAYS);
+		glDisable(DEPTH_TEST);//glDisable(DEPTH_TEST); glDepthFunc(GL_LESS);
+		glDepthFunc(GL_ALWAYS);//glDepthFunc(GL_ALWAYS);
 		glDrawArrays(GL_LINES, 0, 6); // 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
 		_defaultConfig();
 
@@ -619,6 +574,29 @@ namespace ifcre {
 
 		_defaultConfig();
 
+	}
+
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix)
+	{
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		glm::mat4 tempmatrix = m_projection * rotate_matrix;
+		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
+		m_gizmo_shader->use();
+		m_gizmo_shader->setVec2("offset", glm::vec2(25.f, -25.f));
+		gizmo.drawGizmo();
+		_defaultConfig();
+	}
+
+	void GLRender::renderGizmoInUIlayer(const glm::mat4& rotate_matrix) {
+		glClearColor(-2, 0, 0, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearDepthf(1.0);
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		glm::mat4 tempmatrix = m_projection * rotate_matrix;
+		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
+		m_gizmo_UI_shader->use();
+		m_gizmo_UI_shader->setVec2("offset", glm::vec2(25.f, -25.f));
+		gizmo.drawGizmoInUiLayer();
 	}
 
 	void GLRender::postRender(RenderWindow& w)

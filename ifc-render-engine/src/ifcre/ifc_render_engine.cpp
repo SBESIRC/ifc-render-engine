@@ -103,6 +103,7 @@ namespace ifcre {
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_model_matrix);
 			ifc_test_model->setScaleFactor(scale_factor);
+			ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
 		}
 		else { // 固定模型矩阵（观察位置）
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
@@ -118,6 +119,7 @@ namespace ifcre {
 			//test_model->render_id = m_glrender->addModel(model_vb);
 			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
+				m_camera->PrecomputingCubeDireciton(m_view_pos); //////////////////////////////
 				m_render_window->setCamera(m_camera);
 			}
 			// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
@@ -224,6 +226,12 @@ namespace ifcre {
 			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, 
 				ifc_test_model->cur_chosen_trans_ind);
 			m_window.geom_changed = false;
+		}
+
+		if (m_window.cube_test_change) {
+			cube_change_log = true;
+			cube_num = m_window.cube_test_num;
+			m_window.cube_test_change = false;
 		}
 	}
 
@@ -334,6 +342,12 @@ namespace ifcre {
 		else {
 			m_last_rmclick = false;
 		}
+
+		if (cube_change_log) {
+			ifc_test_model->TranslateToCubeDirection(cube_num);
+			m_camera->RotateToCubeDirection(cube_num);
+			cube_change_log = false;
+		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
 		ifc_m_matrix = model_matrix;
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -359,6 +373,30 @@ namespace ifcre {
 			m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
 			//m_window.switchRenderBack();
+			
+			//todo add gizmo's id here
+			m_window.switchRenderUI();
+			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix());
+			ui_key = m_window.getClickedUIId();
+			if (ui_key > -1) {
+				cube_change_log = true;
+				cube_num = ui_key;
+				//std::cout << ui_key << std::endl;
+			}
+
+			/*if (cube_change_log) {
+				ifc_test_model->TranslateToCubeDirection(cube_num);
+				m_camera->RotateToCubeDirection(cube_num);
+				cube_change_log = false;
+				view = m_camera->getViewMatrix();
+				camera_forwad = m_camera->getViewForward();
+				model_matrix = ifc_test_model->getModelMatrix();
+				m_render.setViewMatrix(view);
+				m_render.setModelMatrix(model_matrix);
+				m_render.setInitModelMatrix(ifc_test_model->getInitModelMatrix());
+				m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
+				m_render.setModelViewMatrix(view * model_matrix);
+			}*/
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
@@ -399,16 +437,19 @@ namespace ifcre {
 			}
 #endif
 
+			//--------------- gizmo rendering ----------------------------------------
+			m_render.renderGizmo(m_camera->getCubeRotateMatrix());
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
 			// -------------- render axis, not normal render procedure ---------------
-			/*m_render.renderAxis(*ifc_test_model
+			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
 				, m_camera->getViewPos()
-				, m_view_pos);*/
+				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ----------------------------- render text -----------------------------
 			//auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-
 			//m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
