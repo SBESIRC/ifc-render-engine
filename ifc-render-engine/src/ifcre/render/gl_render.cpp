@@ -44,6 +44,10 @@ namespace ifcre {
 		String f_clp_plane = util::read_file("shaders/clp_plane.frag");
 		m_clip_plane_shader = make_unique<GLSLProgram>(v_clp_plane.c_str(), f_clp_plane.c_str());
 
+		String v_clp_ui_plane = util::read_file("shaders/clp_ui_plane.vert");
+		String f_clp_ui_plane = util::read_file("shaders/clp_ui_plane.frag");
+		m_clip_plane_UI_shader = make_unique<GLSLProgram>(v_clp_ui_plane.c_str(), f_clp_ui_plane.c_str());
+
 		String v_test = util::read_file("shaders/test.vert");
 		String f_test = util::read_file("shaders/test.frag");
 		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
@@ -87,6 +91,7 @@ namespace ifcre {
 		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
 		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
 		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
+		m_clip_plane_UI_shader = make_unique<GLSLProgram>(sc::v_clp_ui_plane, sc::f_clp_ui_plane);
 		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
 		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
 		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
@@ -106,6 +111,7 @@ namespace ifcre {
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
@@ -405,50 +411,24 @@ namespace ifcre {
 		glDisable(GL_BLEND);
 	}
 
-	void GLRender::renderClipBox(const bool hidden, ClipBox clip_box) {
-		static uint32_t plane_vao;
-		static uint32_t plane_vbo, plane_ebo;
-		static Vector<uint32_t> cube_element_buffer_object = { 0,1,2,0,2,3,4,5,1,4,1,0,6,5,1,6,1,2,7,4,0,7,0,3,7,6,2,7,2,3,4,5,6,4,6,7 };
-		static bool firstPlane = true;
-		if (firstPlane) { // ´«Êý¾Ý
-			float k = .5f;
-			float coord_plane[] = {
-				-k,-k, -k,
-				 k,-k, -k,
-				 k,-k, k,
-				-k,-k, k,
-				-k, k, -k,
-				 k, k, -k,
-				 k, k, k,
-				-k, k, k
-			};
-			glGenVertexArrays(1, &plane_vao);
-			glGenBuffers(1, &plane_vbo);
-			glGenBuffers(1, &plane_ebo);
-			glBindVertexArray(plane_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, plane_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_plane), &coord_plane, GL_STATIC_DRAW);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plane_ebo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_element_buffer_object.size() * sizeof(uint32_t), cube_element_buffer_object.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			firstPlane = false;
-		}
-
-		if (!hidden) { // äÖÈ¾
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-			glBlendEquation(GL_FUNC_ADD);
+	void GLRender::renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id) {
+		if (!hidden) {
 
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_box.toMat()));
 			m_clip_plane_shader->use();
-			glBindVertexArray(plane_vao);
-			glDepthMask(GL_FALSE);
-			glDrawElements(GL_TRIANGLES, cube_element_buffer_object.size(), GL_UNSIGNED_INT, 0);
-			glDepthMask(GL_TRUE);
-			glDisable(GL_BLEND);
+			m_clip_plane_shader->setInt("ui_id", clp_face_id);
+			clip_box.drawBox();
 			_defaultConfig();
+		}
+	}
+
+	void GLRender::renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box) {
+		if (!hidden) {
+			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_box.toMat()));
+			m_clip_plane_UI_shader->use();
+			clip_box.drawBoxInUILayer();
 		}
 	}
 
@@ -576,26 +556,24 @@ namespace ifcre {
 
 	}
 
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix)
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		glm::mat4 tempmatrix = m_projection * rotate_matrix;
+		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_shader->use();
-		m_gizmo_shader->setVec2("offset", glm::vec2(25.f, -25.f));
 		gizmo.drawGizmo();
 		_defaultConfig();
 	}
 
-	void GLRender::renderGizmoInUIlayer(const glm::mat4& rotate_matrix) {
-		glClearColor(-2, 0, 0, 0);
+	void GLRender::renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size) {
+		glClearColor(-1, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepthf(1.0);
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		glm::mat4 tempmatrix = m_projection * rotate_matrix;
+		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_UI_shader->use();
-		m_gizmo_UI_shader->setVec2("offset", glm::vec2(25.f, -25.f));
 		gizmo.drawGizmoInUiLayer();
 	}
 

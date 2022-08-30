@@ -228,14 +228,14 @@ namespace ifcre {
 
         // ------------- camera attributes----------------
         public:
-        glm::vec3 m_pos; // Ïà»úµÄÎ»ÖÃ
-        glm::vec3 m_front; // Ïà»ú¿´ÏòÎïÌå
-        glm::vec3 m_up; // Ïà»ú×ø±êµÄÉÏ·½
+        glm::vec3 m_pos; // ç›¸æœºçš„ä½ç½®
+        glm::vec3 m_front; // ç›¸æœºçœ‹å‘ç‰©ä½“
+        glm::vec3 m_up; // ç›¸æœºåæ ‡çš„ä¸Šæ–¹
         private:
         // calculated by worldup 
-        glm::vec3 m_right; // Ïà»ú×ø±êµÄÓÒ·½
+        glm::vec3 m_right; // ç›¸æœºåæ ‡çš„å³æ–¹
 
-        glm::vec3 m_worldup; // ÊÀ½çyÕı·½Ïò
+        glm::vec3 m_worldup; // ä¸–ç•Œyæ­£æ–¹å‘
 
 
         const glm::vec3 m_velocity = glm::vec3(0.05f, 0.05f, 0.2f);

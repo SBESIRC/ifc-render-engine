@@ -69,6 +69,7 @@ namespace ifcre {
 		static SharedPtr<RenderEngine> getSingleton();
 		int key;
 		int ui_key;
+		int clp_face_key;
 	private:
 		void drawFrame();
 		
@@ -110,6 +111,9 @@ namespace ifcre {
 		// gizmo sets
 		int cube_num = 0;
 		bool cube_change_log = false;
+
+		int last_clp_face_key = 0;
+
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;
