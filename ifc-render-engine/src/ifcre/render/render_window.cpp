@@ -64,7 +64,7 @@ namespace ifcre {
 
 
         uint32_t clicked_comp_id; // glm::ivec4 comp_id;
-        float clicked_ui_id; // glm::fvec4 ui_id;
+        uint32_t clicked_ui_id; // glm::fvec4 ui_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         if (is_comp) {
@@ -239,6 +239,7 @@ namespace ifcre {
                     that->chosen_list.clear();
                 }
                 status.lbtn_down = true;
+                that->_setClickedWorldColors(click_x, click_y, false, false);
                 break;
             }
             case GLFW_RELEASE:
@@ -700,10 +701,10 @@ namespace ifcre {
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
-        /*glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+        //glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mfb.m_default_rt->attach(m_framebuffer.fbo_id);
 

@@ -24,9 +24,9 @@ namespace ifcre {
     const float SENSITIVITY = 0.1f;
     const float FOV = 45.0f;
 
-	class GLCamera {
-	public:
-		GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
+    class GLCamera {
+    public:
+        GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
             : m_pos(pos)
             , m_worldup(worldup)
             , m_front(glm::vec3(0.0f, 0.0f, -1.0f)) {
@@ -39,8 +39,8 @@ namespace ifcre {
             return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix
         }
 
-        glm::mat4 getCubeRotateMatrix() {
-            glm::vec3 v_pos = 30.f * glm::normalize(-m_front);
+        glm::mat4 getCubeRotateMatrix(float dis = 0.f) {
+            glm::vec3 v_pos = dis * glm::normalize(-m_front);
             return glm::lookAt(v_pos, v_pos + m_front, m_up);
         }
 
@@ -158,8 +158,8 @@ namespace ifcre {
                 m_pos += m_velocity.z * (offz > 0 ? m_front : -m_front);
             }
         }
-        
-        glm::vec3 getViewPos() {
+
+        const glm::vec3 getViewPos() const {
             return m_pos;
         }
 
@@ -167,7 +167,7 @@ namespace ifcre {
             return m_front;
         }
 
-	private:
+    private:
         void _updateCameraVectors()
         {
             //glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp)
@@ -245,7 +245,7 @@ namespace ifcre {
         Vector<glm::vec3> m_precomputing_front;
         Vector<glm::vec3> m_precomputing_up;
         Vector<glm::vec3> m_precomputing_right;
-	};
+    };
 }
 
 #endif

@@ -66,7 +66,6 @@ namespace ifcre {
 				m_render_api = VULKAN_RENDER_API;
 			}
 
-			//RenderWindow::m_mouse_status
 			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
@@ -102,13 +101,13 @@ namespace ifcre {
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_model_matrix);
 			ifc_test_model->setScaleFactor(scale_factor);
+			ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
 		}
 		else { // 固定模型矩阵（观察位置）
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
 
-		ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -119,8 +118,8 @@ namespace ifcre {
 			//test_model->render_id = m_glrender->addModel(model_vb);
 			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
-				m_render_window->setCamera(m_camera);
 				m_camera->PrecomputingCubeDireciton(m_view_pos); //////////////////////////////
+				m_render_window->setCamera(m_camera);
 			}
 			// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
 
