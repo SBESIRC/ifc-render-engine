@@ -505,7 +505,7 @@ namespace ifcre {
 
 	public:
 		//------ chosen list
-		std::unordered_set<uint32_t> chosen_list;
+		std::set<uint32_t> chosen_list;
 
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
