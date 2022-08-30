@@ -40,7 +40,7 @@ namespace mesh_simplier {
             return Vec3(x/sum,y/sum,z/sum);
         }
     };*/
-    static T global_pos_epsilon = 0.001f, global_nor_epsilon = 0.0001f;
+    static T global_pos_epsilon = 0.001f, global_nor_epsilon = 0.1f;
     T dot(glm::vec3 a, glm::vec3 b);
 
     glm::vec3 cross(glm::vec3 a, glm::vec3 b);
