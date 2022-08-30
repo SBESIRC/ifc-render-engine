@@ -40,7 +40,7 @@ namespace mesh_simplier {
             return Vec3(x/sum,y/sum,z/sum);
         }
     };*/
-    static T global_epsilon = 0.001f;
+    static T global_pos_epsilon = 0.001f, global_nor_epsilon = 0.0001f;
     T dot(glm::vec3 a, glm::vec3 b);
 
     glm::vec3 cross(glm::vec3 a, glm::vec3 b);
@@ -54,7 +54,6 @@ namespace mesh_simplier {
     };
     bool isSameVertex(const Vertex& v1, const Vertex& v2);
     T fabs(T f);
-    bool isSameVertex(const Vertex& v1, const Vertex& v2, T epsilon);
 
     struct Face {
         glm::vec3 normal;
@@ -76,7 +75,7 @@ namespace mesh_simplier {
         vector<Face> faces;
         int vnnum, vnum, fnum;
         // T same_plane_epsilon=numeric_limits<T>::epsilon();
-        T same_plane_epsilon = global_epsilon;
+        // T same_plane_epsilon = global_nor_epsilon;
         Mesh() = default;
         Mesh(const vector<Face>& _faces) {
             faces = _faces;
