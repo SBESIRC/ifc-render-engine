@@ -221,7 +221,7 @@ namespace ifcre {
 			cur_vis_no_trans_ind = no_trans_ind;
 		}
 
-		void update_chosen_list(std::unordered_set<uint32_t>& chosen_list) {
+		void update_chosen_list(std::set<uint32_t>& chosen_list) {
 			for (const int i : cur_c_indices) {
 				if (comp_states[i] != VIS) {
 					comp_states[i] = VIS;
@@ -309,7 +309,7 @@ namespace ifcre {
 			m_center = (pMin + pMax) * 0.5f;
 		}
 
-		Vector<Real> generate_bbxs_by_vec(const unordered_set<uint32_t>& comp_indices) {
+		Vector<Real> generate_bbxs_by_vec(const set<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
 			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {

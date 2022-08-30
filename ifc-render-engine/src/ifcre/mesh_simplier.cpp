@@ -25,10 +25,10 @@ namespace mesh_simplier {
             if(v1.pos.y-v2.pos.y<=numeric_limits<T>::epsilon()){
                 if(v1.pos.z-v2.pos.z<=numeric_limits<T>::epsilon()){*/
 
-        if (fabs(v1.pos.x - v2.pos.x) <= global_epsilon) {
-            if (fabs(v1.pos.y - v2.pos.y) <= global_epsilon) {
-                if (fabs(v1.pos.z - v2.pos.z) <= global_epsilon) {
-                    if (dot(v1.normal, v2.normal) > 0.9)
+        if (fabs(v1.pos.x - v2.pos.x) <= global_pos_epsilon) {
+            if (fabs(v1.pos.y - v2.pos.y) <= global_pos_epsilon) {
+                if (fabs(v1.pos.z - v2.pos.z) <= global_pos_epsilon) {
+                    if (dot(v1.normal, v2.normal) > 1.f - global_nor_epsilon)
                         return true;
                 }
             }
@@ -37,17 +37,6 @@ namespace mesh_simplier {
     }
     T fabs(T f) {
         return f < 0 ? -f : f;
-    }
-    bool isSameVertex(const Vertex& v1, const Vertex& v2, T epsilon) {
-        if (fabs(v1.pos.x - v2.pos.x) <= epsilon) {
-            if (fabs(v1.pos.y - v2.pos.y) <= epsilon) {
-                if (fabs(v1.pos.z - v2.pos.z) <= epsilon) {
-                    if (dot(v1.normal, v2.normal) > 1 - epsilon)
-                        return true;
-                }
-            }
-        }
-        return false;
     }
 
     void Face::show_off_face() {
@@ -94,7 +83,7 @@ namespace mesh_simplier {
             if (same_vertex_map[i] != -1)
                 continue;
             for (int j = i + 1; j < s; j++) {
-                if (isSameVertex(vertices[i], vertices[j], global_epsilon)) {
+                if (isSameVertex(vertices[i], vertices[j])) {
                     /*if (same_vertex_map[i] != -1)
                         same_vertex_map[j] = same_vertex_map[i];
                     else
@@ -261,7 +250,7 @@ namespace mesh_simplier {
                 if (same_vertex_map[faces[i].index[j]] != -1)
                     continue;
                 for (int k = j + 1; k < s; k++) {
-                    if (isSameVertex(vertices[faces[i].index[j]], vertices[faces[i].index[k]], global_epsilon)) {
+                    if (isSameVertex(vertices[faces[i].index[j]], vertices[faces[i].index[k]])) {
                         same_vertex_map[faces[i].index[k]] = faces[i].index[j];
                         faces[i].index[k] = faces[i].index[j];
                     }
@@ -618,7 +607,7 @@ namespace mesh_simplier {
                 T e2 = dot(vertices[faces[j].index[0]].pos, faces[j].normal);// A2x2 + B2y2 + C2z2 = -D2 = e2
                 T epsl_n = (T)1. - dot(faces[i].normal, faces[j].normal);
                 T epsl = e1 - e2;
-                if (epsl_n > same_plane_epsilon || fabs(epsl) > same_plane_epsilon)// 1. are they having same normal? 2. is D1 approx to D2?
+                if (epsl_n > global_nor_epsilon || fabs(epsl) > global_nor_epsilon)// 1. are they having same normal? 2. is D1 approx to D2?
                 {
                     //if not, they are in different plane
 #ifdef coutlog

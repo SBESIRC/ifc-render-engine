@@ -39,7 +39,8 @@ namespace ifcre {
         return z;
     }
 
-    void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode, bool is_comp) {
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp) {
+
         //glm::vec3 getColor;
         //Real w = m_width, h = m_height;
         ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
@@ -62,23 +63,22 @@ namespace ifcre {
         //else
         //    m_mouse_status.click_comp_id = clicked_comp_id;
 
-
-        uint32_t clicked_comp_id; // glm::ivec4 comp_id;
-        float clicked_ui_id; // glm::fvec4 ui_id;
+        glm::ivec4 comp_id;
+        glm::ivec4 ui_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         if (is_comp) {
             m_cur_rt = m_comp_fb.m_comp_id_rt.get();
             //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_comp_id); // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         else {
             m_cur_rt = m_ui_fb.m_ui_id_rt.get();
             //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBindFramebuffer(GL_FRAMEBUFFER, m_ui_fb.fbo_id);
-            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_ui_id);  // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         //if (comp_id == -1) {
@@ -88,10 +88,10 @@ namespace ifcre {
         //}
 
         //std::cout << comp_id.x << "\n";
-        
+
 
         if (is_comp) {
-            //int clicked_comp_id = comp_id.x;
+            int clicked_comp_id = comp_id.x;
             if (hover_mode)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else {
@@ -108,15 +108,16 @@ namespace ifcre {
             }
         }
         else {
-            // float clicked_ui_id = ui_id.x;
-            if (hover_mode) {}
+            int clicked_ui_id = ui_id.x;
+            if (hover_mode) {
+                m_mouse_status.clpbox_face_id = clicked_ui_id;
+                if (m_mouse_status.clpbox_face_id > 5) rotatelock = true;
+            }
             else {
                 m_mouse_status.chosen_ui_id = clicked_ui_id;
-                //std::cout << m_mouse_status.chosen_ui_id << std::endl;
             }
         }
     }
-
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     
@@ -237,6 +238,7 @@ namespace ifcre {
                     that->chosen_list.clear();
                 }
                 status.lbtn_down = true;
+                that->_setClickedWorldColors(click_x, click_y, false, false);
                 break;
             }
             case GLFW_RELEASE:
@@ -334,6 +336,7 @@ namespace ifcre {
         }
 
         createFramebuffer(w, h);
+        use_clip_box.glInit(ui_id_num);
         glViewport(0, 0, w, h);
 	}
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
@@ -357,15 +360,6 @@ namespace ifcre {
         /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             geomchanged ? geomchanged = false : geomchanged = true;
         }*/
-        /*if (glfwGetKey(m_window, GLFW_KEY_J) == GLFW_PRESS && key_frame_stopper) {
-            key_frame_stopper = false;
-            geomframe++;
-            geomframe %= 3;
-            geomchanged = true;
-        }
-        if (glfwGetKey(m_window, GLFW_KEY_V) == GLFW_PRESS) {
-            key_frame_stopper = true;
-        }*/
         if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
             hidden = true;
         }
@@ -381,48 +375,41 @@ namespace ifcre {
                 //use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
                 use_clip_box.base_pos -= use_clip_box.moveSpeed * use_clip_box.normal;
             }
-            if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-                //use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
-                use_clip_box.rotateByFront(use_clip_box.rotateSpeed);
+            //rotate clipping box
+            //if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            //    //use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
+            //    use_clip_box.rotateByFront(use_clip_box.rotateSpeed);
+            //}
+            //if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            //    //use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
+            //    use_clip_box.rotateByFront(-use_clip_box.rotateSpeed);
+            //}
+            //if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
+            //    //use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
+            //    use_clip_box.rotateByRight(use_clip_box.rotateSpeed);
+            //}
+            //if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            //    //use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
+            //    use_clip_box.rotateByRight(-use_clip_box.rotateSpeed);
+            //}
+
+            if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS) {//-z increase
+                use_clip_box.updateBox(CLIPBOXUPDATE::back_inc);
             }
-            if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-                //use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
-                use_clip_box.rotateByFront(-use_clip_box.rotateSpeed);
+            else if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {//-z decrease
+                use_clip_box.updateBox(CLIPBOXUPDATE::back_dec);
             }
-            if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
-                //use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
-                use_clip_box.rotateByRight(use_clip_box.rotateSpeed);
+            if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS) {//+x increase
+                use_clip_box.updateBox(CLIPBOXUPDATE::right_inc);
             }
-            if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-                //use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
-                use_clip_box.rotateByRight(-use_clip_box.rotateSpeed);
+            else if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS) {//+x decrease
+                use_clip_box.updateBox(CLIPBOXUPDATE::right_dec);
             }
-            if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS) {
-                use_clip_box.length += .01f;
+            if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS) {//+y increase
+                use_clip_box.updateBox(CLIPBOXUPDATE::up_inc);
             }
-            if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {
-                use_clip_box.length -= .01f;
-                if (use_clip_box.length < .01f) {
-                    use_clip_box.length = .01f;
-                }
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS) {
-                use_clip_box.width += .01f;
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS) {
-                use_clip_box.width -= .01f;
-                if (use_clip_box.width < .01f) {
-                    use_clip_box.width = .01f;
-                }
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS) {
-                use_clip_box.height += .01f;
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS) {
-                use_clip_box.height -= .01f;
-                if (use_clip_box.height < .01f) {
-                    use_clip_box.height = .01f;
-                }
+            else if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS) {//+y decrease
+                use_clip_box.updateBox(CLIPBOXUPDATE::up_dec);
             }
         }
 
@@ -431,14 +418,6 @@ namespace ifcre {
         }
         else if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
             multichoose = false;
-        }
-        if (glfwGetKey(m_window, GLFW_KEY_C) == GLFW_PRESS && !cube_lock) {
-            cube_test_num = (cube_test_num + 1) % 6;
-            cube_test_change = true;
-            cube_lock = true;
-        }
-        else if (glfwGetKey(m_window, GLFW_KEY_Z) == GLFW_PRESS) {
-            cube_lock = false;
         }
     }
 
@@ -487,13 +466,6 @@ namespace ifcre {
             //将一个帧缓冲中的某个区域复制到另一个帧缓冲中，并且将多重采样缓冲还原。
             //根据GL_READ_FRAMEBUFFER与GL_DRAW_FRAMEBUFFER来判断哪个是源帧缓冲，哪个是目标帧缓冲
             glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-
-
-            // TODO delete
-            //m_framebuffer.m_comp_id_rt->attach(m_framebuffer.fbo_id);
-            //glBindFramebuffer(GL_READ_BUFFER, m_comp_fb.fbo_id);
-            //glBindFramebuffer(GL_DRAW_BUFFER, m_framebuffer.fbo_id);
-            //glBlitFramebuffer(0, 0, m_width, m_height, 0, 0, m_width, m_height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
         }
 
         m_cur_fbo = 0;
@@ -625,6 +597,15 @@ namespace ifcre {
         auto temp = std::lround(m_mouse_status.chosen_ui_id);
         //if (m_mouse_status.chosen_ui_id > -.5f)std::cout << temp << std::endl;
         m_mouse_status.chosen_ui_id = -1;
+
+        return temp;
+    }
+
+    int RenderWindow::getClpBoxFaceId()
+    {
+        auto temp = m_mouse_status.clpbox_face_id;
+        m_mouse_status.clpbox_face_id = -1;
+        rotatelock = false;
         return temp;
     }
 
@@ -719,10 +700,10 @@ namespace ifcre {
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
-        /*glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+        //glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
+        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         mfb.m_default_rt->attach(m_framebuffer.fbo_id);
 

@@ -73,8 +73,35 @@ namespace ifcre {
 		}
 	};
 
+	enum CLIPBOXUPDATE {
+		back_inc = 0x00,
+		back_dec = 0x01,
+		left_inc = 0x02,
+		left_dec = 0x03,
+		front_inc = 0x04,
+		front_dec = 0x05,
+		right_inc = 0x06,
+		right_dec = 0x07,
+		up_inc = 0x08,
+		up_dec = 0x09,
+		down_inc = 0x0a,
+		down_dec = 0x0b
+	};
+
 	struct ClipBox :public ClipPlane {
-		Real length, width, height;
+		uint32_t edge_vao, plane_vao;
+		uint32_t edge_vbo, edge_ebo, plane_vbo, plane_ebo;
+		Real length = 0, width = 0, height = 0;
+		Vector<uint32_t> cube_element_buffer_object = {
+			//back			 //left			   //front
+			0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11,
+			//right				   //up					   //down
+			12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23 };
+		Vector<uint32_t> cube_element_edge_buffer_object = { 0,1,1,2,2,3,3,0, 4,5,5,6,6,7,7,4, 8,9,9,10,10,11,11,8,
+			12,13,13,14,14,15,15,12, 16,17,17,18,18,19,19,16, 20,21,21,22,22,23,23,20,
+			//points
+			24, 25, 26, 27, 28, 29
+		};
 		ClipBox() {}
 		~ClipBox() {}
 		ClipBox(glm::vec3 pos, glm::vec3 up, glm::vec3 _right, Real len, Real wid, Real hei) :length(len), width(wid), height(hei)
@@ -83,6 +110,100 @@ namespace ifcre {
 			normal = up;
 			right = _right;
 			front = glm::cross(up, right);
+		}
+		const void glInit(int& ui_id_num) {
+			float k = .5f;
+			/*Vector<float> coord_plane = {
+				-k,-k, -k,
+				 k,-k, -k,
+				 k,-k, k,
+				-k,-k, k,
+				-k, k, -k,
+				 k, k, -k,
+				 k, k, k,
+				-k, k, k
+			};
+			*/glGenVertexArrays(1, &edge_vao);
+			glGenBuffers(1, &edge_vbo);
+			glGenBuffers(1, &edge_ebo);
+			/*glBindVertexArray(edge_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, edge_vbo);
+			glBufferData(GL_ARRAY_BUFFER, coord_plane.size()*sizeof(float), coord_plane.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edge_ebo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_element_edge_buffer_object.size() * sizeof(uint32_t), cube_element_edge_buffer_object.data(), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);*/
+			ui_id_num--;
+			Vector<float>coord_plane = {
+				//position		//ui_ids
+				//back
+				-k, -k, -k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+				-k,	k,	-k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+				k,	k,	-k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+				k,	-k,	-k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+				//left
+				-k,	-k,	-k,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+				-k,	-k,	k,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+				-k,	k,	k,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+				-k,	k,	-k,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+				//front
+				-k,	-k,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+				k,	-k,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+				k,	k,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+				-k,	k,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+				//right
+				k,	-k,	k,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+				k,	-k,	-k,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+				k,	k,	-k,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+				k,	k,	k,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+				//up
+				-k,	k,	k,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+				k,	k,	k,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+				k,	k,	-k,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+				-k,	k,	-k,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+				//down
+				k,	-k,	k,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/,
+				-k,	-k,	k,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/,
+				-k,	-k,	-k,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/,
+				k,	-k,	-k,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/,
+
+				//midpoints
+				0,  0, -k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+				-k,	0,	0,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+				0,	0,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+				k,	0,	0,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+				0,	k,	0,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+				0,	-k,	0,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/
+			};
+
+			glBindVertexArray(edge_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, edge_vbo);
+			glBufferData(GL_ARRAY_BUFFER, coord_plane.size() * sizeof(float), coord_plane.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, edge_ebo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_element_edge_buffer_object.size() * sizeof(uint32_t), cube_element_edge_buffer_object.data(), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+			glGenVertexArrays(1, &plane_vao);
+			glGenBuffers(1, &plane_vbo);
+			glGenBuffers(1, &plane_ebo);
+			glBindVertexArray(plane_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, plane_vbo);
+			glBufferData(GL_ARRAY_BUFFER, coord_plane.size() * sizeof(float), coord_plane.data(), GL_STATIC_DRAW);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, plane_ebo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, cube_element_buffer_object.size() * sizeof(uint32_t), cube_element_buffer_object.data(), GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(3 * sizeof(float)));
+			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			//ui_id_num += 6;
 		}
 		Vector<glm::vec4> out_as_vec4s() {
 			return {
@@ -94,7 +215,7 @@ namespace ifcre {
 				glm::vec4(front,glm::dot(front,base_pos - front * length / 2.f))
 			};
 		}
-		glm::mat4 toMat() {
+		const glm::mat4 toMat() const {
 			glm::vec4 world_x = glm::vec4(-glm::cross(normal, front), 0.),
 				world_z = glm::vec4(-front, 0.),
 				world_y = glm::vec4(normal, 0.);
@@ -104,6 +225,132 @@ namespace ifcre {
 			ret = glm::scale(ret, glm::vec3(width, height, length));
 
 			return basis * ret;
+		}
+		void updateBox(int direct) {
+			switch (direct)
+			{
+			case back_inc: {
+				length += .01f;
+				base_pos += .005f * front;
+				break;
+			}
+			case back_dec: {
+				length -= .01f;
+				if (length < .01f) {
+					length = .01f;
+				}
+				else {
+					base_pos -= .005f * front;
+				}
+				break;
+			}
+			case left_inc: {
+				width += .01f;
+				base_pos -= .005f * right;
+				break;
+			}
+			case left_dec: {
+				width -= .01f;
+				if (width < .01f) {
+					width = .01f;
+				}
+				else {
+					base_pos += .005f * right;
+				}
+				break;
+			}
+			case front_inc: {
+				length += .01f;
+				base_pos -= .005f * front;
+				break;
+			}
+			case front_dec: {
+				length -= .01f;
+				if (length < .01f) {
+					length = .01f;
+				}
+				else {
+					base_pos += .005f * front;
+				}
+				break;
+			}
+			case right_inc: {
+				width += .01f;
+				base_pos += .005f * right;
+				break;
+			}
+			case right_dec: {
+				width -= .01f;
+				if (width < .01f) {
+					width = .01f;
+				}
+				else {
+					base_pos -= .005f * right;
+				}
+				break;
+			}
+			case up_inc: {
+				height += .01f;
+				base_pos += .005f * normal;
+				break;
+			}
+			case up_dec: {
+				height -= .01f;
+				if (height < .01f) {
+					height = .01f;
+				}
+				else {
+					base_pos -= .005f * normal;
+				}
+				break;
+			}
+			case down_inc: {
+				height += .01f;
+				base_pos -= .005f * normal;
+				break;
+			}
+			case down_dec: {
+				height -= .01f;
+				if (height < .01f) {
+					height = .01f;
+				}
+				else {
+					base_pos += .005f * normal;
+				}
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		const void drawBox() const {
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			glBindVertexArray(edge_vao);
+			glDepthMask(GL_FALSE);
+			glBindBuffer(GL_ARRAY_BUFFER, edge_vbo);/*
+			glDrawElements(GL_LINES, cube_element_edge_buffer_object.size(), GL_UNSIGNED_INT, 0);*/
+			glDrawElements(GL_LINES, 48, GL_UNSIGNED_INT, 0);
+
+			glPointSize(20.f);
+			glDrawElements(GL_POINTS, 6, GL_UNSIGNED_INT, (void*)(48 * sizeof(uint32_t)));
+
+			glDepthMask(GL_TRUE);
+			glDisable(GL_BLEND);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+		}
+		const void drawBoxInUILayer() const {
+			glEnable(GL_CULL_FACE);
+			glFrontFace(GL_CCW);
+			glBindVertexArray(plane_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, plane_vbo);
+			glDrawElements(GL_TRIANGLES, cube_element_buffer_object.size(), GL_UNSIGNED_INT, 0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			glDisable(GL_CULL_FACE);
 		}
 	};
 
@@ -138,6 +385,7 @@ namespace ifcre {
 		int getClickCompId();
 		int getHoverCompId();
 		int getClickedUIId();
+		int getClpBoxFaceId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 		bool getHidden() { return hidden; }
@@ -159,7 +407,6 @@ namespace ifcre {
 		bool isMouseMove();
 		bool isRightMouseClicked();
 
-		// ----- ----- ----- ----- ----- -----
 
 		// ---------- 
 		//int geomframe = 0;
@@ -167,9 +414,9 @@ namespace ifcre {
 		bool chosen_changed_w = false;
 		bool chosen_changed_x = false;
 		void setDefaultStatus();
-		int cube_test_num = 0;
-		bool cube_test_change = false;
-		bool cube_lock = false;
+		bool rotatelock = false;
+
+		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -180,7 +427,7 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
 		} m_framebuffer;
-		
+
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_msaa_rt;
@@ -195,7 +442,7 @@ namespace ifcre {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_ui_id_rt;
 		}m_ui_fb;
-		
+
 		// current render texture using by this render window
 		GLRenderTexture* m_cur_rt;
 
@@ -203,8 +450,8 @@ namespace ifcre {
 		SharedPtr<GLCamera> m_camera;
 		uint32_t m_cur_fbo;
 
-        // memory management by GLFW
-        GLFWwindow* m_window;
+		// memory management by GLFW
+		GLFWwindow* m_window;
 
 		int32_t m_width, m_height;
 		glm::mat4 m_projection;
@@ -226,6 +473,7 @@ namespace ifcre {
 			int hover_comp_id = -1;
 
 			float chosen_ui_id = -1.f;
+			int clpbox_face_id = -1;
 		}m_mouse_status;
 
 		struct {
@@ -240,35 +488,36 @@ namespace ifcre {
 		// ----- ----- ----- ----- -----
 
 		const Real m_znear = 0.1f, m_zfar = 1000.0f;
-		const Real fov = 45.0;
+		const Real fov = 45.0f;
 
-		//bool key_frame_stopper = true;
+		bool key_frame_stopper = true;
 
 		bool hidden = true;
 		ClipPlane hidden_clip_plane = glm::vec4(0.f, 0.f, 0.f, -1.f);
 		ClipPlane use_clip_plane = glm::vec4(0.f, 1.f, 0.f, 2.f);
 
-		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 
 		const Vector<glm::vec4> hidden_box_vector = Vector<glm::vec4>(6, glm::vec4(0.f, 0.f, 0.f, -1.f));
 
 		bool multichoose = false;
 
+		int ui_id_num = 6;
+
 	public:
 		//------ chosen list
-		std::unordered_set<uint32_t> chosen_list;
+		std::set<uint32_t> chosen_list;
 
 	private:
 		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 		static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 		static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos);
 
-// --------------------- event helper ----------------------
+		// --------------------- event helper ----------------------
 	private:
 		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
 		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp);
-// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 	};
 

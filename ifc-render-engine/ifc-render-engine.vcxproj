@@ -255,6 +255,8 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <None Include="..\workdir\shaders\chosen_test.vert" />
     <None Include="..\workdir\shaders\clp_plane.frag" />
     <None Include="..\workdir\shaders\clp_plane.vert" />
+    <None Include="..\workdir\shaders\clp_ui_plane.frag" />
+    <None Include="..\workdir\shaders\clp_ui_plane.vert" />
     <None Include="..\workdir\shaders\collision.frag" />
     <None Include="..\workdir\shaders\collision.vert" />
     <None Include="..\workdir\shaders\comp_id_write.frag" />

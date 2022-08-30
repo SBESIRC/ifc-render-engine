@@ -20,8 +20,7 @@ namespace ifcre {
         glAttachShader(id, fragment);
         glLinkProgram(id); // 链接
         checkCompileErrors(id, "PROGRAM");
-        // delete the shaders as they're linked into our program now and no longer necessery
-        // 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
+        // delete the shaders as they're linked into our program now and no longer necessery// 删除着色器，它们已经链接到我们的程序中了，已经不再需要了
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 	}
@@ -51,9 +50,7 @@ namespace ifcre {
     }
     void GLSLProgram::bindUniformBlock(const std::string& name, int index) const
     {
-        //1、Uniform块索引(Uniform Block Index)是着色器中已定义Uniform块的位置值索引, 通过glGetUniformBlockIndex找到
-        //2、再用glUniformBlockBinding将Uniform块绑定到一个特定的绑定点index中
-        glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);//1、Uniform块索引(Uniform Block Index)是着色器中已定义Uniform块的位置值索引, 通过glGetUniformBlockIndex找到//2、再用glUniformBlockBinding将Uniform块绑定到一个特定的绑定点index中
     }
     void GLSLProgram::use() const
     {

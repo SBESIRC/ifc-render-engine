@@ -5,12 +5,9 @@ layout(std140, binding = 0)uniform TransformMVPUBO{
     mat4 view_matrix;   // 0 ~ 64
 } ubo;
 
-uniform vec2 offset;
-
 out vec2 TexCoord;
 
 void main(){
     TexCoord = uvs;
-    vec4 temp = ubo.view_matrix * vec4(aPos, 1.0);
-    gl_Position = temp + vec4(offset, 0.0, 1.0);
+    gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, -.8, 0., 0.);
 }

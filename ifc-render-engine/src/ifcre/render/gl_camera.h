@@ -24,9 +24,9 @@ namespace ifcre {
     const float SENSITIVITY = 0.1f;
     const float FOV = 45.0f;
 
-	class GLCamera {
-	public:
-		GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
+    class GLCamera {
+    public:
+        GLCamera(glm::vec3 pos = glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3 worldup = glm::vec3(0.0f, 1.0f, 0.0f))
             : m_pos(pos)
             , m_worldup(worldup)
             , m_front(glm::vec3(0.0f, 0.0f, -1.0f)) {
@@ -39,8 +39,8 @@ namespace ifcre {
             return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix
         }
 
-        glm::mat4 getCubeRotateMatrix() {
-            glm::vec3 v_pos = 30.f * glm::normalize(-m_front);
+        glm::mat4 getCubeRotateMatrix(float dis = 0.f) {
+            glm::vec3 v_pos = dis * glm::normalize(-m_front);
             return glm::lookAt(v_pos, v_pos + m_front, m_up);
         }
 
@@ -158,8 +158,8 @@ namespace ifcre {
                 m_pos += m_velocity.z * (offz > 0 ? m_front : -m_front);
             }
         }
-        
-        glm::vec3 getViewPos() {
+
+        const glm::vec3 getViewPos() const {
             return m_pos;
         }
 
@@ -167,7 +167,7 @@ namespace ifcre {
             return m_front;
         }
 
-	private:
+    private:
         void _updateCameraVectors()
         {
             //glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp)
@@ -228,14 +228,14 @@ namespace ifcre {
 
         // ------------- camera attributes----------------
         public:
-        glm::vec3 m_pos; // Ïà»úµÄÎ»ÖÃ
-        glm::vec3 m_front; // Ïà»ú¿´ÏòÎïÌå
-        glm::vec3 m_up; // Ïà»ú×ø±êµÄÉÏ·½
+        glm::vec3 m_pos; // ç›¸æœºçš„ä½ç½®
+        glm::vec3 m_front; // ç›¸æœºçœ‹å‘ç‰©ä½“
+        glm::vec3 m_up; // ç›¸æœºåæ ‡çš„ä¸Šæ–¹
         private:
         // calculated by worldup 
-        glm::vec3 m_right; // Ïà»ú×ø±êµÄÓÒ·½
+        glm::vec3 m_right; // ç›¸æœºåæ ‡çš„å³æ–¹
 
-        glm::vec3 m_worldup; // ÊÀ½çyÕı·½Ïò
+        glm::vec3 m_worldup; // ä¸–ç•Œyæ­£æ–¹å‘
 
 
         const glm::vec3 m_velocity = glm::vec3(0.05f, 0.05f, 0.2f);
@@ -245,7 +245,7 @@ namespace ifcre {
         Vector<glm::vec3> m_precomputing_front;
         Vector<glm::vec3> m_precomputing_up;
         Vector<glm::vec3> m_precomputing_right;
-	};
+    };
 }
 
 #endif

@@ -120,6 +120,8 @@
     <None Include="..\workdir\shaders\gizmo_ui.frag" />
     <None Include="..\workdir\shaders\gizmo_ui.vert" />
     <None Include="..\workdir\shaders\gizmo.frag" />
+    <None Include="..\workdir\shaders\clp_ui_plane.vert" />
+    <None Include="..\workdir\shaders\clp_ui_plane.frag" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

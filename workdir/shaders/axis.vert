@@ -1,5 +1,5 @@
 #version 430
-layout(location = 0) in vec3 aPos; // location变量的位置值
+layout(location = 0) in vec3 aPos;
 
 layout(location = 0) flat out vec3 color;
 

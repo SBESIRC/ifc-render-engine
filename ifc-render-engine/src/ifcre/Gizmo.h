@@ -24,71 +24,71 @@ namespace ifcre {
 	struct SceneGizmo {
 		GLuint gizmoVAO, gizmoVBO, gizmoEBO;
 		GLuint gizmo_textID;
-		SceneGizmo() {
-			float k = 1.f;
+		float k = .3f;
+		SceneGizmo(int id_num = 0) {
 			float coord_plane[] = {
-				//	// position     uv cordination	ids
-				//	//back
-				//	 k, -k, -k,		.00f, .00f,		util::int_as_float(1),
-				//	-k, -k, -k,		.33f, .00f,		util::int_as_float(1),
-				//	-k,  k, -k,		.33f, .50f,		util::int_as_float(1),
-				//	 k,  k, -k,		.00f, .50f,		util::int_as_float(1),
-				//	//left
-				//	-k, -k,  k,		1.0f, .50f,		util::int_as_float(2),
-				//	-k,  k,  k,		1.0f, 1.0f,		util::int_as_float(2),
-				//	-k,  k, -k,		.67f, 1.0f,		util::int_as_float(2),
-				//	-k, -k, -k,		.67f, .50f,		util::int_as_float(2),
-				//	//front
-				//	-k, -k,  k,		.00f, .50f,		util::int_as_float(3),
-				//	 k, -k,  k,		.33f, .50f,		util::int_as_float(3),
-				//	 k,  k,  k,		.33f, 1.0f,		util::int_as_float(3),
-				//	-k,  k,  k,		.00f, 1.0f,		util::int_as_float(3),
-				//	//right
-				//	 k, -k,  k,		.67f, .00f,		util::int_as_float(4),
-				//	 k, -k, -k,		1.0f, .00f,		util::int_as_float(4),
-				//	 k,  k, -k,		1.0f, .50f,		util::int_as_float(4),
-				//	 k,  k,  k,		.67f, .50f,		util::int_as_float(4),
-				//	//up
-				//	-k,  k,  k,		.33f, .50f,		util::int_as_float(5),
-				//	 k,  k,  k,		.67f, .50f,		util::int_as_float(5),
-				//	 k,  k, -k,		.67f, 1.0f,		util::int_as_float(5),
-				//	-k,  k, -k,		.33f, 1.0f,		util::int_as_float(5),
-				//	//down
-				//	 k, -k, -k,		.67f, .00f,		util::int_as_float(6),
-				//	-k, -k, -k,		.33f, .00f,		util::int_as_float(6),
-				//	-k, -k,  k,		.33f, .50f,		util::int_as_float(6),
-				//	 k, -k,  k,		.67f, .50f,		util::int_as_float(6)
-					// position     uv cordination	ids
-					//back
-					 k, -k, -k,		.00f, .00f,		0.f,
-					-k, -k, -k,		.33f, .00f,		0.f,
-					-k,  k, -k,		.33f, .50f,		0.f,
-					 k,  k, -k,		.00f, .50f,		0.f,
-					 //left
-					 -k, -k,  k,		1.0f, .50f,		1.f,
-					 -k,  k,  k,		1.0f, 1.0f,		1.f,
-					 -k,  k, -k,		.67f, 1.0f,		1.f,
-					 -k, -k, -k,		.67f, .50f,		1.f,
-					 //front
-					 -k, -k,  k,		.00f, .50f,		2.f,
-					  k, -k,  k,		.33f, .50f,		2.f,
-					  k,  k,  k,		.33f, 1.0f,		2.f,
-					 -k,  k,  k,		.00f, 1.0f,		2.f,
-					 //right
-					  k, -k,  k,		.67f, .00f,		3.f,
-					  k, -k, -k,		1.0f, .00f,		3.f,
-					  k,  k, -k,		1.0f, .50f,		3.f,
-					  k,  k,  k,		.67f, .50f,		3.f,
-					  //up
-					  -k,  k,  k,		.33f, .50f,		4.f,
-					   k,  k,  k,		.67f, .50f,		4.f,
-					   k,  k, -k,		.67f, 1.0f,		4.f,
-					  -k,  k, -k,		.33f, 1.0f,		4.f,
-					  //down
-					   k, -k, -k,		.67f, .00f,		5.f,
-					  -k, -k, -k,		.33f, .00f,		5.f,
-					  -k, -k,  k,		.33f, .50f,		5.f,
-					   k, -k,  k,		.67f, .50f,		5.f
+				// position     uv cordination	ids
+				//back
+				 k, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 0),
+				-k, -k, -k,		.33f, .00f,		util::int_as_float(id_num + 0),
+				-k,  k, -k,		.33f, .50f,		util::int_as_float(id_num + 0),
+				 k,  k, -k,		.00f, .50f,		util::int_as_float(id_num + 0),
+				 //left
+				 -k, -k,  k,		1.0f, .50f,		util::int_as_float(id_num + 1),
+				 -k,  k,  k,		1.0f, 1.0f,		util::int_as_float(id_num + 1),
+				 -k,  k, -k,		.67f, 1.0f,		util::int_as_float(id_num + 1),
+				 -k, -k, -k,		.67f, .50f,		util::int_as_float(id_num + 1),
+				 //front
+				 -k, -k,  k,		.00f, .50f,		util::int_as_float(id_num + 2),
+				  k, -k,  k,		.33f, .50f,		util::int_as_float(id_num + 2),
+				  k,  k,  k,		.33f, 1.0f,		util::int_as_float(id_num + 2),
+				 -k,  k,  k,		.00f, 1.0f,		util::int_as_float(id_num + 2),
+				 //right
+				  k, -k,  k,		.67f, .00f,		util::int_as_float(id_num + 3),
+				  k, -k, -k,		1.0f, .00f,		util::int_as_float(id_num + 3),
+				  k,  k, -k,		1.0f, .50f,		util::int_as_float(id_num + 3),
+				  k,  k,  k,		.67f, .50f,		util::int_as_float(id_num + 3),
+				  //up
+				  -k,  k,  k,		.33f, .50f,		util::int_as_float(id_num + 4),
+				   k,  k,  k,		.67f, .50f,		util::int_as_float(id_num + 4),
+				   k,  k, -k,		.67f, 1.0f,		util::int_as_float(id_num + 4),
+				  -k,  k, -k,		.33f, 1.0f,		util::int_as_float(id_num + 4),
+				  //down
+				   k, -k, -k,		.67f, .00f,		util::int_as_float(id_num + 5),
+				  -k, -k, -k,		.33f, .00f,		util::int_as_float(id_num + 5),
+				  -k, -k,  k,		.33f, .50f,		util::int_as_float(id_num + 5),
+				   k, -k,  k,		.67f, .50f,		util::int_as_float(id_num + 5)
+				   //// position     uv cordination	ids
+				   ////back
+				   // k, -k, -k,		.00f, .00f,		id_num + 0.f,
+				   //-k, -k, -k,		.33f, .00f,		id_num + 0.f,
+				   //-k,  k, -k,		.33f, .50f,		id_num + 0.f,
+				   // k,  k, -k,		.00f, .50f,		id_num + 0.f,
+				   ////left
+				   //-k, -k,  k,		1.0f, .50f,		id_num + 1.f,
+				   //-k,  k,  k,		1.0f, 1.0f,		id_num + 1.f,
+				   //-k,  k, -k,		.67f, 1.0f,		id_num + 1.f,
+				   //-k, -k, -k,		.67f, .50f,		id_num + 1.f,
+				   ////front
+				   //-k, -k,  k,		.00f, .50f,		id_num + 2.f,
+				   // k, -k,  k,		.33f, .50f,		id_num + 2.f,
+				   // k,  k,  k,		.33f, 1.0f,		id_num + 2.f,
+				   //-k,  k,  k,		.00f, 1.0f,		id_num + 2.f,
+				   ////right
+				   // k, -k,  k,		.67f, .00f,		id_num + 3.f,
+				   // k, -k, -k,		1.0f, .00f,		id_num + 3.f,
+				   // k,  k, -k,		1.0f, .50f,		id_num + 3.f,
+				   // k,  k,  k,		.67f, .50f,		id_num + 3.f,
+				   ////up
+				   //-k,  k,  k,		.33f, .50f,		id_num + 4.f,
+				   // k,  k,  k,		.67f, .50f,		id_num + 4.f,
+				   // k,  k, -k,		.67f, 1.0f,		id_num + 4.f,
+				   //-k,  k, -k,		.33f, 1.0f,		id_num + 4.f,
+				   ////down
+				   // k, -k, -k,		.67f, .00f,		id_num + 5.f,
+				   //-k, -k, -k,		.33f, .00f,		id_num + 5.f,
+				   //-k, -k,  k,		.33f, .50f,		id_num + 5.f,
+				   // k, -k,  k,		.67f, .50f,		id_num + 5.f
 			};
 
 			glGenVertexArrays(1, &gizmoVAO);
@@ -164,6 +164,17 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 			glDisable(GL_CULL_FACE);
+		}
+
+		glm::mat4 private_transform(const glm::vec2 window_size) {
+			//glm::vec3 newpos = glm::vec3(1.f - k, k - 1.f, 0);
+			glm::vec3 window_scale = glm::vec3(window_size.y / window_size.x, 1.f, 1.f) * .2f;
+			glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
+
+			glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);
+			return ret;
+			/*ret = glm::lookAt(glm::vec3(0.f, 0.f, 5.f), newpos, glm::vec3(0.f, 1.f, 0.f)) * ret;
+			return ret;*/
 		}
 	};
 }

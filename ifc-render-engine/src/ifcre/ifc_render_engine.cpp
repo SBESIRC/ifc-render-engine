@@ -5,7 +5,6 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
-#include <sstream>
 
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
@@ -67,7 +66,6 @@ namespace ifcre {
 				m_render_api = VULKAN_RENDER_API;
 			}
 
-			//RenderWindow::m_mouse_status
 			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
@@ -109,6 +107,7 @@ namespace ifcre {
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
+
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -218,20 +217,19 @@ namespace ifcre {
 			m_window.geom_changed = true;
 			m_window.chosen_changed_x = false;
 		}
-
 		if (m_window.geom_changed) {
 			ifc_test_model->update_chosen_and_vis_list();
-			m_render.DynamicUpdate(ifc_test_model->render_id, ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices), ifc_test_model->cur_vis_no_trans_ind,
-				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
-			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_no_trans_ind, 
-				ifc_test_model->cur_chosen_trans_ind);
-			m_window.geom_changed = false;
-		}
 
-		if (m_window.cube_test_change) {
-			cube_change_log = true;
-			cube_num = m_window.cube_test_num;
-			m_window.cube_test_change = false;
+			m_render.DynamicUpdate(ifc_test_model->render_id,
+				ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices),
+				ifc_test_model->cur_vis_no_trans_ind,
+				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
+
+			m_render.ChosenGeomUpdate(ifc_test_model->render_id,
+				ifc_test_model->cur_chosen_no_trans_ind, 
+				ifc_test_model->cur_chosen_trans_ind);
+
+			m_window.geom_changed = false;
 		}
 	}
 
@@ -308,40 +306,12 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 		//m_render.enableTest(DEPTH_TEST);
 		//m_render.depthFunc(LESS_FUNC);
-		//GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
+		GLColor clearValue = { 0.2f, 0.3f, 0.3f, 1.0f };
+
+		glm::fvec2 mouse_move_vec(0.f);
 
 		// -------------- ifc model transform by mouse ---------------
-		//glm::vec3 screen_center(0, 0, 0);
-		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
-		//glm::vec3 clicked_coord = m_window.getVirtualHoverWorldCoord();
-		if (m_window.isMouseHorizontalRot()) {
-			float angle = m_window.getMouseHorizontalVel();
-			//ifc_test_model->rotateInLocalSpace(clicked_coord, angle);
-			//todo: should change camera
-			m_camera->rotateByScreenX(clicked_coord, angle);
-		}
-		if (m_window.isMouseVerticalRot()) {
-			float angle = m_window.getMouseVerticalVel();
-			//ifc_test_model->rotateInWorldSpace(clicked_coord, angle);
-			//m_camera->rotateInWorldSpace(clicked_coord, angle);
-			m_camera->rotateByScreenY(clicked_coord, angle);
-		}
-
-		if (m_window.isRightMouseClicked()) {
-			if (m_window.isMouseMove() && m_last_rmclick) {
-				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
-				glm::vec3 step = hover - m_last_hover_pos;
-				ifc_test_model->translate(step);
-				//wrong way here
-				//m_camera->translateByHoverDiv(step);
-
-			}
-			m_last_hover_pos = clicked_coord;
-			m_last_rmclick = true;
-		}
-		else {
-			m_last_rmclick = false;
-		}
+		
 
 		if (cube_change_log) {
 			ifc_test_model->TranslateToCubeDirection(cube_num);
@@ -349,6 +319,7 @@ namespace ifcre {
 			cube_change_log = false;
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
+
 		ifc_m_matrix = model_matrix;
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -366,37 +337,68 @@ namespace ifcre {
 			m_render.setCameraDirection(camera_forwad);
 			m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
 			m_render.setClippingBox(m_window.getClippingBoxVectors());
+
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
-
-			m_render.setCompId(m_window.getClickCompId());
+			key = m_window.getClickCompId();
+			m_render.setCompId(key);//m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
 			//m_window.switchRenderBack();
-			
+
+			//float cmrdis = 2.f;
+
 			//todo add gizmo's id here
 			m_window.switchRenderUI();
-			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix());
+			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
+			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
 			ui_key = m_window.getClickedUIId();
-			if (ui_key > -1) {
+			if (ui_key > -1 && ui_key < 6) {
 				cube_change_log = true;
 				cube_num = ui_key;
-				//std::cout << ui_key << std::endl;
 			}
 
-			/*if (cube_change_log) {
-				ifc_test_model->TranslateToCubeDirection(cube_num);
-				m_camera->RotateToCubeDirection(cube_num);
-				cube_change_log = false;
-				view = m_camera->getViewMatrix();
-				camera_forwad = m_camera->getViewForward();
-				model_matrix = ifc_test_model->getModelMatrix();
-				m_render.setViewMatrix(view);
-				m_render.setModelMatrix(model_matrix);
-				m_render.setInitModelMatrix(ifc_test_model->getInitModelMatrix());
-				m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
-				m_render.setModelViewMatrix(view * model_matrix);
-			}*/
+			glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
+
+			if (!m_window.rotatelock) {
+				if (m_window.isMouseHorizontalRot()) {
+					m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
+				}
+				if (m_window.isMouseVerticalRot()) {
+
+					m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
+				}
+				if (m_window.isRightMouseClicked()) {
+					if (m_window.isMouseMove() && m_last_rmclick) {
+						glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+						glm::vec3 step = hover - m_last_hover_pos;
+						ifc_test_model->translate(step);
+						//wrong way here
+						//m_camera->translateByHoverDiv(step);
+					}
+					m_last_hover_pos = clicked_coord;
+					m_last_rmclick = true;
+				}
+				else {
+					m_last_rmclick = false;
+				}
+			}
+			else {
+				mouse_move_vec.x = m_window.getMouseHorizontalVel();
+				mouse_move_vec.y = m_window.getMouseVerticalVel();
+			}
+			clp_face_key = m_window.getClpBoxFaceId();
+			if (clp_face_key > 5) {
+				clp_face_key -= 6;
+				int xsig = (mouse_move_vec.x > 0) ? 1 : ((mouse_move_vec.x < 0) ? -1 : 0);
+				int ysig = (mouse_move_vec.y > 0) ? 1 : ((mouse_move_vec.y < 0) ? -1 : 0);
+				int finalsig = xsig + ysig;
+				if (finalsig) {
+					//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
+					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0));
+				}
+				last_clp_face_key = clp_face_key + 6;
+			}
 #endif
 
 			//// 0. prev: render normal and depth tex of the scene
@@ -428,7 +430,7 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
-			m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			//m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {
@@ -438,7 +440,7 @@ namespace ifcre {
 #endif
 
 			//--------------- gizmo rendering ----------------------------------------
-			m_render.renderGizmo(m_camera->getCubeRotateMatrix());
+			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			// -------------- render axis, not normal render procedure ---------------
@@ -453,7 +455,7 @@ namespace ifcre {
 			//m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
-			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox());
+			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			m_window.endRenderToWindow();
