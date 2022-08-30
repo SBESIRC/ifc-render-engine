@@ -39,7 +39,8 @@ namespace ifcre {
         return z;
     }
 
-    void RenderWindow::_setClickedWorldColors(double click_x, double click_y,bool hover_mode, bool is_comp) {
+    void RenderWindow::_setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp) {
+
         //glm::vec3 getColor;
         //Real w = m_width, h = m_height;
         ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
@@ -62,23 +63,22 @@ namespace ifcre {
         //else
         //    m_mouse_status.click_comp_id = clicked_comp_id;
 
-
-        uint32_t clicked_comp_id; // glm::ivec4 comp_id;
-        uint32_t clicked_ui_id; // glm::fvec4 ui_id;
+        glm::ivec4 comp_id;
+        glm::ivec4 ui_id;
         Real w = m_width, h = m_height;
         //m_cur_rt = m_framebuffer.m_comp_id_rt.get();
         if (is_comp) {
             m_cur_rt = m_comp_fb.m_comp_id_rt.get();
             //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_comp_id); // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         else {
             m_cur_rt = m_ui_fb.m_ui_id_rt.get();
             //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
             glBindFramebuffer(GL_FRAMEBUFFER, m_ui_fb.fbo_id);
-            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RED_INTEGER, GL_INT, &clicked_ui_id);  // glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
+            glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
         //if (comp_id == -1) {
@@ -88,10 +88,10 @@ namespace ifcre {
         //}
 
         //std::cout << comp_id.x << "\n";
-        
+
 
         if (is_comp) {
-            //int clicked_comp_id = comp_id.x;
+            int clicked_comp_id = comp_id.x;
             if (hover_mode)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else {
@@ -108,7 +108,7 @@ namespace ifcre {
             }
         }
         else {
-            //int clicked_ui_id = ui_id.x;
+            int clicked_ui_id = ui_id.x;
             if (hover_mode) {
                 m_mouse_status.clpbox_face_id = clicked_ui_id;
                 if (m_mouse_status.clpbox_face_id > 5) rotatelock = true;
@@ -118,7 +118,6 @@ namespace ifcre {
             }
         }
     }
-
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     
