@@ -253,6 +253,28 @@ namespace ifcre {
 			}
 			m_render_window->chosen_list.clear();
 			break;
+		case -2: // show all elements
+			if (m_render_window == nullptr) {
+				return;
+			}
+			//to_show_states = stoi(m_cache_configs["to_show_states"]);
+			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+			//if (to_show_states == 0) {
+				m_render_window->geom_changed = true;
+				Vector<CompState>().swap(ifc_test_model->comp_states);
+				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
+				ifc_test_model->cur_c_indices.clear();
+				for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
+					ifc_test_model->cur_c_indices.insert(ifc_test_model->cur_c_indices.end(), ifc_test_model->c_indices[i].begin(), ifc_test_model->c_indices[i].end());
+				}
+			//}
+			/*else if (to_show_states == 1) {
+				m_render_window->chosen_changed_x = true;
+				Vector<CompState>().swap(ifc_test_model->comp_states);
+				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), CHOSEN);
+				m_render_window->chosen_list.insert(val);
+			}*/
+			break;
 		default:
 			if (val < ifc_test_model->c_indices.size()) {
 				if (0 == to_show_states) {
