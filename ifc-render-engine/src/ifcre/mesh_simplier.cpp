@@ -28,7 +28,7 @@ namespace mesh_simplier {
         if (fabs(v1.pos.x - v2.pos.x) <= global_pos_epsilon) {
             if (fabs(v1.pos.y - v2.pos.y) <= global_pos_epsilon) {
                 if (fabs(v1.pos.z - v2.pos.z) <= global_pos_epsilon) {
-                    if (dot(v1.normal, v2.normal) > 1.f - global_nor_epsilon)
+                    if (fabs(dot(v1.normal, v2.normal)) > 1.f - global_nor_epsilon)
                         return true;
                 }
             }
@@ -605,9 +605,9 @@ namespace mesh_simplier {
                 //judge if face_i & face_j are in same plane
                 T e1 = dot(vertices[faces[i].index[0]].pos, faces[i].normal);// A1x1 + B1y1 + C1z1 = -D1 = e1
                 T e2 = dot(vertices[faces[j].index[0]].pos, faces[j].normal);// A2x2 + B2y2 + C2z2 = -D2 = e2
-                T epsl_n = (T)1. - dot(faces[i].normal, faces[j].normal);
+                T epsl_n = (T)1. - fabs(dot(faces[i].normal, faces[j].normal));
                 T epsl = e1 - e2;
-                if (epsl_n > global_nor_epsilon || fabs(epsl) > global_nor_epsilon)// 1. are they having same normal? 2. is D1 approx to D2?
+                if (fabs(epsl_n) > global_nor_epsilon || fabs(epsl) > global_nor_epsilon)// 1. are they having same normal? 2. is D1 approx to D2?
                 {
                     //if not, they are in different plane
 #ifdef coutlog

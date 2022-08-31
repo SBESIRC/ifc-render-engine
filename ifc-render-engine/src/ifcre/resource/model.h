@@ -228,7 +228,7 @@ namespace ifcre {
 				}
 			}
 			uint32_t c_indices_size = c_indices.size();
-			if (c_indices_size == 1 && (*chosen_list.begin() >= c_indices_size)) {
+			if (c_indices_size == 1 && chosen_list.size() > 0 && (*chosen_list.begin() >= c_indices_size)) {
 				chosen_list.clear();
 			}
 			else {

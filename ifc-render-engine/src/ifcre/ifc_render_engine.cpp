@@ -101,13 +101,12 @@ namespace ifcre {
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_model_matrix);
 			ifc_test_model->setScaleFactor(scale_factor);
-			ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
 		}
 		else { // 固定模型矩阵（观察位置）
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
-
+		ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
