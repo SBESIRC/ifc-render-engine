@@ -102,8 +102,8 @@ namespace ifcre {
 		Vector<uint32_t> generate_edges_by_msMeshes() {
 			Vector<Vector<uint32_t>>().swap(c_edge_indices);
 			Vector<uint32_t>().swap(edge_indices);
-			mesh_simplier::build_ms_vertices(g_vertices, g_normals);
-			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices);
+			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
+			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
 			for (mesh_simplier::Mesh mes : meshes) {
 #ifdef PAIRREP
 				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());

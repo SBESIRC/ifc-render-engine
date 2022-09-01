@@ -4,7 +4,7 @@
 #define FAKER
 namespace mesh_simplier {
 
-    vector<Vertex> vertices;
+    vector<Vertex> vertices; // 6个一组 记录顶点 位置 和 法向量
     vector<int> same_vertex_map;
 
     T dot(glm::vec3 a, glm::vec3 b) {
@@ -20,21 +20,24 @@ namespace mesh_simplier {
         cout << "vn: " << this->normal.x << " " << this->normal.y << " " << this->normal.z << "\n";
     }
 
-    bool isSameVertex(const Vertex& v1, const Vertex& v2) {/*
-        if(v1.pos.x-v2.pos.x<=numeric_limits<T>::epsilon()){
-            if(v1.pos.y-v2.pos.y<=numeric_limits<T>::epsilon()){
-                if(v1.pos.z-v2.pos.z<=numeric_limits<T>::epsilon()){*/
-
-        if (fabs(v1.pos.x - v2.pos.x) <= global_pos_epsilon) {
-            if (fabs(v1.pos.y - v2.pos.y) <= global_pos_epsilon) {
-                if (fabs(v1.pos.z - v2.pos.z) <= global_pos_epsilon) {
-                    if (fabs(dot(v1.normal, v2.normal)) > 1.f - global_nor_epsilon)
-                        return true;
+    bool isSameVec3(const glm::vec3& v1, const glm::vec3& v2, T epsilon = global_pos_epsilon) {
+        if (fabs(v1.x - v2.x) <= epsilon) {
+            if (fabs(v1.y - v2.y) <= epsilon) {
+                if (fabs(v1.z - v2.z) <= epsilon) {
+                    return true;
                 }
             }
         }
         return false;
     }
+
+    bool isSameVertex(const Vertex& v1, const Vertex& v2) {
+        if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && fabs(dot(v1.normal, v2.normal)) > 1.f - global_nor_epsilon) {
+            return true;
+        }
+        return false;
+    }
+
     T fabs(T f) {
         return f < 0 ? -f : f;
     }
@@ -62,13 +65,13 @@ namespace mesh_simplier {
     void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) {
         assert(g_vertices.size() == g_normals.size());
         vector<Vertex>().swap(vertices);
-        int s = g_vertices.size();
-        vertices.resize(g_vertices.size() / 3);
-        for (int i = 0; i < s / 3; i++) {
-            vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]),
-                glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]));
+        int s = g_vertices.size(); 
+        vertices.resize(g_vertices.size() / 3);// 顶点数量
+        for (int i = 0; i < s / 3; i++) { // 顶点数量
+            vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]), // 存入点的位置
+                                 glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2])); // 存入点的法向量
         }
-        vector<int>().swap(same_vertex_map); // 必须
+        vector<int>().swap(same_vertex_map); // 必须 // 清空数据
         same_vertex_map.resize(vertices.size(), -1);
 #ifdef coutlog
         cout << "vertices built, its size:" << vertices.size() << "\n";
@@ -595,31 +598,17 @@ namespace mesh_simplier {
         vector<int> vis(faces.size(), -1);
         //vis[k]=-1 means faces[k] is not merged into other face
 
-        for (int i = 0; i < faces.size() - 1; i++) {
+        for (int i = 0; i < faces.size() - 1; i++) { // 对于构件中的某个三角面片i
             if (/*vis[i] != -1 ||*/ faces[i].index.size() < 1) //if this mesh has only one face, pass
                 continue;
-            for (int j = i + 1; j < faces.size(); j++) {
+            for (int j = i + 1; j < faces.size(); j++) { // 对于构件中的另一个三角面片j
                 if (vis[j] != -1 || faces[j].index.size() < 1)
                     //face_j has been merged, so just pass
                     continue;
-                //judge if face_i & face_j are in same plane
-                T e1 = dot(vertices[faces[i].index[0]].pos, faces[i].normal);// A1x1 + B1y1 + C1z1 = -D1 = e1
-                T e2 = dot(vertices[faces[j].index[0]].pos, faces[j].normal);// A2x2 + B2y2 + C2z2 = -D2 = e2
-                T epsl_n = (T)1. - fabs(dot(faces[i].normal, faces[j].normal));
-                T epsl = e1 - e2;
-                if (fabs(epsl_n) > global_nor_epsilon || fabs(epsl) > global_nor_epsilon)// 1. are they having same normal? 2. is D1 approx to D2?
-                {
-                    //if not, they are in different plane
-#ifdef coutlog
-// cout<<vertices[faces[i].index[0]].pos.x<<" "<<vertices[faces[i].index[0]].pos.y<<" "<<vertices[faces[i].index[0]].pos.z<<"\n"
-// <<faces[i].normal.x<<" "<<faces[i].normal.y<<" "<<faces[i].normal.z<<"\n"
-// <<vertices[faces[j].index[0]].pos.x<<" "<<vertices[faces[j].index[0]].pos.y<<" "<<vertices[faces[j].index[0]].pos.z<<"\n"
-// <<faces[j].normal.x<<" "<<faces[j].normal.y<<" "<<faces[j].normal.z<<"\n";
-// cout<<epsl<<" ";
-// cout<<"not a same.\n";
-#endif
+                if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
                     continue;
                 }
+
                 if (vis[i] != -1) {
                     //face_i has been merged before
                     vis[j] = vis[i];
@@ -670,16 +659,16 @@ namespace mesh_simplier {
     }
     vector<Face> generateFace(const vector<uint32_t>&indices) {
         vector<Face> ret;
-        int s_end = indices.size() / 3;
+        int s_end = indices.size() / 3; // 顶点数 除以 3 == 三角面数量
 #ifdef coutlog
         cout << "s_end2:" << s_end << "\n";
 #endif
         ret.resize(s_end);
         for (int i = 0; i < s_end; i++) {
-            ret[i].normal = vertices[indices[i * 3]].normal;
-            ret[i].index = { indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] };
+            ret[i].normal = vertices[indices[i * 3]].normal; // 记录三角面的法向量
+            ret[i].index = { indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] }; // 三角面上的三个点的索引
 #ifdef PAIRREP
-            ret[i].indexpair = {
+            ret[i].indexpair = { // 目前还是三角面，面上都有3根起始点构成的边
                 {indices[i * 3], indices[i * 3 + 1]},
                 {indices[i * 3 + 1], indices[i * 3 + 2]},
                 {indices[i * 3 + 2], indices[i * 3]}
@@ -720,7 +709,7 @@ namespace mesh_simplier {
         cout << "Spawning " << threadnum_t << " threads.\n";
         clock_t start, end;
         start = clock();
-        for (int i = 0; i < s_end; i++) {
+        for (int i = 0; i < s_end; i++) { // 对每一个构件分别进行操作
             ret[i] = Mesh(generateFace(c_indices[i]));
             //ret[i].map_save_vertex();
         }
