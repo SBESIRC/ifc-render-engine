@@ -19,12 +19,11 @@ namespace mesh_simplier {
         cout << "v:  " << this->pos.x << " " << this->pos.y << " " << this->pos.z << "\n";
         cout << "vn: " << this->normal.x << " " << this->normal.y << " " << this->normal.z << "\n";
     }
-
-    bool isSameVec3(const glm::vec3& v1, const glm::vec3& v2, T epsilon = global_pos_epsilon) {
+    bool isSameVec3(const glm::vec3& v1, const glm::vec3& v2, T epsilon  = global_pos_epsilon) {
         if (fabs(v1.x - v2.x) <= epsilon) {
             if (fabs(v1.y - v2.y) <= epsilon) {
                 if (fabs(v1.z - v2.z) <= epsilon) {
-                    return true;
+                        return true;
                 }
             }
         }
@@ -37,6 +36,7 @@ namespace mesh_simplier {
         }
         return false;
     }
+
 
     T fabs(T f) {
         return f < 0 ? -f : f;
@@ -605,6 +605,7 @@ namespace mesh_simplier {
                 if (vis[j] != -1 || faces[j].index.size() < 1)
                     //face_j has been merged, so just pass
                     continue;
+                //double xx = dot(faces[i].normal, faces[j].normal); // may be should use this but epsilon 0.1
                 if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
                     continue;
                 }

@@ -351,7 +351,7 @@ namespace ifcre {
 			"out vec2 TexCoord;\r\n"
 			"void main(){\r\n"
 			"TexCoord = uvs;\r\n"
-			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, -.8, 0., 0.);\r\n"
+			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);\r\n"
 			"}\r\n";
 		static const char* f_gizmo_ui = "#version 430\r\n"
 			"layout(location = 0) out int FragId;\r\n"
@@ -370,7 +370,7 @@ namespace ifcre {
 			"layout (location = 0) flat out int id;\r\n"
 			"void main(){\r\n"
 			"id = aid;\r\n"
-			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, -.8, 0., 0.);\r\n"
+			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);\r\n"
 			"}\r\n";
 		static const char* f_image_effect = "#version 430\r\n"
 			"out vec4 FragColor;\r\n"

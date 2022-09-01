@@ -5,9 +5,9 @@ layout(std140, binding = 0)uniform TransformMVPUBO{
     mat4 view_matrix;   // 0 ~ 64
 } ubo;
 
-out vec2 TexCoord;
+out vec2 TexCoord; // 传出纹理坐标
 
 void main(){
     TexCoord = uvs;
-    gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, -.8, 0., 0.);
+    gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);
 }
