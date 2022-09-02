@@ -270,6 +270,8 @@
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />
     <None Include="..\workdir\shaders\normal_depth_write.vert" />
+    <None Include="..\workdir\shaders\skybox.frag" />
+    <None Include="..\workdir\shaders\skybox.vert" />
     <None Include="..\workdir\shaders\test.frag" />
     <None Include="..\workdir\shaders\test.vert" />
     <None Include="..\workdir\shaders\text.frag" />

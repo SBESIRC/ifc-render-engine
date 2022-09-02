@@ -479,6 +479,8 @@ namespace ifcre {
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
+			m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
+
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
