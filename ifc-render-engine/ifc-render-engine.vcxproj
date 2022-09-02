@@ -172,7 +172,6 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)WorkDir\
-copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)Example\bin\release\netcoreapp3.1
 
 </Command>
     </PostBuildEvent>
