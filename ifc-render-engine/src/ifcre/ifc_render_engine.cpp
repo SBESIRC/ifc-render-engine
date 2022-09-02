@@ -265,7 +265,7 @@ namespace ifcre {
 				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
 				ifc_test_model->cur_c_indices.clear();
 				for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
-					ifc_test_model->cur_c_indices.insert(ifc_test_model->cur_c_indices.end(), ifc_test_model->c_indices[i].begin(), ifc_test_model->c_indices[i].end());
+					ifc_test_model->cur_c_indices.emplace_back(i);
 				}
 			//}
 			/*else if (to_show_states == 1) {

@@ -94,7 +94,11 @@ namespace Example {
             // to_show_states 0、设置显示一些物件；1、高亮选中一些物件
             ifcre_set_config("to_show_states", to_show_states);
 
-            if (val == -2)
+            if (val == -2) // send -2 to show all components
+            {
+                ifcre_set_comp_ids(val);
+            }
+            else if (val == -1) // send -1 to hide all components
             {
                 ifcre_set_comp_ids(val);
             }
