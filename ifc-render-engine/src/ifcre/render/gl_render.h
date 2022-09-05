@@ -73,6 +73,8 @@ namespace ifcre {
 		void renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
+		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
+		unsigned int  loadCubemap(vector<std::string> faces);
 		// for offscreen
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
@@ -112,6 +114,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_gizmo_shader;
 		UniquePtr<GLSLProgram> m_gizmo_UI_shader;
 		UniquePtr<GLSLProgram> m_text_shader;
+		UniquePtr<GLSLProgram> m_skybox_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

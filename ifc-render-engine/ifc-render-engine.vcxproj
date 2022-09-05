@@ -172,7 +172,6 @@
     </Link>
     <PostBuildEvent>
       <Command>copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)WorkDir\
-copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir)Example\bin\release\netcoreapp3.1
 
 </Command>
     </PostBuildEvent>
@@ -271,6 +270,8 @@ copy $(SolutionDir)$(Platform)\$(Configuration)\$(ProjectName).dll $(SolutionDir
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />
     <None Include="..\workdir\shaders\normal_depth_write.vert" />
+    <None Include="..\workdir\shaders\skybox.frag" />
+    <None Include="..\workdir\shaders\skybox.vert" />
     <None Include="..\workdir\shaders\test.frag" />
     <None Include="..\workdir\shaders\test.vert" />
     <None Include="..\workdir\shaders\text.frag" />
