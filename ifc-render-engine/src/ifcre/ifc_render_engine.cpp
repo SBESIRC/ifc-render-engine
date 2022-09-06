@@ -374,9 +374,10 @@ namespace ifcre {
 			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
 			ui_key = m_window.getClickedUIId();
-			if (ui_key > -1 && ui_key < 6) {
+			if (ui_key > -1 && ui_key < 6 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
 				cube_num = ui_key;
+				m_render_window->m_mouse_status.single_click = false;
 			}
 
 			glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
