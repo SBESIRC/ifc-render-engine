@@ -31,9 +31,13 @@ namespace mesh_simplier {
     }
 
     bool isSameVertex(const Vertex& v1, const Vertex& v2) {
-        if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && fabs(dot(v1.normal, v2.normal)) > 1.f - global_nor_epsilon) {
+        double xx = fabs(dot(v1.normal, v2.normal));
+        if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && xx > 1.f - global_nor_epsilon) {
             return true;
         }
+        /*if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && isSameVec3(v1.normal, v2.normal, global_nor_epsilon)) {
+            return true;
+        }*/
         return false;
     }
 
