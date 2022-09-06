@@ -4,6 +4,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "glfw3native.h"
 #include "FreeImage.h"
+#include <chrono>
 #define TEST_COMP_ID
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
@@ -111,7 +112,9 @@ namespace ifcre {
             int clicked_ui_id = ui_id.x;
             if (hover_mode) {
                 m_mouse_status.clpbox_face_id = clicked_ui_id;
-                if (m_mouse_status.clpbox_face_id > 5) rotatelock = true;
+                if (m_mouse_status.clpbox_face_id > 5) {
+                    rotatelock = true;
+                }
             }
             else {
                 m_mouse_status.chosen_ui_id = clicked_ui_id;
@@ -223,9 +226,12 @@ namespace ifcre {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
+        static auto before = std::chrono::system_clock::now();
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
+
+                before = std::chrono::system_clock::now();
                 double click_x, click_y;
                 glfwGetCursorPos(window, &click_x, &click_y);
                 float click_z = that->_getClickedDepthValue(click_x, click_y);
@@ -242,6 +248,22 @@ namespace ifcre {
                 break;
             }
             case GLFW_RELEASE:
+                auto now = std::chrono::system_clock::now();
+                double diff_ms = std::chrono::duration <double, std::milli>(now - before).count();
+                before = now;
+                if (diff_ms > 10 && diff_ms < 200) {
+                    status.single_click = true;
+                    double click_x, click_y;
+                    glfwGetCursorPos(window, &click_x, &click_y);
+                    float click_z = that->_getClickedDepthValue(click_x, click_y);
+                    if (click_z != 1.0) {
+                        that->_setClickedWorldCoords(click_x, click_y, click_z);
+                        that->_setClickedWorldColors(click_x, click_y, false, true);
+                    }
+                    status.lbtn_down = true;
+                    that->_setClickedWorldColors(click_x, click_y, false, false);
+                    // mDebug() << "doubleclick";
+                }
                 status.lbtn_down = false;
                 break;
             }

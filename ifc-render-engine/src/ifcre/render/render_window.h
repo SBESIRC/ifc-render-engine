@@ -455,11 +455,11 @@ namespace ifcre {
 
 		int32_t m_width, m_height;
 		glm::mat4 m_projection;
-
+		public:
 		struct {
 			int32_t horizontal_move = 0, vertical_move = 0;
 			int32_t last_mouse_x, last_mouse_y;
-			bool lbtn_down = false, rbtn_down = false;
+			bool lbtn_down = false, rbtn_down = false, single_click = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
@@ -475,7 +475,7 @@ namespace ifcre {
 			float chosen_ui_id = -1.f;
 			int clpbox_face_id = -1;
 		}m_mouse_status;
-
+		private:
 		struct {
 			Real mouse_hori_vel = 0.015;
 			Real mouse_vert_vel = 0.01;
