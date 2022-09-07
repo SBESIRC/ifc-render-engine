@@ -108,5 +108,10 @@ namespace Example {
                 }
             }
         }
+
+        private void Button_Click_Home(object sender, RoutedEventArgs e)
+        {
+            Example.ExampleScene.ifcre_home();
+        }
     }
 }

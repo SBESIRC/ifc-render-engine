@@ -106,7 +106,7 @@ namespace ifcre {
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
-		ifc_test_model->PrecomputingCubeDirection(); /////////////////////////////
+		ifc_test_model->PrecomputingCubeDirection(); // 将cube位置设置为glm::vec3(0.f, 0.f, 0.f)
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -117,10 +117,9 @@ namespace ifcre {
 			//test_model->render_id = m_glrender->addModel(model_vb);
 			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
-				m_camera->PrecomputingCubeDireciton(m_view_pos); //////////////////////////////
+				m_camera->PrecomputingCubeDireciton(m_view_pos);
 				m_render_window->setCamera(m_camera);
 			}
-			// ifc_test_model->m_model = m_camera->getModelMatrixByBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax());
 
 			// add a rendered model
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -202,124 +201,6 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::changeGeom() {
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-
-		if (m_window.chosen_changed_w) {
-			ifc_test_model->update_chosen_list(m_window.chosen_list);
-			m_window.geom_changed = true;
-			m_window.chosen_changed_w = false;
-		}
-		else if (m_window.chosen_changed_x) {
-			ifc_test_model->update_chosen_list(m_window.chosen_list);
-			m_window.geom_changed = true;
-			m_window.chosen_changed_x = false;
-		}
-		if (m_window.geom_changed) {
-			ifc_test_model->update_chosen_and_vis_list();
-
-			m_render.DynamicUpdate(ifc_test_model->render_id,
-				ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices),
-				ifc_test_model->cur_vis_no_trans_ind,
-				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
-
-			m_render.ChosenGeomUpdate(ifc_test_model->render_id,
-				ifc_test_model->cur_chosen_no_trans_ind, 
-				ifc_test_model->cur_chosen_trans_ind);
-
-			m_window.geom_changed = false;
-		}
-	}
-
-	void IFCRenderEngine::setSelectCompIds(int val = 0) {
-		switch (val) {
-		case -1: // start
-			if (m_render_window == nullptr) {
-				return;
-			}
-			to_show_states = stoi(m_cache_configs["to_show_states"]);
-			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
-			if (to_show_states == 0) {
-				m_render_window->geom_changed = true;
-			}
-			else if (to_show_states == 1) {
-				m_render_window->chosen_changed_x = true;
-			}
-			if (to_show_states == 0) {
-				Vector<CompState>().swap(ifc_test_model->comp_states);
-				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), DUMP);
-				Vector<uint32_t>().swap(ifc_test_model->cur_c_indices);
-			}
-			m_render_window->chosen_list.clear();
-			break;
-		case -2: // show all elements
-			if (m_render_window == nullptr) {
-				return;
-			}
-			//to_show_states = stoi(m_cache_configs["to_show_states"]);
-			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
-			//if (to_show_states == 0) {
-				m_render_window->geom_changed = true;
-				Vector<CompState>().swap(ifc_test_model->comp_states);
-				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
-				ifc_test_model->cur_c_indices.clear();
-				for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
-					ifc_test_model->cur_c_indices.emplace_back(i);
-				}
-			//}
-			/*else if (to_show_states == 1) {
-				m_render_window->chosen_changed_x = true;
-				Vector<CompState>().swap(ifc_test_model->comp_states);
-				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), CHOSEN);
-				m_render_window->chosen_list.insert(val);
-			}*/
-			break;
-		default:
-			if (val < ifc_test_model->c_indices.size()) {
-				if (0 == to_show_states) {
-					ifc_test_model->comp_states[val] = VIS;
-					ifc_test_model->cur_c_indices.emplace_back(val);
-				}
-				else if (1 == to_show_states) {
-					ifc_test_model->comp_states[val] = CHOSEN;
-					m_render_window->chosen_list.insert(val);
-				}
-			}
-			break;
-		}
-	}
-
-	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
-		sleep_time = sleepTime;
-	}
-
-	int IFCRenderEngine::getSelectedCompId()
-	{
-		/*glm::mat4 ifc_model_matrix;
-		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-		ifc_test_model->setModelMatrix(ifc_model_matrix);
-		m_camera->m_pos = m_view_pos;*/
-
-		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
-	}
-
-	bool IFCRenderEngine::saveImage(const char* filePath) {
-		return m_render_window->SaveImage(filePath, width, height);
-	}
-
-	void IFCRenderEngine::getSelectedCompIds() {
-		m_render_window->chosen_list;
-	}
-
-	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
-	{
-		if (ifcre.get() == nullptr) {
-			ifcre = make_shared<IFCRenderEngine>();
-		}
-		return ifcre;
-	}
-
 // private:
 	void IFCRenderEngine::drawFrame()
 	{
@@ -335,8 +216,8 @@ namespace ifcre {
 		
 
 		if (cube_change_log) {
-			ifc_test_model->TranslateToCubeDirection(cube_num);
-			m_camera->RotateToCubeDirection(cube_num);
+			ifc_test_model->TranslateToCubeDirection(cube_num); // 
+			m_camera->RotateToCubeDirection(cube_num); // set camera to correct position
 			cube_change_log = false;
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
@@ -372,7 +253,7 @@ namespace ifcre {
 			//todo add gizmo's id here
 			m_window.switchRenderUI();
 			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
-			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
+			//m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
 			ui_key = m_window.getClickedUIId();
 			if (ui_key > -1 && ui_key < 6 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
@@ -460,7 +341,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 #endif
-
+			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
 			//--------------- gizmo rendering ----------------------------------------
@@ -479,7 +360,7 @@ namespace ifcre {
 			//m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
-			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
+			//m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 
@@ -489,4 +370,205 @@ namespace ifcre {
 		m_render.postRender(m_window); // 后处理，清空缓冲
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
+
+
+	void IFCRenderEngine::changeGeom() {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+
+		if (m_window.chosen_changed_w) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_w = false;
+		}
+		else if (m_window.chosen_changed_x) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_x = false;
+		}
+		if (m_window.geom_changed) {
+			ifc_test_model->update_chosen_and_vis_list();
+
+			m_render.DynamicUpdate(ifc_test_model->render_id,
+				ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices),
+				ifc_test_model->cur_vis_no_trans_ind,
+				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
+
+			m_render.ChosenGeomUpdate(ifc_test_model->render_id,
+				ifc_test_model->cur_chosen_no_trans_ind,
+				ifc_test_model->cur_chosen_trans_ind);
+
+			m_window.geom_changed = false;
+		}
+	}
+
+	void IFCRenderEngine::setSelectCompIds(int val = 0) {
+		switch (val) {
+		case -1: // start
+			if (m_render_window == nullptr) {
+				return;
+			}
+			to_show_states = stoi(m_cache_configs["to_show_states"]);
+			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+			if (to_show_states == 0) {
+				m_render_window->geom_changed = true;
+			}
+			else if (to_show_states == 1) {
+				m_render_window->chosen_changed_x = true;
+			}
+			if (to_show_states == 0) {
+				Vector<CompState>().swap(ifc_test_model->comp_states);
+				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), DUMP);
+				Vector<uint32_t>().swap(ifc_test_model->cur_c_indices);
+			}
+			m_render_window->chosen_list.clear();
+			break;
+		case -2: // show all elements
+			if (m_render_window == nullptr) {
+				return;
+			}
+			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+			m_render_window->geom_changed = true;
+			Vector<CompState>().swap(ifc_test_model->comp_states);
+			ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
+			ifc_test_model->cur_c_indices.clear();
+			for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
+				ifc_test_model->cur_c_indices.emplace_back(i);
+			}
+			break;
+		default:
+			if (val < ifc_test_model->c_indices.size()) {
+				if (0 == to_show_states) {
+					ifc_test_model->comp_states[val] = VIS;
+					ifc_test_model->cur_c_indices.emplace_back(val);
+				}
+				else if (1 == to_show_states) {
+					ifc_test_model->comp_states[val] = CHOSEN;
+					m_render_window->chosen_list.insert(val);
+				}
+			}
+			break;
+		}
+	}
+
+	void IFCRenderEngine::SetClipBox() {
+		if (m_render_window == nullptr) {
+			return;
+		}
+		Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		uint32_t c_indices_size = ifc_test_model->c_indices.size();
+		for (auto& id : m_render_window->chosen_list) {
+			if (id > c_indices_size) {
+				continue;
+			}
+			for (int i = 0; i < 3; i++) {
+				ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+			}
+			for (int i = 3; i < 6; i++) {
+				ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+			}
+		}
+		Vector<Real> ret2(24); // 一个bbx有8个顶点，每个顶点要3个float存储位置
+		for (int i = 0; i < 8; i++) {
+			ret2[i * 3] = i & 1 ? ret[3] : ret[0];
+			ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
+			ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
+		}
+		//glm::vec3 center;
+		m_render_window->use_clip_box = ClipBox(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
+	}
+
+	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
+		sleep_time = sleepTime;
+
+		//if (m_render_window == nullptr) {
+		//	return;
+		//}
+		//Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		//uint32_t c_indices_size = ifc_test_model->c_indices.size();
+		//for (auto& id : m_render_window->chosen_list) {
+		//	if (id > c_indices_size) {
+		//		continue;
+		//	}
+		//	for (int i = 0; i < 3; i++) {
+		//		ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//	for (int i = 3; i < 6; i++) {
+		//		ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//}
+		////glm::vec3 center;
+		//m_render_window->use_clip_box = ClipBox(glm::vec3((ret[3] + ret[0]) / 2, (ret[4] + ret[1]) / 2, (ret[5] + ret[2]) / 2), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
+	}
+
+	int IFCRenderEngine::getSelectedCompId()
+	{
+		/*glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix);
+		m_camera->m_pos = m_view_pos;*/
+
+		//// zoom this comp
+		//int id = m_render_window->getClickCompId();
+		//Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		//uint32_t c_indices_size = ifc_test_model->c_indices.size();
+		//for (auto& id : m_render_window->chosen_list) {
+		//	if (id > c_indices_size) {
+		//		continue;
+		//	}
+		//	for (int i = 0; i < 3; i++) {
+		//		ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//	for (int i = 3; i < 6; i++) {
+		//		ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//}
+
+
+		//glm::mat4 ifc_model_matrix;
+		//util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
+		//ifc_test_model->setModelMatrix(ifc_model_matrix); 
+		//ifc_test_model->setScaleFactor(scale_factor);
+
+
+		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
+	}
+
+	void IFCRenderEngine::zoom2Home() {
+		/*glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix);
+		ifc_test_model->setScaleFactor(scale_factor);
+		m_camera->m_pos = m_view_pos;*/
+		glm::vec3 center = ifc_test_model->getModelCenter();
+
+		m_camera->m_pos = m_camera->m_pos + ifc_test_model->getModelCenter();
+		m_camera->m_front = ifc_test_model->getModelCenter();
+		//glm::vec3 window_scale = glm::vec3(height / width, 1.f, 1.f) * .8f; // .2表示占屏幕比例，可以设置gizmo大小
+		//glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
+
+		//glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);
+		//glm::mat4 ifc_model_matrix;
+		//util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		//ifc_test_model->setModelMatrix(ifc_model_matrix * ret);
+		///*ret = glm::lookAt(glm::vec3(0.f, 0.f, 5.f), newpos, glm::vec3(0.f, 1.f, 0.f)) * ret;
+		//return ret;*/
+		//m_camera->m_pos = m_view_pos;
+	}
+
+	bool IFCRenderEngine::saveImage(const char* filePath) {
+		return m_render_window->SaveImage(filePath, width, height);
+	}
+
+	void IFCRenderEngine::getSelectedCompIds() {
+		m_render_window->chosen_list;
+	}
+
+	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
+	{
+		if (ifcre.get() == nullptr) {
+			ifcre = make_shared<IFCRenderEngine>();
+		}
+		return ifcre;
+	}
 }
