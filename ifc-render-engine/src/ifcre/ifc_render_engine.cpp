@@ -508,6 +508,29 @@ namespace ifcre {
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
 		m_camera->m_pos = m_view_pos;*/
 
+		// zoom this comp
+		int id = m_render_window->getClickCompId();
+		Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		uint32_t c_indices_size = ifc_test_model->c_indices.size();
+		for (auto& id : m_render_window->chosen_list) {
+			if (id > c_indices_size) {
+				continue;
+			}
+			for (int i = 0; i < 3; i++) {
+				ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+			}
+			for (int i = 3; i < 6; i++) {
+				ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+			}
+		}
+
+
+		glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix); 
+		ifc_test_model->setScaleFactor(scale_factor);
+
+
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
