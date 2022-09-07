@@ -391,7 +391,7 @@ namespace ifcre {
 			m_init_model = m_model;
 			mirror_model = glm::mat4(1.f);
 
-			translate(m_cube_direction_transform[num]);
+			translate(m_cube_direction_transform[num]); // ¶¼ÊÇglm::vec3(0.f, 0.f, 0.f)
 		}
 
 		void setScaleFactor(Real scale) {

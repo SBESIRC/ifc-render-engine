@@ -106,7 +106,7 @@ namespace ifcre {
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
-		ifc_test_model->PrecomputingCubeDirection();
+		ifc_test_model->PrecomputingCubeDirection(); // 将cube位置设置为glm::vec3(0.f, 0.f, 0.f)
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -216,8 +216,8 @@ namespace ifcre {
 		
 
 		if (cube_change_log) {
-			ifc_test_model->TranslateToCubeDirection(cube_num);
-			m_camera->RotateToCubeDirection(cube_num);
+			ifc_test_model->TranslateToCubeDirection(cube_num); // 
+			m_camera->RotateToCubeDirection(cube_num); // set camera to correct position
 			cube_change_log = false;
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
@@ -508,30 +508,52 @@ namespace ifcre {
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
 		m_camera->m_pos = m_view_pos;*/
 
-		// zoom this comp
-		int id = m_render_window->getClickCompId();
-		Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		uint32_t c_indices_size = ifc_test_model->c_indices.size();
-		for (auto& id : m_render_window->chosen_list) {
-			if (id > c_indices_size) {
-				continue;
-			}
-			for (int i = 0; i < 3; i++) {
-				ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-			}
-			for (int i = 3; i < 6; i++) {
-				ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-			}
-		}
+		//// zoom this comp
+		//int id = m_render_window->getClickCompId();
+		//Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+		//uint32_t c_indices_size = ifc_test_model->c_indices.size();
+		//for (auto& id : m_render_window->chosen_list) {
+		//	if (id > c_indices_size) {
+		//		continue;
+		//	}
+		//	for (int i = 0; i < 3; i++) {
+		//		ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//	for (int i = 3; i < 6; i++) {
+		//		ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+		//	}
+		//}
 
 
-		glm::mat4 ifc_model_matrix;
-		util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
-		ifc_test_model->setModelMatrix(ifc_model_matrix); 
-		ifc_test_model->setScaleFactor(scale_factor);
+		//glm::mat4 ifc_model_matrix;
+		//util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
+		//ifc_test_model->setModelMatrix(ifc_model_matrix); 
+		//ifc_test_model->setScaleFactor(scale_factor);
 
 
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
+	}
+
+	void IFCRenderEngine::zoom2Home() {
+		/*glm::mat4 ifc_model_matrix;
+		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		ifc_test_model->setModelMatrix(ifc_model_matrix);
+		ifc_test_model->setScaleFactor(scale_factor);
+		m_camera->m_pos = m_view_pos;*/
+		glm::vec3 center = ifc_test_model->getModelCenter();
+
+		m_camera->m_pos = m_camera->m_pos + ifc_test_model->getModelCenter();
+		m_camera->m_front = ifc_test_model->getModelCenter();
+		//glm::vec3 window_scale = glm::vec3(height / width, 1.f, 1.f) * .8f; // .2表示占屏幕比例，可以设置gizmo大小
+		//glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
+
+		//glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);
+		//glm::mat4 ifc_model_matrix;
+		//util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+		//ifc_test_model->setModelMatrix(ifc_model_matrix * ret);
+		///*ret = glm::lookAt(glm::vec3(0.f, 0.f, 5.f), newpos, glm::vec3(0.f, 1.f, 0.f)) * ret;
+		//return ret;*/
+		//m_camera->m_pos = m_view_pos;
 	}
 
 	bool IFCRenderEngine::saveImage(const char* filePath) {

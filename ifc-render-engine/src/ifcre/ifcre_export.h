@@ -35,6 +35,7 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_comp_ids(int val);
 	__declspec(dllexport) void ifcre_set_sleep_time(int val);
 	__declspec(dllexport) bool ifcre_save_image(const char* filePath);
+	__declspec(dllexport) void ifcre_home();
 
 #ifdef __cplusplus
 }
