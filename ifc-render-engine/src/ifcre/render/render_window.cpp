@@ -226,13 +226,13 @@ namespace ifcre {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
-        static auto before = std::chrono::system_clock::now();
+        static auto single_before = std::chrono::system_clock::now();
         static double pre_click_x, pre_click_y;
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
 
-                before = std::chrono::system_clock::now();
+                single_before = std::chrono::system_clock::now();
                 
                 glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
                 float click_z = that->_getClickedDepthValue(pre_click_x, pre_click_y);
@@ -249,14 +249,18 @@ namespace ifcre {
                 break;
             }
             case GLFW_RELEASE:
+                static auto double_before = std::chrono::system_clock::now();
                 auto now = std::chrono::system_clock::now();
-                double diff_ms = std::chrono::duration <double, std::milli>(now - before).count();
-                before = now;
-                if (diff_ms > 10 && diff_ms < 200) {
+                double single_diff_ms = std::chrono::duration <double, std::milli>(now - single_before).count();
+                double double_diff_ms = std::chrono::duration <double, std::milli>(now - double_before).count();
+                single_before = now;
+                double_before = now;
+                if (single_diff_ms > 10 && single_diff_ms < 200) {
                     status.single_click = true;
+                    status.double_click = false;
                     double click_x, click_y;
                     glfwGetCursorPos(window, &click_x, &click_y);
-                    if (abs(pre_click_x - click_x) < 3 && abs(pre_click_y - click_y) < 3) {
+                    if (abs(pre_click_x - click_x) < 5 && abs(pre_click_y - click_y) < 5) {
                         float click_z = that->_getClickedDepthValue(click_x, click_y);
                         if (click_z != 1.0) {
                             that->_setClickedWorldCoords(click_x, click_y, click_z);
@@ -264,8 +268,20 @@ namespace ifcre {
                         }
                         status.lbtn_down = true;
                         that->_setClickedWorldColors(click_x, click_y, false, false);
-                        // mDebug() << "doubleclick";
                     }
+                }
+                if (double_diff_ms > 10 && double_diff_ms < 350) {
+                    status.double_click = true;
+                    status.single_click = false;
+                    double click_x, click_y;
+                    glfwGetCursorPos(window, &click_x, &click_y);
+                    float click_z = that->_getClickedDepthValue(click_x, click_y);
+                    if (click_z != 1.0) {
+                        that->_setClickedWorldCoords(click_x, click_y, click_z);
+                        that->_setClickedWorldColors(click_x, click_y, false, true);
+                    }
+                    status.lbtn_down = true;
+                    that->_setClickedWorldColors(click_x, click_y, false, false);
                 }
                 status.lbtn_down = false;
                 break;
