@@ -35,6 +35,7 @@ namespace ifcre {
 
 		virtual void SetSleepTime(int val) = 0;
 		virtual bool saveImage(const char* filePath) = 0;
+		virtual void SetClipBox() = 0;
 	};
 
 
@@ -59,6 +60,7 @@ namespace ifcre {
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 		bool saveImage(const char* filePath);
+		void SetClipBox();
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();
