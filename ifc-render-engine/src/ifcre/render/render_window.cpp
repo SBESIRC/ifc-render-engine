@@ -227,24 +227,25 @@ namespace ifcre {
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
         static auto before = std::chrono::system_clock::now();
+        static double pre_click_x, pre_click_y;
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
 
                 before = std::chrono::system_clock::now();
-                double click_x, click_y;
-                glfwGetCursorPos(window, &click_x, &click_y);
-                float click_z = that->_getClickedDepthValue(click_x, click_y);
+                
+                glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
+                float click_z = that->_getClickedDepthValue(pre_click_x, pre_click_y);
                 if (click_z != 1.0) {
-                    that->_setClickedWorldCoords(click_x, click_y, click_z);
-                    that->_setClickedWorldColors(click_x, click_y, false, true);
+                    that->_setClickedWorldCoords(pre_click_x, pre_click_y, click_z);
+                    that->_setClickedWorldColors(pre_click_x, pre_click_y, false, true);
                 }
                 else if(!that->multichoose) {   // 点击空白区域取消选中
                     that->chosen_changed_w = true;
                     that->chosen_list.clear();
                 }
                 status.lbtn_down = true;
-                that->_setClickedWorldColors(click_x, click_y, false, false);
+                that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
                 break;
             }
             case GLFW_RELEASE:
@@ -255,14 +256,16 @@ namespace ifcre {
                     status.single_click = true;
                     double click_x, click_y;
                     glfwGetCursorPos(window, &click_x, &click_y);
-                    float click_z = that->_getClickedDepthValue(click_x, click_y);
-                    if (click_z != 1.0) {
-                        that->_setClickedWorldCoords(click_x, click_y, click_z);
-                        that->_setClickedWorldColors(click_x, click_y, false, true);
+                    if (abs(pre_click_x - click_x) < 3 && abs(pre_click_y - click_y) < 3) {
+                        float click_z = that->_getClickedDepthValue(click_x, click_y);
+                        if (click_z != 1.0) {
+                            that->_setClickedWorldCoords(click_x, click_y, click_z);
+                            that->_setClickedWorldColors(click_x, click_y, false, true);
+                        }
+                        status.lbtn_down = true;
+                        that->_setClickedWorldColors(click_x, click_y, false, false);
+                        // mDebug() << "doubleclick";
                     }
-                    status.lbtn_down = true;
-                    that->_setClickedWorldColors(click_x, click_y, false, false);
-                    // mDebug() << "doubleclick";
                 }
                 status.lbtn_down = false;
                 break;
