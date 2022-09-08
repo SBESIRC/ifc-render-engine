@@ -105,6 +105,11 @@ namespace ifcre {
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
+                    if (m_mouse_status.double_click) {
+                        //zoom
+
+                        m_mouse_status.double_click = false;
+                    }
                 }
             }
         }

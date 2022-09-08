@@ -27,7 +27,7 @@ namespace ifcre {
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_axis_vk = "#version 430\r\n"
+		static const char* v_axis_vk = "#version 460\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 0) flat out vec3 color;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
@@ -336,10 +336,10 @@ namespace ifcre {
 			"}\r\n";
 		static const char* f_gizmo = "#version 430\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
-			"in vec2 TexCoord;\r\n"
-			"uniform sampler2D ourTexture;\r\n"
+			"in vec2 TexCoord; // 传入纹理坐标\r\n"
+			"uniform sampler2D ourTexture; // 把一个纹理添加到片段着色器中\r\n"
 			"void main(){\r\n"
-			"FragColor = texture(ourTexture,TexCoord);\r\n"
+			"FragColor = texture(ourTexture,TexCoord); // 采样纹理的颜色(纹理采样器,对应的纹理坐标)\r\n"
 			"}\r\n";
 
 		static const char* v_gizmo = "#version 430\r\n"
@@ -348,7 +348,7 @@ namespace ifcre {
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
 			"mat4 view_matrix;   // 0 ~ 64\r\n"
 			"} ubo;\r\n"
-			"out vec2 TexCoord;\r\n"
+			"out vec2 TexCoord; // 传出纹理坐标\r\n"
 			"void main(){\r\n"
 			"TexCoord = uvs;\r\n"
 			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);\r\n"
@@ -475,6 +475,26 @@ namespace ifcre {
 			"// transform to [0, 1]\r\n"
 			"f_normal = t_inv_model * normal;\r\n"
 			"}\r\n";
+		static const char* f_skybox = "#version 430 core\r\n"
+			"out vec4 FragColor;\r\n"
+			"in vec3 TexCoords;\r\n"
+			"uniform samplerCube skybox;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"FragColor = texture(skybox, TexCoords);\r\n"
+			"}\r\n";
+
+		static const char* v_skybox = "#version 430 core\r\n"
+			"layout (location = 0) in vec3 aPos;\r\n"
+			"out vec3 TexCoords;\r\n"
+			"uniform mat4 projection;\r\n"
+			"uniform mat4 view;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"TexCoords = aPos;\r\n"
+			"vec4 pos = projection * view * vec4(aPos, 1.0);\r\n"
+			"gl_Position = pos.xyww;\r\n"
+			"}\r\n";
 		static const char* f_test = "#version 430\r\n"
 			"layout(location = 0) in vec3 vGoColor;\r\n"
 			"layout(location = 1) in vec3 vNormal;\r\n"
@@ -566,27 +586,6 @@ namespace ifcre {
 			"gl_Position = projection * vec4(truepos, 0.0, 1.0);\r\n"
 			"TexCoords = vertex.zw;\r\n"
 			"}\r\n";
-		static const char* f_skybox =
-			"#version 430 core							\r\n"
-			"out vec4 FragColor;						\r\n"
-			"in vec3 TexCoords;							\r\n"
-			"uniform samplerCube skybox;				\r\n"
-			"void main() {								\r\n"
-			"	FragColor = texture(skybox, TexCoords);	\r\n"
-			"}											\r\n"
-			;											
-		static const char* v_skybox =
-			"#version 430 core									\r\n"
-			"layout(location = 0) in vec3 aPos;					\r\n"
-			"out vec3 TexCoords;								\r\n"
-			"uniform mat4 projection;							\r\n"
-			"uniform mat4 view;									\r\n"
-			"void main() {										\r\n"
-			"	TexCoords = aPos;								\r\n"
-			"	vec4 pos = projection * view * vec4(aPos, 1.0);	\r\n"
-			"	gl_Position = pos.xyww;							\r\n"
-			"}													\r\n"
-			;
 	}// shader_consts
 
 }

@@ -167,6 +167,12 @@ namespace ifcre {
             return m_front;
         }
 
+        //void zoomCompents(const set<uint32_t>& comp_indices) {
+        //    // 首先获得这些物件的中心和xyz
+
+        //}
+
+
     private:
         void _updateCameraVectors()
         {

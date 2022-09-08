@@ -106,7 +106,7 @@ namespace ifcre {
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
-		ifc_test_model->PrecomputingCubeDirection(); // 将cube位置设置为glm::vec3(0.f, 0.f, 0.f)
+		ifc_test_model->PrecomputingCubeDirection(); // 将模型设置为glm::vec3(0.f, 0.f, 0.f)
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -117,7 +117,7 @@ namespace ifcre {
 			//test_model->render_id = m_glrender->addModel(model_vb);
 			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
-				m_camera->PrecomputingCubeDireciton(m_view_pos);
+				m_camera->PrecomputingCubeDireciton(m_view_pos); // 为相机预设6个位置
 				m_render_window->setCamera(m_camera);
 			}
 
@@ -216,8 +216,8 @@ namespace ifcre {
 		
 
 		if (cube_change_log) {
-			ifc_test_model->TranslateToCubeDirection(cube_num); // 
-			m_camera->RotateToCubeDirection(cube_num); // set camera to correct position
+			ifc_test_model->TranslateToCubeDirection(cube_num); // 设置模型位置
+			m_camera->RotateToCubeDirection(cube_num); // 设置相机数据
 			cube_change_log = false;
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
@@ -253,7 +253,7 @@ namespace ifcre {
 			//todo add gizmo's id here
 			m_window.switchRenderUI();
 			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
-			//m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
+			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
 			ui_key = m_window.getClickedUIId();
 			if (ui_key > -1 && ui_key < 6 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
@@ -360,7 +360,7 @@ namespace ifcre {
 			//m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
-			//m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
+			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 

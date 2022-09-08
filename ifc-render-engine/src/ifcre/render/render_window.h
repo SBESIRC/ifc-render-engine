@@ -420,7 +420,7 @@ namespace ifcre {
 	private:
 
 		void createFramebuffer(int w, int h);
-
+		// 不同的framebuffer对应不同的fbo_id
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_default_rt;

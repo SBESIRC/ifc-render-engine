@@ -332,6 +332,22 @@ namespace ifcre {
 			return ret2;
 		}
 
+		void getxyz_of_indices(const set<uint32_t>& comp_indices, Real& center_x, Real& center_y, Real& center_z, Real& width, Real& height, Real& length) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+			uint32_t c_indices_size = c_indices.size();
+			for (auto& id : comp_indices) {
+				if (id > c_indices_size) {
+					continue;
+				}
+				for (int i = 0; i < 3; i++) {
+					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+				}
+				for (int i = 3; i < 6; i++) {
+					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+				}
+			}
+		}
+
 		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;
 			for (auto i : input_comp_ids) {
