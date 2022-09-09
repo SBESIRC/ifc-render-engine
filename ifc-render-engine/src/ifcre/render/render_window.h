@@ -420,7 +420,7 @@ namespace ifcre {
 	private:
 
 		void createFramebuffer(int w, int h);
-
+		// 不同的framebuffer对应不同的fbo_id
 		struct {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_default_rt;
@@ -471,6 +471,7 @@ namespace ifcre {
 			Real click_z = 1.0;
 			int click_comp_id = -1;
 			int hover_comp_id = -1;
+			bool left_hold = false;
 
 			float chosen_ui_id = -1.f;
 			int clpbox_face_id = -1;

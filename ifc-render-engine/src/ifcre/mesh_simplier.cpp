@@ -613,7 +613,10 @@ namespace mesh_simplier {
                 if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
                     continue;
                 }
-
+                /*double xx = fabs(dot(faces[i].normal, faces[j].normal));
+                if ( xx < 1.f - global_nor_epsilon) {
+                    continue;
+                }*/
                 if (vis[i] != -1) {
                     //face_i has been merged before
                     vis[j] = vis[i];
