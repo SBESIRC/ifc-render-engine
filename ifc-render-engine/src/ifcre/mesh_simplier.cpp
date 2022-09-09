@@ -31,8 +31,7 @@ namespace mesh_simplier {
     }
 
     bool isSameVertex(const Vertex& v1, const Vertex& v2) {
-        double xx = fabs(dot(v1.normal, v2.normal));
-        if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && xx > 1.f - global_nor_epsilon) {
+        if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && isSameVec3(v1.normal, v2.normal, global_pos_epsilon)) {
             return true;
         }
         /*if (isSameVec3(v1.pos, v2.pos, global_pos_epsilon) && isSameVec3(v1.normal, v2.normal, global_nor_epsilon)) {
@@ -66,7 +65,7 @@ namespace mesh_simplier {
         }
     }
 
-    void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) {
+    void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) { // 一、存储顶点的位置和法向量
         assert(g_vertices.size() == g_normals.size());
         vector<Vertex>().swap(vertices);
         int s = g_vertices.size(); 
@@ -82,7 +81,7 @@ namespace mesh_simplier {
 #endif
     }
 
-    void merge_save_vertex() {
+    void merge_save_vertex() { // 合并相同的点
         int s = vertices.size();
         //same_vertex_map.clear();
         same_vertex_map.resize(s, -1);
@@ -355,7 +354,7 @@ namespace mesh_simplier {
     void update_new_index_list(Face & a, Face & b) {
         int asize = a.indexpair.size();
         int bsize = b.indexpair.size();
-        unordered_map<uint32_t, uint32_t> copymap;
+        //unordered_map<uint32_t, uint32_t> copymap;
         for (int i = 0; i < asize; i++) {
             for (int j = 0; j < bsize; j++) {
                 if (a.indexpair[i].first == b.indexpair[j].first)
@@ -610,14 +609,13 @@ namespace mesh_simplier {
                     //face_j has been merged, so just pass
                     continue;
                 //double xx = dot(faces[i].normal, faces[j].normal); // may be should use this but epsilon 0.1
-                if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
+                //if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
+                //    continue; // 只对法向量相同的进行处理
+                //}
+                if (0.5 < 1.f - fabs(dot(faces[i].normal, faces[j].normal))) {
                     continue;
                 }
-                /*double xx = fabs(dot(faces[i].normal, faces[j].normal));
-                if ( xx < 1.f - global_nor_epsilon) {
-                    continue;
-                }*/
-                if (vis[i] != -1) {
+                if (vis[i] != -1) { // i 面已经处理过了
                     //face_i has been merged before
                     vis[j] = vis[i];
 #ifdef coutlog
@@ -637,7 +635,7 @@ namespace mesh_simplier {
             }
         }
         // find all !vis face, and get the edges
-        for (int i = 0; i < faces.size(); i++) {
+        for (int i = 0; i < faces.size(); i++) { // 对每一个面
             if (vis[i] == -1)
             {
                 for (int j = 0; j < faces[i].index.size() - 1; j++) {
@@ -665,7 +663,7 @@ namespace mesh_simplier {
         //     cout<<v<<" ";
         // }
     }
-    vector<Face> generateFace(const vector<uint32_t>&indices) {
+    vector<Face> generateFace(const vector<uint32_t>&indices) { // 某个构件中所有的顶点
         vector<Face> ret;
         int s_end = indices.size() / 3; // 顶点数 除以 3 == 三角面数量
 #ifdef coutlog
@@ -706,14 +704,14 @@ namespace mesh_simplier {
         thread_task(n + threadnum_t, end, threadnum_t, ret);
     }
 
-    vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) {
+    vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) { // 二、
         vector<Mesh> ret;
-        int s_end = c_indices.size();
+        int s_end = c_indices.size(); // 获取构件数量
         ret.resize(s_end);
         cout << "ret size:" << s_end << endl;
         vector<thread> threads;
 #ifdef ustrd
-        int threadnum_t = thread::hardware_concurrency();
+        int threadnum_t = thread::hardware_concurrency(); // 获取并发线程数
         cout << "Spawning " << threadnum_t << " threads.\n";
         clock_t start, end;
         start = clock();

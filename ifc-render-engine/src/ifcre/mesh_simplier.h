@@ -40,7 +40,7 @@ namespace mesh_simplier {
             return Vec3(x/sum,y/sum,z/sum);
         }
     };*/
-    static T global_pos_epsilon = 0.01f, global_nor_epsilon = 0.05f;
+    static T global_pos_epsilon = 0.001f, global_nor_epsilon = 0.05f;
     T dot(glm::vec3 a, glm::vec3 b);
 
     glm::vec3 cross(glm::vec3 a, glm::vec3 b);
@@ -59,7 +59,7 @@ namespace mesh_simplier {
         glm::vec3 normal; // 面的法向量
         vector<uint32_t> index; // 面上对应的点的索引
 #ifdef PAIRREP
-        vector<pair< uint32_t, uint32_t>> indexpair;
+        vector<pair< uint32_t, uint32_t>> indexpair; // 三角面边的顶点对
 #endif // PAIRREP
         Face() = default;
         void show_off_face();
