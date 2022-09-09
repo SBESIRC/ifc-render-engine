@@ -168,7 +168,7 @@ namespace ifcre {
 
 		glm::mat4 private_transform(const glm::vec2 window_size) {
 			//glm::vec3 newpos = glm::vec3(1.f - k, k - 1.f, 0);
-			glm::vec3 window_scale = glm::vec3(window_size.y / window_size.x, 1.f, 1.f) * .2f; // .2表示占屏幕比例，可以设置gizmo大小
+			glm::vec3 window_scale = glm::vec3(window_size.y / window_size.x, 1.f, 1.f) * .25f; // .2可以设置gizmo大小
 			glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
 
 			glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);

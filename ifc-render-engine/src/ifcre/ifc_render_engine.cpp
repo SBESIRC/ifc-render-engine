@@ -319,14 +319,14 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 
-			//2. render chosen scene, no transparency
+			//2. render chosen scene, no transparency// 渲染选中的不透明构件
 			m_render.render(ifc_test_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
 
-			//3. render transparency scene
+			//3. render transparency scene// 渲染透明的构件
 			m_render.setAlpha(0.3);
 			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
-			//4. render chosen scene, no transparency
+			//4. render chosen scene, transparency// 渲染选中的透明构件
 			m_render.render(ifc_test_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
 
 			//5. render edges (maybe
@@ -524,28 +524,24 @@ namespace ifcre {
 		//	}
 		//}
 
-
 		//glm::mat4 ifc_model_matrix;
 		//util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
 		//ifc_test_model->setModelMatrix(ifc_model_matrix); 
 		//ifc_test_model->setScaleFactor(scale_factor);
 
-
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
 	void IFCRenderEngine::zoom2Home() {
+		last_clp_face_key = 0;
 		/*glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
 		ifc_test_model->setScaleFactor(scale_factor);
 		m_camera->m_pos = m_view_pos;*/
-		glm::vec3 center = ifc_test_model->getModelCenter();
-
+		/*glm::vec3 center = ifc_test_model->getModelCenter();
 		m_camera->m_pos = m_camera->m_pos + ifc_test_model->getModelCenter();
-		m_camera->m_front = ifc_test_model->getModelCenter();
-		//glm::vec3 window_scale = glm::vec3(height / width, 1.f, 1.f) * .8f; // .2表示占屏幕比例，可以设置gizmo大小
-		//glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
+		m_camera->m_front = ifc_test_model->getModelCenter();*/
 
 		//glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);
 		//glm::mat4 ifc_model_matrix;
