@@ -264,6 +264,17 @@ namespace ifcre {
                 if (single_diff_ms > 10 && single_diff_ms < 200) {
                     status.single_click = true;
                     status.double_click = false;
+                    double click_x, click_y;
+                    glfwGetCursorPos(window, &click_x, &click_y);
+                    if (abs(click_x - pre_click_x) < 5 && abs(click_y - pre_click_y)) {
+                        float click_z = that->_getClickedDepthValue(click_x, click_y);
+                        if (click_z != 1.0) {
+                            that->_setClickedWorldCoords(click_x, click_y, click_z);
+                            that->_setClickedWorldColors(click_x, click_y, false, true);
+                        }
+                        status.lbtn_down = true;
+                        that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
+                    }
                 }
                 if (double_diff_ms > 10 && double_diff_ms < 350) {
                     status.double_click = true;
