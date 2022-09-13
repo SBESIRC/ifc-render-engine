@@ -72,7 +72,7 @@ namespace mesh_simplier {
         vertices.resize(g_vertices.size() / 3);// 顶点数量
         for (int i = 0; i < s / 3; i++) { // 顶点数量
             vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]), // 存入点的位置
-                                 glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2])); // 存入点的法向量
+                glm::normalize(glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]))); // 存入点的法向量
         }
         vector<int>().swap(same_vertex_map); // 必须 // 清空数据
         same_vertex_map.resize(vertices.size(), -1);
@@ -339,11 +339,11 @@ namespace mesh_simplier {
         vector<pair< uint32_t, uint32_t>> ret;
         uint32_t ait = 0;
         uint32_t bit = 0;
-        for (; ait < asize; ait++) {
+        for (; ait < asize; ait++) { //面a每一条边
             if (same_pair_map_a.find(ait) == same_pair_map_a.end())
                 ret.emplace_back(a.indexpair[ait]);
         }
-        for (; bit < bsize; bit++) {
+        for (; bit < bsize; bit++) { //面b每一条边
             if (same_pair_map_b.find(bit) == same_pair_map_b.end())
                 ret.emplace_back(b.indexpair[bit]);
         }
@@ -351,12 +351,12 @@ namespace mesh_simplier {
     }
 #endif
 
-    void update_new_index_list(Face & a, Face & b) {
+    void update_new_index_list(Face & a, Face & b) { // 填充same_vertex_map：将面b可能相同的点用面a代替
         int asize = a.indexpair.size();
         int bsize = b.indexpair.size();
         //unordered_map<uint32_t, uint32_t> copymap;
-        for (int i = 0; i < asize; i++) {
-            for (int j = 0; j < bsize; j++) {
+        for (int i = 0; i < asize; i++) { // 遍历面a每一条边i
+            for (int j = 0; j < bsize; j++) { // 遍历面b每一条边j
                 if (a.indexpair[i].first == b.indexpair[j].first)
                     continue;
                 if (isSameVertex(vertices[a.indexpair[i].first], vertices[b.indexpair[j].first])) {
@@ -612,9 +612,10 @@ namespace mesh_simplier {
                 //if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
                 //    continue; // 只对法向量相同的进行处理
                 //}
-                if (0.5 < 1.f - fabs(dot(faces[i].normal, faces[j].normal))) {
+                //if (dot(faces[i].normal, faces[j].normal) < 1.f - global_nor_epsilon) {
+                /*if (dot(faces[i].normal, faces[j].normal) < 0.1f) {
                     continue;
-                }
+                }*/
                 if (vis[i] != -1) { // i 面已经处理过了
                     //face_i has been merged before
                     vis[j] = vis[i];
