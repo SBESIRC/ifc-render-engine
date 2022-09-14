@@ -447,8 +447,8 @@ namespace ifcre {
 		m_text_shader->setVec2("offset", glm::vec2(position));
 		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // ortho正交投影
 		glDisable(DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS);
-		glDepthMask(GL_FALSE);
+		glDepthFunc(GL_ALWAYS); // 永远通过深度测试
+		glDepthMask(GL_FALSE); // 禁用深度缓冲的写入
 		//textdata.render_text(text, glm::vec3(position), scale);
 		texturefont.drawText(text);
 

@@ -82,11 +82,11 @@ namespace ifcre {
 		// 加载模型数据
 		try_ifc = configs["model_type"] == "ifc";
 
-		if (_g_indices.size() > 0) {
+		String model_file = configs["file"];
+		if (model_file == "nil") {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
 		}
 		else {
-			String model_file = configs["file"];
 			if (try_ifc) {
 				ifc_test_model = IFCParser::load(model_file);
 			}

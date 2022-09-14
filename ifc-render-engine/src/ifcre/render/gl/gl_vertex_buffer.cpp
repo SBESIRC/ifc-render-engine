@@ -192,7 +192,7 @@ namespace ifcre {
 		glBindVertexArray(m_vaoid);
 		/*if (!list_generated)
 			*/glGenBuffers(c_indices.size(), m_eboid_list.data());
-			ebo_id_trip = m_eboid_list[0] - 0;
+			ebo_id_trip = m_eboid_list.size() > 0 ? m_eboid_list[0] - 0 : 0;
 			for (int i = 0; i < c_indices.size(); i++) {
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid_list[i]);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
