@@ -82,11 +82,11 @@ namespace ifcre {
 		// 加载模型数据
 		try_ifc = configs["model_type"] == "ifc";
 
-		if (_g_indices.size() > 0) {
+		String model_file = configs["file"];
+		if (model_file == "nil") {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
 		}
 		else {
-			String model_file = configs["file"];
 			if (try_ifc) {
 				ifc_test_model = IFCParser::load(model_file);
 			}
@@ -125,7 +125,7 @@ namespace ifcre {
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
 			if (try_ifc) {
-				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);
+				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//上传数据vbo & ebo
 				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);						//位置
 				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));		//法向量
 				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));		//颜色

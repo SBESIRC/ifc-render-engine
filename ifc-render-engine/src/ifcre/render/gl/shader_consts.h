@@ -522,7 +522,7 @@ namespace ifcre {
 			"color = vGoColor / 4 * 3 + vec3(0.0, 0.25, 0.0);\r\n"
 			"}\r\n"
 			"vec3 norm = normalize(vNormal);\r\n"
-			"vec3 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.2;\r\n"
+			"vec3 diffuse = max(dot(norm, normalize(ubo.cameraDirection)), 0.0) * color * 0.2;\r\n"
 			"color = color * 0.8 + diffuse;\r\n"
 			"FragColor = vec4(color, ubo.alpha);\r\n"
 			"}\r\n";
@@ -551,7 +551,7 @@ namespace ifcre {
 			"vGoColor = aColor;\r\n"
 			"vec4 p = vec4(aPos, 1.0);\r\n"
 			"vec4 eyePos = ubo.model * p;\r\n"
-			"vFragPos = eyePos.xyz;\r\n"
+			"vFragPos = eyePos.xyz;// ∆¨∂ŒŒª÷√\r\n"
 			"vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;\r\n"
 			"for(int i=0;i<6;i++){\r\n"
 			"vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;\r\n"

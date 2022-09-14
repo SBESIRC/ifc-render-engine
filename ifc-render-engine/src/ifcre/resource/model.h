@@ -313,7 +313,7 @@ namespace ifcre {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
 			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
-				if (id > c_indices_size) {
+				if (id > c_indices_size || comps_bbx.size() == 0) {
 					continue;
 				}
 				for (int i = 0; i < 3; i++) {
