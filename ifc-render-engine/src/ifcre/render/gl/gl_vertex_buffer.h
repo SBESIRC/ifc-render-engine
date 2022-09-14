@@ -83,24 +83,24 @@ namespace ifcre {
 		uint32_t m_ssboid; // deprecated
 		uint32_t ebo_id_trip = 0;
 
-		bool no_trans_generated = false;
+		//bool no_trans_generated = false;
 		uint32_t m_eboid_for_no_trans;
 		uint32_t no_trans_size;
 
-		bool trans_generated = false;
+		//bool trans_generated = false;
 		uint32_t m_eboid_for_trans;
 		uint32_t trans_size;
 
-		bool edge_generated = false;
+		//bool edge_generated = false;
 		uint32_t m_eboid_for_edge;
 		uint32_t edge_size;
 
-		bool list_generated = false;
+		//bool list_generated = false;
 		Vector<uint32_t> m_eboid_list;
 		Vector<uint32_t> m_size_list;
 
 		//dynamic ebo for isolation
-		bool dyn_generated = false;
+		//bool dyn_generated = false;
 		uint32_t m_dynamic_eboid;
 		uint32_t m_dynamic_eboid_for_no_trans;
 		uint32_t m_dynamic_eboid_for_trans;
