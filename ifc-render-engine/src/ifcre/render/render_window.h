@@ -471,7 +471,6 @@ namespace ifcre {
 			Real click_z = 1.0;
 			int click_comp_id = -1;
 			int hover_comp_id = -1;
-			bool left_hold = false;
 
 			float chosen_ui_id = -1.f;
 			int clpbox_face_id = -1;

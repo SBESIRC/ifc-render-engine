@@ -451,7 +451,6 @@ namespace ifcre {
 		glDepthMask(GL_FALSE); // 禁用深度缓冲的写入
 		//textdata.render_text(text, glm::vec3(position), scale);
 		texturefont.drawText(text);
-
 		m_text_shader->setVec2("offset", glm::vec2(position) + glm::vec2(100.f, 100.f));
 		texturefont.drawText(text2);
 		/*static bool lockk = false;

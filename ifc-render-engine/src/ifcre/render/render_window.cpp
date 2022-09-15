@@ -93,7 +93,7 @@ namespace ifcre {
 
         if (is_comp) {
             int clicked_comp_id = comp_id.x;
-            if (hover_mode && !m_mouse_status.left_hold)
+            if (hover_mode && !m_mouse_status.lbtn_down)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else if(!hover_mode) {
                 m_mouse_status.click_comp_id = clicked_comp_id;
@@ -236,7 +236,6 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
-                status.left_hold = true;
                 single_before = std::chrono::system_clock::now();
                 
                 glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
@@ -254,7 +253,6 @@ namespace ifcre {
                 break;
             }
             case GLFW_RELEASE:
-                status.left_hold = false;
                 static auto double_before = std::chrono::system_clock::now();
                 auto now = std::chrono::system_clock::now();
                 double single_diff_ms = std::chrono::duration <double, std::milli>(now - single_before).count();
@@ -272,7 +270,6 @@ namespace ifcre {
                             that->_setClickedWorldCoords(click_x, click_y, click_z);
                             that->_setClickedWorldColors(click_x, click_y, false, true);
                         }
-                        status.lbtn_down = true;
                         that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
                     }
                 }
@@ -741,6 +738,7 @@ namespace ifcre {
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
+        //m_projection = glm::ortho(0.0f, static_cast<float>(w), 0.0f, static_cast <float>(h), m_znear,m_zfar);
         auto& mfb = m_framebuffer;
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
