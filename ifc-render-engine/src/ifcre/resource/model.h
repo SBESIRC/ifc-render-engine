@@ -309,8 +309,8 @@ namespace ifcre {
 			m_center = (pMin + pMax) * 0.5f;
 		}
 
-		Vector<Real> generate_bbxs_by_vec(const set<uint32_t>& comp_indices) {
-			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX};
+		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
 				if (id > c_indices_size || comps_bbx.size() == 0) {
@@ -323,7 +323,12 @@ namespace ifcre {
 					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
 				}
 			}
-			Vector<Real> ret2(24); // 一个bbx有8个顶点，每个顶点要3个float存储位置
+			return ret;
+		}
+
+		Vector<Real> generate_bbxs_by_vec(const std::set<uint32_t>& comp_indices) {
+			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices);
+			Vector<Real> ret2(24);
 			for (int i = 0; i < 8; i++) {
 				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
 				ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
@@ -332,7 +337,17 @@ namespace ifcre {
 			return ret2;
 		}
 
-		void getxyz_of_indices(const set<uint32_t>& comp_indices, Real& center_x, Real& center_y, Real& center_z, Real& width, Real& height, Real& length) {
+		Vector<Real> generate_bbxs_by_vec2(const Vector<Real>& ret) {
+			Vector<Real> ret2(24);
+			for (int i = 0; i < 8; i++) {
+				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
+				ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
+				ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
+			}
+			return ret2;
+		}
+
+		/*void getxyz_of_indices(const set<uint32_t>& comp_indices, Real& center_x, Real& center_y, Real& center_z, Real& width, Real& height, Real& length) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
@@ -346,7 +361,7 @@ namespace ifcre {
 					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
 				}
 			}
-		}
+		}*/
 
 		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;

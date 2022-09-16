@@ -220,6 +220,16 @@ namespace ifcre {
 			m_camera->RotateToCubeDirection(cube_num); // 设置相机数据
 			cube_change_log = false;
 		}
+		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
+			m_window.trigger = false;
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+			glm::mat4 model_mat;
+			Real scaler = 0;
+			util::get_model_matrix_byBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]), model_mat, scaler);
+			ifc_test_model->setModelMatrix(model_mat);
+			ifc_test_model->setScaleFactor(scaler);
+			m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);
+		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
 
 		ifc_m_matrix = model_matrix;
@@ -357,7 +367,7 @@ namespace ifcre {
 			
 			// ----------------------------- render text -----------------------------
 			//auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-			//m_render.renderText(*ifc_test_model, sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+			//m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);

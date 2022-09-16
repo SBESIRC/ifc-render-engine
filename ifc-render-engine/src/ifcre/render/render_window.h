@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <chrono>
 #include "../common/std_types.h"
 #include "gl/gl_render_texture.h"
 #include "gl_camera.h"
@@ -415,6 +416,7 @@ namespace ifcre {
 		bool chosen_changed_x = false;
 		void setDefaultStatus();
 		bool rotatelock = false;
+		bool trigger = false;
 
 		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 	private:

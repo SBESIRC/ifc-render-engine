@@ -116,6 +116,8 @@ namespace ifcre {
 		int cube_num = 0;
 		bool cube_change_log = false;
 
+		bool trigger = false;
+
 		int last_clp_face_key = 0;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;

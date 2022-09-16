@@ -163,15 +163,17 @@ namespace ifcre {
             return m_pos;
         }
 
-        glm::vec3 getViewForward() {
+        /*glm::vec3 getViewForward() {
             return m_front;
+        }*/
+
+        void set_pos(glm::vec3 pos) {
+            m_pos = pos;
         }
 
-        //void zoomCompents(const set<uint32_t>& comp_indices) {
-        //    // 首先获得这些物件的中心和xyz
-
-        //}
-
+        glm::vec3 getViewForward() {
+            return glm::normalize(m_front);
+        }
 
     private:
         void _updateCameraVectors()

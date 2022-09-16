@@ -438,7 +438,7 @@ namespace ifcre {
 		}
 	}
 
-	void GLRender::renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
 		const wchar_t text[] = L"Ifc-Render-Engine-For-Tianha-Corp";
 		const wchar_t text2[] = L"中文测试字样";
@@ -451,6 +451,7 @@ namespace ifcre {
 		glDepthMask(GL_FALSE); // 禁用深度缓冲的写入
 		//textdata.render_text(text, glm::vec3(position), scale);
 		texturefont.drawText(text);
+
 		m_text_shader->setVec2("offset", glm::vec2(position) + glm::vec2(100.f, 100.f));
 		texturefont.drawText(text2);
 		/*static bool lockk = false;
