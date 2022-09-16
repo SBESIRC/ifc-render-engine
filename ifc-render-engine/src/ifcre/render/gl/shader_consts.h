@@ -128,7 +128,8 @@ namespace ifcre {
 			"//}\r\n"
 			"}\r\n"
 			"vComp = aComp;\r\n"
-			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"//vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"vNormal = aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 		static const char* f_clp_plane = "#version 430\r\n"
@@ -562,8 +563,8 @@ namespace ifcre {
 			"//}\r\n"
 			"}\r\n"
 			"vComp = aComp;\r\n"
-			"vNormal = aNormal;\r\n"
 			"//vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"vNormal = aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 		static const char* f_text = "#version 430\r\n"

@@ -35,7 +35,7 @@ void main()
 		//}
 	}
 	vComp = aComp;
-	vNormal = aNormal;
 	//vNormal = ubo.transpose_inv_model * aNormal;
+	vNormal = aNormal;
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }
