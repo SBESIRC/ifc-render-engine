@@ -63,6 +63,7 @@ namespace ifcre {
 		bool saveImage(const char* filePath);
 		void SetClipBox();
 		void zoom2Home();
+		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();

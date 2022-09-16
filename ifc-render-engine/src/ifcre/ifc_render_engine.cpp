@@ -221,14 +221,15 @@ namespace ifcre {
 			cube_change_log = false;
 		}
 		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
-			m_window.trigger = false;
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+			/*m_window.trigger = false;
 			glm::mat4 model_mat;
 			Real scaler = 0;
 			util::get_model_matrix_byBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]), model_mat, scaler);
 			ifc_test_model->setModelMatrix(model_mat);
 			ifc_test_model->setScaleFactor(scaler);
-			m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);
+			m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);*/
+			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
 
@@ -542,8 +543,19 @@ namespace ifcre {
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
+	void IFCRenderEngine::zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3) {
+		m_render_window->trigger = false;
+		glm::mat4 model_mat;
+		Real scaler = 0;
+		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
+		ifc_test_model->setModelMatrix(model_mat);
+		ifc_test_model->setScaleFactor(scaler);
+		m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);
+	}
+
 	void IFCRenderEngine::zoom2Home() {
-		last_clp_face_key = 0;
+		zoombyBBX(ifc_test_model->getpMax(), ifc_test_model->getpMin());
+		//last_clp_face_key = 0;
 		/*glm::mat4 ifc_model_matrix;
 		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 		ifc_test_model->setModelMatrix(ifc_model_matrix);
