@@ -4,6 +4,7 @@
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <chrono>
 #include "../common/std_types.h"
 #include "gl/gl_render_texture.h"
 #include "gl_camera.h"
@@ -415,6 +416,7 @@ namespace ifcre {
 		bool chosen_changed_x = false;
 		void setDefaultStatus();
 		bool rotatelock = false;
+		bool trigger = false;
 
 		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 	private:
@@ -471,7 +473,6 @@ namespace ifcre {
 			Real click_z = 1.0;
 			int click_comp_id = -1;
 			int hover_comp_id = -1;
-			bool left_hold = false;
 
 			float chosen_ui_id = -1.f;
 			int clpbox_face_id = -1;

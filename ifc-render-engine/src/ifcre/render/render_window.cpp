@@ -4,7 +4,6 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include "glfw3native.h"
 #include "FreeImage.h"
-#include <chrono>
 #define TEST_COMP_ID
 namespace ifcre {
     bool m_lbutton_down, m_rbutton_down;
@@ -93,21 +92,25 @@ namespace ifcre {
 
         if (is_comp) {
             int clicked_comp_id = comp_id.x;
-            if (hover_mode && !m_mouse_status.left_hold)
+            if (hover_mode && !m_mouse_status.lbtn_down)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else if(!hover_mode) {
                 m_mouse_status.click_comp_id = clicked_comp_id;
-                if (clicked_comp_id > 0) {
+                if (clicked_comp_id >= 0) {
                     chosen_changed_w = true;
                     if (multichoose) {
-                        chosen_list.insert(static_cast<uint32_t>(clicked_comp_id));
+                        auto temp_id = static_cast<uint32_t>(clicked_comp_id);
+                        /*if (chosen_list.count(temp_id)) {
+                            chosen_list.erase(temp_id);
+                        }
+                        else*/
+                            chosen_list.insert(temp_id);
                     }
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
-                    if (m_mouse_status.double_click) {
-                        //do zoom
-
+                    if (m_mouse_status.double_click && clicked_comp_id == m_mouse_status.click_comp_id) {
+                        trigger = true;//do zoom
                         m_mouse_status.double_click = false;
                     }
                 }
@@ -224,9 +227,9 @@ namespace ifcre {
         status.click_x = (pos.x + 1) * 0.5 * w;
         status.click_y = (-pos.y + 1) * 0.5 * h;
         //camera.translateByScreenOp(0, 0, yoffset);
-        
+
     }
-    
+
     void RenderWindow::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
@@ -236,16 +239,14 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
-                status.left_hold = true;
                 single_before = std::chrono::system_clock::now();
-                
                 glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
                 float click_z = that->_getClickedDepthValue(pre_click_x, pre_click_y);
                 if (click_z != 1.0) {
                     that->_setClickedWorldCoords(pre_click_x, pre_click_y, click_z);
                     that->_setClickedWorldColors(pre_click_x, pre_click_y, false, true);
                 }
-                else if(!that->multichoose) {   // 点击空白区域取消选中
+                else if (!that->multichoose) {   // 点击空白区域取消选中
                     that->chosen_changed_w = true;
                     that->chosen_list.clear();
                 }
@@ -253,42 +254,41 @@ namespace ifcre {
                 that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
                 break;
             }
-            case GLFW_RELEASE:
-                status.left_hold = false;
+            case GLFW_RELEASE: {
                 static auto double_before = std::chrono::system_clock::now();
                 auto now = std::chrono::system_clock::now();
                 double single_diff_ms = std::chrono::duration <double, std::milli>(now - single_before).count();
                 double double_diff_ms = std::chrono::duration <double, std::milli>(now - double_before).count();
-                single_before = now;
-                double_before = now;
+                single_before = double_before = now;
                 if (single_diff_ms > 10 && single_diff_ms < 200) {
                     status.single_click = true;
                     status.double_click = false;
                     double click_x, click_y;
                     glfwGetCursorPos(window, &click_x, &click_y);
-                    if (abs(click_x - pre_click_x) < 5 && abs(click_y - pre_click_y)) {
-                        float click_z = that->_getClickedDepthValue(click_x, click_y);
-                        if (click_z != 1.0) {
-                            that->_setClickedWorldCoords(click_x, click_y, click_z);
-                            that->_setClickedWorldColors(click_x, click_y, false, true);
-                        }
-                        status.lbtn_down = true;
-                        that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
+                    //if (abs(click_x - pre_click_x) < 5 && abs(click_y - pre_click_y)) {
+                    float click_z = that->_getClickedDepthValue(click_x, click_y);
+                    if (click_z != 1.0) {
+                        that->_setClickedWorldCoords(click_x, click_y, click_z);
+                        that->_setClickedWorldColors(click_x, click_y, false, true);
                     }
+                    //that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
+                    that->_setClickedWorldColors(click_x, click_y, false, false);
+                    //}
                 }
                 if (double_diff_ms > 10 && double_diff_ms < 350) {
-                    status.double_click = true;
                     status.single_click = false;
+                    status.double_click = true;
                     double click_x, click_y;
                     glfwGetCursorPos(window, &click_x, &click_y);
                     float click_z = that->_getClickedDepthValue(click_x, click_y);
                     if (click_z != 1.0) {
                         that->_setClickedWorldCoords(click_x, click_y, click_z);
                         that->_setClickedWorldColors(click_x, click_y, false, true);
-                    }
+                }
                 }
                 status.lbtn_down = false;
                 break;
+            }
             }
         }
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
@@ -458,6 +458,9 @@ namespace ifcre {
             }
         }
 
+        if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
+            trigger = true;
+        }
         if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             multichoose = true;
         }
@@ -622,7 +625,7 @@ namespace ifcre {
         return m_framebuffer.m_default_rt->getTexId();
     }
 
-    uint32_t RenderWindow::getDepthNormalTexId() 
+    uint32_t RenderWindow::getDepthNormalTexId()
     {
         return m_framebuffer.m_depth_normal_rt->getTexId();
     }
@@ -741,6 +744,13 @@ namespace ifcre {
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
+        float dis_ = 15.f;
+        float ratios = (Real)w / h;
+        //m_projection = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
+        //m_projection = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
+        /*
+        m_projection = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
+        m_projection = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
         auto& mfb = m_framebuffer;
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);

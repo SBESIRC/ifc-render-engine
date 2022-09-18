@@ -438,7 +438,7 @@ namespace ifcre {
 		}
 	}
 
-	void GLRender::renderText(IFCModel& ifc_model, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
 		const wchar_t text[] = L"Ifc-Render-Engine-For-Tianha-Corp";
 		const wchar_t text2[] = L"ÖÐÎÄ²âÊÔ×ÖÑù";

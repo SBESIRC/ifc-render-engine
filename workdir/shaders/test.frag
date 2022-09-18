@@ -31,6 +31,7 @@ void main()
 	vec3 diffuse = max(dot(norm, normalize(ubo.cameraDirection)), 0.0) * color * 0.2;
 
 	color = color * 0.8 + diffuse;
-    FragColor = vec4(color, ubo.alpha);
+    //FragColor = vec4(vNormal / 2 + 0.5,  ubo.alpha);
+    FragColor =  vec4(color, ubo.alpha);
 
 }

@@ -128,7 +128,8 @@ namespace ifcre {
 			"//}\r\n"
 			"}\r\n"
 			"vComp = aComp;\r\n"
-			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"//vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"vNormal = aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 		static const char* f_clp_plane = "#version 430\r\n"
@@ -524,7 +525,8 @@ namespace ifcre {
 			"vec3 norm = normalize(vNormal);\r\n"
 			"vec3 diffuse = max(dot(norm, normalize(ubo.cameraDirection)), 0.0) * color * 0.2;\r\n"
 			"color = color * 0.8 + diffuse;\r\n"
-			"FragColor = vec4(color, ubo.alpha);\r\n"
+			"//FragColor = vec4(vNormal / 2 + 0.5,  ubo.alpha);\r\n"
+			"FragColor =  vec4(color, ubo.alpha);\r\n"
 			"}\r\n";
 
 		static const char* v_test = "#version 430\r\n"
@@ -561,7 +563,8 @@ namespace ifcre {
 			"//}\r\n"
 			"}\r\n"
 			"vComp = aComp;\r\n"
-			"vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"//vNormal = ubo.transpose_inv_model * aNormal;\r\n"
+			"vNormal = aNormal;\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 		static const char* f_text = "#version 430\r\n"

@@ -99,7 +99,7 @@ namespace ifcre {
         void translateByHoverDiv(glm::vec3& step) {
             //translating -= step;
             m_pos -= step;
-            std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+            //std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
         }
 
         void RotateToCubeDirection(int num) {
@@ -163,15 +163,17 @@ namespace ifcre {
             return m_pos;
         }
 
-        glm::vec3 getViewForward() {
+        /*glm::vec3 getViewForward() {
             return m_front;
+        }*/
+
+        void set_pos(glm::vec3 pos) {
+            m_pos = pos;
         }
 
-        //void zoomCompents(const set<uint32_t>& comp_indices) {
-        //    // 首先获得这些物件的中心和xyz
-
-        //}
-
+        glm::vec3 getViewForward() {
+            return glm::normalize(m_front);
+        }
 
     private:
         void _updateCameraVectors()
@@ -235,7 +237,7 @@ namespace ifcre {
         // ------------- camera attributes----------------
         public:
         glm::vec3 m_pos; // 相机的位置
-        glm::vec3 m_front; // 相机看向物体
+        glm::vec3 m_front; // 相机看向物体的方向向量
         glm::vec3 m_up; // 相机坐标的上方
         private:
         // calculated by worldup 
