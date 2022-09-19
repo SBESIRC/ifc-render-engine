@@ -222,13 +222,6 @@ namespace ifcre {
 		}
 		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
-			/*m_window.trigger = false;
-			glm::mat4 model_mat;
-			Real scaler = 0;
-			util::get_model_matrix_byBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]), model_mat, scaler);
-			ifc_test_model->setModelMatrix(model_mat);
-			ifc_test_model->setScaleFactor(scaler);
-			m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);*/
 			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 		}
 		auto model_matrix = ifc_test_model->getModelMatrix();
@@ -491,55 +484,10 @@ namespace ifcre {
 
 	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
 		sleep_time = sleepTime;
-
-		//if (m_render_window == nullptr) {
-		//	return;
-		//}
-		//Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		//uint32_t c_indices_size = ifc_test_model->c_indices.size();
-		//for (auto& id : m_render_window->chosen_list) {
-		//	if (id > c_indices_size) {
-		//		continue;
-		//	}
-		//	for (int i = 0; i < 3; i++) {
-		//		ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-		//	}
-		//	for (int i = 3; i < 6; i++) {
-		//		ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-		//	}
-		//}
-		////glm::vec3 center;
-		//m_render_window->use_clip_box = ClipBox(glm::vec3((ret[3] + ret[0]) / 2, (ret[4] + ret[1]) / 2, (ret[5] + ret[2]) / 2), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
 	}
 
 	int IFCRenderEngine::getSelectedCompId()
 	{
-		/*glm::mat4 ifc_model_matrix;
-		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-		ifc_test_model->setModelMatrix(ifc_model_matrix);
-		m_camera->m_pos = m_view_pos;*/
-
-		//// zoom this comp
-		//int id = m_render_window->getClickCompId();
-		//Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		//uint32_t c_indices_size = ifc_test_model->c_indices.size();
-		//for (auto& id : m_render_window->chosen_list) {
-		//	if (id > c_indices_size) {
-		//		continue;
-		//	}
-		//	for (int i = 0; i < 3; i++) {
-		//		ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-		//	}
-		//	for (int i = 3; i < 6; i++) {
-		//		ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-		//	}
-		//}
-
-		//glm::mat4 ifc_model_matrix;
-		//util::get_model_matrix_byBBX(glm::vec3(ret[0],ret[1],ret[2]), glm::vec3(ret[3], ret[4], ret[5]), ifc_model_matrix, scale_factor);
-		//ifc_test_model->setModelMatrix(ifc_model_matrix); 
-		//ifc_test_model->setScaleFactor(scale_factor);
-
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
