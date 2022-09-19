@@ -523,8 +523,8 @@ namespace ifcre {
 			"color = vGoColor / 4 * 3 + vec3(0.0, 0.25, 0.0);\r\n"
 			"}\r\n"
 			"vec3 norm = normalize(vNormal);\r\n"
-			"vec3 diffuse = max(dot(norm, normalize(ubo.cameraDirection)), 0.0) * color * 0.2;\r\n"
-			"color = color * 0.8 + diffuse;\r\n"
+			"vec3 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;\r\n"
+			"color = color * 0.7 + diffuse;\r\n"
 			"//FragColor = vec4(vNormal / 2 + 0.5,  ubo.alpha);\r\n"
 			"FragColor =  vec4(color, ubo.alpha);\r\n"
 			"}\r\n";

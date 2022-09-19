@@ -94,7 +94,7 @@ namespace Example {
 
         public static void SetSelectCompIDs(string to_show_states, int val)
         {
-            // to_show_states 0、设置显示一些物件；1、高亮选中一些物件
+            // to_show_states = "0": 设置显示一些物件；= "1": 高亮选中一些物件
             ifcre_set_config("to_show_states", to_show_states);
 
             if (val == -2) // send -2 to show all components

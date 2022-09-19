@@ -555,23 +555,6 @@ namespace ifcre {
 
 	void IFCRenderEngine::zoom2Home() {
 		zoombyBBX(ifc_test_model->getpMax(), ifc_test_model->getpMin());
-		//last_clp_face_key = 0;
-		/*glm::mat4 ifc_model_matrix;
-		util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-		ifc_test_model->setModelMatrix(ifc_model_matrix);
-		ifc_test_model->setScaleFactor(scale_factor);
-		m_camera->m_pos = m_view_pos;*/
-		/*glm::vec3 center = ifc_test_model->getModelCenter();
-		m_camera->m_pos = m_camera->m_pos + ifc_test_model->getModelCenter();
-		m_camera->m_front = ifc_test_model->getModelCenter();*/
-
-		//glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);
-		//glm::mat4 ifc_model_matrix;
-		//util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-		//ifc_test_model->setModelMatrix(ifc_model_matrix * ret);
-		///*ret = glm::lookAt(glm::vec3(0.f, 0.f, 5.f), newpos, glm::vec3(0.f, 1.f, 0.f)) * ret;
-		//return ret;*/
-		//m_camera->m_pos = m_view_pos;
 	}
 
 	bool IFCRenderEngine::saveImage(const char* filePath) {

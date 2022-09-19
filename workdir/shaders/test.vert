@@ -25,7 +25,7 @@ void main()
 	vGoColor = aColor;
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos = ubo.model * p; 
-	vFragPos = eyePos.xyz;// ∆¨∂ŒŒª÷√
+	vFragPos = eyePos.xyz;// ÁâáÊÆµ‰ΩçÁΩÆ
 	vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
