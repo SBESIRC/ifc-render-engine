@@ -481,7 +481,7 @@ namespace ifcre {
 		glm::mat4 m_init_model;					
 		glm::mat4 mirror_model;					
 		Real m_scale_factor;					// 整个模型的缩放系数
-		glm::vec3 pMin, pMax;					// 整个模型的bbx信息
+		glm::vec3 pMin = glm::vec3(0,0,0), pMax = glm::vec3(0,0,0);					// 整个模型的bbx信息
 		glm::vec3 m_center;						// 整个模型的中心信息
 		Vector<MaterialData> material_data;		// 存各个面的材质属性，每个面都有8项属性，数量为面的数量
 		Vector<Real> g_vertices;				// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍

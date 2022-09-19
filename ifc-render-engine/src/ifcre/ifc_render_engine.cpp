@@ -554,6 +554,9 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::zoom2Home() {
+		if (ifc_test_model == NULL) {
+			return;
+		}
 		zoombyBBX(ifc_test_model->getpMax(), ifc_test_model->getpMin());
 	}
 
