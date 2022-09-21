@@ -124,6 +124,8 @@
     <None Include="..\workdir\shaders\clp_ui_plane.frag" />
     <None Include="..\workdir\shaders\skybox.vert" />
     <None Include="..\workdir\shaders\skybox.frag" />
+    <None Include="..\workdir\shaders\grid.frag" />
+    <None Include="..\workdir\shaders\grid.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

@@ -68,6 +68,7 @@ namespace ifcre {
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
+		void renderGrid(IFCModel& ifc_model);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
@@ -115,6 +116,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_gizmo_UI_shader;
 		UniquePtr<GLSLProgram> m_text_shader;
 		UniquePtr<GLSLProgram> m_skybox_shader;
+		UniquePtr<GLSLProgram> m_grid_shader;
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

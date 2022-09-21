@@ -266,6 +266,8 @@
     <None Include="..\workdir\shaders\gizmo.vert" />
     <None Include="..\workdir\shaders\gizmo_ui.frag" />
     <None Include="..\workdir\shaders\gizmo_ui.vert" />
+    <None Include="..\workdir\shaders\grid.frag" />
+    <None Include="..\workdir\shaders\grid.vert" />
     <None Include="..\workdir\shaders\image_effect.frag" />
     <None Include="..\workdir\shaders\image_effect.vert" />
     <None Include="..\workdir\shaders\normal_depth_write.frag" />

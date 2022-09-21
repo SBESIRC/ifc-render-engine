@@ -83,6 +83,10 @@ namespace ifcre {
 		String v_skybox = util::read_file("shaders/skybox.vert");
 		String f_skybox = util::read_file("shaders/skybox.frag");
 		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
+
+		String v_grid = util::read_file("shaders/grid.vert");
+		String f_grid = util::read_file("shaders/grid.frag");
+		m_grid_shader = make_unique<GLSLProgram>(v_grid.c_str(), f_grid.c_str());
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -100,6 +104,7 @@ namespace ifcre {
 		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
 		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
 		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
+		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -118,8 +123,8 @@ namespace ifcre {
 		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
-
 		m_skybox_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_grid_shader->bindUniformBlock("TransformMVPUBO", 2);
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -463,6 +468,97 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
+	void GLRender::renderGrid(IFCModel& ifc_model) 
+	{
+		static bool first = true;
+		static uint32_t grid_vao;
+		if (first) {
+			float linePosition[] = {
+				0.0, 0.0, 0.0,
+				100.0, 0.0, 0.0,	// x-axis
+				0.0, 0.0, 0.0,
+				0.0, 100.0, 0.0,	// y-axis
+				0.0, 0.0, 0.0,
+				0.0, 0.0, 100.0,	// z-axis
+
+				100.0, 100.0, 100.0,
+				100.0, 100.0, 0.0,
+				100.0, 100.0, 100.0,
+				100.0, 0.0, 100.0,
+				100.0, 100.0, 100.0,
+				0.0, 100.0, 100.0,
+
+				100.0, 100.0, 0.0,
+				100.0, 0.0, 0.0,
+				100.0, 100.0, 0.0,
+				0.0, 100.0, 0.0,
+
+				100.0, 0.0, 100.0,
+				100.0, 0.0, 0.0,
+				100.0, 0.0, 100.0,
+				0.0, 0.0, 100.0,
+
+				0.0, 100.0, 100.0,
+				0.0, 0.0, 100.0,
+				0.0, 100.0, 100.0,
+				0.0, 100.0, 0.0,
+
+
+				75.0, 75.0, 75.0,
+				25.0, 75.0, 75.0,	// x-axis
+				75.0, 75.0, 75.0,
+				75.0, 25.0, 75.0,	// y-axis
+				75.0, 75.0, 75.0,
+				75.0, 75.0, 25.0,	// z-axis
+
+				25.0, 25.0, 25.0,
+				25.0, 25.0, 75.0,
+				25.0, 25.0, 25.0,
+				25.0, 75.0, 25.0,
+				25.0, 25.0, 25.0,
+				75.0, 25.0, 25.0,
+
+				25.0, 25.0, 75.0,
+				25.0, 75.0, 75.0,
+				25.0, 25.0, 75.0,
+				75.0, 25.0, 75.0,
+
+				25.0, 75.0, 25.0,
+				25.0, 75.0, 75.0,//
+				25.0, 75.0, 25.0,
+				75.0, 75.0, 25.0,
+
+				75.0, 25.0, 25.0,
+				75.0, 75.0, 25.0,
+				75.0, 25.0, 25.0,
+				75.0, 25.0, 75.0,
+
+				//75.0, 25.0, 75.0,
+				//100.0, 100.0, 100.0,
+				//0.0, 0.0, 0.0,
+				//25.0, 25.0, 25.0,
+
+			};
+			uint32_t grid_vbo;
+			glGenVertexArrays(1, &grid_vao);
+			glGenBuffers(1, &grid_vbo);
+			glBindVertexArray(grid_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(linePosition), &linePosition, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			first = false;
+		}
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+		m_grid_shader->use();
+		glBindVertexArray(grid_vao);
+		glLineWidth(3.5f);
+		glDrawArrays(GL_LINES, 0, 48);
+		glLineWidth(1.5f);
+		_defaultConfig();
+	}
+
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
 		static bool first = true;
@@ -514,7 +610,6 @@ namespace ifcre {
 		glDepthFunc(GL_ALWAYS);//glDepthFunc(GL_ALWAYS);
 		glDrawArrays(GL_LINES, 0, 6); // 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
 		_defaultConfig();
-
 	}
 
 	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)
