@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Windows.Documents;
 using OpenTK.Graphics.OpenGL;
 //using OpenTK.Mathematics;
 //using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -32,9 +34,16 @@ namespace Example {
         [DllImport("ifc-render-engine.dll")]//, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
 #pragma warning disable CS3001 // 参数类型不符合 CLS
 		public static unsafe extern void ifcre_init(Window* wndPtr);
+
 #pragma warning restore CS3001 // 参数类型不符合 CLS
 
-		[DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern int ifcre_get_comp_ids_size();
+
+        [DllImport("ifc-render-engine.dll", EntryPoint = "ifcre_get_comp_ids")]
+        internal extern unsafe static void ifcre_get_comp_ids(int* arr);
+
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_run();
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
@@ -89,7 +98,28 @@ namespace Example {
         public static int GetCurrentCompID()
         {
             int i = ifcre_get_comp_id();
+            
             return i;
+        }
+
+        public static List<int> GetCurrentCompIDs()
+        {
+            List<int> list = new List<int>();
+            unsafe
+            {
+                int size = ifcre_get_comp_ids_size();
+
+                var arr = Marshal.AllocHGlobal(size * sizeof(int));
+                var p = (int*)arr.ToPointer();
+                ifcre_get_comp_ids(p);
+
+                for (int j = 0; j < size; j++)
+                {
+                    list.Add(p[j]);
+                }
+                Marshal.FreeHGlobal(arr);
+            }
+            return list;
         }
 
         public static void SetSelectCompIDs(string to_show_states, int val)

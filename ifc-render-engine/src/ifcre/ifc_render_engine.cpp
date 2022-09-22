@@ -352,7 +352,7 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//m_render.renderGrid(*ifc_test_model);
+			m_render.renderGrid(*ifc_test_model);
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
@@ -492,6 +492,18 @@ namespace ifcre {
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();
 	}
 
+	int IFCRenderEngine::getSelectedCompIdsSize()
+	{
+		return m_render_window->chosen_list.size();
+	}
+	void IFCRenderEngine::getSelectedCompIds(int *arr) {
+		std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
+		for (size_t i = 0; i < v.size(); i++)
+		{
+			arr[i] = v[i];
+		}
+	}
+
 	void IFCRenderEngine::zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3) {
 		m_render_window->trigger = false;
 		glm::mat4 model_mat;
@@ -511,10 +523,6 @@ namespace ifcre {
 
 	bool IFCRenderEngine::saveImage(const char* filePath) {
 		return m_render_window->SaveImage(filePath, width, height);
-	}
-
-	void IFCRenderEngine::getSelectedCompIds() {
-		m_render_window->chosen_list;
 	}
 
 	SharedPtr<RenderEngine> IFCRenderEngine::getSingleton()
