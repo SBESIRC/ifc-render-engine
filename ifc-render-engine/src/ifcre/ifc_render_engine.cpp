@@ -352,7 +352,7 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			m_render.renderGrid(*ifc_test_model);
+			//m_render.renderGrid(*ifc_test_model);
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
