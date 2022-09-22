@@ -29,8 +29,6 @@ namespace ifcre {
 			//Real mmdimens = std::max(pMax.x - pMin.x, std::max(pMax.y - pMin.y, pMax.z - pMin.z));
 			glm::vec3 tempp = pMax - pMin;
 			Real mmdimens = std::sqrt(glm::dot(tempp, tempp));
-			//mmdimens *= (.7f + 20.f / mmdimens);
-			//Real scales = 1. / mmdimens * 15;
 			Real scales = 15.f / (.7f * mmdimens + 20.f);
 			glm::vec3 offset = glm::vec3(-(pMin.x + pMax.x) / 2, -(pMin.y + pMax.y) / 2, -(pMin.z + pMax.z) / 2);
 			o_model = glm::mat4(1.0f);

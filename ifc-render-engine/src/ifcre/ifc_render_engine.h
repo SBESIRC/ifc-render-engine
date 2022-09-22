@@ -31,6 +31,8 @@ namespace ifcre {
 		//virtual void setFloat() = 0;
 		virtual void run() = 0;
 		virtual int getSelectedCompId() = 0;
+		virtual int getSelectedCompIdsSize() = 0;
+		virtual void getSelectedCompIds(int *arr) = 0;
 		virtual void setSelectCompIds(int val) = 0;
 
 		virtual void SetSleepTime(int val) = 0;
@@ -57,7 +59,8 @@ namespace ifcre {
 		void init(GLFWwindow *);
 		void run();
 		int getSelectedCompId();
-		void getSelectedCompIds();
+		int getSelectedCompIdsSize();
+		void getSelectedCompIds(int *arr);
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 		bool saveImage(const char* filePath);

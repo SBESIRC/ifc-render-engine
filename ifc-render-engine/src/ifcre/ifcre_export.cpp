@@ -80,6 +80,21 @@ int ifcre_get_comp_id()
 	return re.getSelectedCompId();
 }
 
+int ifcre_get_comp_ids_size()
+{
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	return re.getSelectedCompIdsSize();
+}
+
+void ifcre_get_comp_ids(int *arr)
+{
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.getSelectedCompIds(arr);
+}
+
+
 void ifcre_set_comp_ids(const int val)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();

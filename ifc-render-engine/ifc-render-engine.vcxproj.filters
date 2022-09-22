@@ -24,6 +24,7 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
     <ClCompile Include="src\ifcre\collider.cpp" />
     <ClCompile Include="src\ifcre\stb_image.cpp" />
+    <ClCompile Include="src\ifcre\grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -68,6 +69,7 @@
     <ClInclude Include="src\ifcre\Character.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
+    <ClInclude Include="src\ifcre\grid.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -124,6 +126,8 @@
     <None Include="..\workdir\shaders\clp_ui_plane.frag" />
     <None Include="..\workdir\shaders\skybox.vert" />
     <None Include="..\workdir\shaders\skybox.frag" />
+    <None Include="..\workdir\shaders\grid.frag" />
+    <None Include="..\workdir\shaders\grid.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

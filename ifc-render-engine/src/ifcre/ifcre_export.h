@@ -31,6 +31,8 @@ extern "C" {
 	__declspec(dllexport) void ifcre_run();
 
 	__declspec(dllexport) int ifcre_get_comp_id();
+	__declspec(dllexport) int ifcre_get_comp_ids_size();
+	__declspec(dllexport) void ifcre_get_comp_ids(int* arr);
 
 	__declspec(dllexport) void ifcre_set_comp_ids(int val);
 	__declspec(dllexport) void ifcre_set_sleep_time(int val);

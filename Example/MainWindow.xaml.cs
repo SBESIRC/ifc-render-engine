@@ -6,6 +6,7 @@ using OpenTK;
 using OpenTK.WinForms;
 using System;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace Example {
     /// <summary>
@@ -71,8 +72,13 @@ namespace Example {
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            var id = Example.ExampleScene.GetCurrentCompID();
-            System.Windows.Forms.MessageBox.Show(id.ToString());
+            List<int> list = Example.ExampleScene.GetCurrentCompIDs();
+            string ss = "";
+            foreach(int id2 in list)
+            {
+                ss += id2.ToString() + ", ";
+            }
+            System.Windows.Forms.MessageBox.Show(ss);
         }
 
 		private void Button_Click_2(object sender, RoutedEventArgs e)
