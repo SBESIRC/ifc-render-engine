@@ -138,8 +138,8 @@ namespace ifcsaver {
 			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
 		}
 		ret.verts = read_vector_from_binary<real_t>(is);
-		ret.vert_normals2 = read_vector_from_binary<real_t>(is); // ¶ÁÈ¡·¨ÏòÁ¿
-		ret.face_mat = read_vector_from_binary<Material_new>(is); // ¶ÁÈ¡Ã¿¸öÃæÉÏµÄĞÅÏ¢//ret.componentDatas.clear();
+		ret.vert_normals2 = read_vector_from_binary<real_t>(is); // è¯»å–æ³•å‘é‡
+		ret.face_mat = read_vector_from_binary<Material_new>(is); // è¯»å–æ¯ä¸ªé¢ä¸Šçš„ä¿¡æ¯//ret.componentDatas.clear();
 		ret.componentDatas.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
 			ret.componentDatas[i] = read_datas4Component_from_binary(is);

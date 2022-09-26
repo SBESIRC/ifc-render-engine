@@ -22,19 +22,19 @@ namespace ifcre {
 		size_t m_buffer_size;
 	public:
 		GLUniformBuffer(size_t buffer_size): m_buffer_size(buffer_size) {
-			glGenBuffers(1, &m_uniform_id);										//´´½¨Ò»¸öUniform»º³å¶ÔÏóid
-			glBindBuffer(GL_UNIFORM_BUFFER, m_uniform_id);						//½«id°ó¶¨µ½GL_UNIFORM_BUFFERÄ¿±ê
-			glBufferData(GL_UNIFORM_BUFFER, buffer_size, NULL, GL_STATIC_DRAW);	//·ÖÅäÄÚ´æ
+			glGenBuffers(1, &m_uniform_id);										//åˆ›å»ºä¸€ä¸ªUniformç¼“å†²å¯¹è±¡id
+			glBindBuffer(GL_UNIFORM_BUFFER, m_uniform_id);						//å°†idç»‘å®šåˆ°GL_UNIFORM_BUFFERç›®æ ‡
+			glBufferData(GL_UNIFORM_BUFFER, buffer_size, NULL, GL_STATIC_DRAW);	//åˆ†é…å†…å­˜
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}
 
-		void bindRange(int index, int offset = 0) { // ½« m_uniform_id Á´½Óµ½ index °ó¶¨µã
+		void bindRange(int index, int offset = 0) { // å°† m_uniform_id é“¾æ¥åˆ° index ç»‘å®šç‚¹
 			glBindBufferRange(GL_UNIFORM_BUFFER, index, m_uniform_id, offset, m_buffer_size);
 		}
 
 		void update(size_t offset, size_t byte_size, const void* data) {
 			glBindBuffer(GL_UNIFORM_BUFFER, m_uniform_id);
-			//¸üĞÂuboÄÚ´æ // Ìî³ä»º³å
+			//æ›´æ–°uboå†…å­˜ // å¡«å……ç¼“å†²
 			glBufferSubData(GL_UNIFORM_BUFFER, offset, byte_size, data);
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 		}

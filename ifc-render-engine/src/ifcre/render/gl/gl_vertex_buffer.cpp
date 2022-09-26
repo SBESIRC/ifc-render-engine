@@ -95,8 +95,8 @@ namespace ifcre {
 		glBindVertexArray(m_vaoid);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo_id);
 		glDrawElements(GL_TRIANGLES, m_size_list[ebo_id - ebo_id_trip], GL_UNSIGNED_INT, 0);
-		//ÕâÀï-ebo_id_tripÊÇÒòÎªÔÚgenBuffer m_ebo_listÇ°£¬ÒÑ¾­µ÷ÓÃÁËebo_id_trip-1´ÎgenBuffer£¬µ¼ÖÂm_ebo_list[0]=ebo_id_trip£¬ËùÒÔÒª-ebo_id_trip
-		//ºóĞø½«¸ÄÎªÄ³¸ö²ÎÊı
+		//è¿™é‡Œ-ebo_id_tripæ˜¯å› ä¸ºåœ¨genBuffer m_ebo_listå‰ï¼Œå·²ç»è°ƒç”¨äº†ebo_id_trip-1æ¬¡genBufferï¼Œå¯¼è‡´m_ebo_list[0]=ebo_id_tripï¼Œæ‰€ä»¥è¦-ebo_id_trip
+		//åç»­å°†æ”¹ä¸ºæŸä¸ªå‚æ•°
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 	}

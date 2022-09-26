@@ -56,10 +56,10 @@ namespace mesh_simplier {
     T fabs(T f);
 
     struct Face {
-        glm::vec3 normal; // ÃæµÄ·¨ÏòÁ¿
-        vector<uint32_t> index; // ÃæÉÏ¶ÔÓ¦µÄµãµÄË÷Òı
+        glm::vec3 normal; // é¢çš„æ³•å‘é‡
+        vector<uint32_t> index; // é¢ä¸Šå¯¹åº”çš„ç‚¹çš„ç´¢å¼•
 #ifdef PAIRREP
-        vector<pair< uint32_t, uint32_t>> indexpair; // Èı½ÇÃæ±ßµÄ¶¥µã¶Ô
+        vector<pair< uint32_t, uint32_t>> indexpair; // ä¸‰è§’é¢è¾¹çš„é¡¶ç‚¹å¯¹
 #endif // PAIRREP
         Face() = default;
         void show_off_face();

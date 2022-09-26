@@ -4,7 +4,7 @@
 #define FAKER
 namespace mesh_simplier {
 
-    vector<Vertex> vertices; // 6¸öÒ»×é ¼ÇÂ¼¶¥µã Î»ÖÃ ºÍ ·¨ÏòÁ¿
+    vector<Vertex> vertices; // 6ä¸ªä¸€ç»„ è®°å½•é¡¶ç‚¹ ä½ç½® å’Œ æ³•å‘é‡
     vector<int> same_vertex_map;
 
     T dot(glm::vec3 a, glm::vec3 b) {
@@ -65,23 +65,23 @@ namespace mesh_simplier {
         }
     }
 
-    void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) { // Ò»¡¢´æ´¢¶¥µãµÄÎ»ÖÃºÍ·¨ÏòÁ¿
+    void build_ms_vertices(const vector<T>&g_vertices, const vector<T>&g_normals) { // ä¸€ã€å­˜å‚¨é¡¶ç‚¹çš„ä½ç½®å’Œæ³•å‘é‡
         assert(g_vertices.size() == g_normals.size());
         vector<Vertex>().swap(vertices);
         int s = g_vertices.size(); 
-        vertices.resize(g_vertices.size() / 3);// ¶¥µãÊıÁ¿
-        for (int i = 0; i < s / 3; i++) { // ¶¥µãÊıÁ¿
-            vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]), // ´æÈëµãµÄÎ»ÖÃ
-                glm::normalize(glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]))); // ´æÈëµãµÄ·¨ÏòÁ¿
+        vertices.resize(g_vertices.size() / 3);// é¡¶ç‚¹æ•°é‡
+        for (int i = 0; i < s / 3; i++) { // é¡¶ç‚¹æ•°é‡
+            vertices[i] = Vertex(glm::vec3(g_vertices[3 * i], g_vertices[3 * i + 1], g_vertices[3 * i + 2]), // å­˜å…¥ç‚¹çš„ä½ç½®
+                glm::normalize(glm::vec3(g_normals[3 * i], g_normals[3 * i + 1], g_normals[3 * i + 2]))); // å­˜å…¥ç‚¹çš„æ³•å‘é‡
         }
-        vector<int>().swap(same_vertex_map); // ±ØĞë // Çå¿ÕÊı¾İ
+        vector<int>().swap(same_vertex_map); // å¿…é¡» // æ¸…ç©ºæ•°æ®
         same_vertex_map.resize(vertices.size(), -1);
 #ifdef coutlog
         cout << "vertices built, its size:" << vertices.size() << "\n";
 #endif
     }
 
-    void merge_save_vertex() { // ºÏ²¢ÏàÍ¬µÄµã
+    void merge_save_vertex() { // åˆå¹¶ç›¸åŒçš„ç‚¹
         int s = vertices.size();
         //same_vertex_map.clear();
         same_vertex_map.resize(s, -1);
@@ -339,11 +339,11 @@ namespace mesh_simplier {
         vector<pair< uint32_t, uint32_t>> ret;
         uint32_t ait = 0;
         uint32_t bit = 0;
-        for (; ait < asize; ait++) { //ÃæaÃ¿Ò»Ìõ±ß
+        for (; ait < asize; ait++) { //é¢aæ¯ä¸€æ¡è¾¹
             if (same_pair_map_a.find(ait) == same_pair_map_a.end())
                 ret.emplace_back(a.indexpair[ait]);
         }
-        for (; bit < bsize; bit++) { //ÃæbÃ¿Ò»Ìõ±ß
+        for (; bit < bsize; bit++) { //é¢bæ¯ä¸€æ¡è¾¹
             if (same_pair_map_b.find(bit) == same_pair_map_b.end())
                 ret.emplace_back(b.indexpair[bit]);
         }
@@ -351,12 +351,12 @@ namespace mesh_simplier {
     }
 #endif
 
-    void update_new_index_list(Face & a, Face & b) { // Ìî³äsame_vertex_map£º½«Ãæb¿ÉÄÜÏàÍ¬µÄµãÓÃÃæa´úÌæ
+    void update_new_index_list(Face & a, Face & b) { // å¡«å……same_vertex_mapï¼šå°†é¢bå¯èƒ½ç›¸åŒçš„ç‚¹ç”¨é¢aä»£æ›¿
         int asize = a.indexpair.size();
         int bsize = b.indexpair.size();
         //unordered_map<uint32_t, uint32_t> copymap;
-        for (int i = 0; i < asize; i++) { // ±éÀúÃæaÃ¿Ò»Ìõ±ßi
-            for (int j = 0; j < bsize; j++) { // ±éÀúÃæbÃ¿Ò»Ìõ±ßj
+        for (int i = 0; i < asize; i++) { // éå†é¢aæ¯ä¸€æ¡è¾¹i
+            for (int j = 0; j < bsize; j++) { // éå†é¢bæ¯ä¸€æ¡è¾¹j
                 if (a.indexpair[i].first == b.indexpair[j].first)
                     continue;
                 if (isSameVertex(vertices[a.indexpair[i].first], vertices[b.indexpair[j].first])) {
@@ -601,22 +601,22 @@ namespace mesh_simplier {
         vector<int> vis(faces.size(), -1);
         //vis[k]=-1 means faces[k] is not merged into other face
 
-        for (int i = 0; i < faces.size() - 1; i++) { // ¶ÔÓÚ¹¹¼şÖĞµÄÄ³¸öÈı½ÇÃæÆ¬i
+        for (int i = 0; i < faces.size() - 1; i++) { // å¯¹äºæ„ä»¶ä¸­çš„æŸä¸ªä¸‰è§’é¢ç‰‡i
             if (/*vis[i] != -1 ||*/ faces[i].index.size() < 1) //if this mesh has only one face, pass
                 continue;
-            for (int j = i + 1; j < faces.size(); j++) { // ¶ÔÓÚ¹¹¼şÖĞµÄÁíÒ»¸öÈı½ÇÃæÆ¬j
+            for (int j = i + 1; j < faces.size(); j++) { // å¯¹äºæ„ä»¶ä¸­çš„å¦ä¸€ä¸ªä¸‰è§’é¢ç‰‡j
                 if (vis[j] != -1 || faces[j].index.size() < 1)
                     //face_j has been merged, so just pass
                     continue;
                 //double xx = dot(faces[i].normal, faces[j].normal); // may be should use this but epsilon 0.1
                 //if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
-                //    continue; // Ö»¶Ô·¨ÏòÁ¿ÏàÍ¬µÄ½øĞĞ´¦Àí
+                //    continue; // åªå¯¹æ³•å‘é‡ç›¸åŒçš„è¿›è¡Œå¤„ç†
                 //}
                 //if (dot(faces[i].normal, faces[j].normal) < 1.f - global_nor_epsilon) {
                 /*if (dot(faces[i].normal, faces[j].normal) < 0.1f) {
                     continue;
                 }*/
-                if (vis[i] != -1) { // i ÃæÒÑ¾­´¦Àí¹ıÁË
+                if (vis[i] != -1) { // i é¢å·²ç»å¤„ç†è¿‡äº†
                     //face_i has been merged before
                     vis[j] = vis[i];
 #ifdef coutlog
@@ -636,7 +636,7 @@ namespace mesh_simplier {
             }
         }
         // find all !vis face, and get the edges
-        for (int i = 0; i < faces.size(); i++) { // ¶ÔÃ¿Ò»¸öÃæ
+        for (int i = 0; i < faces.size(); i++) { // å¯¹æ¯ä¸€ä¸ªé¢
             if (vis[i] == -1)
             {
                 for (int j = 0; j < faces[i].index.size() - 1; j++) {
@@ -664,18 +664,18 @@ namespace mesh_simplier {
         //     cout<<v<<" ";
         // }
     }
-    vector<Face> generateFace(const vector<uint32_t>&indices) { // Ä³¸ö¹¹¼şÖĞËùÓĞµÄ¶¥µã
+    vector<Face> generateFace(const vector<uint32_t>&indices) { // æŸä¸ªæ„ä»¶ä¸­æ‰€æœ‰çš„é¡¶ç‚¹
         vector<Face> ret;
-        int s_end = indices.size() / 3; // ¶¥µãÊı ³ıÒÔ 3 == Èı½ÇÃæÊıÁ¿
+        int s_end = indices.size() / 3; // é¡¶ç‚¹æ•° é™¤ä»¥ 3 == ä¸‰è§’é¢æ•°é‡
 #ifdef coutlog
         cout << "s_end2:" << s_end << "\n";
 #endif
         ret.resize(s_end);
         for (int i = 0; i < s_end; i++) {
-            ret[i].normal = vertices[indices[i * 3]].normal; // ¼ÇÂ¼Èı½ÇÃæµÄ·¨ÏòÁ¿
-            ret[i].index = { indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] }; // Èı½ÇÃæÉÏµÄÈı¸öµãµÄË÷Òı
+            ret[i].normal = vertices[indices[i * 3]].normal; // è®°å½•ä¸‰è§’é¢çš„æ³•å‘é‡
+            ret[i].index = { indices[i * 3], indices[i * 3 + 1], indices[i * 3 + 2] }; // ä¸‰è§’é¢ä¸Šçš„ä¸‰ä¸ªç‚¹çš„ç´¢å¼•
 #ifdef PAIRREP
-            ret[i].indexpair = { // Ä¿Ç°»¹ÊÇÈı½ÇÃæ£¬ÃæÉÏ¶¼ÓĞ3¸ùÆğÊ¼µã¹¹³ÉµÄ±ß
+            ret[i].indexpair = { // ç›®å‰è¿˜æ˜¯ä¸‰è§’é¢ï¼Œé¢ä¸Šéƒ½æœ‰3æ ¹èµ·å§‹ç‚¹æ„æˆçš„è¾¹
                 {indices[i * 3], indices[i * 3 + 1]},
                 {indices[i * 3 + 1], indices[i * 3 + 2]},
                 {indices[i * 3 + 2], indices[i * 3]}
@@ -705,18 +705,18 @@ namespace mesh_simplier {
         thread_task(n + threadnum_t, end, threadnum_t, ret);
     }
 
-    vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) { // ¶ş¡¢
+    vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) { // äºŒã€
         vector<Mesh> ret;
-        int s_end = c_indices.size(); // »ñÈ¡¹¹¼şÊıÁ¿
+        int s_end = c_indices.size(); // è·å–æ„ä»¶æ•°é‡
         ret.resize(s_end);
         cout << "ret size:" << s_end << endl;
         vector<thread> threads;
 #ifdef ustrd
-        int threadnum_t = thread::hardware_concurrency(); // »ñÈ¡²¢·¢Ïß³ÌÊı
+        int threadnum_t = thread::hardware_concurrency(); // è·å–å¹¶å‘çº¿ç¨‹æ•°
         cout << "Spawning " << threadnum_t << " threads.\n";
         clock_t start, end;
         start = clock();
-        for (int i = 0; i < s_end; i++) { // ¶ÔÃ¿Ò»¸ö¹¹¼ş·Ö±ğ½øĞĞ²Ù×÷
+        for (int i = 0; i < s_end; i++) { // å¯¹æ¯ä¸€ä¸ªæ„ä»¶åˆ†åˆ«è¿›è¡Œæ“ä½œ
             ret[i] = Mesh(generateFace(c_indices[i]));
             //ret[i].map_save_vertex();
         }

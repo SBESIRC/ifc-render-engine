@@ -337,10 +337,10 @@ namespace ifcre {
 			"}\r\n";
 		static const char* f_gizmo = "#version 430\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
-			"in vec2 TexCoord; // ´«ÈëÎÆÀí×ø±ê\r\n"
-			"uniform sampler2D ourTexture; // °ÑÒ»¸öÎÆÀíÌí¼Óµ½Æ¬¶Î×ÅÉ«Æ÷ÖĞ\r\n"
+			"in vec2 TexCoord; // ä¼ å…¥çº¹ç†åæ ‡\r\n"
+			"uniform sampler2D ourTexture; // æŠŠä¸€ä¸ªçº¹ç†æ·»åŠ åˆ°ç‰‡æ®µç€è‰²å™¨ä¸­\r\n"
 			"void main(){\r\n"
-			"FragColor = texture(ourTexture,TexCoord); // ²ÉÑùÎÆÀíµÄÑÕÉ«(ÎÆÀí²ÉÑùÆ÷,¶ÔÓ¦µÄÎÆÀí×ø±ê)\r\n"
+			"FragColor = texture(ourTexture,TexCoord); // é‡‡æ ·çº¹ç†çš„é¢œè‰²(çº¹ç†é‡‡æ ·å™¨,å¯¹åº”çš„çº¹ç†åæ ‡)\r\n"
 			"}\r\n";
 
 		static const char* v_gizmo = "#version 430\r\n"
@@ -349,7 +349,7 @@ namespace ifcre {
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
 			"mat4 view_matrix;   // 0 ~ 64\r\n"
 			"} ubo;\r\n"
-			"out vec2 TexCoord; // ´«³öÎÆÀí×ø±ê\r\n"
+			"out vec2 TexCoord; // ä¼ å‡ºçº¹ç†åæ ‡\r\n"
 			"void main(){\r\n"
 			"TexCoord = uvs;\r\n"
 			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);\r\n"
@@ -576,7 +576,7 @@ namespace ifcre {
 			"vGoColor = aColor;\r\n"
 			"vec4 p = vec4(aPos, 1.0);\r\n"
 			"vec4 eyePos = ubo.model * p;\r\n"
-			"vFragPos = eyePos.xyz;// Æ¬¶ÎÎ»ÖÃ\r\n"
+			"vFragPos = eyePos.xyz;// ç‰‡æ®µä½ç½®\r\n"
 			"vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;\r\n"
 			"for(int i=0;i<6;i++){\r\n"
 			"vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;\r\n"

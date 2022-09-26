@@ -1,26 +1,26 @@
 #include "glsl_program.h"
 #include <iostream>
 namespace ifcre {
-	GLSLProgram::GLSLProgram(const char* vertexCode, const char* fragmentCode) // ±àÒë×ÅÉ«Æ÷
+	GLSLProgram::GLSLProgram(const char* vertexCode, const char* fragmentCode) // ç¼–è¯‘ç€è‰²å™¨
 	{
         uint32_t vertex, fragment;
-        // vertex shader ¶¥µã×ÅÉ«Æ÷
+        // vertex shader é¡¶ç‚¹ç€è‰²å™¨
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vertexCode, NULL);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
-        // fragment Shader Æ¬¶Î×ÅÉ«Æ÷
+        // fragment Shader ç‰‡æ®µç€è‰²å™¨
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fragmentCode, NULL);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
-        // shader Program ×ÅÉ«Æ÷³ÌĞò
+        // shader Program ç€è‰²å™¨ç¨‹åº
         id = glCreateProgram();
         glAttachShader(id, vertex);
         glAttachShader(id, fragment);
-        glLinkProgram(id); // Á´½Ó
+        glLinkProgram(id); // é“¾æ¥
         checkCompileErrors(id, "PROGRAM");
-        // delete the shaders as they're linked into our program now and no longer necessery// É¾³ı×ÅÉ«Æ÷£¬ËüÃÇÒÑ¾­Á´½Óµ½ÎÒÃÇµÄ³ÌĞòÖĞÁË£¬ÒÑ¾­²»ÔÙĞèÒªÁË
+        // delete the shaders as they're linked into our program now and no longer necessery// åˆ é™¤ç€è‰²å™¨ï¼Œå®ƒä»¬å·²ç»é“¾æ¥åˆ°æˆ‘ä»¬çš„ç¨‹åºä¸­äº†ï¼Œå·²ç»ä¸å†éœ€è¦äº†
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 	}
@@ -50,15 +50,15 @@ namespace ifcre {
     }
     void GLSLProgram::bindUniformBlock(const std::string& name, int index) const
     {
-        glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);//1¡¢Uniform¿éË÷Òı(Uniform Block Index)ÊÇ×ÅÉ«Æ÷ÖĞÒÑ¶¨ÒåUniform¿éµÄÎ»ÖÃÖµË÷Òı, Í¨¹ıglGetUniformBlockIndexÕÒµ½//2¡¢ÔÙÓÃglUniformBlockBinding½«Uniform¿é°ó¶¨µ½Ò»¸öÌØ¶¨µÄ°ó¶¨µãindexÖĞ
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, name.c_str()), index);//1ã€Uniformå—ç´¢å¼•(Uniform Block Index)æ˜¯ç€è‰²å™¨ä¸­å·²å®šä¹‰Uniformå—çš„ä½ç½®å€¼ç´¢å¼•, é€šè¿‡glGetUniformBlockIndexæ‰¾åˆ°//2ã€å†ç”¨glUniformBlockBindingå°†Uniformå—ç»‘å®šåˆ°ä¸€ä¸ªç‰¹å®šçš„ç»‘å®šç‚¹indexä¸­
     }
     void GLSLProgram::use() const
     {
-        glUseProgram(id); // ÓÃ¸Õ´´½¨µÄ³ÌĞò¶ÔÏó×÷ÎªËüµÄ²ÎÊı£¬ÒÔ¼¤»îÕâ¸ö³ÌĞò¶ÔÏó
+        glUseProgram(id); // ç”¨åˆšåˆ›å»ºçš„ç¨‹åºå¯¹è±¡ä½œä¸ºå®ƒçš„å‚æ•°ï¼Œä»¥æ¿€æ´»è¿™ä¸ªç¨‹åºå¯¹è±¡
     }
 
 // private:
-    void GLSLProgram::checkCompileErrors(GLuint shader, String type) // ¼ì²églsl±àÒëÊÇ·ñ³ö´í
+    void GLSLProgram::checkCompileErrors(GLuint shader, String type) // æ£€æŸ¥glslç¼–è¯‘æ˜¯å¦å‡ºé”™
     {
         GLint success;
         GLchar infoLog[1024];
