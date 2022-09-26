@@ -62,8 +62,8 @@ namespace ifcre {
 			if (FT_New_Face(ft, fontfilepath.c_str(), 0, &face))
 				std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 			// Set size to load glyphs as
-			FT_Set_Pixel_Sizes(face, 0, 48); // ÉèÖÃ×ÖÌå´óĞ¡
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ½ûÓÃ×Ö½Ú¶ÔÆëÏŞÖÆ
+			FT_Set_Pixel_Sizes(face, 0, 48); // è®¾ç½®å­—ä½“å¤§å°
+			glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // ç¦ç”¨å­—èŠ‚å¯¹é½é™åˆ¶
 
 			map_ascii_text();
 
@@ -83,11 +83,11 @@ namespace ifcre {
 		}
 		void map_ascii_text() {
 			for (GLubyte c = 0; c < 128; c++) {
-				if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {  // ¼ÓÔØ×Ö·ûµÄ×ÖĞÎ
+				if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {  // åŠ è½½å­—ç¬¦çš„å­—å½¢
 					std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
 					continue;
 				}
-				// Generate texture // Éú³ÉÎÆÀí
+				// Generate texture // ç”Ÿæˆçº¹ç†
 				GLuint texture;
 				glGenTextures(1, &texture);
 				glBindTexture(GL_TEXTURE_2D, texture);
@@ -102,12 +102,12 @@ namespace ifcre {
 					GL_UNSIGNED_BYTE,
 					face->glyph->bitmap.buffer
 				);
-				// Set texture options // ÉèÖÃÎÆÀíÑ¡Ïî
+				// Set texture options // è®¾ç½®çº¹ç†é€‰é¡¹
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				// ´æ´¢×Ö·û¹©Ö®ºóÊ¹ÓÃ
+				// å­˜å‚¨å­—ç¬¦ä¾›ä¹‹åä½¿ç”¨
 				Character character = {
 					texture,
 					glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
@@ -117,7 +117,7 @@ namespace ifcre {
 				Characters.insert(std::pair<Char, Character>(c, character));
 			}
 			glBindTexture(GL_TEXTURE_2D, 0);
-			FT_Done_Face(face); // ÇåÀíFreeTypeµÄ×ÊÔ´
+			FT_Done_Face(face); // æ¸…ç†FreeTypeçš„èµ„æº
 			FT_Done_FreeType(ft);
 		}
 
@@ -171,10 +171,10 @@ namespace ifcre {
 			offsetY = 0;
 		}
 
-		bool generated() { // ÊÇ·ñÒÑ¾­Éú³É
+		bool generated() { // æ˜¯å¦å·²ç»ç”Ÿæˆ
 			return x0 == 0 && y0 == 0 && x1 == 0 && y1 == 0;
 		}
-		// ´æ´¢µ±Ç°×Ö·ûÔÚÎÆÀíÉÏµÄ×ø±êÎ»ÖÃ
+		// å­˜å‚¨å½“å‰å­—ç¬¦åœ¨çº¹ç†ä¸Šçš„åæ ‡ä½ç½®
 		uint32_t x0 : 10;
 		uint32_t y0 : 10;
 		uint32_t x1 : 10;
@@ -191,7 +191,7 @@ namespace ifcre {
 	};
 	struct TextureFont {
 	protected:
-		Character2 _character[1 << 16]; // Ò»¸öºº×ÖÁ½×Ö½Ú,×ÜÔ¼65536×Ö
+		Character2 _character[1 << 16]; // ä¸€ä¸ªæ±‰å­—ä¸¤å­—èŠ‚,æ€»çº¦65536å­—
 		FT_Library _library;
 		FT_Face _face;
 		unsigned _textureId;
@@ -210,7 +210,7 @@ namespace ifcre {
 
 		//void init_bmp() {
 		//	BMP_BUFFER one_bmp_BUFFER;
-		//	//³õÊ¼»¯buffer_k
+		//	//åˆå§‹åŒ–buffer_k
 		//	one_bmp_BUFFER.mbfType = 0X4d42;
 		//	one_bmp_BUFFER.hand.bfOffBits = 54;
 		//	one_bmp_BUFFER.hand.bfReserved1 = 0;
@@ -229,7 +229,7 @@ namespace ifcre {
 		//	one_bmp_BUFFER.info.biXPelsPerMeter = 0;
 		//	one_bmp_BUFFER.info.biYPelsPerMeter = 0;
 
-		//	//È«²¿Ê¹ÓÃ°×É«ÇøÓò
+		//	//å…¨éƒ¨ä½¿ç”¨ç™½è‰²åŒºåŸŸ
 		//	int x = 0;
 		//	int y = 0;
 		//	for (x = 0; x < 1032; x++)
@@ -241,12 +241,12 @@ namespace ifcre {
 		//			one_bmp_BUFFER.BUFFER[x * 672 + y].green = 255;
 		//		}
 		//	}
-		//	wchar_t wszString[] = L"ÈÈËÀÁË";
+		//	wchar_t wszString[] = L"çƒ­æ­»äº†";
 		//	WORD word;
 
 
-		//	int bitmap_width_sum = -672;//×ÖÌåÔÚÍ¼ÏñÉÏXÖáÆğÊ¼Î»ÖÃ
-		//	int bitmap_high_sum = 50;//×ÖÌåÔÚÍ¼ÏñÉÏYÖáÆğÊ¼Î»ÖÃ
+		//	int bitmap_width_sum = -672;//å­—ä½“åœ¨å›¾åƒä¸ŠXè½´èµ·å§‹ä½ç½®
+		//	int bitmap_high_sum = 50;//å­—ä½“åœ¨å›¾åƒä¸ŠYè½´èµ·å§‹ä½ç½®
 		//	int wszStringLen = wcslen(wszString);
 		//	printf("wszStringLen: %d\n", wszStringLen);
 		//	int k = 0;
@@ -254,7 +254,7 @@ namespace ifcre {
 		//	for (k = 0; k < wszStringLen; k++)
 		//	{
 		//		memcpy(&word, wszString + k, 2);
-		//		//×ª»¯³ÉÎ»Í¼
+		//		//è½¬åŒ–æˆä½å›¾
 		//		FT_Load_Glyph(_face, FT_Get_Char_Index(_face, word), FT_LOAD_DEFAULT);
 
 		//		FT_Error error = 0;
@@ -262,7 +262,7 @@ namespace ifcre {
 		//		error = FT_Get_Glyph(_face->glyph, &glyph);
 		//		FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
 		//		FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
-		//		//È¡Î»Í¼Êı¾İ
+		//		//å–ä½å›¾æ•°æ®
 		//		FT_Bitmap* bitmap = &bitmap_glyph->bitmap;
 
 		//		int i = 0;
@@ -284,11 +284,11 @@ namespace ifcre {
 		//					//arrayColor[(strInfo.biHeight-i)*strInfo.biWidth+j+bitmap_width_sum].blue = 0;
 
 
-		//		   //ÎÄ×ÖÊúÌå
+		//		   //æ–‡å­—ç«–ä½“
 		//		   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].red=0;
 		//				   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].blue=0;
 		//				   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].green=0;
-		//			//ÎÄ×ÖºáÌå
+		//			//æ–‡å­—æ¨ªä½“
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].red = 0;
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].blue = 0;
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].green = 0;
@@ -296,11 +296,11 @@ namespace ifcre {
 		//				}
 		//				/*else
 		//				{
-		//					//ÎÄ×ÖÊúÌå
+		//					//æ–‡å­—ç«–ä½“
 		//					 // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].red=255;
 		//							  //one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].blue=255;
 		//							 // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].green=255;
-		//					  //ÎÄ×ÖºáÌå
+		//					  //æ–‡å­—æ¨ªä½“
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].red = 255;
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].blue = 255;
 		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].green = 255;
@@ -335,31 +335,31 @@ namespace ifcre {
 
 			memset(_character, 0, sizeof(_character));
 			memset(vert, 0, sizeof(vert));
-			FT_Init_FreeType(&_library); // ³õÊ¼»¯×ÖÌå¿â
+			FT_Init_FreeType(&_library); // åˆå§‹åŒ–å­—ä½“åº“
 			assert(_library != 0);
 
-			FT_New_Face(_library, fontfilepath.c_str(), 0, &_face); // ¼ÓÔØ×ÖÌå
-			FT_Set_Char_Size(_face, fontSize << 6, fontSize << 6, 72, 72); // ÉèÖÃ×ÖÌå´óĞ¡
+			FT_New_Face(_library, fontfilepath.c_str(), 0, &_face); // åŠ è½½å­—ä½“
+			FT_Set_Char_Size(_face, fontSize << 6, fontSize << 6, 72, 72); // è®¾ç½®å­—ä½“å¤§å°
 			//FT_Set_Pixel_Sizes(_face, 0, 48);
 
 			assert(_face != 0);
 
 			glGenTextures(1, &_textureId);
-			glBindTexture(GL_TEXTURE_2D, _textureId); // Ê¹ÓÃÕâ¸öÎÆÀíid,»òÕß½Ğ°ó¶¨(¹ØÁª)
+			glBindTexture(GL_TEXTURE_2D, _textureId); // ä½¿ç”¨è¿™ä¸ªçº¹ç†id,æˆ–è€…å«ç»‘å®š(å…³è”)
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// Ö¸¶¨ÎÆÀíµÄ·Å´ó,ËõĞ¡ÂË²¨£¬Ê¹ÓÃÏßĞÔ·½Ê½£¬¼´µ±Í¼Æ¬·Å´óµÄÊ±ºò²åÖµ·½Ê½ 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// æŒ‡å®šçº¹ç†çš„æ”¾å¤§,ç¼©å°æ»¤æ³¢ï¼Œä½¿ç”¨çº¿æ€§æ–¹å¼ï¼Œå³å½“å›¾ç‰‡æ”¾å¤§çš„æ—¶å€™æ’å€¼æ–¹å¼ 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 			glTexImage2D(
-				GL_TEXTURE_2D,				//! Ö¸¶¨ÊÇ¶şÎ¬Í¼Æ¬
-				0,							//! Ö¸¶¨ÎªµÚÒ»¼¶±ğ£¬ÎÆÀí¿ÉÒÔ×ömipmap,¼´lod,Àë½üµÄ¾Í²ÉÓÃ¼¶±ğ´óµÄ£¬Ô¶ÔòÊ¹ÓÃ½ÏĞ¡µÄÎÆÀí
-				GL_RED,						//! ÎÆÀíµÄÊ¹ÓÃµÄ´æ´¢¸ñÊ½
-				1024, 1024,					//! ÎÆÀí¿í¸ß£¬¿ÉÈİÄÉ´óÔ¼ 1024/16 * 1024/16 = 4096¸öºº×Ö
-				0,							//! ÊÇ·ñµÄ±ß
-				GL_RED,					 	//! Êı¾İµÄ¸ñÊ½£¬bmpÖĞ£¬windows,²Ù×÷ÏµÍ³ÖĞ´æ´¢µÄÊı¾İÊÇbgr¸ñÊ½
-				GL_UNSIGNED_BYTE, 0		 	//! Êı¾İÊÇ8bitÊı¾İ
+				GL_TEXTURE_2D,				//! æŒ‡å®šæ˜¯äºŒç»´å›¾ç‰‡
+				0,							//! æŒ‡å®šä¸ºç¬¬ä¸€çº§åˆ«ï¼Œçº¹ç†å¯ä»¥åšmipmap,å³lod,ç¦»è¿‘çš„å°±é‡‡ç”¨çº§åˆ«å¤§çš„ï¼Œè¿œåˆ™ä½¿ç”¨è¾ƒå°çš„çº¹ç†
+				GL_RED,						//! çº¹ç†çš„ä½¿ç”¨çš„å­˜å‚¨æ ¼å¼
+				1024, 1024,					//! çº¹ç†å®½é«˜ï¼Œå¯å®¹çº³å¤§çº¦ 1024/16 * 1024/16 = 4096ä¸ªæ±‰å­—
+				0,							//! æ˜¯å¦çš„è¾¹
+				GL_RED,					 	//! æ•°æ®çš„æ ¼å¼ï¼Œbmpä¸­ï¼Œwindows,æ“ä½œç³»ç»Ÿä¸­å­˜å‚¨çš„æ•°æ®æ˜¯bgræ ¼å¼
+				GL_UNSIGNED_BYTE, 0		 	//! æ•°æ®æ˜¯8bitæ•°æ®
 			);							 
 
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -367,13 +367,13 @@ namespace ifcre {
 
 		Character2* getCharacter(wchar_t ch) {
 			wchar_t& word = ch;
-			if (_character[word].generated()) { // ËµÃ÷×Ö·û»¹Ã»ÓĞ»æÖÆµ½ÎÆÀíÉÏ£¬Ôò½øĞĞ»æÖÆ
-				if (_xStart + _fontSize > 1024) { // Ğ´ÂúÒ»ĞĞ,ÖØĞÂ¿ªÊ¼
+			if (_character[word].generated()) { // è¯´æ˜å­—ç¬¦è¿˜æ²¡æœ‰ç»˜åˆ¶åˆ°çº¹ç†ä¸Šï¼Œåˆ™è¿›è¡Œç»˜åˆ¶
+				if (_xStart + _fontSize > 1024) { // å†™æ»¡ä¸€è¡Œ,é‡æ–°å¼€å§‹
 					//this line filled, enter next line
 					_xStart = 0;
-					_yStart += _fontSize; // y¿ªÊ¼Î»ÖÃÒªÔö¼Ó
+					_yStart += _fontSize; // yå¼€å§‹ä½ç½®è¦å¢åŠ 
 				}
-				FT_Load_Glyph(_face, FT_Get_Char_Index(_face, word), FT_LOAD_DEFAULT); // »ñÈ¡×ÖÌåµÄĞÅÏ¢
+				FT_Load_Glyph(_face, FT_Get_Char_Index(_face, word), FT_LOAD_DEFAULT); // è·å–å­—ä½“çš„ä¿¡æ¯
 				FT_Error error = 0;
 				FT_Glyph glyph;
 				error = FT_Get_Glyph(_face->glyph, &glyph);
@@ -387,7 +387,7 @@ namespace ifcre {
 				}*/
 
 
-				//Èç¹ûÃ»ÓĞÊı¾İ£¬Ôò²»Ğ´£¬Ö±½Ó¹ıÈ¥
+				//å¦‚æœæ²¡æœ‰æ•°æ®ï¼Œåˆ™ä¸å†™ï¼Œç›´æ¥è¿‡å»
 				if (_face->glyph->bitmap.width == 0 || _face->glyph->bitmap.rows == 0) {
 					//no data of this character
 					_xStart += _fontSize / 2;
@@ -412,7 +412,7 @@ namespace ifcre {
 					_character[word].offsetX = bitmap_glyph->left;
 
 					glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-					glTexSubImage2D( // ½«bmpÊı¾İĞ´µ½ÎÆÀíÉÏ
+					glTexSubImage2D( // å°†bmpæ•°æ®å†™åˆ°çº¹ç†ä¸Š
 						GL_TEXTURE_2D,
 						0,
 						_xStart,
@@ -435,7 +435,7 @@ namespace ifcre {
 			return &_character[word];
 		}
 
-		void drawText(const wchar_t* text) { //Éú³ÉÍø¸ñ£¬ÌùÉÏÎÆÀí»æÖÆÎÄ×Ö
+		void drawText(const wchar_t* text) { //ç”Ÿæˆç½‘æ ¼ï¼Œè´´ä¸Šçº¹ç†ç»˜åˆ¶æ–‡å­—
 			auto wstringtemp = std::wstring(text);
 			if (text_handle.find(wstringtemp) == text_handle.end()) {
 				unsigned vertsize = 0;
@@ -448,7 +448,7 @@ namespace ifcre {
 				//WORD word;
 				for (unsigned i = 0; i < nSize; i++) {
 					//memcpy(&word, text + i, 2);
-					Character2* ch = getCharacter(text[i]); // »ñµÃÎÆÀíÖĞ´æµÄ¡°×Ö¡±
+					Character2* ch = getCharacter(text[i]); // è·å¾—çº¹ç†ä¸­å­˜çš„â€œå­—â€
 
 					int h = ch->y1 - ch->y0;
 					//int h = 30;
@@ -526,7 +526,7 @@ namespace ifcre {
 			auto the_value = text_handle[wstringtemp];
 			auto [textVAO, textVBO] = the_value.vaovbo;
 
-			glEnable(GL_BLEND); // ÆôÓÃblend
+			glEnable(GL_BLEND); // å¯ç”¨blend
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			glActiveTexture(GL_TEXTURE0);

@@ -56,8 +56,8 @@ namespace ifcre {
 	{
 		auto& configs = m_cache_configs;
 
-		if (!m_init) { //³õ´Î´ò¿ª´°¿Ú
-			// »ñÈ¡configÊı¾İ
+		if (!m_init) { //åˆæ¬¡æ‰“å¼€çª—å£
+			// è·å–configæ•°æ®
 			width = atoi(configs["width"].c_str());
 			height = atoi(configs["height"].c_str());
 			// use_transparency = configs["use_transparency"] == "true";
@@ -66,7 +66,7 @@ namespace ifcre {
 				m_render_api = VULKAN_RENDER_API;
 			}
 
-			//glfw³õÊ¼»¯¡¢´´½¨´°¿Ú¡¢ÌáÊ¾¶àÖØ²ÉÑù¡¢¼à¿ØÓÃ»§ÊÂ¼ş¡¢´¹Ö±Í¬²½¡¢´´½¨Ö¡»º³å
+			//glfwåˆå§‹åŒ–ã€åˆ›å»ºçª—å£ã€æç¤ºå¤šé‡é‡‡æ ·ã€ç›‘æ§ç”¨æˆ·äº‹ä»¶ã€å‚ç›´åŒæ­¥ã€åˆ›å»ºå¸§ç¼“å†²
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
 				m_glrender = make_shared<GLRender>();
@@ -79,7 +79,7 @@ namespace ifcre {
 		}
 		m_render_window->setDefaultStatus();
 
-		// ¼ÓÔØÄ£ĞÍÊı¾İ
+		// åŠ è½½æ¨¡å‹æ•°æ®
 		try_ifc = configs["model_type"] == "ifc";
 
 		String model_file = configs["file"];
@@ -96,17 +96,17 @@ namespace ifcre {
 		}
 
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
-			//»ñµÃÕû¸öÄ£ĞÍµÄÄ£ĞÍ¾ØÕó¡¢ÒÔ¼°Ëõ·ÅÏµÊı
+			//è·å¾—æ•´ä¸ªæ¨¡å‹çš„æ¨¡å‹çŸ©é˜µã€ä»¥åŠç¼©æ”¾ç³»æ•°
 			glm::mat4 ifc_model_matrix;
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_model_matrix);
 			ifc_test_model->setScaleFactor(scale_factor);
 		}
-		else { // ¹Ì¶¨Ä£ĞÍ¾ØÕó£¨¹Û²ìÎ»ÖÃ£©
+		else { // å›ºå®šæ¨¡å‹çŸ©é˜µï¼ˆè§‚å¯Ÿä½ç½®ï¼‰
 			ifc_test_model->setModelMatrix(ifc_m_matrix);
 			ifc_test_model->setScaleFactor(scale_factor); // for remember axis
 		}
-		ifc_test_model->PrecomputingCubeDirection(); // ½«Ä£ĞÍÉèÖÃÎªglm::vec3(0.f, 0.f, 0.f)
+		ifc_test_model->PrecomputingCubeDirection(); // å°†æ¨¡å‹è®¾ç½®ä¸ºglm::vec3(0.f, 0.f, 0.f)
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
@@ -115,9 +115,9 @@ namespace ifcre {
 			//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
 			//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
 			//test_model->render_id = m_glrender->addModel(model_vb);
-			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // ¹Ì¶¨Ïà»úÊÓ½Ç·½Ïò
+			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // å›ºå®šç›¸æœºè§†è§’æ–¹å‘
 				m_camera = make_shared<GLCamera>(m_view_pos);
-				m_camera->PrecomputingCubeDireciton(m_view_pos); // ÎªÏà»úÔ¤Éè6¸öÎ»ÖÃ
+				m_camera->PrecomputingCubeDireciton(m_view_pos); // ä¸ºç›¸æœºé¢„è®¾6ä¸ªä½ç½®
 				m_render_window->setCamera(m_camera);
 			}
 
@@ -125,11 +125,11 @@ namespace ifcre {
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
 			if (try_ifc) {
-				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//ÉÏ´«Êı¾İvbo & ebo
-				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);						//Î»ÖÃ
-				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));		//·¨ÏòÁ¿
-				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));		//ÑÕÉ«
-				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));		//ËùÔÚÎï¼şµÄË÷Òı
+				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//ä¸Šä¼ æ•°æ®vbo & ebo
+				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);						//ä½ç½®
+				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));		//æ³•å‘é‡
+				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));		//é¢œè‰²
+				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));		//æ‰€åœ¨ç‰©ä»¶çš„ç´¢å¼•
 
 				if (use_transparency) {
 					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
@@ -216,8 +216,8 @@ namespace ifcre {
 		
 
 		if (cube_change_log) {
-			ifc_test_model->TranslateToCubeDirection(cube_num); // ÉèÖÃÄ£ĞÍÎ»ÖÃ
-			m_camera->RotateToCubeDirection(cube_num); // ÉèÖÃÏà»úÊı¾İ
+			ifc_test_model->TranslateToCubeDirection(cube_num); // è®¾ç½®æ¨¡å‹ä½ç½®
+			m_camera->RotateToCubeDirection(cube_num); // è®¾ç½®ç›¸æœºæ•°æ®
 			cube_change_log = false;
 		}
 		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
@@ -230,7 +230,7 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 		{
-			m_window.startRenderToWindow();  // ÇĞ»»µ½µ±Ç°frame buffer
+			m_window.startRenderToWindow();  // åˆ‡æ¢åˆ°å½“å‰frame buffer
 			glm::mat4 view = m_camera->getViewMatrix();
 			glm::vec3 camera_forwad = m_camera->getViewForward();
 			m_render.setViewMatrix(view);
@@ -246,7 +246,7 @@ namespace ifcre {
 
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // ¸ß¹âÏÔÊ¾Êó±êÂÓ¹ıµÄÎï¼ş
+			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // é«˜å…‰æ˜¾ç¤ºé¼ æ ‡æ è¿‡çš„ç‰©ä»¶
 			key = m_window.getClickCompId();
 			m_render.setCompId(key);//m_render.setCompId(m_window.getClickCompId());
 			m_render.setHoverCompId(m_window.getHoverCompId());
@@ -323,14 +323,14 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 
-			//2. render chosen scene, no transparency// äÖÈ¾Ñ¡ÖĞµÄ²»Í¸Ã÷¹¹¼ş
+			//2. render chosen scene, no transparency// æ¸²æŸ“é€‰ä¸­çš„ä¸é€æ˜æ„ä»¶
 			m_render.render(ifc_test_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
 
-			//3. render transparency scene// äÖÈ¾Í¸Ã÷µÄ¹¹¼ş
+			//3. render transparency scene// æ¸²æŸ“é€æ˜çš„æ„ä»¶
 			m_render.setAlpha(0.3);
 			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
-			//4. render chosen scene, transparency// äÖÈ¾Ñ¡ÖĞµÄÍ¸Ã÷¹¹¼ş
+			//4. render chosen scene, transparency// æ¸²æŸ“é€‰ä¸­çš„é€æ˜æ„ä»¶
 			m_render.render(ifc_test_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
 
 			//5. render edges (maybe
@@ -372,7 +372,7 @@ namespace ifcre {
 			m_window.endRenderToWindow();
 		}
 		// post render: render edge
-		m_render.postRender(m_window); // ºó´¦Àí£¬Çå¿Õ»º³å
+		m_render.postRender(m_window); // åå¤„ç†ï¼Œæ¸…ç©ºç¼“å†²
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 
@@ -414,7 +414,7 @@ namespace ifcre {
 				return;
 			}
 			to_show_states = stoi(m_cache_configs["to_show_states"]);
-			// to_show_states 0¡¢ÉèÖÃÏÔÊ¾Ò»Ğ©Îï¼ş£»1¡¢¸ßÁÁÑ¡ÖĞÒ»Ğ©Îï¼ş
+			// to_show_states 0ã€è®¾ç½®æ˜¾ç¤ºä¸€äº›ç‰©ä»¶ï¼›1ã€é«˜äº®é€‰ä¸­ä¸€äº›ç‰©ä»¶
 			if (to_show_states == 0) {
 				m_render_window->geom_changed = true;
 			}
@@ -432,7 +432,7 @@ namespace ifcre {
 			if (m_render_window == nullptr) {
 				return;
 			}
-			// to_show_states 0¡¢ÉèÖÃÏÔÊ¾Ò»Ğ©Îï¼ş£»1¡¢¸ßÁÁÑ¡ÖĞÒ»Ğ©Îï¼ş
+			// to_show_states 0ã€è®¾ç½®æ˜¾ç¤ºä¸€äº›ç‰©ä»¶ï¼›1ã€é«˜äº®é€‰ä¸­ä¸€äº›ç‰©ä»¶
 			m_render_window->geom_changed = true;
 			Vector<CompState>().swap(ifc_test_model->comp_states);
 			ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
@@ -473,7 +473,7 @@ namespace ifcre {
 				ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
 			}
 		}
-		Vector<Real> ret2(24); // Ò»¸öbbxÓĞ8¸ö¶¥µã£¬Ã¿¸ö¶¥µãÒª3¸öfloat´æ´¢Î»ÖÃ
+		Vector<Real> ret2(24); // ä¸€ä¸ªbbxæœ‰8ä¸ªé¡¶ç‚¹ï¼Œæ¯ä¸ªé¡¶ç‚¹è¦3ä¸ªfloatå­˜å‚¨ä½ç½®
 		for (int i = 0; i < 8; i++) {
 			ret2[i * 3] = i & 1 ? ret[3] : ret[0];
 			ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];

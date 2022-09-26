@@ -36,10 +36,10 @@ namespace ifcre {
 		// 1 for alpha(float), and 1 for ns(int)
 	};
 	struct MaterialData {
-		glm::vec3 kd;		// Âş·´Éärgb
-		glm::vec3 ks;		// ¸ß¹âÏîrgb(specular)
-		float alpha;		// Í¸Ã÷¶È
-		int ns;				// cosµÄÖ¸Êı(specularity)32/18
+		glm::vec3 kd;		// æ¼«åå°„rgb
+		glm::vec3 ks;		// é«˜å…‰é¡¹rgb(specular)
+		float alpha;		// é€æ˜åº¦
+		int ns;				// cosçš„æŒ‡æ•°(specularity)32/18
 		MaterialData() {}
 		MaterialData(glm::vec4 a, glm::vec4 b, float c, int d) :kd(a), ks(b), alpha(c), ns(d) {}
 	};
@@ -52,7 +52,7 @@ namespace ifcre {
 			Vector<CompState>().swap(comp_states);
 			comp_states.resize(c_indices.size(), VIS);
 			
-			size_t facs = datas.face_mat.size(); // »ñÈ¡ÃæµÄÊıÁ¿
+			size_t facs = datas.face_mat.size(); // è·å–é¢çš„æ•°é‡
 
 			material_data.resize(facs);
 			for (size_t i = 0; i < facs; i++) {
@@ -61,12 +61,12 @@ namespace ifcre {
 				material_data[i].ns = datas.face_mat[i].ns;
 				material_data[i].alpha = datas.face_mat[i].a;
 			}
-			getVerColor();					// Éú³É¶¥µãÑÕÉ«Êı×é
-			generateCompIds();				// Éú³É¶¥µãµ½Æä°üº¬Îï¼şµÄÓ³Éä
-			generate_bbxs_by_comps();		// Éú³É¸÷¸öÎï¼şµÄbbx
-			getVerAttrib();					// Éú³É¶¥µãÊôĞÔÊı×é
-			divide_model_by_alpha();		// ¸ù¾İÍ¸Ã÷¶È½«¶¥µã·ÖÎªÁ½×é
-			generate_edges_by_msMeshes();	// Éú³É±ß
+			getVerColor();					// ç”Ÿæˆé¡¶ç‚¹é¢œè‰²æ•°ç»„
+			generateCompIds();				// ç”Ÿæˆé¡¶ç‚¹åˆ°å…¶åŒ…å«ç‰©ä»¶çš„æ˜ å°„
+			generate_bbxs_by_comps();		// ç”Ÿæˆå„ä¸ªç‰©ä»¶çš„bbx
+			getVerAttrib();					// ç”Ÿæˆé¡¶ç‚¹å±æ€§æ•°ç»„
+			divide_model_by_alpha();		// æ ¹æ®é€æ˜åº¦å°†é¡¶ç‚¹åˆ†ä¸ºä¸¤ç»„
+			generate_edges_by_msMeshes();	// ç”Ÿæˆè¾¹
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -78,7 +78,7 @@ namespace ifcre {
 			Vector<CompState>().swap(comp_states);
 			comp_states.resize(c_indices.size(), VIS);
 
-			size_t faces = _face_mat.size() / 8;// »ñÈ¡ÃæµÄÊıÁ¿
+			size_t faces = _face_mat.size() / 8;// è·å–é¢çš„æ•°é‡
 			material_data.resize(faces);
 			for (size_t i = 0,j = 0 ; i < faces; ++i, j+=8) {
 				material_data[i].kd = glm::vec3(_face_mat[j], _face_mat[j+1], _face_mat[j+2]);
@@ -87,13 +87,13 @@ namespace ifcre {
 				material_data[i].ns = _face_mat[j+7];
 			}
 
-			getVerColor();					// Éú³É¶¥µãÑÕÉ«Êı×é
-			generateCompIds();				// Éú³É¶¥µãµ½Æä°üº¬Îï¼şµÄÓ³Éä
-			generate_bbxs_by_comps();		// Éú³É¸÷¸öÎï¼şµÄbbx
-			getVerAttrib();					// Éú³É¶¥µãÊôĞÔÊı×é
-			divide_model_by_alpha();		// ¸ù¾İÍ¸Ã÷¶È½«¶¥µã·ÖÎªÁ½×é
+			getVerColor();					// ç”Ÿæˆé¡¶ç‚¹é¢œè‰²æ•°ç»„
+			generateCompIds();				// ç”Ÿæˆé¡¶ç‚¹åˆ°å…¶åŒ…å«ç‰©ä»¶çš„æ˜ å°„
+			generate_bbxs_by_comps();		// ç”Ÿæˆå„ä¸ªç‰©ä»¶çš„bbx
+			getVerAttrib();					// ç”Ÿæˆé¡¶ç‚¹å±æ€§æ•°ç»„
+			divide_model_by_alpha();		// æ ¹æ®é€æ˜åº¦å°†é¡¶ç‚¹åˆ†ä¸ºä¸¤ç»„
 			if (edge_indices.size() > 0) {
-				generate_edges_by_msMeshes();	// Éú³É±ß
+				generate_edges_by_msMeshes();	// ç”Ÿæˆè¾¹
 			}
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
@@ -102,8 +102,8 @@ namespace ifcre {
 		Vector<uint32_t> generate_edges_by_msMeshes() {
 			Vector<Vector<uint32_t>>().swap(c_edge_indices);
 			Vector<uint32_t>().swap(edge_indices);
-			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // ´æ´¢¶¥µãµÄÎ»ÖÃºÍ·¨ÏòÁ¿
-			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // ¸ù¾İc_indices Éú³É¶ÔÓ¦µÄ ¹¹¼şµ½¶ÔÓ¦ÒªÏÔÊ¾µÄedgesµÄÓ³Éä
+			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // å­˜å‚¨é¡¶ç‚¹çš„ä½ç½®å’Œæ³•å‘é‡
+			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // æ ¹æ®c_indices ç”Ÿæˆå¯¹åº”çš„ æ„ä»¶åˆ°å¯¹åº”è¦æ˜¾ç¤ºçš„edgesçš„æ˜ å°„
 			for (mesh_simplier::Mesh mes : meshes) {
 #ifdef PAIRREP
 				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
@@ -155,23 +155,23 @@ namespace ifcre {
 			ver_attrib.resize(s / 3 * 10);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
-				ver_attrib[offset + i] = g_vertices[i];								// Î»ÖÃ.x
-				ver_attrib[offset + i + 1] = g_vertices[i + 1];						// Î»ÖÃ.y
-				ver_attrib[offset + i + 2] = g_vertices[i + 2];						// Î»ÖÃ.z
-				ver_attrib[offset + i + 3] = g_normals[i];							// ·¨ÏòÁ¿.x
-				ver_attrib[offset + i + 4] = g_normals[i + 1];						// ·¨ÏòÁ¿.y
-				ver_attrib[offset + i + 5] = g_normals[i + 2];						// ·¨ÏòÁ¿.z
-				ver_attrib[offset + i + 6] = g_kd_color[i];							// ÑÕÉ«.x
-				ver_attrib[offset + i + 7] = g_kd_color[i + 1];						// ÑÕÉ«.y
-				ver_attrib[offset + i + 8] = g_kd_color[i + 2];						// ÑÕÉ«.z
-				ver_attrib[offset + i + 9] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // ËùÔÚÎï¼şµÄË÷Òı
+				ver_attrib[offset + i] = g_vertices[i];								// ä½ç½®.x
+				ver_attrib[offset + i + 1] = g_vertices[i + 1];						// ä½ç½®.y
+				ver_attrib[offset + i + 2] = g_vertices[i + 2];						// ä½ç½®.z
+				ver_attrib[offset + i + 3] = g_normals[i];							// æ³•å‘é‡.x
+				ver_attrib[offset + i + 4] = g_normals[i + 1];						// æ³•å‘é‡.y
+				ver_attrib[offset + i + 5] = g_normals[i + 2];						// æ³•å‘é‡.z
+				ver_attrib[offset + i + 6] = g_kd_color[i];							// é¢œè‰².x
+				ver_attrib[offset + i + 7] = g_kd_color[i + 1];						// é¢œè‰².y
+				ver_attrib[offset + i + 8] = g_kd_color[i + 2];						// é¢œè‰².z
+				ver_attrib[offset + i + 9] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // æ‰€åœ¨ç‰©ä»¶çš„ç´¢å¼•
 				offset += 7;
 			}
 			return ver_attrib;
 		}
 
 		// just add compid attribute for each vertex on which component it is
-		void generateCompIds() { // comp_ids: ¶¥µãË÷ÒıÕÒµ½¶ÔÓ¦µÄÎï¼şË÷Òı
+		void generateCompIds() { // comp_ids: é¡¶ç‚¹ç´¢å¼•æ‰¾åˆ°å¯¹åº”çš„ç‰©ä»¶ç´¢å¼•
 			Vector<uint32_t>().swap(comp_ids);
 			comp_ids.resize(g_vertices.size() / 3);
 			int j = 0;
@@ -273,9 +273,9 @@ namespace ifcre {
 		}
 
 		void generate_bbxs_by_comps() {
-			size_t cindicessize = c_indices.size(); // »ñÈ¡Îï¼şÊıÁ¿
+			size_t cindicessize = c_indices.size(); // è·å–ç‰©ä»¶æ•°é‡
 			Vector<Real>().swap(comps_bbx);
-			comps_bbx.resize(cindicessize * 6);		// Ã¿¸öÎï¼ş¶ÔÓ¦6¸öfloatÖµ
+			comps_bbx.resize(cindicessize * 6);		// æ¯ä¸ªç‰©ä»¶å¯¹åº”6ä¸ªfloatå€¼
 			Real a_min[3], a_max[3];
 			int bbx_offset = 0;
 			for (auto& ix : c_indices) {
@@ -297,7 +297,7 @@ namespace ifcre {
 				bbx_offset += 6;
 			}
 
-			// Õû¸öÄ£ĞÍµÄbbx
+			// æ•´ä¸ªæ¨¡å‹çš„bbx
 			for (size_t i = 0; i < cindicessize; i++) {
 				for (int j = 0; j < 3; j++) {
 					a_min[j] = std::min(comps_bbx[6 * i + j], a_min[j]);
@@ -422,7 +422,7 @@ namespace ifcre {
 			m_init_model = m_model;
 			mirror_model = glm::mat4(1.f);
 
-			translate(m_cube_direction_transform[num]); // ¶¼ÊÇglm::vec3(0.f, 0.f, 0.f)
+			translate(m_cube_direction_transform[num]); // éƒ½æ˜¯glm::vec3(0.f, 0.f, 0.f)
 		}
 
 		void setScaleFactor(Real scale) {
@@ -451,43 +451,43 @@ namespace ifcre {
 
 		Vector<uint32_t> collision_pairs; // collision pairs
 		uint32_t render_id;// seems a render_id combine with an array of vertex?
-		Vector<Real> ver_attrib;				// Ã¿¸ö¶¥µãÓĞ10¸öÊôĞÔ£¬ÊıÁ¿Îª¶¥µãÊıÁ¿µÄÊ®±¶
-		Vector<Real> comps_bbx;					// pmin, pmax // Îï¼ş¶ÔÓ¦µÄbbxĞÅÏ¢£¬ÊıÁ¿ÎªÎï¼şÊıÁ¿µÄ6±¶
+		Vector<Real> ver_attrib;				// æ¯ä¸ªé¡¶ç‚¹æœ‰10ä¸ªå±æ€§ï¼Œæ•°é‡ä¸ºé¡¶ç‚¹æ•°é‡çš„åå€
+		Vector<Real> comps_bbx;					// pmin, pmax // ç‰©ä»¶å¯¹åº”çš„bbxä¿¡æ¯ï¼Œæ•°é‡ä¸ºç‰©ä»¶æ•°é‡çš„6å€
 
-		Vector<uint32_t> g_indices;				// ¶¥µãµÄË÷Òı£¬ÊıÁ¿ÎªÃæ¸öÊıµÄÈı±¶£¬Ã¿3¸ö¶¥µãÒ»¸öÃæ
-		Vector<uint32_t> trans_ind;				// Ô­Ê¼Í¸Ã÷¶¥µãµÄË÷Òı
-		Vector<uint32_t> no_trans_ind;			// Ô­Ê¼²»Í¸Ã÷¶¥µãµÄË÷Òı
+		Vector<uint32_t> g_indices;				// é¡¶ç‚¹çš„ç´¢å¼•ï¼Œæ•°é‡ä¸ºé¢ä¸ªæ•°çš„ä¸‰å€ï¼Œæ¯3ä¸ªé¡¶ç‚¹ä¸€ä¸ªé¢
+		Vector<uint32_t> trans_ind;				// åŸå§‹é€æ˜é¡¶ç‚¹çš„ç´¢å¼•
+		Vector<uint32_t> no_trans_ind;			// åŸå§‹ä¸é€æ˜é¡¶ç‚¹çš„ç´¢å¼•
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
-		Vector<Vector<uint32_t>> c_indices;		// Îï¼ş->¶¥µãµÄË÷Òı£¬1¼¶ÊıÁ¿ÎªÎï¼şµÄ¸öÊı£¬2¼¶ÎªÎï¼şÓµÓĞ¶¥µãÊı
+		Vector<Vector<uint32_t>> c_indices;		// ç‰©ä»¶->é¡¶ç‚¹çš„ç´¢å¼•ï¼Œ1çº§æ•°é‡ä¸ºç‰©ä»¶çš„ä¸ªæ•°ï¼Œ2çº§ä¸ºç‰©ä»¶æ‹¥æœ‰é¡¶ç‚¹æ•°
 		Vector<Vector<uint32_t>> c_edge_indices;//ebos of edge, generated after generate_edges_by_msMeshes();
 
-		Vector<CompState> comp_states;					// ¼ÇÂ¼Ã¿¸öcompµÄ×´Ì¬£ºÒş²Ø¡¢ÏÔÊ¾¡¢¸ßÁÁ
+		Vector<CompState> comp_states;					// è®°å½•æ¯ä¸ªcompçš„çŠ¶æ€ï¼šéšè—ã€æ˜¾ç¤ºã€é«˜äº®
 
-		Vector<uint32_t> cur_chosen_trans_ind;			// µ±Ç°Òª¸ßÁÁ(¶àÑ¡)µÄÍ¸Ã÷¶¥µãµÄË÷Òı
-		Vector<uint32_t> cur_chosen_no_trans_ind;		// µ±Ç°Òª¸ßÁÁ(¶àÑ¡)µÄ²»Í¸Ã÷¶¥µãµÄË÷Òı
+		Vector<uint32_t> cur_chosen_trans_ind;			// å½“å‰è¦é«˜äº®(å¤šé€‰)çš„é€æ˜é¡¶ç‚¹çš„ç´¢å¼•
+		Vector<uint32_t> cur_chosen_no_trans_ind;		// å½“å‰è¦é«˜äº®(å¤šé€‰)çš„ä¸é€æ˜é¡¶ç‚¹çš„ç´¢å¼•
 
-		Vector<uint32_t> cur_c_indices;					// µ±Ç°ÒªÏÔÊ¾µÄÎï¼şµÄË÷Òı
-		Vector<uint32_t> cur_vis_trans_ind;				// µ±Ç°ÒªÏÔÊ¾µÄÍ¸Ã÷¶¥µãµÄË÷Òı	
-		Vector<uint32_t> cur_vis_no_trans_ind;			// µ±Ç°ÒªÏÔÊ¾µÄ²»Í¸Ã÷¶¥µãµÄË÷Òı	
-		Vector<uint32_t> cur_edge_ind;					// µ±Ç°ÒªÏÔÊ¾µÄÎï¼ş°üº¬µÄ±ßµÄË÷Òı
+		Vector<uint32_t> cur_c_indices;					// å½“å‰è¦æ˜¾ç¤ºçš„ç‰©ä»¶çš„ç´¢å¼•
+		Vector<uint32_t> cur_vis_trans_ind;				// å½“å‰è¦æ˜¾ç¤ºçš„é€æ˜é¡¶ç‚¹çš„ç´¢å¼•	
+		Vector<uint32_t> cur_vis_no_trans_ind;			// å½“å‰è¦æ˜¾ç¤ºçš„ä¸é€æ˜é¡¶ç‚¹çš„ç´¢å¼•	
+		Vector<uint32_t> cur_edge_ind;					// å½“å‰è¦æ˜¾ç¤ºçš„ç‰©ä»¶åŒ…å«çš„è¾¹çš„ç´¢å¼•
 
-		unordered_set<uint32_t> trans_c_indices_set;	// Í¸Ã÷ÎïÌåµÄË÷Òı, ÓÃÀ´¿ìËÙ·ÖÀà£¬Ò»´Î½¨Á¢£¬¶à´Î²éÑ¯
+		unordered_set<uint32_t> trans_c_indices_set;	// é€æ˜ç‰©ä½“çš„ç´¢å¼•, ç”¨æ¥å¿«é€Ÿåˆ†ç±»ï¼Œä¸€æ¬¡å»ºç«‹ï¼Œå¤šæ¬¡æŸ¥è¯¢
 
-		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // °´´Ë¶¨µãË³Ğò»æÖÆbbx³¤·½Ìå¿ò
+		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // æŒ‰æ­¤å®šç‚¹é¡ºåºç»˜åˆ¶bbxé•¿æ–¹ä½“æ¡†
 
 	private:
 		glm::mat4 m_model;						
 		glm::mat4 m_init_model;					
 		glm::mat4 mirror_model;					
-		Real m_scale_factor;					// Õû¸öÄ£ĞÍµÄËõ·ÅÏµÊı
-		glm::vec3 pMin = glm::vec3(0,0,0), pMax = glm::vec3(0,0,0);					// Õû¸öÄ£ĞÍµÄbbxĞÅÏ¢
-		glm::vec3 m_center;						// Õû¸öÄ£ĞÍµÄÖĞĞÄĞÅÏ¢
-		Vector<MaterialData> material_data;		// ´æ¸÷¸öÃæµÄ²ÄÖÊÊôĞÔ£¬Ã¿¸öÃæ¶¼ÓĞ8ÏîÊôĞÔ£¬ÊıÁ¿ÎªÃæµÄÊıÁ¿
-		Vector<Real> g_vertices;				// ÒÀ´Î´æ´¢¸÷¸ö¶¥µãÎ»ÖÃµÄx¡¢y¡¢zĞÅÏ¢£¬ÊıÁ¿Îª¶¥µãÊıÁ¿µÄÈı±¶
-		Vector<Real> g_kd_color;				// ÒÀ´Î´æ´¢¸÷¸ö¶¥µã(Âş·´ÉäÏî)ÑÕÉ«µÄx¡¢y¡¢zĞÅÏ¢£¬ÊıÁ¿Îª¶¥µãÊıÁ¿µÄÈı±¶
-		Vector<Real> g_normals;					// ÒÀ´Î´æ´¢¸÷¸ö¶¥µã·¨ÏòÁ¿µÄx¡¢y¡¢zĞÅÏ¢£¬ÊıÁ¿Îª¶¥µãÊıÁ¿µÄÈı±¶
-		Vector<uint> comp_ids;					// ¿ÉÍ¨¹ı¶¥µãË÷ÒıÕÒµ½¶ÔÓ¦µÄÎï¼şË÷Òı£¬ÊıÁ¿Îª¶¥µãµÄ¸öÊı
+		Real m_scale_factor;					// æ•´ä¸ªæ¨¡å‹çš„ç¼©æ”¾ç³»æ•°
+		glm::vec3 pMin = glm::vec3(0,0,0), pMax = glm::vec3(0,0,0);					// æ•´ä¸ªæ¨¡å‹çš„bbxä¿¡æ¯
+		glm::vec3 m_center;						// æ•´ä¸ªæ¨¡å‹çš„ä¸­å¿ƒä¿¡æ¯
+		Vector<MaterialData> material_data;		// å­˜å„ä¸ªé¢çš„æè´¨å±æ€§ï¼Œæ¯ä¸ªé¢éƒ½æœ‰8é¡¹å±æ€§ï¼Œæ•°é‡ä¸ºé¢çš„æ•°é‡
+		Vector<Real> g_vertices;				// ä¾æ¬¡å­˜å‚¨å„ä¸ªé¡¶ç‚¹ä½ç½®çš„xã€yã€zä¿¡æ¯ï¼Œæ•°é‡ä¸ºé¡¶ç‚¹æ•°é‡çš„ä¸‰å€
+		Vector<Real> g_kd_color;				// ä¾æ¬¡å­˜å‚¨å„ä¸ªé¡¶ç‚¹(æ¼«åå°„é¡¹)é¢œè‰²çš„xã€yã€zä¿¡æ¯ï¼Œæ•°é‡ä¸ºé¡¶ç‚¹æ•°é‡çš„ä¸‰å€
+		Vector<Real> g_normals;					// ä¾æ¬¡å­˜å‚¨å„ä¸ªé¡¶ç‚¹æ³•å‘é‡çš„xã€yã€zä¿¡æ¯ï¼Œæ•°é‡ä¸ºé¡¶ç‚¹æ•°é‡çš„ä¸‰å€
+		Vector<uint> comp_ids;					// å¯é€šè¿‡é¡¶ç‚¹ç´¢å¼•æ‰¾åˆ°å¯¹åº”çš„ç‰©ä»¶ç´¢å¼•ï¼Œæ•°é‡ä¸ºé¡¶ç‚¹çš„ä¸ªæ•°
 
 		Vector<bool> is_trans;
 		Vector<glm::vec3> m_cube_direction_transform;

@@ -12,31 +12,31 @@ typedef unsigned short WORD;
 typedef unsigned int DWORD;
 typedef long LONG;
 
-//Î»Í¼ÎÄ¼şÍ·¶¨Òå;
+//ä½å›¾æ–‡ä»¶å¤´å®šä¹‰;
 typedef struct  tagBITMAPFILEHEADER {
-    //      WORD bfType;//µ¥¶À¶ÁÈ¡£¬½á¹¹ÌåÖĞ¾Í²»¶¨ÒåÁË
-    DWORD bfSize;//ÎÄ¼ş´óĞ¡
-    WORD bfReserved1;//±£Áô×Ö
-    WORD bfReserved2;//±£Áô×Ö
-    DWORD bfOffBits;//´ÓÎÄ¼şÍ·µ½Êµ¼ÊÎ»Í¼Êı¾İµÄÆ«ÒÆ×Ö½ÚÊı
+    //      WORD bfType;//å•ç‹¬è¯»å–ï¼Œç»“æ„ä½“ä¸­å°±ä¸å®šä¹‰äº†
+    DWORD bfSize;//æ–‡ä»¶å¤§å°
+    WORD bfReserved1;//ä¿ç•™å­—
+    WORD bfReserved2;//ä¿ç•™å­—
+    DWORD bfOffBits;//ä»æ–‡ä»¶å¤´åˆ°å®é™…ä½å›¾æ•°æ®çš„åç§»å­—èŠ‚æ•°
 }BITMAPFILEHEADER;
 
 
 typedef struct tagBITMAPINFOHEADER {
-    DWORD biSize;//ĞÅÏ¢Í·´óĞ¡
-    DWORD biWidth;//Í¼Ïñ¿í¶È
-    DWORD biHeight;//Í¼Ïñ¸ß¶È
-    WORD biPlanes;//Î»Æ½ÃæÊı£¬±ØĞëÎª1
-    WORD biBitCount;//Ã¿ÏñËØÎ»Êı
-    DWORD  biCompression; //Ñ¹ËõÀàĞÍ
-    DWORD  biSizeImage; //Ñ¹ËõÍ¼Ïñ´óĞ¡×Ö½ÚÊı
-    DWORD  biXPelsPerMeter; //Ë®Æ½·Ö±æÂÊ
-    DWORD  biYPelsPerMeter; //´¹Ö±·Ö±æÂÊ
-    DWORD  biClrUsed; //Î»Í¼Êµ¼ÊÓÃµ½µÄÉ«²ÊÊı
-    DWORD  biClrImportant; //±¾Î»Í¼ÖĞÖØÒªµÄÉ«²ÊÊı
-}BITMAPINFOHEADER; //Î»Í¼ĞÅÏ¢Í·¶¨Òå
+    DWORD biSize;//ä¿¡æ¯å¤´å¤§å°
+    DWORD biWidth;//å›¾åƒå®½åº¦
+    DWORD biHeight;//å›¾åƒé«˜åº¦
+    WORD biPlanes;//ä½å¹³é¢æ•°ï¼Œå¿…é¡»ä¸º1
+    WORD biBitCount;//æ¯åƒç´ ä½æ•°
+    DWORD  biCompression; //å‹ç¼©ç±»å‹
+    DWORD  biSizeImage; //å‹ç¼©å›¾åƒå¤§å°å­—èŠ‚æ•°
+    DWORD  biXPelsPerMeter; //æ°´å¹³åˆ†è¾¨ç‡
+    DWORD  biYPelsPerMeter; //å‚ç›´åˆ†è¾¨ç‡
+    DWORD  biClrUsed; //ä½å›¾å®é™…ç”¨åˆ°çš„è‰²å½©æ•°
+    DWORD  biClrImportant; //æœ¬ä½å›¾ä¸­é‡è¦çš„è‰²å½©æ•°
+}BITMAPINFOHEADER; //ä½å›¾ä¿¡æ¯å¤´å®šä¹‰
 
-//ÏñËØĞÅÏ¢
+//åƒç´ ä¿¡æ¯
 typedef struct tagIMAGEDATA
 {
     BYTE blue;
@@ -44,7 +44,7 @@ typedef struct tagIMAGEDATA
     BYTE red;
 }DATA;
 
-//BMPÕûÌåĞÅÏ¢
+//BMPæ•´ä½“ä¿¡æ¯
 typedef struct tagBMP_BUFFER
 {
     WORD                mbfType;

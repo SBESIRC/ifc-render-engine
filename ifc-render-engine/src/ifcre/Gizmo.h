@@ -99,7 +99,7 @@ namespace ifcre {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_plane), &coord_plane, GL_STATIC_DRAW);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, gizmoEBO);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, counter_clockwise_cube_element_object_buffer.size() * sizeof(uint32_t), counter_clockwise_cube_element_object_buffer.data(), GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0); //  glVertexAttribPointer(shaderÎ»ÖÃ£¬Ã¿¶ÎÊı¾İ³¤£¬x£¬x£¬²½³¤£¬ÆğÊ¼Î»ÖÃ)
+			glEnableVertexAttribArray(0); //  glVertexAttribPointer(shaderä½ç½®ï¼Œæ¯æ®µæ•°æ®é•¿ï¼Œxï¼Œxï¼Œæ­¥é•¿ï¼Œèµ·å§‹ä½ç½®)
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0); // position
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // uv cordination
@@ -107,19 +107,19 @@ namespace ifcre {
 			glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(5 * sizeof(float))); // ids
 
 			//texture
-			glGenTextures(1, &gizmo_textID); // ÒªÉú³ÉµÄÎÆÀíÊıÁ¿ºÍidÊı×é
-			glBindTexture(GL_TEXTURE_2D, gizmo_textID); //°ó¶¨
-			// Îªµ±Ç°°ó¶¨µÄÎÆÀí¶ÔÏóÉèÖÃ»·ÈÆ¡¢¹ıÂË·½Ê½
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); // S(x)×ø±ê¶àÓà²¿·Ö¾µÏñÖØ¸´
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); // T(y)×ø±ê¶àÓà²¿·Ö¾µÏñÖØ¸´
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // ËõĞ¡ÏßĞÔ¹ıÂË£¨ÍÆ¼öGL_NEAREST¾Í½ü¹ıÂË£©
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // ·Å´óÏßĞÔ¹ıÂË
-			// ¼ÓÔØ²¢Éú³ÉÎÆÀí
+			glGenTextures(1, &gizmo_textID); // è¦ç”Ÿæˆçš„çº¹ç†æ•°é‡å’Œidæ•°ç»„
+			glBindTexture(GL_TEXTURE_2D, gizmo_textID); //ç»‘å®š
+			// ä¸ºå½“å‰ç»‘å®šçš„çº¹ç†å¯¹è±¡è®¾ç½®ç¯ç»•ã€è¿‡æ»¤æ–¹å¼
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT); // S(x)åæ ‡å¤šä½™éƒ¨åˆ†é•œåƒé‡å¤
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); // T(y)åæ ‡å¤šä½™éƒ¨åˆ†é•œåƒé‡å¤
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // ç¼©å°çº¿æ€§è¿‡æ»¤ï¼ˆæ¨èGL_NEARESTå°±è¿‘è¿‡æ»¤ï¼‰
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // æ”¾å¤§çº¿æ€§è¿‡æ»¤
+			// åŠ è½½å¹¶ç”Ÿæˆçº¹ç†
 			int width, height, nrChannels;
 			unsigned char* data = stbi_load("resources\\textures\\scenegizmo.png", &width, &height, &nrChannels, 0);
 			if (data)
 			{
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // Éú³ÉÄ¿±êÎÆÀí¡¢¶à¼¶½¥Ô¶¼¶±ğ¡¢glÎÆÀí´æ´¢¸ñÊ½¡¢¡¢¡¢
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // ç”Ÿæˆç›®æ ‡çº¹ç†ã€å¤šçº§æ¸è¿œçº§åˆ«ã€glçº¹ç†å­˜å‚¨æ ¼å¼ã€ã€ã€
 				glGenerateMipmap(GL_TEXTURE_2D);
 			}
 			else
@@ -134,16 +134,16 @@ namespace ifcre {
 		void drawGizmo() {
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
-			glActiveTexture(GL_TEXTURE0); // Ö»ÓĞÒ»¸öÎÆÀíÔòÄ¬ÈÏ¼¤»î
+			glActiveTexture(GL_TEXTURE0); // åªæœ‰ä¸€ä¸ªçº¹ç†åˆ™é»˜è®¤æ¿€æ´»
 			glDisable(DEPTH_TEST);
 			glDepthFunc(GL_ALWAYS);
 			glDepthMask(GL_FALSE);
 
 			glBindVertexArray(gizmoVAO);
-			glBindTexture(GL_TEXTURE_2D, gizmo_textID); // °ó¶¨idµ½µ±Ç°GL_TEXTURE_2D
+			glBindTexture(GL_TEXTURE_2D, gizmo_textID); // ç»‘å®šidåˆ°å½“å‰GL_TEXTURE_2D
 			glBindBuffer(GL_ARRAY_BUFFER, gizmoVBO);
 
-			glDrawElements(GL_TRIANGLES, counter_clockwise_cube_element_object_buffer.size(), GL_UNSIGNED_INT, 0); // °ÑÎÆÀí¸³Öµ¸øÆ¬¶Î×ÅÉ«Æ÷µÄ²ÉÑùÆ÷
+			glDrawElements(GL_TRIANGLES, counter_clockwise_cube_element_object_buffer.size(), GL_UNSIGNED_INT, 0); // æŠŠçº¹ç†èµ‹å€¼ç»™ç‰‡æ®µç€è‰²å™¨çš„é‡‡æ ·å™¨
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
@@ -159,7 +159,7 @@ namespace ifcre {
 
 			glBindVertexArray(gizmoVAO);
 			glBindBuffer(GL_ARRAY_BUFFER, gizmoVBO);
-			glDrawElements(GL_TRIANGLES, counter_clockwise_cube_element_object_buffer.size(), GL_UNSIGNED_INT, 0); // ´«ÈëEBO
+			glDrawElements(GL_TRIANGLES, counter_clockwise_cube_element_object_buffer.size(), GL_UNSIGNED_INT, 0); // ä¼ å…¥EBO
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
@@ -168,7 +168,7 @@ namespace ifcre {
 
 		glm::mat4 private_transform(const glm::vec2 window_size) {
 			//glm::vec3 newpos = glm::vec3(1.f - k, k - 1.f, 0);
-			glm::vec3 window_scale = glm::vec3(window_size.y / window_size.x, 1.f, 1.f) * .225f; // .2¿ÉÒÔÉèÖÃgizmo´óĞ¡
+			glm::vec3 window_scale = glm::vec3(window_size.y / window_size.x, 1.f, 1.f) * .225f; // .2å¯ä»¥è®¾ç½®gizmoå¤§å°
 			glm::vec3 newpos = glm::vec3(0.f, 0.f, -.5f);
 
 			glm::mat4 ret = glm::translate(glm::scale(glm::mat4(1.f), window_scale), newpos);

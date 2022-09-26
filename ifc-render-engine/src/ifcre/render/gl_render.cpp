@@ -169,8 +169,8 @@ namespace ifcre {
 		switch (type) {
 		case NORMAL_DEPTH_WRITE: {
 			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w); // ÉèÖÃ±³¾°ÑÕÉ«
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// Çå³ıÑÕÉ«¡¢Éî¶È»º³å
+			glClearColor(color.x, color.y, color.z, color.w); // è®¾ç½®èƒŒæ™¯é¢œè‰²
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// æ¸…é™¤é¢œè‰²ã€æ·±åº¦ç¼“å†²
 			glClearDepthf(1.0);
 			m_normal_depth_program->use();
 			m_normal_depth_program->setMat4("mvp", m_projection * m_modelview);
@@ -180,7 +180,7 @@ namespace ifcre {
 		case COMP_ID_WRITE: {
 			auto& color = m_depnor_value;
 			glClearColor(color.x, color.y, color.z, color.w);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// Çå³ıÑÕÉ«¡¢Éî¶È»º³å
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// æ¸…é™¤é¢œè‰²ã€æ·±åº¦ç¼“å†²
 			glClearDepthf(1.0);
 			m_comp_id_program->use();
 			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
@@ -189,7 +189,7 @@ namespace ifcre {
 		case DEFAULT_SHADING: {
 			auto& color = m_bg_color;
 			glClearColor(color.r, color.g, color.b, color.a);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// Çå³ıÑÕÉ«¡¢Éî¶È»º³å
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// æ¸…é™¤é¢œè‰²ã€æ·±åº¦ç¼“å†²
 			m_test_shader->use();
 
 			m_test_shader->setMat4("modelview", m_modelview);
@@ -202,7 +202,7 @@ namespace ifcre {
 		}
 		case TRANSPARENCY_SHADING: {
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// Çå³ıÑÕÉ«¡¢Éî¶È»º³å
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// æ¸…é™¤é¢œè‰²ã€æ·±åº¦ç¼“å†²
 			glBlendEquation(GL_FUNC_ADD);
 
 			m_test_shader->use();
@@ -278,9 +278,9 @@ namespace ifcre {
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
-			glEnable(GL_BLEND); //ÆôÓÃ»ìºÏ£¨¿ÉÒÔÊ¹ÓÃÍ¸Ã÷ÎïÌå£©
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // °´±ÈÀıÑÕÉ«»ìºÏ
-			glBlendEquation(GL_FUNC_ADD);//ÉèÖÃÔËËã·û Ä¬ÈÏ Ô´ ºÍ targetÊıÖµÏà¼Ó
+			glEnable(GL_BLEND); //å¯ç”¨æ··åˆï¼ˆå¯ä»¥ä½¿ç”¨é€æ˜ç‰©ä½“ï¼‰
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // æŒ‰æ¯”ä¾‹é¢œè‰²æ··åˆ
+			glBlendEquation(GL_FUNC_ADD);//è®¾ç½®è¿ç®—ç¬¦ é»˜è®¤ æº å’Œ targetæ•°å€¼ç›¸åŠ 
 
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
@@ -446,14 +446,14 @@ namespace ifcre {
 	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
 		const wchar_t text[] = L"Ifc-Render-Engine-For-Tianha-Corp";
-		const wchar_t text2[] = L"ÖĞÎÄ²âÊÔ×ÖÑù";
+		const wchar_t text2[] = L"ä¸­æ–‡æµ‹è¯•å­—æ ·";
 		m_text_shader->use();
 		m_text_shader->setVec3("textColor", color);
 		m_text_shader->setVec2("offset", glm::vec2(position));
-		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // orthoÕı½»Í¶Ó°
+		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // orthoæ­£äº¤æŠ•å½±
 		glDisable(DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS); // ÓÀÔ¶Í¨¹ıÉî¶È²âÊÔ
-		glDepthMask(GL_FALSE); // ½ûÓÃÉî¶È»º³åµÄĞ´Èë
+		glDepthFunc(GL_ALWAYS); // æ°¸è¿œé€šè¿‡æ·±åº¦æµ‹è¯•
+		glDepthMask(GL_FALSE); // ç¦ç”¨æ·±åº¦ç¼“å†²çš„å†™å…¥
 		//textdata.render_text(text, glm::vec3(position), scale);
 		texturefont.drawText(text);
 
@@ -621,7 +621,7 @@ namespace ifcre {
 	{
 		static bool first = true;
 		static uint32_t axis_vao;
-		if (first) { // ³õÊ¼»¯ (Ò»°ãÖ»ÔËĞĞÒ»´Î¡£³ı·ÇÎïÌåÆµ·±¸Ä±ä)
+		if (first) { // åˆå§‹åŒ– (ä¸€èˆ¬åªè¿è¡Œä¸€æ¬¡ã€‚é™¤éç‰©ä½“é¢‘ç¹æ”¹å˜)
 			float coord_axis[] = {	//float coord_axis[] = {
 				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
 				1.0, 0.0, 0.0,		//	100.0, 0.0, 0.0,	// x-axis
@@ -632,15 +632,15 @@ namespace ifcre {
 			};						//};
 			uint32_t axis_vbo;
 			glGenVertexArrays(1, &axis_vao);
-			glGenBuffers(1, &axis_vbo); // ´´½¨Ò»¸ö»º³å
-			glBindVertexArray(axis_vao); // °ó¶¨VAO
-			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // ÉèÖÃ»º³åÀàĞÍ
-			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // °ÑÓÃ»§¶¨ÒåµÄÊı¾İ¸´ÖÆµ½µ±Ç°°ó¶¨»º³å(ÏÔ´æ)
-			glEnableVertexAttribArray(0); // ÒÔ¶¥µãÊôĞÔÎ»ÖÃÖµ×÷Îª²ÎÊı£¬ÆôÓÃ¶¥µãÊôĞÔ
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // ¸æËßOpenGL¸ÃÈçºÎ½âÎö¶¥µãÊı¾İ£¨Ó¦ÓÃµ½Öğ¸ö¶¥µãÊôĞÔÉÏ£© ´Ó´ËÊ±°ó¶¨µ½GL_ARRAY_BUFFERµÄVBO»ñÈ¡Êı¾İ
+			glGenBuffers(1, &axis_vbo); // åˆ›å»ºä¸€ä¸ªç¼“å†²
+			glBindVertexArray(axis_vao); // ç»‘å®šVAO
+			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // è®¾ç½®ç¼“å†²ç±»å‹
+			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // æŠŠç”¨æˆ·å®šä¹‰çš„æ•°æ®å¤åˆ¶åˆ°å½“å‰ç»‘å®šç¼“å†²(æ˜¾å­˜)
+			glEnableVertexAttribArray(0); // ä»¥é¡¶ç‚¹å±æ€§ä½ç½®å€¼ä½œä¸ºå‚æ•°ï¼Œå¯ç”¨é¡¶ç‚¹å±æ€§
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // å‘Šè¯‰OpenGLè¯¥å¦‚ä½•è§£æé¡¶ç‚¹æ•°æ®ï¼ˆåº”ç”¨åˆ°é€ä¸ªé¡¶ç‚¹å±æ€§ä¸Šï¼‰ ä»æ­¤æ—¶ç»‘å®šåˆ°GL_ARRAY_BUFFERçš„VBOè·å–æ•°æ®
 			first = false;
 		} 
-		glm::vec3 model_center = ifc_model.getModelCenter(); // »æÖÆÎïÌå£¨äÖÈ¾Ñ­»·£©
+		glm::vec3 model_center = ifc_model.getModelCenter(); // ç»˜åˆ¶ç‰©ä½“ï¼ˆæ¸²æŸ“å¾ªç¯ï¼‰
 		glm::mat4 model = ifc_model.getModelMatrix();
 		float scale_factor = ifc_model.getScaleFactor();
 
@@ -663,10 +663,10 @@ namespace ifcre {
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
 		m_axis_shader->use();
-		glBindVertexArray(axis_vao); // Ê¹ÓÃÉÏÃæÄÇÒ»Ì×VAO
+		glBindVertexArray(axis_vao); // ä½¿ç”¨ä¸Šé¢é‚£ä¸€å¥—VAO
 		glDisable(DEPTH_TEST);//glDisable(DEPTH_TEST); glDepthFunc(GL_LESS);
 		glDepthFunc(GL_ALWAYS);//glDepthFunc(GL_ALWAYS);
-		glDrawArrays(GL_LINES, 0, 6); // Ê¹ÓÃµ±Ç°¼¤»îµÄ×ÅÉ«Æ÷£¬Ö®Ç°¶¨ÒåµÄ¶¥µãÊôĞÔÅäÖÃ£¬ºÍVBOµÄ¶¥µãÊı¾İ£¨Í¨¹ıVAO¼ä½Ó°ó¶¨£©À´»æÖÆÍ¼Ôª
+		glDrawArrays(GL_LINES, 0, 6); // ä½¿ç”¨å½“å‰æ¿€æ´»çš„ç€è‰²å™¨ï¼Œä¹‹å‰å®šä¹‰çš„é¡¶ç‚¹å±æ€§é…ç½®ï¼Œå’ŒVBOçš„é¡¶ç‚¹æ•°æ®ï¼ˆé€šè¿‡VAOé—´æ¥ç»‘å®šï¼‰æ¥ç»˜åˆ¶å›¾å…ƒ
 		_defaultConfig();
 	}
 
@@ -676,7 +676,7 @@ namespace ifcre {
 		static uint32_t off_vao;
 		if (first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords	// Î»ÖÃ ÎÆÀí×ø±ê
+			// positions   // texCoords	// ä½ç½® çº¹ç†åæ ‡
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			-1.0f, -1.0f,  0.0f, 0.0f,
 			 1.0f, -1.0f,  1.0f, 0.0f,
@@ -864,7 +864,7 @@ namespace ifcre {
 
 		if (!first) {
 			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords	// Î»ÖÃ ÎÆÀí×ø±ê
+			// positions   // texCoords	// ä½ç½® çº¹ç†åæ ‡
 			-1.0f,  1.0f,  0.0f, 1.0f,
 			-1.0f, -1.0f,  0.0f, 0.0f,
 			 1.0f, -1.0f,  1.0f, 0.0f,
@@ -880,40 +880,40 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);						// ¶ÁÈë¶¥µãÊı¾İ
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);						// è¯»å…¥é¡¶ç‚¹æ•°æ®
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));		//¶ÁÈëÎÆÀíÊı¾İ
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));		//è¯»å…¥çº¹ç†æ•°æ®
 
 			first = true;
 		}
 
-		glActiveTexture(GL_TEXTURE0); // texture 0 // ÔÚ°ó¶¨Ö®Ç°¼¤»îÏàÓ¦µÄÎÆÀíµ¥Ôª
-		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());// »ñÈ¡ÑÕÉ«ÎÆÀíĞòºÅ ²¢°ó¶¨
+		glActiveTexture(GL_TEXTURE0); // texture 0 // åœ¨ç»‘å®šä¹‹å‰æ¿€æ´»ç›¸åº”çš„çº¹ç†å•å…ƒ
+		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());// è·å–é¢œè‰²çº¹ç†åºå· å¹¶ç»‘å®š
 		if (w.getDepthNormalTexId() != -1) {
-			glActiveTexture(GL_TEXTURE1); // texture 1 // ÔÚ°ó¶¨Ö®Ç°¼¤»îÏàÓ¦µÄÎÆÀíµ¥Ôª
-			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());// »ñÈ¡Éî¶ÈÎÆÀíĞòºÅ ²¢°ó¶¨
+			glActiveTexture(GL_TEXTURE1); // texture 1 // åœ¨ç»‘å®šä¹‹å‰æ¿€æ´»ç›¸åº”çš„çº¹ç†å•å…ƒ
+			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());// è·å–æ·±åº¦çº¹ç†åºå· å¹¶ç»‘å®š
 		}
-		m_offscreen_program->use(); // ¼¤»î×ÅÉ«Æ÷³ÌĞò //½øĞĞäÖÈ¾
+		m_offscreen_program->use(); // æ¿€æ´»ç€è‰²å™¨ç¨‹åº //è¿›è¡Œæ¸²æŸ“
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
 
-		glm::vec2 win_size = w.getWindowSize(); //»ñÈ¡´æ´¢ÆÁÄ»´óĞ¡
-		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y); //»ñÈ¡ÎÆÀíµ½ÆÁÄ»Ëõ·Å±ÈÀı
-		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);//ÒÔuniformĞÎÊ½´«¸øvertex shader
+		glm::vec2 win_size = w.getWindowSize(); //è·å–å­˜å‚¨å±å¹•å¤§å°
+		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y); //è·å–çº¹ç†åˆ°å±å¹•ç¼©æ”¾æ¯”ä¾‹
+		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);//ä»¥uniformå½¢å¼ä¼ ç»™vertex shader
 
 		glDisable(GL_DEPTH_TEST);
 		glBindVertexArray(off_vao);
-		glClear(GL_COLOR_BUFFER_BIT); // Çå¿ÕÑÕÉ«»º³å
-		glDrawArrays(GL_TRIANGLES, 0, 6); // äÖÈ¾Á½¸öÈı½ÇĞÎ
+		glClear(GL_COLOR_BUFFER_BIT); // æ¸…ç©ºé¢œè‰²ç¼“å†²
+		glDrawArrays(GL_TRIANGLES, 0, 6); // æ¸²æŸ“ä¸¤ä¸ªä¸‰è§’å½¢
 		_defaultConfig();
 	}
 
 	void GLRender::_defaultConfig()
 	{
-		glBindVertexArray(0);		// µ±ÎÒÃÇ´òËã»æÖÆÎïÌåµÄÊ±ºò¾ÍÄÃ³öÏàÓ¦µÄVAO£¬°ó¶¨Ëü£¬»æÖÆÍêÎïÌåºó£¬ÔÙ½â°óVAO
-		glEnable(GL_DEPTH_TEST);	// ÆôÓÃÉî¶È²âÊÔ
-		glDepthFunc(GL_LESS);		// ¶ªÆúÉî¶ÈÖµ´óÓÚµÈÓÚµ±Ç°Éî¶È»º³åÖµµÄËùÓĞÆ¬¶Î £¨Ä¬ÈÏÉèÖÃ£¬»­¼Ò£©
-		glEnable(GL_MULTISAMPLE);	// ÆôÓÃ¶àÖØ²ÉÑù
+		glBindVertexArray(0);		// å½“æˆ‘ä»¬æ‰“ç®—ç»˜åˆ¶ç‰©ä½“çš„æ—¶å€™å°±æ‹¿å‡ºç›¸åº”çš„VAOï¼Œç»‘å®šå®ƒï¼Œç»˜åˆ¶å®Œç‰©ä½“åï¼Œå†è§£ç»‘VAO
+		glEnable(GL_DEPTH_TEST);	// å¯ç”¨æ·±åº¦æµ‹è¯•
+		glDepthFunc(GL_LESS);		// ä¸¢å¼ƒæ·±åº¦å€¼å¤§äºç­‰äºå½“å‰æ·±åº¦ç¼“å†²å€¼çš„æ‰€æœ‰ç‰‡æ®µ ï¼ˆé»˜è®¤è®¾ç½®ï¼Œç”»å®¶ï¼‰
+		glEnable(GL_MULTISAMPLE);	// å¯ç”¨å¤šé‡é‡‡æ ·
 	}
 
 	void GLRender::enableTest(GLTestEnum test)
@@ -941,7 +941,7 @@ namespace ifcre {
 		switch (test) {
 		case 0x01: {
 			glDisable(GL_DEPTH_TEST);
-			glDisable(GL_CULL_FACE);  //ÆôÓÃÃæÌŞ³ı 
+			glDisable(GL_CULL_FACE);  //å¯ç”¨é¢å‰”é™¤ 
 			break;
 		}
 		case 0x02: {

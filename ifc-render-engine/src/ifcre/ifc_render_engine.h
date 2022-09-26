@@ -110,7 +110,7 @@ namespace ifcre {
 		Scene m_scene;
 
 	private:
-		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10); // ÉãÏñ»úÎ»ÖÃ // zÖáÕı·½Ïò³öÆÁÄ»
+		const glm::vec3 m_view_pos = glm::vec3(0, 0, 10); // æ‘„åƒæœºä½ç½® // zè½´æ­£æ–¹å‘å‡ºå±å¹•
 		glm::vec3 m_last_hover_pos = glm::vec3(0);
 		// right mouse click
 		bool m_last_rmclick = false;

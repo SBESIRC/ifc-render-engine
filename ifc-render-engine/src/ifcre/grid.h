@@ -13,20 +13,20 @@ using namespace glm;
 
 namespace ifcre {
 	struct Line	{
-		uint32_t stPt; // Æğµã
-		uint32_t edPt; // ÖÕµã
-		vec3 color; // ÑÕÉ«
-		float size; //Ïß¿í
-		std::string type; // ÏßĞÍ
+		uint32_t stPt; // èµ·ç‚¹
+		uint32_t edPt; // ç»ˆç‚¹
+		vec3 color; // é¢œè‰²
+		float size; //çº¿å®½
+		std::string type; // çº¿å‹
 		Line() {};
 		//Line(uint32_t _stPt, uint32_t _edPt) { stPt  = };
 
 	};
 
 	struct Circle {
-		vec3 center; // Ô²»·ÖĞĞÄ
-		float radius; // Ô²»·°ë¾¶
-		vec3 normal; // Ô²»·³¯Ïò
+		vec3 center; // åœ†ç¯ä¸­å¿ƒ
+		float radius; // åœ†ç¯åŠå¾„
+		vec3 normal; // åœ†ç¯æœå‘
 	public:
 		Circle(vec3 _center, float _radius, vec3 _normal):
 			center(_center), radius(_radius), normal(_normal)
@@ -34,9 +34,9 @@ namespace ifcre {
 			setCircleLines();
 		}
 
-		//vec3 color; // Ô²»·ÑÕÉ«
-		//float size;	// ÏÔÊ¾´ÖÏ¸
-		//vector<pair<vec3, vec3>> circleLines(,); // ×é³ÉÏßµÄÔ²ĞÎ
+		//vec3 color; // åœ†ç¯é¢œè‰²
+		//float size;	// æ˜¾ç¤ºç²—ç»†
+		//vector<pair<vec3, vec3>> circleLines(,); // ç»„æˆçº¿çš„åœ†å½¢
 		float degree = 5.f;
 		float circleLines[432] = { 0.0 };
 		vec3 yUp = vec3(0, 1, 0);
@@ -67,17 +67,17 @@ namespace ifcre {
 	};
 
 	struct Text {
-		string content;// ÎÄ×ÖÄÚÈİ
-		string type; // ×ÖÌå
-		vec3 color;// ÎÄ×ÖÑÕÉ«
-		float size;	// ÎÄ×Ö´óĞ¡
-		glm::vec3 normal;// ÎÄ×Ö³¯Ïò
-		glm::vec3 direction; // ÎÄ×Ö·½Ïò
-		glm::vec3 center;// ÎÄ×ÖÎ»ÖÃ
+		string content;// æ–‡å­—å†…å®¹
+		string type; // å­—ä½“
+		vec3 color;// æ–‡å­—é¢œè‰²
+		float size;	// æ–‡å­—å¤§å°
+		glm::vec3 normal;// æ–‡å­—æœå‘
+		glm::vec3 direction; // æ–‡å­—æ–¹å‘
+		glm::vec3 center;// æ–‡å­—ä½ç½®
 	};
 
-	struct Label { // ±ê×¢
-		//£¨ÓÉÎÄ×ÖºÍÏß×é³É£©
+	struct Label { // æ ‡æ³¨
+		//ï¼ˆç”±æ–‡å­—å’Œçº¿ç»„æˆï¼‰
 	};
 
 	struct GridLine {
