@@ -272,7 +272,7 @@ namespace ifcre {
                         that->_setClickedWorldColors(click_x, click_y, false, true);
                     }
                     //that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
-                    that->_setClickedWorldColors(click_x, click_y, false, false);
+                    //that->_setClickedWorldColors(click_x, click_y, false, false);
                     //}
                 }
                 if (double_diff_ms > 10 && double_diff_ms < 350) {
@@ -744,8 +744,8 @@ namespace ifcre {
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
-        float dis_ = 7.f;
-        float ratios = (Real)w / h;
+        //float dis_ = 7.f;
+        //float ratios = (Real)w / h;
         //m_projection = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
         //m_projection = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
         /*

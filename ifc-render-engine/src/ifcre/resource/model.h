@@ -403,7 +403,7 @@ namespace ifcre {
 
 		void PrecomputingCubeDirection() {
 			m_cube_direction_transform.clear();
-			m_cube_direction_transform.resize(6, glm::vec3(0.f, 0.f, 0.f));
+			m_cube_direction_transform.resize(26, glm::vec3(0.f, 0.f, 0.f));
 			/*glm::vec3 temp = pMax - pMin;
 			glm::vec3 div = temp / 2.f;
 			m_cube_direction_transform.push_back(-glm::vec3(div.x, 0., 0.));

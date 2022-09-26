@@ -503,7 +503,7 @@ namespace ifcre {
 
 		bool multichoose = false;
 
-		int ui_id_num = 6;
+		int ui_id_num = 26;
 
 	public:
 		//------ chosen list
