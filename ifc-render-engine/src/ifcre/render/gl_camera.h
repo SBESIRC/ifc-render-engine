@@ -111,7 +111,7 @@ namespace ifcre {
 
         void PrecomputingCubeDireciton(glm::vec3 view_pos) {
 
-            view_pos *= 1.5f;
+            //view_pos *= 1.5f;
 
             m_precomputing_pos.clear();
             m_precomputing_front.clear();

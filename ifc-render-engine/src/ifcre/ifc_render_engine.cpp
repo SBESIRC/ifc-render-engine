@@ -344,6 +344,9 @@ namespace ifcre {
 				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ m_window.chosen_list }));
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
+
+			//8, render map view
+
 #endif
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
