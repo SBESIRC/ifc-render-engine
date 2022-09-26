@@ -7,7 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
+#include "../grid.h"
 namespace ifcre {
 
 	// ------------ construction ---------------------
@@ -470,9 +470,9 @@ namespace ifcre {
 
 	void GLRender::renderGrid(IFCModel& ifc_model) 
 	{
-		static bool first = true;
+		static bool line_first = true;
 		static uint32_t grid_vao;
-		if (first) {
+		if (line_first) {
 			float linePosition[] = {
 				0.0, 0.0, 0.0,
 				100.0, 0.0, 0.0,	// x-axis
@@ -547,7 +547,7 @@ namespace ifcre {
 			glBufferData(GL_ARRAY_BUFFER, sizeof(linePosition), &linePosition, GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			first = false;
+			line_first = false;
 		}
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
@@ -555,6 +555,64 @@ namespace ifcre {
 		glBindVertexArray(grid_vao);
 		glLineWidth(3.5f);
 		glDrawArrays(GL_LINES, 0, 48);
+		glLineWidth(1.5f);
+		_defaultConfig();
+
+
+		static bool circle_first = true;
+		static uint32_t circle_vao;
+		if (circle_first) {
+			vec3 center(50.f, 50.f, 50.f);
+			float radius = 50.f;
+			//vec3 normal(1.f, 0.f, 0.f);
+			vec3 normal(90.f, 45.f, 45.f);
+			Circle circle(center, radius, normal);
+			circle.setCircleLines();
+			uint32_t circle_vbo;
+			glGenVertexArrays(1, &circle_vao);
+			glGenBuffers(1, &circle_vbo);
+			glBindVertexArray(circle_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, circle_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(circle.circleLines), &circle.circleLines, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			circle_first = false;
+		}
+		//auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+		m_grid_shader->use();
+		glBindVertexArray(circle_vao);
+		glLineWidth(3.5f);
+		glDrawArrays(GL_LINES, 0, 144);
+		glLineWidth(1.5f);
+		_defaultConfig();
+
+
+		static bool circle_second = true;
+		static uint32_t circle2_vao;
+		if (circle_second) {
+			vec3 center(50, 50, 50);
+			float radius = 25.f;
+			vec3 normal(45.f, 45.f, 90.f);
+			//vec3 normal(0.f, 0.f, 1.f);
+			Circle circle(center, radius, normal);
+			circle.setCircleLines();
+			uint32_t circle2_vbo;
+			glGenVertexArrays(1, &circle2_vao);
+			glGenBuffers(1, &circle2_vbo);
+			glBindVertexArray(circle2_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, circle2_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(circle.circleLines), &circle.circleLines, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			circle_second = false;
+		}
+		//auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+		m_grid_shader->use();
+		glBindVertexArray(circle2_vao);
+		glLineWidth(3.5f);
+		glDrawArrays(GL_LINES, 0, 144);
 		glLineWidth(1.5f);
 		_defaultConfig();
 	}
