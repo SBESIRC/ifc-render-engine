@@ -144,6 +144,13 @@ namespace ifcre {
 		glm::vec3 getpMax()const {
 			return pMax;
 		}
+		void setpMin(glm::vec3 curMin) {
+			pMin = curMin;
+		}
+		void setpMax(glm::vec3 curMax) {
+			pMax = curMax;
+		}
+
 		/*union tempa{
 			Real f;
 			int i;
@@ -310,6 +317,23 @@ namespace ifcre {
 		}
 
 		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+			uint32_t c_indices_size = c_indices.size();
+			for (auto& id : comp_indices) {
+				if (id > c_indices_size || comps_bbx.size() == 0) {
+					continue;
+				}
+				for (int i = 0; i < 3; i++) {
+					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+				}
+				for (int i = 3; i < 6; i++) {
+					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+				}
+			}
+			return ret;
+		}
+
+		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
