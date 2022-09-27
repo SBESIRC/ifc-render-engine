@@ -259,7 +259,7 @@ namespace ifcre {
 			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
 			ui_key = m_window.getClickedUIId();
-			if (ui_key > -1 && ui_key < 6 && m_render_window->m_mouse_status.single_click) {
+			if (ui_key > -1 && ui_key < 26 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
 				cube_num = ui_key;
 				m_render_window->m_mouse_status.single_click = false;
@@ -295,8 +295,8 @@ namespace ifcre {
 				mouse_move_vec.y = m_window.getMouseVerticalVel();
 			}
 			clp_face_key = m_window.getClpBoxFaceId();
-			if (clp_face_key > 5) {
-				clp_face_key -= 6;
+			if (clp_face_key > 25) {
+				clp_face_key -= 26;
 				int xsig = (mouse_move_vec.x > 0) ? 1 : ((mouse_move_vec.x < 0) ? -1 : 0);
 				int ysig = (mouse_move_vec.y > 0) ? 1 : ((mouse_move_vec.y < 0) ? -1 : 0);
 				int finalsig = xsig + ysig;
@@ -344,6 +344,9 @@ namespace ifcre {
 				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ m_window.chosen_list }));
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
+
+			//8, render map view
+
 #endif
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());

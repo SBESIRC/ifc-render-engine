@@ -328,13 +328,14 @@ namespace ifcre {
 
 		Vector<Real> generate_bbxs_by_vec(const std::set<uint32_t>& comp_indices) {
 			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices);
-			Vector<Real> ret2(24);
+			/*Vector<Real> ret2(24);
 			for (int i = 0; i < 8; i++) {
 				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
 				ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
 				ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
-			}
-			return ret2;
+			}*/
+			return generate_bbxs_by_vec2(ret);
+
 		}
 
 		Vector<Real> generate_bbxs_by_vec2(const Vector<Real>& ret) {
@@ -402,7 +403,7 @@ namespace ifcre {
 
 		void PrecomputingCubeDirection() {
 			m_cube_direction_transform.clear();
-			m_cube_direction_transform.resize(6, glm::vec3(0.f, 0.f, 0.f));
+			m_cube_direction_transform.resize(26, glm::vec3(0.f, 0.f, 0.f));
 			/*glm::vec3 temp = pMax - pMin;
 			glm::vec3 div = temp / 2.f;
 			m_cube_direction_transform.push_back(-glm::vec3(div.x, 0., 0.));

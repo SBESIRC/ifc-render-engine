@@ -435,7 +435,7 @@ namespace ifcre {
 			return &_character[word];
 		}
 
-		void drawText(const wchar_t* text) { //生成网格，贴上纹理绘制文字
+		void drawText(const wchar_t* text, float text_scale) { //生成网格，贴上纹理绘制文字
 			auto wstringtemp = std::wstring(text);
 			if (text_handle.find(wstringtemp) == text_handle.end()) {
 				unsigned vertsize = 0;
@@ -450,13 +450,13 @@ namespace ifcre {
 					//memcpy(&word, text + i, 2);
 					Character2* ch = getCharacter(text[i]); // 获得纹理中存的“字”
 
-					int h = ch->y1 - ch->y0;
+					float h = (ch->y1 - ch->y0) * text_scale;
 					//int h = 30;
-					int w = ch->x1 - ch->x0;
-					float offset = float(ch->offsetY);
+					float w = (ch->x1 - ch->x0) * text_scale;
+					float offset = float(ch->offsetY * text_scale);
 					float offset2 = offset - float(h);
 					//float offset = 0;
-					float offsetx = float(ch->offsetX);
+					float offsetx = float(ch->offsetX * text_scale);
 
 					/*point 1*/
 					vert[vertsize + 0][0] = xStart;
