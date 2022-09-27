@@ -612,6 +612,17 @@ namespace ifcre {
 			"gl_Position = projection * vec4(truepos, 0.0, 1.0);\r\n"
 			"TexCoords = vertex.zw;\r\n"
 			"}\r\n";
+		static const char* v_text3d = "#version 430\r\n"
+			"layout(location = 0) in vec3 pos;\r\n"
+			"layout(location = 1) in vec2 texcoord;\r\n"
+			"out vec2 TexCoords;\r\n"
+			"uniform mat4 projection;\r\n"
+			"uniform mat4 modelview;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"gl_Position = projection * modelview * vec4(pos, 1.0);\r\n"
+			"TexCoords = texcoord;\r\n"
+			"}\r\n";
 	}// shader_consts
 
 }

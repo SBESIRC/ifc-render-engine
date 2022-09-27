@@ -1,4 +1,4 @@
-#include "gl_render.h"
+﻿#include "gl_render.h"
 #include "gl/gl_uniform_buffer.h"
 
 #include "gl/shader_consts.h"
@@ -87,6 +87,9 @@ namespace ifcre {
 		String v_grid = util::read_file("shaders/grid.vert");
 		String f_grid = util::read_file("shaders/grid.frag");
 		m_grid_shader = make_unique<GLSLProgram>(v_grid.c_str(), f_grid.c_str());
+
+		String v_text3d = util::read_file("shaders/text3d.vert");
+		m_text3d_shader = make_unique<GLSLProgram>(v_text3d.c_str(), f_text.c_str());
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -105,6 +108,7 @@ namespace ifcre {
 		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
 		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
+		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -465,6 +469,13 @@ namespace ifcre {
 			lockk = true;
 		}*/
 		glDepthMask(GL_TRUE);
+
+		_defaultConfig();
+		m_text3d_shader->use();
+		m_text3d_shader->setVec3("textColor", color);
+		m_text3d_shader->setMat4("projection", m_projection);
+		m_text3d_shader->setMat4("modelview", m_modelview);
+		texturefont.drawText3D();
 		_defaultConfig();
 	}
 

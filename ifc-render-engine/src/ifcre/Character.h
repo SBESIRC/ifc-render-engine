@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <iostream>
 #include <map>
@@ -189,6 +189,15 @@ namespace ifcre {
 		std::pair<GLuint, GLuint> vaovbo;
 		unsigned vertsize;
 	};
+	struct TextNewFromat {
+		std::wstring content;
+		glm::vec3 color;
+		float size;
+		glm::vec3 normal;
+		glm::vec3 direction;
+		//so the vertical direciton will be normal x direction in right-hand coordination
+		glm::vec3 center;
+	};
 	struct TextureFont {
 	protected:
 		Character2 _character[1 << 16]; // 一个汉字两字节,总约65536字
@@ -363,6 +372,14 @@ namespace ifcre {
 			);							 
 
 			glBindTexture(GL_TEXTURE_2D, 0);
+
+			//exampletext.center = glm::vec3(150.f, 40.f, 0.f);
+			exampletext.center = glm::vec3(50.f, 50.f, 50.f);
+			const wchar_t text2[] = L"3D文字渲染测试";
+			exampletext.content = std::wstring(text2);
+			exampletext.normal = glm::vec3(1.f, 1.f, -1.f);
+			exampletext.direction = glm::vec3(1.f, 1.f, 0.f);
+			exampletext.size = .2f;
 		}
 
 		Character2* getCharacter(wchar_t ch) {
@@ -536,6 +553,120 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, textVBO);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+
+
+			glDrawArrays(GL_TRIANGLES, 0, the_value.vertsize);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glDisable(GL_BLEND);
+		}
+
+		typedef float TextVertex3D[5];
+		TextVertex3D vert3d[1024];
+
+		TextNewFromat exampletext;
+
+		void drawText3D() {
+			drawText3D(exampletext);
+		}
+
+		void drawText3D(TextNewFromat mytext) {
+			if (text_handle.find(mytext.content) == text_handle.end()) {
+				unsigned vertsize = 0;
+				float texWidth = 1024;
+				float texHeight = 1024;
+				glm::vec3 pStart = mytext.center;
+				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
+				unsigned nSize = mytext.content.size();
+				for (unsigned i = 0; i < nSize; i++) {
+					Character2* ch = getCharacter(mytext.content[i]);
+
+					float h = (ch->y1 - ch->y0) * mytext.size;
+					float w = (ch->x1 - ch->x0) * mytext.size;
+					float offset = float(ch->offsetY * mytext.size);
+					float offset2 = offset - float(h);
+					float offsetx = float(ch->offsetX * mytext.size);
+
+					glm::vec3 curStart = pStart + offset * verticalDirection;
+					glm::vec3 temp1 = pStart + offset2 * verticalDirection;
+					glm::vec3 temp2 = pStart + w * mytext.direction + offset * verticalDirection;
+					glm::vec3 temp3 = temp1 + w * mytext.direction;
+
+					vert3d[vertsize + 0][0] = curStart.x;
+					vert3d[vertsize + 0][1] = curStart.y;
+					vert3d[vertsize + 0][2] = curStart.z;
+					vert3d[vertsize + 0][3] = ch->x0 / texWidth;
+					vert3d[vertsize + 0][4] = ch->y0 / texHeight;
+
+					vert3d[vertsize + 1][0] = temp2.x;
+					vert3d[vertsize + 1][1] = temp2.y;
+					vert3d[vertsize + 1][2] = temp2.z;
+					vert3d[vertsize + 1][3] = ch->x1 / texWidth;
+					vert3d[vertsize + 1][4] = ch->y0 / texHeight;
+
+					vert3d[vertsize + 2][0] = temp3.x;
+					vert3d[vertsize + 2][1] = temp3.y;
+					vert3d[vertsize + 2][2] = temp3.z;
+					vert3d[vertsize + 2][3] = ch->x1 / texWidth;
+					vert3d[vertsize + 2][4] = ch->y1 / texHeight;
+
+					vert3d[vertsize + 3][0] = temp1.x;
+					vert3d[vertsize + 3][1] = temp1.y;
+					vert3d[vertsize + 3][2] = temp1.z;
+					vert3d[vertsize + 3][3] = ch->x0 / texWidth;
+					vert3d[vertsize + 3][4] = ch->y1 / texHeight;
+
+					vert3d[vertsize + 4][0] = curStart.x;
+					vert3d[vertsize + 4][1] = curStart.y;
+					vert3d[vertsize + 4][2] = curStart.z;
+					vert3d[vertsize + 4][3] = ch->x0 / texWidth;
+					vert3d[vertsize + 4][4] = ch->y0 / texHeight;
+
+					vert3d[vertsize + 5][0] = temp3.x;
+					vert3d[vertsize + 5][1] = temp3.y;
+					vert3d[vertsize + 5][2] = temp3.z;
+					vert3d[vertsize + 5][3] = ch->x1 / texWidth;
+					vert3d[vertsize + 5][4] = ch->y1 / texHeight;
+
+					vertsize += 6;
+					pStart = pStart + (offsetx + w) * mytext.direction;
+				}
+
+				GLuint textVAO, textVBO;
+
+				glGenVertexArrays(1, &textVAO);
+				glBindVertexArray(textVAO);
+				glBindTexture(GL_TEXTURE_2D, _textureId);
+				glGenBuffers(1, &textVBO);
+				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
+
+				mappingStruct value = { std::pair<GLuint, GLuint>(textVAO, textVBO) ,vertsize };
+				text_handle[mytext.content] = value;
+
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+
+			auto the_value = text_handle[mytext.content];
+			auto [textVAO, textVBO] = the_value.vaovbo;
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glActiveTexture(GL_TEXTURE0);
+
+			glBindVertexArray(textVAO);
+			glBindTexture(GL_TEXTURE_2D, _textureId);
+			glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
+
 
 			glDrawArrays(GL_TRIANGLES, 0, the_value.vertsize);
 
