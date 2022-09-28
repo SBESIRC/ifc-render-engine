@@ -1,0 +1,9 @@
+﻿# You can modify the rules from these initially generated values to suit your own policies
+# You can learn more about editorconfig here: https://docs.microsoft.com/en-us/visualstudio/ide/editorconfig-code-style-settings-reference
+[*]
+end_of_line = crlf
+charset = utf-8-bom
+indent_size = 4
+insert_final_newline = true
+tab_width = 4
+trim_trailing_whitespace = true

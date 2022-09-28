@@ -27,15 +27,15 @@ namespace ifcre {
 		vec3 center; // 圆环中心
 		float radius; // 圆环半径
 		vec3 normal; // 圆环朝向
+
+		vec3 color; // 圆环颜色
+		float size;	// 显示粗细
 	public:
 		Circle(vec3 _center, float _radius, vec3 _normal):
 			center(_center), radius(_radius), normal(_normal)
 		{
 			setCircleLines();
 		}
-
-		//vec3 color; // 圆环颜色
-		//float size;	// 显示粗细
 		//vector<pair<vec3, vec3>> circleLines(,); // 组成线的圆形
 		float degree = 5.f;
 		float circleLines[432] = { 0.0 };
@@ -82,9 +82,8 @@ namespace ifcre {
 
 	struct GridLine {
 		vector<Line> line;
-		Circle stCircle;
-		Circle edCircle;
-		Text text;
+		vector<Circle> circle;
+		vector<Text> text;
 		//....
 	};
 

@@ -1,4 +1,4 @@
-#include "ifc_render_engine.h"
+﻿#include "ifc_render_engine.h"
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
@@ -397,6 +397,10 @@ namespace ifcre {
 		if (m_window.geom_changed) {
 			ifc_test_model->update_chosen_and_vis_list();
 
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ ifc_test_model->cur_c_indices });
+			ifc_test_model->setpMax(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]));
+			ifc_test_model->setpMin(glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
+
 			m_render.DynamicUpdate(ifc_test_model->render_id,
 				ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices),
 				ifc_test_model->cur_vis_no_trans_ind,
@@ -521,6 +525,7 @@ namespace ifcre {
 		if (ifc_test_model == NULL) {
 			return;
 		}
+		
 		zoombyBBX(ifc_test_model->getpMax(), ifc_test_model->getpMin());
 	}
 

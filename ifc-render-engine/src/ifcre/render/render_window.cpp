@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include "render_window.h"
 #define GLFW_EXPOSE_NATIVE_WIN32
@@ -212,10 +212,10 @@ namespace ifcre {
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
         float click_z = that->_getClickedDepthValue(click_x, click_y);
-        if (click_z != 1.0) {
-            that->_setClickedWorldCoords(click_x, click_y, click_z);
+        //if (click_z != 1.0) {
+            //that->_setClickedWorldCoords(click_x, click_y, click_z);
             //that->_setClickedWorldColors(click_x, click_y, false);
-        }
+        //}
         camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
 
         Real w = that->m_width, h = that->m_height;

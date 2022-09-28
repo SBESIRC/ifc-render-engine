@@ -117,7 +117,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_text_shader;
 		UniquePtr<GLSLProgram> m_skybox_shader;
 		UniquePtr<GLSLProgram> m_grid_shader;
-
+		UniquePtr<GLSLProgram> m_text3d_shader;
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
 		void _defaultConfig();
