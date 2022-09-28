@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -8,16 +8,19 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
+#include "ifc_render_engine.h"
+
 using namespace std;
 using namespace glm;
 
 namespace ifcre {
 	struct Line	{
-		uint32_t stPt; // 起点
-		uint32_t edPt; // 终点
-		vec3 color; // 颜色
+		vec3 stPt; // 起点
+		vec3 edPt; // 终点
+		vec4 color; // 颜色
 		float size; //线宽
-		std::string type; // 线型
+		//std::string type; // 线型
+		int type; // 线型
 		Line() {};
 		//Line(uint32_t _stPt, uint32_t _edPt) { stPt  = };
 
@@ -28,7 +31,7 @@ namespace ifcre {
 		float radius; // 圆环半径
 		vec3 normal; // 圆环朝向
 
-		vec3 color; // 圆环颜色
+		vec4 color; // 圆环颜色
 		float size;	// 显示粗细
 	public:
 		Circle(vec3 _center, float _radius, vec3 _normal):
@@ -68,8 +71,8 @@ namespace ifcre {
 
 	struct Text {
 		string content;// 文字内容
-		string type; // 字体
-		vec3 color;// 文字颜色
+		int type; // 字体
+		vec4 color;// 文字颜色
 		float size;	// 文字大小
 		glm::vec3 normal;// 文字朝向
 		glm::vec3 direction; // 文字方向
@@ -81,15 +84,97 @@ namespace ifcre {
 	};
 
 	struct GridLine {
-		vector<Line> line;
-		vector<Circle> circle;
-		vector<Text> text;
-		//....
+		vector<Line> lines;
+		vector<Circle> circles;
+		vector<Text> texts;
+		GridLine() {};
+		GridLine(vector<Line>& _lines,vector<Circle>& _circles, vector<Text>& _texts):
+			lines(_lines), circles(_circles), texts(_texts)
+		{};
 	};
 
 	struct Grid {
-		//vector< GridLine>();
+		vector<GridLine>(GridLine());
 	};
+
+	//void set_grid_data() {
+	//	//此处先进行清空数据
+	//	//init datas
+	//	GridLine gridLine;
+	//	int grid_size = 0;
+	//	int line_size = 0;
+	//	int circle_size = 0;
+	//	int text_size = 0;
+	//	grid_size = IFCRenderEngine::set_int();
+	//	while (grid_size--) {
+	//		line_size = IFCRenderEngine::set_int();
+	//		while (line_size--) {
+	//			glm::vec3 stPt;
+	//			stPt.x = IFCRenderEngine::set_float();
+	//			stPt.y = IFCRenderEngine::set_float();
+	//			stPt.z = IFCRenderEngine::set_float();
+	//			glm::vec3 edPt;
+	//			edPt.x = IFCRenderEngine::set_float();
+	//			edPt.y = IFCRenderEngine::set_float();
+	//			edPt.z = IFCRenderEngine::set_float();
+	//			glm::vec4 color;
+	//			color.r = IFCRenderEngine::set_float();
+	//			color.g = IFCRenderEngine::set_float();
+	//			color.b = IFCRenderEngine::set_float();
+	//			color.a = IFCRenderEngine::set_float();
+	//			float size;
+	//			size = IFCRenderEngine::set_float();
+	//			int size_type;
+	//			size_type = IFCRenderEngine::set_int();
+	//		}
+	//		circle_size = IFCRenderEngine::set_int();
+	//		while (circle_size--) {
+	//			glm::vec3 center;
+	//			center.x = IFCRenderEngine::set_float();
+	//			center.y = IFCRenderEngine::set_float();
+	//			center.z = IFCRenderEngine::set_float();
+	//			float radius;
+	//			radius = IFCRenderEngine::set_float();
+	//			glm::vec3 normal;
+	//			normal.x = IFCRenderEngine::set_float();
+	//			normal.y = IFCRenderEngine::set_float();
+	//			normal.z = IFCRenderEngine::set_float();
+	//			glm::vec4 color;
+	//			color.r = IFCRenderEngine::set_float();
+	//			color.g = IFCRenderEngine::set_float();
+	//			color.b = IFCRenderEngine::set_float();
+	//			color.a = IFCRenderEngine::set_float();
+	//			float size;
+	//			size = IFCRenderEngine::set_float();
+	//		}
+	//		int text_size = IFCRenderEngine::set_int();
+	//		while (text_size--) {
+	//			int textsize;
+	//			//set char
+	//			int type;
+	//			type = IFCRenderEngine::set_int();
+	//			glm::vec4 color;
+	//			color.r = IFCRenderEngine::set_float();
+	//			color.g = IFCRenderEngine::set_float();
+	//			color.b = IFCRenderEngine::set_float();
+	//			color.a = IFCRenderEngine::set_float();
+	//			float size;
+	//			size = IFCRenderEngine::set_float();
+	//			glm::vec3 normal;
+	//			normal.x = IFCRenderEngine::set_float();
+	//			normal.y = IFCRenderEngine::set_float();
+	//			normal.z = IFCRenderEngine::set_float();
+	//			glm::vec3 direction;
+	//			direction.x = IFCRenderEngine::set_float();
+	//			direction.y = IFCRenderEngine::set_float();
+	//			direction.z = IFCRenderEngine::set_float();
+	//			glm::vec3 center;
+	//			center.x = IFCRenderEngine::set_float();
+	//			center.y = IFCRenderEngine::set_float();
+	//			center.z = IFCRenderEngine::set_float();
+	//		}
+	//	}
+	//}
 
 	vector<float> g_vertices; // xyzxyz xyzxyz xyzxyz...
 	vector<float> color; // xyzxyz xyzxyz xyzxyz...
