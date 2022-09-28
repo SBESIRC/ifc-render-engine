@@ -1,4 +1,4 @@
-#include "ifc_render_engine.h"
+﻿#include "ifc_render_engine.h"
 #include "ifcre_export.h"
 
 using namespace ifcre;
@@ -121,3 +121,15 @@ void ifcre_home()
 	auto& re = *render_engine;
 	re.zoom2Home();
 }
+
+//int ifcre_set_int() {
+//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+//	auto& re = *render_engine;
+//	re.set_int(val);
+//}
+//
+//float ifcre_set_float() {
+//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+//	auto& re = *render_engine;
+//	re.set_float(val);
+//}
