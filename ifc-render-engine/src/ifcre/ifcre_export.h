@@ -39,8 +39,8 @@ extern "C" {
 	__declspec(dllexport) bool ifcre_save_image(const char* filePath);
 	__declspec(dllexport) void ifcre_home();
 
-	__declspec(dllexport) void ifcre_set_int(int val);
-	__declspec(dllexport) void ifcre_set_float(float val);
+	//__declspec(dllexport) int ifcre_set_int();
+	//__declspec(dllexport) float ifcre_set_float();
 
 #ifdef __cplusplus
 }
