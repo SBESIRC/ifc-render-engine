@@ -2,6 +2,7 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
+#include "grid.h"
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -23,6 +24,9 @@ namespace ifcre {
 		Vector<Vector<uint32_t>>().swap(_c_indices);
 		Vector<Real>().swap(_face_mat);
 		Vector<uint32_t>().swap(_edge_indices);
+		//vector<float>().swap(Grid::grid_lines);
+		//vector<float>().swap(Grid::grid_circles);
+		//vector<Text>().swap(texts);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -50,6 +54,12 @@ namespace ifcre {
 	}
 	void IFCRenderEngine::set_edge_indices(int val) {
 		_edge_indices.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_lines(float val) {
+		//Grid::grid_lines.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_circles(float val) {
+		//Grid::grid_circles.emplace_back(val);
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
@@ -358,7 +368,8 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//m_render.renderGrid(*ifc_test_model);
+			m_render.renderGrid(*ifc_test_model);
+			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord

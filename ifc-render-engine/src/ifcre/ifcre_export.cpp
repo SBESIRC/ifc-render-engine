@@ -122,14 +122,14 @@ void ifcre_home()
 	re.zoom2Home();
 }
 
-//void ifcre_set_int(int val) {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_int(val);
-//}
+void ifcre_set_grid_lines(float val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_grid_lines(val);
+}
 
-//void ifcre_set_float(float val) {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_float(val);
-//}
+void ifcre_set_grid_circles(float val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_grid_circles(val);
+}

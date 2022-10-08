@@ -14,18 +14,6 @@ using namespace std;
 using namespace glm;
 
 namespace ifcre {
-	struct Line	{
-		vec3 stPt; // 起点
-		vec3 edPt; // 终点
-		vec4 color; // 颜色
-		float size; //线宽
-		//std::string type; // 线型
-		int type; // 线型
-		Line() {};
-		//Line(uint32_t _stPt, uint32_t _edPt) { stPt  = };
-
-	};
-
 	struct Circle {
 		vec3 center; // 圆环中心
 		float radius; // 圆环半径
@@ -39,7 +27,6 @@ namespace ifcre {
 		{
 			setCircleLines();
 		}
-		//vector<pair<vec3, vec3>> circleLines(,); // 组成线的圆形
 		float degree = 5.f;
 		float circleLines[432] = { 0.0 };
 		vec3 yUp = vec3(0, 1, 0);
@@ -78,105 +65,53 @@ namespace ifcre {
 		glm::vec3 direction; // 文字方向
 		glm::vec3 center;// 文字位置
 	};
+	
+	class Grid {
+		Grid() {
+		}
+	public:
+		static vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
+		static vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
+		static vector<Text> texts;
 
-	struct Label { // 标注
-		//（由文字和线组成）
+		void generate_circleLines(int per_degree = 5) {
+			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
+			int circle_pt_cnt = circle_lines * 6;
+			vector<float> oneCircle(circle_pt_cnt);
+			for (int i = 0, j = 0; j < grid_circles.size(); ++i, j += 12) {
+				// construct each circle to lines
+				vector<float>().swap(oneCircle);
+				float x, z;
+				glm::qua<float> q = glm::qua<float>(glm::radians(glm::vec3(grid_circles[j + 3], grid_circles[j + 4], grid_circles[j + 5]))); // normal
+				for (int circle_line = 0; circle_line < circle_lines; ++circle_line) {
+					x = grid_circles[j + 10] * cos(i * per_degree * M_PI / 180.f);
+					z = grid_circles[j + 10] * sin(i * per_degree * M_PI / 180.f);
+					vec3 pos(x, 0, z);
+					pos = q * pos;
+					pos = pos + glm::vec3(grid_circles[j], grid_circles[j + 1], grid_circles[j + 2]); // center
+					oneCircle[circle_line * 6] = pos.x;
+					oneCircle[circle_line * 6 + 1] = pos.y;
+					oneCircle[circle_line * 6 + 2] = pos.z;
+					if (circle_line != 0) {
+						oneCircle[circle_line * 6 + 3] = oneCircle[circle_line * 6 - 6];
+						oneCircle[circle_line * 6 + 4] = oneCircle[circle_line * 6 - 5];
+						oneCircle[circle_line * 6 + 5] = oneCircle[circle_line * 6 - 4];
+					}
+				}
+				oneCircle[3] = oneCircle[circle_pt_cnt - 6];
+				oneCircle[4] = oneCircle[circle_pt_cnt - 5];
+				oneCircle[5] = oneCircle[circle_pt_cnt - 4];
+				// add this circle into grid_lines
+				grid_lines.insert(grid_lines.end(), oneCircle.begin(), oneCircle.end());
+				grid_lines.emplace_back(grid_circles[j + 6]); // rgba
+				grid_lines.emplace_back(grid_circles[j + 7]);
+				grid_lines.emplace_back(grid_circles[j + 8]);
+				grid_lines.emplace_back(grid_circles[j + 9]);
+				grid_lines.emplace_back(grid_circles[j + 11]); // line width
+				grid_lines.emplace_back(1.); // line type
+			}
+		}
+
+		
 	};
-
-	struct GridLine {
-		vector<Line> lines;
-		vector<Circle> circles;
-		vector<Text> texts;
-		GridLine() {};
-		GridLine(vector<Line>& _lines,vector<Circle>& _circles, vector<Text>& _texts):
-			lines(_lines), circles(_circles), texts(_texts)
-		{};
-	};
-
-	struct Grid {
-		vector<GridLine>(GridLine());
-	};
-
-	//void set_grid_data() {
-	//	//此处先进行清空数据
-	//	//init datas
-	//	GridLine gridLine;
-	//	int grid_size = 0;
-	//	int line_size = 0;
-	//	int circle_size = 0;
-	//	int text_size = 0;
-	//	grid_size = IFCRenderEngine::set_int();
-	//	while (grid_size--) {
-	//		line_size = IFCRenderEngine::set_int();
-	//		while (line_size--) {
-	//			glm::vec3 stPt;
-	//			stPt.x = IFCRenderEngine::set_float();
-	//			stPt.y = IFCRenderEngine::set_float();
-	//			stPt.z = IFCRenderEngine::set_float();
-	//			glm::vec3 edPt;
-	//			edPt.x = IFCRenderEngine::set_float();
-	//			edPt.y = IFCRenderEngine::set_float();
-	//			edPt.z = IFCRenderEngine::set_float();
-	//			glm::vec4 color;
-	//			color.r = IFCRenderEngine::set_float();
-	//			color.g = IFCRenderEngine::set_float();
-	//			color.b = IFCRenderEngine::set_float();
-	//			color.a = IFCRenderEngine::set_float();
-	//			float size;
-	//			size = IFCRenderEngine::set_float();
-	//			int size_type;
-	//			size_type = IFCRenderEngine::set_int();
-	//		}
-	//		circle_size = IFCRenderEngine::set_int();
-	//		while (circle_size--) {
-	//			glm::vec3 center;
-	//			center.x = IFCRenderEngine::set_float();
-	//			center.y = IFCRenderEngine::set_float();
-	//			center.z = IFCRenderEngine::set_float();
-	//			float radius;
-	//			radius = IFCRenderEngine::set_float();
-	//			glm::vec3 normal;
-	//			normal.x = IFCRenderEngine::set_float();
-	//			normal.y = IFCRenderEngine::set_float();
-	//			normal.z = IFCRenderEngine::set_float();
-	//			glm::vec4 color;
-	//			color.r = IFCRenderEngine::set_float();
-	//			color.g = IFCRenderEngine::set_float();
-	//			color.b = IFCRenderEngine::set_float();
-	//			color.a = IFCRenderEngine::set_float();
-	//			float size;
-	//			size = IFCRenderEngine::set_float();
-	//		}
-	//		int text_size = IFCRenderEngine::set_int();
-	//		while (text_size--) {
-	//			int textsize;
-	//			//set char
-	//			int type;
-	//			type = IFCRenderEngine::set_int();
-	//			glm::vec4 color;
-	//			color.r = IFCRenderEngine::set_float();
-	//			color.g = IFCRenderEngine::set_float();
-	//			color.b = IFCRenderEngine::set_float();
-	//			color.a = IFCRenderEngine::set_float();
-	//			float size;
-	//			size = IFCRenderEngine::set_float();
-	//			glm::vec3 normal;
-	//			normal.x = IFCRenderEngine::set_float();
-	//			normal.y = IFCRenderEngine::set_float();
-	//			normal.z = IFCRenderEngine::set_float();
-	//			glm::vec3 direction;
-	//			direction.x = IFCRenderEngine::set_float();
-	//			direction.y = IFCRenderEngine::set_float();
-	//			direction.z = IFCRenderEngine::set_float();
-	//			glm::vec3 center;
-	//			center.x = IFCRenderEngine::set_float();
-	//			center.y = IFCRenderEngine::set_float();
-	//			center.z = IFCRenderEngine::set_float();
-	//		}
-	//	}
-	//}
-
-	vector<float> g_vertices; // xyzxyz xyzxyz xyzxyz...
-	vector<float> color; // xyzxyz xyzxyz xyzxyz...
-
 }
