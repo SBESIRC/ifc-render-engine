@@ -304,7 +304,10 @@ namespace ifcre {
 					//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
 					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0));
 				}
-				last_clp_face_key = clp_face_key + 6;
+				last_clp_face_key = clp_face_key + 26;
+			}
+			else if(!m_render_window->m_mouse_status.lbtn_down) { // do not render when hold lbtn
+				last_hovered_face_key = clp_face_key;
 			}
 #endif
 
@@ -352,7 +355,7 @@ namespace ifcre {
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
 			//--------------- gizmo rendering ----------------------------------------
-			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
+			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//m_render.renderGrid(*ifc_test_model);

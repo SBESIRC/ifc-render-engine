@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_SHADER_CONSTS_H_
 #define IFCRE_SHADER_CONSTS_H_
 
@@ -335,24 +335,35 @@ namespace ifcre {
 			"}\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
-		static const char* f_gizmo = "#version 430\r\n"
+		static const char* f_gizmo = "#version 460\r\n"
 			"layout(location = 0) out vec4 FragColor;\r\n"
-			"in vec2 TexCoord; // 传入纹理坐标\r\n"
-			"uniform sampler2D ourTexture; // 把一个纹理添加到片段着色器中\r\n"
+			"in vec2 TexCoord;// 传入纹理坐标\r\n"
+			"in flat int thisid;\r\n"
+			"uniform sampler2D ourTexture;// 把一个纹理添加到片段着色器中\r\n"
 			"void main(){\r\n"
-			"FragColor = texture(ourTexture,TexCoord); // 采样纹理的颜色(纹理采样器,对应的纹理坐标)\r\n"
+			"vec4 tempColor = texture(ourTexture,TexCoord);// 采样纹理的颜色(纹理采样器,对应的纹理坐标)\r\n"
+			"if(thisid > 0){\r\n"
+			"tempColor = tempColor*0.75+ vec4(0., 0.25, 0.25, 0.);\r\n"
+			"}\r\n"
+			"FragColor = tempColor;\r\n"
 			"}\r\n";
 
-		static const char* v_gizmo = "#version 430\r\n"
+		static const char* v_gizmo = "#version 460\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 1) in vec2 uvs;\r\n"
+			"layout(location = 2) in int aid;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
 			"mat4 view_matrix;   // 0 ~ 64\r\n"
 			"} ubo;\r\n"
-			"out vec2 TexCoord; // 传出纹理坐标\r\n"
+			"uniform int hover_id;\r\n"
+			"out vec2 TexCoord;// 传出纹理坐标\r\n"
+			"out flat int thisid;\r\n"
 			"void main(){\r\n"
 			"TexCoord = uvs;\r\n"
 			"gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);\r\n"
+			"thisid = 0;\r\n"
+			"if(hover_id == aid)\r\n"
+			"thisid = 1;\r\n"
 			"}\r\n";
 		static const char* f_gizmo_ui = "#version 430\r\n"
 			"layout(location = 0) out int FragId;\r\n"

@@ -128,6 +128,7 @@ namespace ifcre {
 		bool trigger = false;
 
 		int last_clp_face_key = 0;
+		int last_hovered_face_key = 0;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 

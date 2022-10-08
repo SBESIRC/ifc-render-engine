@@ -726,12 +726,13 @@ namespace ifcre {
 
 	}
 
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_shader->use();
+		m_gizmo_shader->setInt("hover_id", last_hovered_face_key);
 		gizmo.drawGizmo();
 		_defaultConfig();
 	}

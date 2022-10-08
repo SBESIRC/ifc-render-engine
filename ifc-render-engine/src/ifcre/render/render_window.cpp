@@ -652,7 +652,7 @@ namespace ifcre {
     int RenderWindow::getClpBoxFaceId()
     {
         auto temp = m_mouse_status.clpbox_face_id;
-        m_mouse_status.clpbox_face_id = -1;
+        //m_mouse_status.clpbox_face_id = -1;
         rotatelock = false;
         return temp;
     }
