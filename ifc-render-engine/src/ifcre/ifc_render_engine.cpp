@@ -306,7 +306,7 @@ namespace ifcre {
 				}
 				last_clp_face_key = clp_face_key + 26;
 			}
-			else if(!m_render_window->m_mouse_status.lbtn_down) { // do not render when hold lbtn
+			else if(!m_render_window->m_mouse_status.lbtn_down) {
 				last_hovered_face_key = clp_face_key;
 			}
 #endif
