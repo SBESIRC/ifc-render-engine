@@ -122,14 +122,14 @@ void ifcre_home()
 	re.zoom2Home();
 }
 
-//int ifcre_set_int() {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_int(val);
-//}
-//
-//float ifcre_set_float() {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_float(val);
-//}
+int ifcre_set_int() {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_int(val);
+}
+
+float ifcre_set_float() {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_float(val);
+}

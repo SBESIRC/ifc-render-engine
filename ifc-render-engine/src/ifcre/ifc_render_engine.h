@@ -39,8 +39,8 @@ namespace ifcre {
 		virtual bool saveImage(const char* filePath) = 0;
 		virtual void SetClipBox() = 0;
 		virtual void zoom2Home() = 0;
-		//virtual int set_int() = 0;
-		//virtual float set_float() = 0;
+		virtual void set_int(int val) = 0;
+		virtual void set_float(float val) = 0;
 
 	};
 
@@ -57,8 +57,8 @@ namespace ifcre {
 		void set_c_indices(int val);
 		void set_face_mat(float val);
 		void set_edge_indices(int val);
-		//int set_int();
-		//float set_float();
+		void set_int(int val);
+		void set_float(float val);
 
 		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow *);
