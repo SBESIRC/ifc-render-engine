@@ -40,6 +40,7 @@ namespace ifcre {
 		virtual void SetClipBox() = 0;
 		virtual void zoom2Home() = 0;
 
+		virtual void clear_grid_data() = 0;
 		virtual void set_grid_lines(float val) = 0;
 		virtual void set_grid_circles(float val) = 0;
 	};
@@ -57,6 +58,8 @@ namespace ifcre {
 		void set_c_indices(int val);
 		void set_face_mat(float val);
 		void set_edge_indices(int val);
+
+		void clear_grid_data();
 		void set_grid_lines(float val);
 		void set_grid_circles(float val);
 
@@ -109,6 +112,9 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> _c_indices;
 		Vector<float> _face_mat;
 		Vector<uint32_t> _edge_indices;
+
+		Vector<float> grid_lines;
+		Vector<float> grid_circles;
 
 	private:
 		SharedPtr<IFCRender> m_ifcRender;

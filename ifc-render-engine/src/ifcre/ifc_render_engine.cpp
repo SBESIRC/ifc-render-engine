@@ -24,9 +24,8 @@ namespace ifcre {
 		Vector<Vector<uint32_t>>().swap(_c_indices);
 		Vector<Real>().swap(_face_mat);
 		Vector<uint32_t>().swap(_edge_indices);
-		//vector<float>().swap(Grid::grid_lines);
-		//vector<float>().swap(Grid::grid_circles);
-		//vector<Text>().swap(texts);
+		vector<float>().swap(grid_lines);
+		vector<float>().swap(grid_circles);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -55,11 +54,23 @@ namespace ifcre {
 	void IFCRenderEngine::set_edge_indices(int val) {
 		_edge_indices.emplace_back(val);
 	}
+
+	void IFCRenderEngine::clear_grid_data() {
+		vector<float>().swap(grid_lines);
+		vector<float>().swap(grid_circles);
+		//vector<Text>().swap(texts);
+	}
 	void IFCRenderEngine::set_grid_lines(float val) {
-		//Grid::grid_lines.emplace_back(val);
+		grid_lines.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_circles(float val) {
-		//Grid::grid_circles.emplace_back(val);
+		if (val >= 0) {
+			grid_circles.emplace_back(val);
+		}
+		else {
+			Grid grid(grid_lines, grid_circles);
+			grid.generate_circleLines();
+		}
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)

@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <cstdint>
 #include <string>
-#include <vector>
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include <glm/glm.hpp>
@@ -67,14 +66,15 @@ namespace ifcre {
 	};
 	
 	class Grid {
-		Grid() {
-		}
 	public:
-		static vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
-		static vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
-		static vector<Text> texts;
+		Grid(Vector<float>& _grid_lines, vector<float>& _grid_circles):grid_lines(_grid_lines), grid_circles(_grid_circles) {
+			
+		}
+		vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
+		vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
+		vector<Text> texts;
 
-		void generate_circleLines(int per_degree = 5) {
+		void generate_circleLines(int per_degree = 10) {
 			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
 			int circle_pt_cnt = circle_lines * 6;
 			vector<float> oneCircle(circle_pt_cnt);
@@ -89,11 +89,11 @@ namespace ifcre {
 					vec3 pos(x, 0, z);
 					pos = q * pos;
 					pos = pos + glm::vec3(grid_circles[j], grid_circles[j + 1], grid_circles[j + 2]); // center
-					oneCircle[circle_line * 6] = pos.x;
+					oneCircle[circle_line * 6] = pos.x; // start point
 					oneCircle[circle_line * 6 + 1] = pos.y;
 					oneCircle[circle_line * 6 + 2] = pos.z;
 					if (circle_line != 0) {
-						oneCircle[circle_line * 6 + 3] = oneCircle[circle_line * 6 - 6];
+						oneCircle[circle_line * 6 + 3] = oneCircle[circle_line * 6 - 6]; // end point
 						oneCircle[circle_line * 6 + 4] = oneCircle[circle_line * 6 - 5];
 						oneCircle[circle_line * 6 + 5] = oneCircle[circle_line * 6 - 4];
 					}
@@ -111,7 +111,5 @@ namespace ifcre {
 				grid_lines.emplace_back(1.); // line type
 			}
 		}
-
-		
 	};
 }
