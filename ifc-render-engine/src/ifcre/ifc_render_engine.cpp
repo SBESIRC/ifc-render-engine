@@ -60,8 +60,8 @@ namespace ifcre {
 			//vector<Text>().swap(texts);
 		}
 		else if (val == 1) { // 1代表结束传输
-			ifc_test_model->grid_lines = _grid_lines;
-			ifc_test_model->grid_circles = _grid_circles;
+			ifc_test_model->grid_lines.swap(_grid_lines);
+			ifc_test_model->grid_circles.swap(_grid_circles);
 			ifc_test_model->generate_circleLines();
 		}
 	}

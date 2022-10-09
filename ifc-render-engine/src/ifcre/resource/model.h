@@ -477,7 +477,6 @@ namespace ifcre {
 			return mirror_model;
 		}
 
-
 		void generate_circleLines(int per_degree = 10) {
 			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
 			int circle_pt_cnt = circle_lines * 6;
@@ -544,8 +543,8 @@ namespace ifcre {
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
 
-		Vector<float> grid_lines = {}; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
-		Vector<float> grid_circles = {}; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
+		Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
+		Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
 	private:
 		glm::mat4 m_model;						
 		glm::mat4 m_init_model;					
