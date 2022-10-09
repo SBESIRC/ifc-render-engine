@@ -122,10 +122,10 @@ void ifcre_home()
 	re.zoom2Home();
 }
 
-void ifcre_clear_grid_data() {
+void ifcre_set_grid_data(int val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
-	re.clear_grid_data();
+	re.set_grid_data(val);
 }
 
 void ifcre_set_grid_lines(float val) {

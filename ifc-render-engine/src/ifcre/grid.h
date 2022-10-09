@@ -65,15 +65,4 @@ namespace ifcre {
 		glm::vec3 center;// 文字位置
 	};
 	
-	class Grid {
-	public:
-		Grid(Vector<float>& _grid_lines, vector<float>& _grid_circles):grid_lines(_grid_lines), grid_circles(_grid_circles) {
-			
-		}
-		vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
-		vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
-		vector<Text> texts;
-
-		
-	};
 }

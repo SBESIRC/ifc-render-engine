@@ -39,7 +39,7 @@ extern "C" {
 	__declspec(dllexport) bool ifcre_save_image(const char* filePath);
 	__declspec(dllexport) void ifcre_home();
 
-	__declspec(dllexport) void ifcre_clear_grid_data();
+	__declspec(dllexport) void ifcre_set_grid_data(int val);
 	__declspec(dllexport) void ifcre_set_grid_lines(float val);
 	__declspec(dllexport) void ifcre_set_grid_circles(float val);
 
