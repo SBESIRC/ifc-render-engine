@@ -24,8 +24,6 @@ namespace ifcre {
 		Vector<Vector<uint32_t>>().swap(_c_indices);
 		Vector<Real>().swap(_face_mat);
 		Vector<uint32_t>().swap(_edge_indices);
-		vector<float>().swap(grid_lines);
-		vector<float>().swap(grid_circles);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -56,20 +54,19 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::clear_grid_data() {
-		vector<float>().swap(grid_lines);
-		vector<float>().swap(grid_circles);
+		vector<float>().swap(ifc_test_model->grid_lines);
+		vector<float>().swap(ifc_test_model->grid_circles);
 		//vector<Text>().swap(texts);
 	}
 	void IFCRenderEngine::set_grid_lines(float val) {
-		grid_lines.emplace_back(val);
+		ifc_test_model->grid_lines.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_circles(float val) {
 		if (val >= 0) {
-			grid_circles.emplace_back(val);
+			ifc_test_model->grid_circles.emplace_back(val);
 		}
 		else {
-			Grid grid(grid_lines, grid_circles);
-			grid.generate_circleLines();
+			ifc_test_model->generate_circleLines();
 		}
 	}
 
@@ -379,7 +376,8 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			m_render.renderGrid(*ifc_test_model);
+			//m_render.renderGrid(*ifc_test_model);
+			m_render.renderGridLine(ifc_test_model->grid_lines);
 			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model

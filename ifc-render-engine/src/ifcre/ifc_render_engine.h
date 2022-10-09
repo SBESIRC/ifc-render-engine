@@ -113,9 +113,6 @@ namespace ifcre {
 		Vector<float> _face_mat;
 		Vector<uint32_t> _edge_indices;
 
-		Vector<float> grid_lines;
-		Vector<float> grid_circles;
-
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
 		Scene m_scene;

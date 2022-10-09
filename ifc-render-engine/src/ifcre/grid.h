@@ -74,42 +74,6 @@ namespace ifcre {
 		vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
 		vector<Text> texts;
 
-		void generate_circleLines(int per_degree = 10) {
-			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
-			int circle_pt_cnt = circle_lines * 6;
-			vector<float> oneCircle(circle_pt_cnt);
-			for (int i = 0, j = 0; j < grid_circles.size(); ++i, j += 12) {
-				// construct each circle to lines
-				vector<float>().swap(oneCircle);
-				float x, z;
-				glm::qua<float> q = glm::qua<float>(glm::radians(glm::vec3(grid_circles[j + 3], grid_circles[j + 4], grid_circles[j + 5]))); // normal
-				for (int circle_line = 0; circle_line < circle_lines; ++circle_line) {
-					x = grid_circles[j + 10] * cos(i * per_degree * M_PI / 180.f);
-					z = grid_circles[j + 10] * sin(i * per_degree * M_PI / 180.f);
-					vec3 pos(x, 0, z);
-					pos = q * pos;
-					pos = pos + glm::vec3(grid_circles[j], grid_circles[j + 1], grid_circles[j + 2]); // center
-					oneCircle[circle_line * 6] = pos.x; // start point
-					oneCircle[circle_line * 6 + 1] = pos.y;
-					oneCircle[circle_line * 6 + 2] = pos.z;
-					if (circle_line != 0) {
-						oneCircle[circle_line * 6 + 3] = oneCircle[circle_line * 6 - 6]; // end point
-						oneCircle[circle_line * 6 + 4] = oneCircle[circle_line * 6 - 5];
-						oneCircle[circle_line * 6 + 5] = oneCircle[circle_line * 6 - 4];
-					}
-				}
-				oneCircle[3] = oneCircle[circle_pt_cnt - 6];
-				oneCircle[4] = oneCircle[circle_pt_cnt - 5];
-				oneCircle[5] = oneCircle[circle_pt_cnt - 4];
-				// add this circle into grid_lines
-				grid_lines.insert(grid_lines.end(), oneCircle.begin(), oneCircle.end());
-				grid_lines.emplace_back(grid_circles[j + 6]); // rgba
-				grid_lines.emplace_back(grid_circles[j + 7]);
-				grid_lines.emplace_back(grid_circles[j + 8]);
-				grid_lines.emplace_back(grid_circles[j + 9]);
-				grid_lines.emplace_back(grid_circles[j + 11]); // line width
-				grid_lines.emplace_back(1.); // line type
-			}
-		}
+		
 	};
 }

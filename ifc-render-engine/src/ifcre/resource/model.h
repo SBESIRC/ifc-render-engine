@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_OBJECT_H_
 #define IFCRE_OBJECT_H_
 
@@ -12,8 +12,11 @@
 #include <unordered_set>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
@@ -474,6 +477,45 @@ namespace ifcre {
 			return mirror_model;
 		}
 
+
+		void generate_circleLines(int per_degree = 10) {
+			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
+			int circle_pt_cnt = circle_lines * 6;
+			Vector<float> oneCircle(circle_pt_cnt);
+			for (int i = 0, j = 0; j < grid_circles.size(); ++i, j += 12) {
+				// construct each circle to lines
+				Vector<float>().swap(oneCircle);
+				float x, z;
+				glm::qua<float> q = glm::qua<float>(glm::radians(glm::vec3(grid_circles[j + 3], grid_circles[j + 4], grid_circles[j + 5]))); // normal
+				for (int circle_line = 0; circle_line < circle_lines; ++circle_line) {
+					x = grid_circles[j + 10] * cos(i * per_degree * M_PI / 180.f);
+					z = grid_circles[j + 10] * sin(i * per_degree * M_PI / 180.f);
+					glm::vec3 pos(x, 0, z);
+					pos = q * pos;
+					pos = pos + glm::vec3(grid_circles[j], grid_circles[j + 1], grid_circles[j + 2]); // center
+					oneCircle[circle_line * 6] = pos.x; // start point
+					oneCircle[circle_line * 6 + 1] = pos.y;
+					oneCircle[circle_line * 6 + 2] = pos.z;
+					if (circle_line != 0) {
+						oneCircle[circle_line * 6 + 3] = oneCircle[circle_line * 6 - 6]; // end point
+						oneCircle[circle_line * 6 + 4] = oneCircle[circle_line * 6 - 5];
+						oneCircle[circle_line * 6 + 5] = oneCircle[circle_line * 6 - 4];
+					}
+				}
+				oneCircle[3] = oneCircle[circle_pt_cnt - 6];
+				oneCircle[4] = oneCircle[circle_pt_cnt - 5];
+				oneCircle[5] = oneCircle[circle_pt_cnt - 4];
+				// add this circle into grid_lines
+				grid_lines.insert(grid_lines.end(), oneCircle.begin(), oneCircle.end());
+				grid_lines.emplace_back(grid_circles[j + 6]); // rgba
+				grid_lines.emplace_back(grid_circles[j + 7]);
+				grid_lines.emplace_back(grid_circles[j + 8]);
+				grid_lines.emplace_back(grid_circles[j + 9]);
+				grid_lines.emplace_back(grid_circles[j + 11]); // line width
+				grid_lines.emplace_back(1.); // line type
+			}
+		}
+
 		Vector<uint32_t> collision_pairs; // collision pairs
 		uint32_t render_id;// seems a render_id combine with an array of vertex?
 		Vector<Real> ver_attrib;				// 每个顶点有10个属性，数量为顶点数量的十倍
@@ -501,6 +543,9 @@ namespace ifcre {
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
+
+		Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
+		Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
 	private:
 		glm::mat4 m_model;						
 		glm::mat4 m_init_model;					
