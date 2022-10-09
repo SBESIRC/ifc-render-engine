@@ -2,6 +2,7 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
+#include "grid.h"
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -50,6 +51,23 @@ namespace ifcre {
 	}
 	void IFCRenderEngine::set_edge_indices(int val) {
 		_edge_indices.emplace_back(val);
+	}
+
+	void IFCRenderEngine::clear_grid_data() {
+		vector<float>().swap(ifc_test_model->grid_lines);
+		vector<float>().swap(ifc_test_model->grid_circles);
+		//vector<Text>().swap(texts);
+	}
+	void IFCRenderEngine::set_grid_lines(float val) {
+		ifc_test_model->grid_lines.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_circles(float val) {
+		if (val >= 0) {
+			ifc_test_model->grid_circles.emplace_back(val);
+		}
+		else {
+			ifc_test_model->generate_circleLines();
+		}
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
@@ -304,7 +322,10 @@ namespace ifcre {
 					//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
 					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0));
 				}
-				last_clp_face_key = clp_face_key + 6;
+				last_clp_face_key = clp_face_key + 26;
+			}
+			else if(!m_render_window->m_mouse_status.lbtn_down) {
+				last_hovered_face_key = clp_face_key;
 			}
 #endif
 
@@ -352,10 +373,12 @@ namespace ifcre {
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
 			//--------------- gizmo rendering ----------------------------------------
-			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
+			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//m_render.renderGrid(*ifc_test_model);
+			m_render.renderGridLine(ifc_test_model->grid_lines);
+			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef IFCRE_GL_RENDER_H_
 #define IFCRE_GL_RENDER_H_
@@ -69,10 +69,11 @@ namespace ifcre {
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderGrid(IFCModel& ifc_model);
+		void renderGridLine(vector<float>& grid_line);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
-		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
+		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
 		unsigned int  loadCubemap(vector<std::string> faces);

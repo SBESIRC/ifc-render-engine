@@ -109,7 +109,7 @@ namespace ifcre {
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
-                    if (m_mouse_status.double_click && clicked_comp_id == m_mouse_status.click_comp_id) {
+                    if (m_mouse_status.double_click){// && clicked_comp_id == m_mouse_status.click_comp_id) {
                         trigger = true;//do zoom
                         m_mouse_status.double_click = false;
                     }
@@ -239,6 +239,7 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
+                status.double_click = false;
                 single_before = std::chrono::system_clock::now();
                 glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
                 float click_z = that->_getClickedDepthValue(pre_click_x, pre_click_y);
@@ -262,7 +263,6 @@ namespace ifcre {
                 single_before = double_before = now;
                 if (single_diff_ms > 10 && single_diff_ms < 200) {
                     status.single_click = true;
-                    status.double_click = false;
                     double click_x, click_y;
                     glfwGetCursorPos(window, &click_x, &click_y);
                     //if (abs(click_x - pre_click_x) < 5 && abs(click_y - pre_click_y)) {
@@ -652,7 +652,7 @@ namespace ifcre {
     int RenderWindow::getClpBoxFaceId()
     {
         auto temp = m_mouse_status.clpbox_face_id;
-        m_mouse_status.clpbox_face_id = -1;
+        //m_mouse_status.clpbox_face_id = -1;
         rotatelock = false;
         return temp;
     }

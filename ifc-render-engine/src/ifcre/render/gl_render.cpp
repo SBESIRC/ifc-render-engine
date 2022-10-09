@@ -456,8 +456,8 @@ namespace ifcre {
 		m_text_shader->setVec2("offset", glm::vec2(position));
 		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // ortho正交投影
 		glDisable(DEPTH_TEST);
-		glDepthFunc(GL_ALWAYS); // 永远通过深度测试
-		glDepthMask(GL_FALSE); // 禁用深度缓冲的写入
+		glDepthFunc(GL_ALWAYS); // always pass depth test
+		glDepthMask(GL_FALSE); // forbit import from depth test
 		//textdata.render_text(text, glm::vec3(position), scale);
 		texturefont.drawText(text, 1.f);
 
@@ -476,6 +476,33 @@ namespace ifcre {
 		m_text3d_shader->setMat4("projection", m_projection);
 		m_text3d_shader->setMat4("modelview", m_modelview);
 		texturefont.drawText3D();
+		_defaultConfig();
+	}
+	void GLRender::renderGridLine(vector<float>& grid_line)
+	{
+		if (grid_line.size() == 0) {
+			return;
+		}
+		static bool line_first = true;
+		static uint32_t grid_vao;
+		if (line_first) {
+			uint32_t grid_vbo;
+			glGenVertexArrays(1, &grid_vao);
+			glGenBuffers(1, &grid_vbo);
+			glBindVertexArray(grid_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
+			glBufferData(GL_ARRAY_BUFFER, grid_line.size(), &grid_line[0], GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
+			line_first = false;
+		}
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+		m_grid_shader->use();
+		glBindVertexArray(grid_vao);
+		glLineWidth(3.5f);
+		glDrawArrays(GL_LINES, 0, grid_line.size());
+		glLineWidth(1.5f);
 		_defaultConfig();
 	}
 
@@ -726,12 +753,13 @@ namespace ifcre {
 
 	}
 
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_shader->use();
+		m_gizmo_shader->setInt("hover_id", last_hovered_face_key);
 		gizmo.drawGizmo();
 		_defaultConfig();
 	}

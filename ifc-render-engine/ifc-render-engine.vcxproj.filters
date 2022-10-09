@@ -24,7 +24,6 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
     <ClCompile Include="src\ifcre\collider.cpp" />
     <ClCompile Include="src\ifcre\stb_image.cpp" />
-    <ClCompile Include="src\ifcre\grid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
