@@ -53,21 +53,23 @@ namespace ifcre {
 		_edge_indices.emplace_back(val);
 	}
 
-	void IFCRenderEngine::clear_grid_data() {
-		vector<float>().swap(ifc_test_model->grid_lines);
-		vector<float>().swap(ifc_test_model->grid_circles);
-		//vector<Text>().swap(texts);
-	}
-	void IFCRenderEngine::set_grid_lines(float val) {
-		ifc_test_model->grid_lines.emplace_back(val);
-	}
-	void IFCRenderEngine::set_grid_circles(float val) {
-		if (val >= 0) {
-			ifc_test_model->grid_circles.emplace_back(val);
+	void IFCRenderEngine::set_grid_data(int val) {
+		if (val == 0) { // 0代表清空数据
+			vector<float>().swap(_grid_lines);
+			vector<float>().swap(_grid_circles);
+			//vector<Text>().swap(texts);
 		}
-		else {
+		else if (val == 1) { // 1代表结束传输
+			ifc_test_model->grid_lines = _grid_lines;
+			ifc_test_model->grid_circles = _grid_circles;
 			ifc_test_model->generate_circleLines();
 		}
+	}
+	void IFCRenderEngine::set_grid_lines(float val) {
+		_grid_lines.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_circles(float val) {
+		_grid_circles.emplace_back(val);
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
