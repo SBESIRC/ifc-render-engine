@@ -477,22 +477,22 @@ namespace ifcre {
 			return mirror_model;
 		}
 
-		void generate_circleLines(int per_degree = 10) {
+		void generate_circleLines(vector<float>& grid_lines, vector<float>& grid_circles, int per_degree = 30) {
 			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
 			int circle_pt_cnt = circle_lines * 6;
 			Vector<float> oneCircle(circle_pt_cnt);
-			for (int i = 0, j = 0; j < grid_circles.size(); ++i, j += 12) {
+			for (int j = 0; j < grid_circles.size(); j += 12) {
 				// construct each circle to lines
-				Vector<float>().swap(oneCircle);
+				Vector<float>(circle_pt_cnt).swap(oneCircle);
 				float x, z;
 				glm::qua<float> q = glm::qua<float>(glm::radians(glm::vec3(grid_circles[j + 3], grid_circles[j + 4], grid_circles[j + 5]))); // normal
 				for (int circle_line = 0; circle_line < circle_lines; ++circle_line) {
-					x = grid_circles[j + 10] * cos(i * per_degree * M_PI / 180.f);
-					z = grid_circles[j + 10] * sin(i * per_degree * M_PI / 180.f);
+					x = grid_circles[j + 10] * cos(circle_line * per_degree * M_PI / 180.f); // radius
+					z = grid_circles[j + 10] * sin(circle_line * per_degree * M_PI / 180.f);
 					glm::vec3 pos(x, 0, z);
 					pos = q * pos;
 					pos = pos + glm::vec3(grid_circles[j], grid_circles[j + 1], grid_circles[j + 2]); // center
-					oneCircle[circle_line * 6] = pos.x; // start point
+					oneCircle[circle_line * 6 + 0] = pos.x; // start point
 					oneCircle[circle_line * 6 + 1] = pos.y;
 					oneCircle[circle_line * 6 + 2] = pos.z;
 					if (circle_line != 0) {
@@ -504,14 +504,25 @@ namespace ifcre {
 				oneCircle[3] = oneCircle[circle_pt_cnt - 6];
 				oneCircle[4] = oneCircle[circle_pt_cnt - 5];
 				oneCircle[5] = oneCircle[circle_pt_cnt - 4];
-				// add this circle into grid_lines
-				grid_lines.insert(grid_lines.end(), oneCircle.begin(), oneCircle.end());
-				grid_lines.emplace_back(grid_circles[j + 6]); // rgba
-				grid_lines.emplace_back(grid_circles[j + 7]);
-				grid_lines.emplace_back(grid_circles[j + 8]);
-				grid_lines.emplace_back(grid_circles[j + 9]);
-				grid_lines.emplace_back(grid_circles[j + 11]); // line width
-				grid_lines.emplace_back(1.); // line type
+
+				for (int i = 0; i < circle_pt_cnt; i += 6) {
+					grid_lines.emplace_back(oneCircle[i + 0]);
+					grid_lines.emplace_back(oneCircle[i + 1]);
+					grid_lines.emplace_back(oneCircle[i + 2]);
+					grid_lines.emplace_back(oneCircle[i + 3]);
+					grid_lines.emplace_back(oneCircle[i + 4]);
+					grid_lines.emplace_back(oneCircle[i + 5]);
+					// add this circle into grid_lines
+					//grid_lines.insert(grid_lines.end(), oneCircle.begin(), oneCircle.end());
+					grid_lines.emplace_back(grid_circles[j + 6]); // rgba
+					grid_lines.emplace_back(grid_circles[j + 7]);
+					grid_lines.emplace_back(grid_circles[j + 8]);
+					grid_lines.emplace_back(grid_circles[j + 9]);
+					grid_lines.emplace_back(grid_circles[j + 11]); // line width
+					grid_lines.emplace_back(1.); // line type
+				}
+
+
 			}
 		}
 
@@ -543,8 +554,8 @@ namespace ifcre {
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
 
-		Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
-		Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
+		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
+		//Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
 	private:
 		glm::mat4 m_model;						
 		glm::mat4 m_init_model;					

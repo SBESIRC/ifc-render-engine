@@ -60,9 +60,9 @@ namespace ifcre {
 			//vector<Text>().swap(texts);
 		}
 		else if (val == 1) { // 1代表结束传输
-			ifc_test_model->grid_lines.swap(_grid_lines);
-			ifc_test_model->grid_circles.swap(_grid_circles);
-			ifc_test_model->generate_circleLines();
+			//ifc_test_model->grid_lines.swap(_grid_lines);
+			//ifc_test_model->grid_circles.swap(_grid_circles);
+			ifc_test_model->generate_circleLines(_grid_lines, _grid_circles);
 		}
 	}
 	void IFCRenderEngine::set_grid_lines(float val) {
@@ -379,7 +379,7 @@ namespace ifcre {
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//m_render.renderGrid(*ifc_test_model);
-			m_render.renderGridLine(ifc_test_model->grid_lines);
+			m_render.renderGridLine(_grid_lines);
 			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model

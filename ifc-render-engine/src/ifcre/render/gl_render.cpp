@@ -485,24 +485,33 @@ namespace ifcre {
 		}
 		static bool line_first = true;
 		static uint32_t grid_vao;
+
 		if (line_first) {
+			int size = grid_line.size() / 2;
+			vector<float> tmp(size);
+			for (int i = 0,j = 0; i < grid_line.size(); i += 12, j += 6) {
+				tmp[j] = grid_line[i];
+				tmp[j + 1] = grid_line[i + 1];
+				tmp[j + 2] = grid_line[i + 2];
+				tmp[j + 3] = grid_line[i + 3];
+				tmp[j + 4] = grid_line[i + 4];
+				tmp[j + 5] = grid_line[i + 5];
+			}
 			uint32_t grid_vbo;
 			glGenVertexArrays(1, &grid_vao);
 			glGenBuffers(1, &grid_vbo);
 			glBindVertexArray(grid_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
-			glBufferData(GL_ARRAY_BUFFER, grid_line.size(), &grid_line[0], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, tmp.size() * sizeof(float), &tmp[0], GL_STATIC_DRAW);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (void*)0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			line_first = false;
 		}
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 		m_grid_shader->use();
 		glBindVertexArray(grid_vao);
-		glLineWidth(3.5f);
-		glDrawArrays(GL_LINES, 0, grid_line.size());
-		glLineWidth(1.5f);
+		glDrawArrays(GL_LINES, 0, grid_line.size() / 6);
 		_defaultConfig();
 	}
 
