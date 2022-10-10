@@ -139,3 +139,15 @@ void ifcre_set_grid_circles(float val) {
 	auto& re = *render_engine;
 	re.set_grid_circles(val);
 }
+
+void ifcre_set_grid_text(const char* val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_grid_text(val);
+}
+
+void ifcre_set_grid_text_data(float val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_grid_text_data(val);
+}

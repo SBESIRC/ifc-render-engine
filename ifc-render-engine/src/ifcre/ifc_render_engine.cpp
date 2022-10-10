@@ -57,7 +57,8 @@ namespace ifcre {
 		if (val == 0) { // 0代表清空数据
 			vector<float>().swap(_grid_lines);
 			vector<float>().swap(_grid_circles);
-			//vector<Text>().swap(texts);
+			_grid_text.clear();
+			vector<float>().swap(_grid_text_data);
 		}
 		else if (val == 1) { // 1代表结束传输
 			//ifc_test_model->grid_lines.swap(_grid_lines);
@@ -70,6 +71,12 @@ namespace ifcre {
 	}
 	void IFCRenderEngine::set_grid_circles(float val) {
 		_grid_circles.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_text(String val) {
+		_grid_text.emplace_back(val);
+	}
+	void IFCRenderEngine::set_grid_text_data(float val) {
+		_grid_text_data.emplace_back(val);
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
@@ -389,8 +396,8 @@ namespace ifcre {
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ----------------------------- render text -----------------------------
-			//auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-			//m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+			auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
+			m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);

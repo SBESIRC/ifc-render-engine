@@ -43,6 +43,8 @@ namespace ifcre {
 		virtual void set_grid_data(int val) = 0;
 		virtual void set_grid_lines(float val) = 0;
 		virtual void set_grid_circles(float val) = 0;
+		virtual void set_grid_text(String val) = 0;
+		virtual void set_grid_text_data(float val) = 0;
 	};
 
 
@@ -62,6 +64,8 @@ namespace ifcre {
 		void set_grid_data(int val);
 		void set_grid_lines(float val);
 		void set_grid_circles(float val);
+		void set_grid_text(String val);
+		void set_grid_text_data(float val);
 
 		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow *);
@@ -115,6 +119,8 @@ namespace ifcre {
 
 		Vector<float> _grid_lines;
 		Vector<float> _grid_circles;
+		Vector<String> _grid_text;
+		Vector<float> _grid_text_data;
 
 	private:
 		SharedPtr<IFCRender> m_ifcRender;

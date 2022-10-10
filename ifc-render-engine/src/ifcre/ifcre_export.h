@@ -42,6 +42,8 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_grid_data(int val);
 	__declspec(dllexport) void ifcre_set_grid_lines(float val);
 	__declspec(dllexport) void ifcre_set_grid_circles(float val);
+	__declspec(dllexport) void ifcre_set_grid_text(const char* val);
+	__declspec(dllexport) void ifcre_set_grid_text_data(float val);
 
 #ifdef __cplusplus
 }
