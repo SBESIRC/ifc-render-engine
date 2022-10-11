@@ -73,7 +73,8 @@ namespace ifcre {
 		_grid_circles.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_text(String val) {
-		_grid_text.emplace_back(val);
+		wstring wstr(val.begin(), val.end());
+		_grid_text.emplace_back(wstr);
 	}
 	void IFCRenderEngine::set_grid_text_data(float val) {
 		_grid_text_data.emplace_back(val);
@@ -385,8 +386,8 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//m_render.renderGrid(*ifc_test_model);
 			m_render.renderGridLine(_grid_lines);
+			//m_render.renderGridText(_grid_text, _grid_text_data);
 			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model

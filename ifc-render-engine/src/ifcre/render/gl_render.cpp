@@ -478,6 +478,12 @@ namespace ifcre {
 		texturefont.drawText3D();
 		_defaultConfig();
 	}
+
+	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
+		texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
+		_defaultConfig();
+	}
+
 	void GLRender::renderGridLine(vector<float>& grid_line)
 	{
 		if (grid_line.size() == 0) {
