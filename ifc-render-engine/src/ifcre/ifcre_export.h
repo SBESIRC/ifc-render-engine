@@ -7,6 +7,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#include <wchar.h>
 	/// <summary>
 	/// First of using the render, one should set some configuration, such as 'filename', 'width'
 	/// , 'height' and so on.

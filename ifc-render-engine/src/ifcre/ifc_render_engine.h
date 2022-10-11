@@ -119,7 +119,7 @@ namespace ifcre {
 
 		Vector<float> _grid_lines;
 		Vector<float> _grid_circles;
-		Vector<String> _grid_text;
+		Vector<wstring> _grid_text;
 		Vector<float> _grid_text_data;
 
 	private:
