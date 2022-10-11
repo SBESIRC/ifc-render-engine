@@ -347,14 +347,14 @@ namespace ifcre {
 			FT_Init_FreeType(&_library); // 初始化字体库
 			assert(_library != 0);
 
-			FT_New_Face(_library, fontfilepath.c_str(), 0, &_face); // 加载字体
-			FT_Set_Char_Size(_face, fontSize << 6, fontSize << 6, 72, 72); // 设置字体大小
+			FT_New_Face(_library, fontfilepath.c_str(), 0, &_face); // load typestyle
+			FT_Set_Char_Size(_face, fontSize << 6, fontSize << 6, 72, 72); // set size of typestyle
 			//FT_Set_Pixel_Sizes(_face, 0, 48);
 
 			assert(_face != 0);
 
 			glGenTextures(1, &_textureId);
-			glBindTexture(GL_TEXTURE_2D, _textureId); // 使用这个纹理id,或者叫绑定(关联)
+			glBindTexture(GL_TEXTURE_2D, _textureId); // bind/use this texture id
 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
@@ -676,7 +676,10 @@ namespace ifcre {
 			glDisable(GL_BLEND);
 		}
 
-		void drawText3Ds(Vector<wstring>& texts, Vector<float>& text_data) {
+		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, const glm::mat4& m_projection, const glm::mat4& m_modelview) {
+			m_text3d_shader->use();
+			m_text3d_shader->setMat4("projection", m_projection);
+			m_text3d_shader->setMat4("modelview", m_modelview);
 			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
 				if (text_handle.find(texts[text]) == text_handle.end()) {
 					unsigned vertsize = 0;
@@ -685,6 +688,8 @@ namespace ifcre {
 					glm::vec3 pStart = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
 					glm::vec3 normal = glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]);
 					glm::vec3 direction = glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]);
+					glm::vec3 color = glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]);
+					m_text3d_shader->setVec3("textColor", color);
 					float size = text_data[j + 13];
 					wstring content = texts[text];
 					glm::vec3 verticalDirection = glm::cross(normal, direction);
