@@ -54,15 +54,4 @@ namespace ifcre {
 			circleLines[5] = circleLines[428];
 		}
 	};
-
-	struct Text {
-		string content;// 文字内容
-		int type; // 字体
-		vec4 color;// 文字颜色
-		float size;	// 文字大小
-		glm::vec3 normal;// 文字朝向
-		glm::vec3 direction; // 文字方向
-		glm::vec3 center;// 文字位置
-	};
-	
 }

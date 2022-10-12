@@ -405,6 +405,12 @@ namespace ifcre {
         /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
             geomchanged ? geomchanged = false : geomchanged = true;
         }*/
+        if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_PRESS) {
+            to_show_grid = false;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_G) == GLFW_RELEASE) {
+            to_show_grid = true;
+        }
         if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
             hidden = true;
         }

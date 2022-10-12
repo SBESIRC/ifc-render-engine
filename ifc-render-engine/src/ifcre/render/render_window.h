@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_RENDER_WINDOW_H_
 #define IFCRE_RENDER_WINDOW_H_
 
@@ -417,6 +417,7 @@ namespace ifcre {
 		void setDefaultStatus();
 		bool rotatelock = false;
 		bool trigger = false;
+		bool to_show_grid = true;
 
 		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
 	private:

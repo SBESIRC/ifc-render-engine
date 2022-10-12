@@ -595,13 +595,29 @@ namespace ifcre {
 				float texWidth = 1024;
 				float texHeight = 1024;
 				glm::vec3 pStart = mytext.center;
-				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
+				float totalW = 0;
+				float maxH = 0;
 				unsigned nSize = mytext.content.size();
+				for (unsigned i = 0; i < nSize; i++) {
+					Character2* ch = getCharacter(mytext.content[i]);
+					float offset = float(ch->offsetY * mytext.size);
+					float offsetx = float(ch->offsetX * mytext.size);
+					maxH = max(maxH, (ch->y1 - ch->y0) * mytext.size);
+					totalW += ((ch->x1 - ch->x0) * mytext.size + offsetx);
+				}
+				Character2* ch0 = getCharacter(mytext.content[0]);
+				totalW -= float(ch0->offsetX * mytext.size);
+				mytext.normal = glm::normalize(mytext.normal);
+				mytext.direction = glm::normalize(mytext.direction);
+				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
+				pStart += glm::vec3(totalW / 2, 0, maxH / 2);
+
+
 				for (unsigned i = 0; i < nSize; i++) {
 					Character2* ch = getCharacter(mytext.content[i]);
 
 					float h = (ch->y1 - ch->y0) * mytext.size;
-					float w = (ch->x1 - ch->x0) * mytext.size;
+					float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
 					float offset = float(ch->offsetY * mytext.size);
 					float offset2 = offset - float(h);
 					float offsetx = float(ch->offsetX * mytext.size);
