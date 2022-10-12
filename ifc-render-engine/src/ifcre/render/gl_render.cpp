@@ -479,8 +479,19 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
-	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
+	/*void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
 		texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
+		_defaultConfig();
+	}*/
+
+	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
+		m_text3d_shader->use();
+		m_text3d_shader->setVec3("textColor", glm::vec3(1,0,0));
+		m_text3d_shader->setMat4("projection", m_projection);
+		m_text3d_shader->setMat4("modelview", m_modelview);
+		texturefont.drawText3Ds(texts, text_data);
+		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data);
+		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		_defaultConfig();
 	}
 
