@@ -579,8 +579,8 @@ namespace ifcre {
 				TextNewFromat nowText;
 				nowText.content = texts[text];
 				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
-				nowText.normal = glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]);
-				nowText.direction = glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]);
+				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
+				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
 				nowText.color = glm::vec3(text_data[j + 9], text_data[j + 10] , text_data[j + 11]);
 				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
 				temp.emplace_back(ttmp);
@@ -600,17 +600,16 @@ namespace ifcre {
 				unsigned nSize = mytext.content.size();
 				for (unsigned i = 0; i < nSize; i++) {
 					Character2* ch = getCharacter(mytext.content[i]);
-					float offset = float(ch->offsetY * mytext.size);
-					float offsetx = float(ch->offsetX * mytext.size);
-					maxH = max(maxH, (ch->y1 - ch->y0) * mytext.size);
-					totalW += ((ch->x1 - ch->x0) * mytext.size + offsetx);
+					float offset = float(ch->offsetY);
+					float offsetx = float(ch->offsetX);
+					maxH = max(maxH, (float)(ch->y1 - ch->y0));
+					totalW += (ch->x1 - ch->x0);
 				}
-				Character2* ch0 = getCharacter(mytext.content[0]);
-				totalW -= float(ch0->offsetX * mytext.size);
-				mytext.normal = glm::normalize(mytext.normal);
-				mytext.direction = glm::normalize(mytext.direction);
+				maxH *= mytext.size;
+				totalW *= mytext.size * 0.7;
+
 				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
-				pStart += glm::vec3(totalW / 2, 0, maxH / 2);
+				pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection);
 
 
 				for (unsigned i = 0; i < nSize; i++) {
