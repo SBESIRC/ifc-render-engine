@@ -584,7 +584,7 @@ namespace ifcre {
 				nowText.color = glm::vec3(text_data[j + 9], text_data[j + 10] , text_data[j + 11]);
 				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
 				temp.emplace_back(ttmp);
-				nowText.size = .02f;// text_data[j + 13];
+				nowText.size = text_data[j + 13];
 				drawText3D(nowText);
 			}
 		}
