@@ -388,7 +388,7 @@ namespace ifcre {
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
 			if (m_render_window->to_show_grid) {
-				m_render.renderGridLine(grid_lines);
+				m_render.renderGridLine(grid_lines, width, height);
 				m_render.renderGridText(grid_text, grid_text_data);
 			}
 
