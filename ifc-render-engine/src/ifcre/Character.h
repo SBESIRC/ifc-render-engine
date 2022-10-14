@@ -47,7 +47,7 @@ namespace ifcre {
 	struct Character {
 		GLuint TextureID;
 		glm::ivec2 Size;
-		glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
+		glm::ivec2 Bearing;  // offsety from baseline to left/top of glyph
 		GLuint Advance;
 	};
 	struct TextData {
@@ -171,7 +171,7 @@ namespace ifcre {
 			offsetY = 0;
 		}
 
-		bool generated() { // 是否已经生成
+		bool notGenerated() { // 是否已经生成
 			return x0 == 0 && y0 == 0 && x1 == 0 && y1 == 0;
 		}
 		// 存储当前字符在纹理上的坐标位置
@@ -384,7 +384,7 @@ namespace ifcre {
 
 		Character2* getCharacter(wchar_t ch) {
 			wchar_t& word = ch;
-			if (_character[word].generated()) { // 说明字符还没有绘制到纹理上，则进行绘制
+			if (_character[word].notGenerated()) { // 说明字符还没有绘制到纹理上，则进行绘制
 				if (_xStart + _fontSize > 1024) { // 写满一行,重新开始
 					//this line filled, enter next line
 					_xStart = 0;
@@ -403,8 +403,7 @@ namespace ifcre {
 					std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
 				}*/
 
-
-				//如果没有数据，则不写，直接过去
+				//if no data, write a cube with _fontSize / 4 width & place _fontSize / 2 width in texture
 				if (_face->glyph->bitmap.width == 0 || _face->glyph->bitmap.rows == 0) {
 					//no data of this character
 					_xStart += _fontSize / 2;
@@ -429,16 +428,16 @@ namespace ifcre {
 					_character[word].offsetX = bitmap_glyph->left;
 
 					glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-					glTexSubImage2D( // 将bmp数据写到纹理上
-						GL_TEXTURE_2D,
-						0,
-						_xStart,
-						_yStart,
-						bitmap.width,
-						bitmap.rows,
-						GL_RED,
-						GL_UNSIGNED_BYTE,
-						bitmap.buffer
+					glTexSubImage2D( // 将bmp数据覆盖写到指定纹理上指定位置
+						GL_TEXTURE_2D,		   // 活动纹理单元的目标纹理
+						0,					   // 详细级别编号。 0级是基本图像级别。 级别n是第n个mipmap缩小图像。
+						_xStart,			   // 纹理中x方向偏移
+						_yStart,			   // 纹理中y方向偏移
+						bitmap.width,		   // 像素宽度
+						bitmap.rows,		   // 像素高度
+						GL_RED,				   // 像素数据格式
+						GL_UNSIGNED_BYTE,	   // 像素数据类型
+						bitmap.buffer		   // 指向内存中图像数据的指针
 					);/*
 					int s = sizeof(bitmap.buffer) / sizeof(unsigned char);
 					for (int k = 0; k < s; k++) {
@@ -470,14 +469,14 @@ namespace ifcre {
 					float h = (ch->y1 - ch->y0) * text_scale;
 					//int h = 30;
 					float w = (ch->x1 - ch->x0) * text_scale;
-					float offset = float(ch->offsetY * text_scale);
-					float offset2 = offset - float(h);
-					//float offset = 0;
+					float offsety = float(ch->offsetY * text_scale);
+					float offset2 = offsety - float(h);
+					//float offsety = 0;
 					float offsetx = float(ch->offsetX * text_scale);
 
 					/*point 1*/
 					vert[vertsize + 0][0] = xStart;
-					vert[vertsize + 0][1] = yStart + offset;
+					vert[vertsize + 0][1] = yStart + offsety;
 					//vert[index + 0][2] = zStart;
 					vert[vertsize + 0][2] = ch->x0 / texWidth;
 					vert[vertsize + 0][3] = ch->y0 / texHeight;
@@ -485,7 +484,7 @@ namespace ifcre {
 
 					/*point 2*/
 					vert[vertsize + 1][0] = xStart + w;
-					vert[vertsize + 1][1] = yStart + offset;
+					vert[vertsize + 1][1] = yStart + offsety;
 					//vert[index + 1][2] = zStart;
 					vert[vertsize + 1][2] = ch->x1 / texWidth;
 					vert[vertsize + 1][3] = ch->y0 / texHeight;
@@ -506,7 +505,7 @@ namespace ifcre {
 
 					/*point 5*/
 					vert[vertsize + 4][0] = xStart;
-					vert[vertsize + 4][1] = yStart + offset;
+					vert[vertsize + 4][1] = yStart + offsety;
 					//vert[index + 0][2] = zStart;
 					vert[vertsize + 4][2] = ch->x0 / texWidth;
 					vert[vertsize + 4][3] = ch->y0 / texHeight;
@@ -572,6 +571,27 @@ namespace ifcre {
 			drawText3D(exampletext);
 		}
 
+		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader,Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
+			m_text3d_shader->use();
+			//m_text3d_shader->setVec3("textColor", glm::vec3(1, 0, 0));
+			m_text3d_shader->setMat4("projection", m_projection);
+			m_text3d_shader->setMat4("modelview", m_modelview);
+
+			vector<Vector<float>> temp;
+			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
+				TextNewFromat nowText;
+				nowText.content = texts[text];
+				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
+				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
+				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
+				//nowText.color = glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]);
+				m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
+				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
+				temp.emplace_back(ttmp);
+				nowText.size = text_data[j + 13];
+				drawText3D(nowText);
+			}
+		}
 		void drawText3Ds(Vector<wstring>& texts, Vector<float>& text_data) {
 			vector<Vector<float>> temp;
 
@@ -600,36 +620,33 @@ namespace ifcre {
 				unsigned nSize = mytext.content.size();
 				for (unsigned i = 0; i < nSize; i++) {
 					Character2* ch = getCharacter(mytext.content[i]);
-					float offset = float(ch->offsetY);
-					float offsetx = float(ch->offsetX);
-					maxH = max(maxH, (float)(ch->y1 - ch->y0));
+					maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
 					totalW += (ch->x1 - ch->x0);
 				}
 				maxH *= mytext.size;
-				totalW *= mytext.size * 0.7;
+				totalW *= mytext.size * 0.7; // 设置长宽比
 
-				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
-				pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection);
-
+				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction); // 通过朝向和法向量计算出另一个坐标轴方向
+				pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
 
 				for (unsigned i = 0; i < nSize; i++) {
 					Character2* ch = getCharacter(mytext.content[i]);
 
 					float h = (ch->y1 - ch->y0) * mytext.size;
 					float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
-					float offset = float(ch->offsetY * mytext.size);
-					float offset2 = offset - float(h);
+					float offsety = float(ch->offsetY * mytext.size);
+					float offset2 = offsety - float(h);
 					float offsetx = float(ch->offsetX * mytext.size);
 
-					glm::vec3 curStart = pStart + offset * verticalDirection;
+					glm::vec3 curStart = pStart + offsety * verticalDirection;
 					glm::vec3 temp1 = pStart + offset2 * verticalDirection;
-					glm::vec3 temp2 = pStart + w * mytext.direction + offset * verticalDirection;
+					glm::vec3 temp2 = pStart + w * mytext.direction + offsety * verticalDirection;
 					glm::vec3 temp3 = temp1 + w * mytext.direction;
 
 					vert3d[vertsize + 0][0] = curStart.x;
 					vert3d[vertsize + 0][1] = curStart.y;
 					vert3d[vertsize + 0][2] = curStart.z;
-					vert3d[vertsize + 0][3] = ch->x0 / texWidth;
+					vert3d[vertsize + 0][3] = ch->x0 / texWidth; // get normalized coordinate
 					vert3d[vertsize + 0][4] = ch->y0 / texHeight;
 
 					vert3d[vertsize + 1][0] = temp2.x;

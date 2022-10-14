@@ -479,21 +479,19 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
-	/*void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
+	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
 		texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		_defaultConfig();
-	}*/
+	}
 
-	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
+	/*void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
 		m_text3d_shader->use();
 		m_text3d_shader->setVec3("textColor", glm::vec3(1,0,0));
 		m_text3d_shader->setMat4("projection", m_projection);
 		m_text3d_shader->setMat4("modelview", m_modelview);
 		texturefont.drawText3Ds(texts, text_data);
-		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data);
-		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		_defaultConfig();
-	}
+	}*/
 
 	void GLRender::renderGridLine(vector<float>& grid_line)
 	{
@@ -504,15 +502,24 @@ namespace ifcre {
 		static uint32_t grid_vao;
 
 		if (line_first) {
-			int size = grid_line.size() / 2;
+			int size = grid_line.size();
 			vector<float> tmp(size);
-			for (int i = 0,j = 0; i < grid_line.size(); i += 12, j += 6) {
-				tmp[j] = grid_line[i];
-				tmp[j + 1] = grid_line[i + 1];
-				tmp[j + 2] = grid_line[i + 2];
-				tmp[j + 3] = grid_line[i + 3];
-				tmp[j + 4] = grid_line[i + 4];
-				tmp[j + 5] = grid_line[i + 5];
+			for (int i = 0; i < size; i += 12) {
+				tmp[i] = grid_line[i];
+				tmp[i + 1] = grid_line[i + 1];
+				tmp[i + 2] = grid_line[i + 2];
+					 
+				tmp[i + 3] = grid_line[i + 6];
+				tmp[i + 4] = grid_line[i + 7];
+				tmp[i + 5] = grid_line[i + 8];
+					 
+				tmp[i + 6] = grid_line[i + 3];
+				tmp[i + 7] = grid_line[i + 4];
+				tmp[i + 8] = grid_line[i + 5];
+					 
+				tmp[i + 9] = grid_line[i + 6];
+				tmp[i + 10] = grid_line[i + 7];
+				tmp[i + 11] = grid_line[i + 8];
 			}
 			uint32_t grid_vbo;
 			glGenVertexArrays(1, &grid_vao);
@@ -520,15 +527,18 @@ namespace ifcre {
 			glBindVertexArray(grid_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
 			glBufferData(GL_ARRAY_BUFFER, tmp.size() * sizeof(float), &tmp[0], GL_STATIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+			glEnableVertexAttribArray(1);
+
 			line_first = false;
 		}
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 		m_grid_shader->use();
 		glBindVertexArray(grid_vao);
-		glDrawArrays(GL_LINES, 0, grid_line.size() / 6);
+		glDrawArrays(GL_LINES, 0, grid_line.size() / 3);
 		_defaultConfig();
 	}
 
