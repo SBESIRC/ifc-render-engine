@@ -573,7 +573,6 @@ namespace ifcre {
 
 		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader,Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
 			m_text3d_shader->use();
-			//m_text3d_shader->setVec3("textColor", glm::vec3(1, 0, 0));
 			m_text3d_shader->setMat4("projection", m_projection);
 			m_text3d_shader->setMat4("modelview", m_modelview);
 
@@ -584,24 +583,7 @@ namespace ifcre {
 				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
 				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
 				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
-				//nowText.color = glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]);
 				m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
-				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
-				temp.emplace_back(ttmp);
-				nowText.size = text_data[j + 13];
-				drawText3D(nowText);
-			}
-		}
-		void drawText3Ds(Vector<wstring>& texts, Vector<float>& text_data) {
-			vector<Vector<float>> temp;
-
-			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
-				TextNewFromat nowText;
-				nowText.content = texts[text];
-				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
-				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
-				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
-				nowText.color = glm::vec3(text_data[j + 9], text_data[j + 10] , text_data[j + 11]);
 				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
 				temp.emplace_back(ttmp);
 				nowText.size = text_data[j + 13];
@@ -610,98 +592,90 @@ namespace ifcre {
 		}
 
 		void drawText3D(TextNewFromat& mytext) {
-			//if (text_handle.find(mytext.content) == text_handle.end()) {
-				unsigned vertsize = 0;
-				float texWidth = 1024;
-				float texHeight = 1024;
-				glm::vec3 pStart = mytext.center;
-				float totalW = 0;
-				float maxH = 0;
-				unsigned nSize = mytext.content.size();
-				for (unsigned i = 0; i < nSize; i++) {
-					Character2* ch = getCharacter(mytext.content[i]);
-					maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
-					totalW += (ch->x1 - ch->x0);
-				}
-				maxH *= mytext.size;
-				totalW *= mytext.size * 0.7; // 设置长宽比
+			unsigned vertsize = 0;
+			float texWidth = 1024;
+			float texHeight = 1024;
+			glm::vec3 pStart = mytext.center;
+			float totalW = 0;
+			float maxH = 0;
+			unsigned nSize = mytext.content.size();
+			for (unsigned i = 0; i < nSize; i++) {
+				Character2* ch = getCharacter(mytext.content[i]);
+				maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
+				totalW += (ch->x1 - ch->x0);
+			}
+			maxH *= mytext.size;
+			totalW *= mytext.size * 0.7; // 设置长宽比
 
-				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction); // 通过朝向和法向量计算出另一个坐标轴方向
-				pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
+			glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction); // 通过朝向和法向量计算出另一个坐标轴方向
+			pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
 
-				for (unsigned i = 0; i < nSize; i++) {
-					Character2* ch = getCharacter(mytext.content[i]);
+			for (unsigned i = 0; i < nSize; i++) {
+				Character2* ch = getCharacter(mytext.content[i]);
 
-					float h = (ch->y1 - ch->y0) * mytext.size;
-					float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
-					float offsety = float(ch->offsetY * mytext.size);
-					float offset2 = offsety - float(h);
-					float offsetx = float(ch->offsetX * mytext.size);
+				float h = (ch->y1 - ch->y0) * mytext.size;
+				float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
+				float offsety = float(ch->offsetY * mytext.size);
+				float offset2 = offsety - float(h);
+				float offsetx = float(ch->offsetX * mytext.size);
 
-					glm::vec3 curStart = pStart + offsety * verticalDirection;
-					glm::vec3 temp1 = pStart + offset2 * verticalDirection;
-					glm::vec3 temp2 = pStart + w * mytext.direction + offsety * verticalDirection;
-					glm::vec3 temp3 = temp1 + w * mytext.direction;
+				glm::vec3 curStart = pStart + offsety * verticalDirection;
+				glm::vec3 temp1 = pStart + offset2 * verticalDirection;
+				glm::vec3 temp2 = pStart + w * mytext.direction + offsety * verticalDirection;
+				glm::vec3 temp3 = temp1 + w * mytext.direction;
 
-					vert3d[vertsize + 0][0] = curStart.x;
-					vert3d[vertsize + 0][1] = curStart.y;
-					vert3d[vertsize + 0][2] = curStart.z;
-					vert3d[vertsize + 0][3] = ch->x0 / texWidth; // get normalized coordinate
-					vert3d[vertsize + 0][4] = ch->y0 / texHeight;
+				vert3d[vertsize + 0][0] = curStart.x;
+				vert3d[vertsize + 0][1] = curStart.y;
+				vert3d[vertsize + 0][2] = curStart.z;
+				vert3d[vertsize + 0][3] = ch->x0 / texWidth; // get normalized coordinate
+				vert3d[vertsize + 0][4] = ch->y0 / texHeight;
 
-					vert3d[vertsize + 1][0] = temp2.x;
-					vert3d[vertsize + 1][1] = temp2.y;
-					vert3d[vertsize + 1][2] = temp2.z;
-					vert3d[vertsize + 1][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 1][4] = ch->y0 / texHeight;
+				vert3d[vertsize + 1][0] = temp2.x;
+				vert3d[vertsize + 1][1] = temp2.y;
+				vert3d[vertsize + 1][2] = temp2.z;
+				vert3d[vertsize + 1][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 1][4] = ch->y0 / texHeight;
 
-					vert3d[vertsize + 2][0] = temp3.x;
-					vert3d[vertsize + 2][1] = temp3.y;
-					vert3d[vertsize + 2][2] = temp3.z;
-					vert3d[vertsize + 2][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 2][4] = ch->y1 / texHeight;
+				vert3d[vertsize + 2][0] = temp3.x;
+				vert3d[vertsize + 2][1] = temp3.y;
+				vert3d[vertsize + 2][2] = temp3.z;
+				vert3d[vertsize + 2][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 2][4] = ch->y1 / texHeight;
 
-					vert3d[vertsize + 3][0] = temp1.x;
-					vert3d[vertsize + 3][1] = temp1.y;
-					vert3d[vertsize + 3][2] = temp1.z;
-					vert3d[vertsize + 3][3] = ch->x0 / texWidth;
-					vert3d[vertsize + 3][4] = ch->y1 / texHeight;
+				vert3d[vertsize + 3][0] = temp1.x;
+				vert3d[vertsize + 3][1] = temp1.y;
+				vert3d[vertsize + 3][2] = temp1.z;
+				vert3d[vertsize + 3][3] = ch->x0 / texWidth;
+				vert3d[vertsize + 3][4] = ch->y1 / texHeight;
 
-					vert3d[vertsize + 4][0] = curStart.x;
-					vert3d[vertsize + 4][1] = curStart.y;
-					vert3d[vertsize + 4][2] = curStart.z;
-					vert3d[vertsize + 4][3] = ch->x0 / texWidth;
-					vert3d[vertsize + 4][4] = ch->y0 / texHeight;
+				vert3d[vertsize + 4][0] = curStart.x;
+				vert3d[vertsize + 4][1] = curStart.y;
+				vert3d[vertsize + 4][2] = curStart.z;
+				vert3d[vertsize + 4][3] = ch->x0 / texWidth;
+				vert3d[vertsize + 4][4] = ch->y0 / texHeight;
 
-					vert3d[vertsize + 5][0] = temp3.x;
-					vert3d[vertsize + 5][1] = temp3.y;
-					vert3d[vertsize + 5][2] = temp3.z;
-					vert3d[vertsize + 5][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 5][4] = ch->y1 / texHeight;
+				vert3d[vertsize + 5][0] = temp3.x;
+				vert3d[vertsize + 5][1] = temp3.y;
+				vert3d[vertsize + 5][2] = temp3.z;
+				vert3d[vertsize + 5][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 5][4] = ch->y1 / texHeight;
 
-					vertsize += 6;
-					pStart = pStart + (offsetx + w) * mytext.direction;
-				}
+				vertsize += 6;
+				pStart = pStart + (offsetx + w) * mytext.direction;
+			}
 
-				GLuint textVAO, textVBO;
+			GLuint textVAO, textVBO;
 
-				glGenVertexArrays(1, &textVAO);
-				glBindVertexArray(textVAO);
-				glBindTexture(GL_TEXTURE_2D, _textureId);
-				glGenBuffers(1, &textVBO);
-				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
+			glGenVertexArrays(1, &textVAO);
+			glBindVertexArray(textVAO);
+			glBindTexture(GL_TEXTURE_2D, _textureId);
+			glGenBuffers(1, &textVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
 
-				//mappingStruct value = { std::pair<GLuint, GLuint>(textVAO, textVBO) ,vertsize };
-				//text_handle[mytext.content] = value;
-
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glBindVertexArray(0);
-				glBindTexture(GL_TEXTURE_2D, 0);
-			//}
-
-			//auto the_value = text_handle[mytext.content];
-			//auto [textVAO, textVBO] = the_value.vaovbo;
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -716,7 +690,6 @@ namespace ifcre {
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-			//glDrawArrays(GL_TRIANGLES, 0, the_value.vertsize);
 			glDrawArrays(GL_TRIANGLES, 0, vertsize);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
