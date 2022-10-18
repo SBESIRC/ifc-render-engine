@@ -389,7 +389,7 @@ namespace ifcre {
 
 			if (m_render_window->to_show_grid) {
 				m_render.renderGridLine(grid_lines, width, height);
-				//m_render.renderGridText(grid_text, grid_text_data);
+				m_render.renderGridText(grid_text, grid_text_data);
 			}
 
 			//--------------- gizmo rendering ----------------------------------------
