@@ -54,30 +54,35 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::set_grid_data(int val) {
-		if (val == 0) { // 0代表清空数据
-			vector<float>().swap(_grid_lines);
-			vector<float>().swap(_grid_circles);
-			_grid_text.clear();
-			vector<float>().swap(_grid_text_data);
+		if (val == 0) { // 0代表清空轴网数据
+			vector<float>().swap(grid_lines);
+			vector<float>().swap(grid_circles);
+			grid_text.clear();
+			vector<float>().swap(grid_text_data);
 		}
 		else if (val == 1) { // 1代表结束传输
-			//ifc_test_model->grid_lines.swap(_grid_lines);
-			//ifc_test_model->grid_circles.swap(_grid_circles);
-			ifc_test_model->generate_circleLines(_grid_lines, _grid_circles);
+			ifc_test_model->generate_circleLines(grid_lines, grid_circles);
+			//m_render_window->to_show_grid = true;
+		}
+		else if (val == 2) { // 2代表隐藏轴网显示
+			m_render_window->to_show_grid = false;
+		}
+		else if (val == 3) { // 3代表显示轴网
+			m_render_window->to_show_grid = true;
 		}
 	}
 	void IFCRenderEngine::set_grid_lines(float val) {
-		_grid_lines.emplace_back(val);
+		grid_lines.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_circles(float val) {
-		_grid_circles.emplace_back(val);
+		grid_circles.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_text(String val) {
 		wstring wstr(val.begin(), val.end());
-		_grid_text.emplace_back(wstr);
+		grid_text.emplace_back(wstr);
 	}
 	void IFCRenderEngine::set_grid_text_data(float val) {
-		_grid_text_data.emplace_back(val);
+		grid_text_data.emplace_back(val);
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
@@ -382,12 +387,15 @@ namespace ifcre {
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
+			if (m_render_window->to_show_grid) {
+				m_render.renderGridLine(grid_lines, width, height);
+				m_render.renderGridText(grid_text, grid_text_data);
+			}
+
 			//--------------- gizmo rendering ----------------------------------------
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			m_render.renderGridLine(_grid_lines);
-			//m_render.renderGridText(_grid_text, _grid_text_data);
 			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
@@ -397,8 +405,8 @@ namespace ifcre {
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ----------------------------- render text -----------------------------
-			auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-			m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+			//auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
+			//m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
 
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);

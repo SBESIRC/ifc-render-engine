@@ -117,10 +117,11 @@ namespace ifcre {
 		Vector<float> _face_mat;
 		Vector<uint32_t> _edge_indices;
 
-		Vector<float> _grid_lines;
-		Vector<float> _grid_circles;
-		Vector<wstring> _grid_text;
-		Vector<float> _grid_text_data;
+		Vector<float> grid_lines;
+		Vector<float> grid_circles;
+		Vector<wstring> grid_text;
+		Vector<float> grid_text_data;
+		//bool to_show_grid = true;
 
 	private:
 		SharedPtr<IFCRender> m_ifcRender;

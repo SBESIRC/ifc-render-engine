@@ -47,7 +47,7 @@ namespace ifcre {
 	struct Character {
 		GLuint TextureID;
 		glm::ivec2 Size;
-		glm::ivec2 Bearing;  // Offset from baseline to left/top of glyph
+		glm::ivec2 Bearing;  // offsety from baseline to left/top of glyph
 		GLuint Advance;
 	};
 	struct TextData {
@@ -171,7 +171,7 @@ namespace ifcre {
 			offsetY = 0;
 		}
 
-		bool generated() { // 是否已经生成
+		bool notGenerated() { // 是否已经生成
 			return x0 == 0 && y0 == 0 && x1 == 0 && y1 == 0;
 		}
 		// 存储当前字符在纹理上的坐标位置
@@ -214,128 +214,7 @@ namespace ifcre {
 
 		typedef float TextVertex[4];
 		TextVertex vert[1024];
-		//Vector<Vector<float>> vert;
 	public:
-
-		//void init_bmp() {
-		//	BMP_BUFFER one_bmp_BUFFER;
-		//	//初始化buffer_k
-		//	one_bmp_BUFFER.mbfType = 0X4d42;
-		//	one_bmp_BUFFER.hand.bfOffBits = 54;
-		//	one_bmp_BUFFER.hand.bfReserved1 = 0;
-		//	one_bmp_BUFFER.hand.bfReserved2 = 0;
-		//	one_bmp_BUFFER.hand.bfSize = 1032 * 672 * 3 + 40 + 14;
-		//	one_bmp_BUFFER.BUFFER = new DATA[1032 * 672];
-		//	one_bmp_BUFFER.info.biBitCount = 24;
-		//	one_bmp_BUFFER.info.biClrImportant = 0;
-		//	one_bmp_BUFFER.info.biClrUsed = 0;
-		//	one_bmp_BUFFER.info.biCompression = 0;
-		//	one_bmp_BUFFER.info.biHeight = 1032;
-		//	one_bmp_BUFFER.info.biPlanes = 1;
-		//	one_bmp_BUFFER.info.biSize = 40;
-		//	one_bmp_BUFFER.info.biSizeImage = 1032 * 672 * 3;
-		//	one_bmp_BUFFER.info.biWidth = 672;
-		//	one_bmp_BUFFER.info.biXPelsPerMeter = 0;
-		//	one_bmp_BUFFER.info.biYPelsPerMeter = 0;
-
-		//	//全部使用白色区域
-		//	int x = 0;
-		//	int y = 0;
-		//	for (x = 0; x < 1032; x++)
-		//	{
-		//		for (y = 0; y < 672; y++)
-		//		{
-		//			one_bmp_BUFFER.BUFFER[x * 672 + y].red = 255;
-		//			one_bmp_BUFFER.BUFFER[x * 672 + y].blue = 255;
-		//			one_bmp_BUFFER.BUFFER[x * 672 + y].green = 255;
-		//		}
-		//	}
-		//	wchar_t wszString[] = L"热死了";
-		//	WORD word;
-
-
-		//	int bitmap_width_sum = -672;//字体在图像上X轴起始位置
-		//	int bitmap_high_sum = 50;//字体在图像上Y轴起始位置
-		//	int wszStringLen = wcslen(wszString);
-		//	printf("wszStringLen: %d\n", wszStringLen);
-		//	int k = 0;
-
-		//	for (k = 0; k < wszStringLen; k++)
-		//	{
-		//		memcpy(&word, wszString + k, 2);
-		//		//转化成位图
-		//		FT_Load_Glyph(_face, FT_Get_Char_Index(_face, word), FT_LOAD_DEFAULT);
-
-		//		FT_Error error = 0;
-		//		FT_Glyph glyph;
-		//		error = FT_Get_Glyph(_face->glyph, &glyph);
-		//		FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
-		//		FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
-		//		//取位图数据
-		//		FT_Bitmap* bitmap = &bitmap_glyph->bitmap;
-
-		//		int i = 0;
-		//		int j = 0;
-
-		//		int font_H = bitmap->rows;
-		//		int font_W = bitmap->width;
-
-		//		for (i = 0; i < font_H; ++i)
-		//		{
-		//			for (j = 0; j < font_W; ++j)
-		//			{
-		//				if (bitmap->buffer[i * font_W + j] != 0)
-		//				{
-		//					//arrayColor[(i+100)*strInfo.biWidth+j+bitmap_width_sum+100].green = 0;
-		//					//arrayColor[(i+100)*strInfo.biWidth+j+bitmap_width_sum+100].blue = 0;
-
-		//					//arrayColor[(strInfo.biHeight-i)*strInfo.biWidth+j+bitmap_width_sum].green = 0;
-		//					//arrayColor[(strInfo.biHeight-i)*strInfo.biWidth+j+bitmap_width_sum].blue = 0;
-
-
-		//		   //文字竖体
-		//		   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].red=0;
-		//				   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].blue=0;
-		//				   // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].green=0;
-		//			//文字横体
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].red = 0;
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].blue = 0;
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].green = 0;
-
-		//				}
-		//				/*else
-		//				{
-		//					//文字竖体
-		//					 // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].red=255;
-		//							  //one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].blue=255;
-		//							 // one_bmp_BUFFER.BUFFER[(1032-i-bitmap_width_sum)*672+j].green=255;
-		//					  //文字横体
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].red = 255;
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].blue = 255;
-		//					one_bmp_BUFFER.BUFFER[(1032 - i - bitmap_high_sum) * 672 + j + bitmap_width_sum].green = 255;
-
-		//				}*/
-		//			}
-		//		}
-		//		// bitmap_width_sum += bitmap->width + 10;
-
-		//		if (bitmap_width_sum + font_W > 1032) {
-		//			bitmap_width_sum = -672;
-		//			bitmap_high_sum += font_H;
-		//		}
-		//		else {
-		//			bitmap_width_sum += font_W;
-		//		}
-		//	}
-		//	FILE* fpo1;
-		//	fopen_s(&fpo1, "./one_bmp_BUFFER.bmp", "wb");
-		//	fwrite(&one_bmp_BUFFER.mbfType, 1, sizeof(WORD), fpo1);
-		//	fwrite(&one_bmp_BUFFER.hand, 1, sizeof(tagBITMAPFILEHEADER), fpo1);
-		//	fwrite(&one_bmp_BUFFER.info, 1, sizeof(tagBITMAPINFOHEADER), fpo1);
-		//	fwrite(one_bmp_BUFFER.BUFFER, 1, sizeof(DATA) * (1032 * 672), fpo1);
-		//	fclose(fpo1);
-
-		//}
 
 		TextureFont(std::string fontfilepath, int fontSize) {
 			_fontSize = fontSize;
@@ -384,7 +263,7 @@ namespace ifcre {
 
 		Character2* getCharacter(wchar_t ch) {
 			wchar_t& word = ch;
-			if (_character[word].generated()) { // 说明字符还没有绘制到纹理上，则进行绘制
+			if (_character[word].notGenerated()) { // 说明字符还没有绘制到纹理上，则进行绘制
 				if (_xStart + _fontSize > 1024) { // 写满一行,重新开始
 					//this line filled, enter next line
 					_xStart = 0;
@@ -403,8 +282,7 @@ namespace ifcre {
 					std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
 				}*/
 
-
-				//如果没有数据，则不写，直接过去
+				//if no data, write a cube with _fontSize / 4 width & place _fontSize / 2 width in texture
 				if (_face->glyph->bitmap.width == 0 || _face->glyph->bitmap.rows == 0) {
 					//no data of this character
 					_xStart += _fontSize / 2;
@@ -429,16 +307,16 @@ namespace ifcre {
 					_character[word].offsetX = bitmap_glyph->left;
 
 					glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-					glTexSubImage2D( // 将bmp数据写到纹理上
-						GL_TEXTURE_2D,
-						0,
-						_xStart,
-						_yStart,
-						bitmap.width,
-						bitmap.rows,
-						GL_RED,
-						GL_UNSIGNED_BYTE,
-						bitmap.buffer
+					glTexSubImage2D( // 将bmp数据覆盖写到指定纹理上指定位置
+						GL_TEXTURE_2D,		   // 活动纹理单元的目标纹理
+						0,					   // 详细级别编号。 0级是基本图像级别。 级别n是第n个mipmap缩小图像。
+						_xStart,			   // 纹理中x方向偏移
+						_yStart,			   // 纹理中y方向偏移
+						bitmap.width,		   // 像素宽度
+						bitmap.rows,		   // 像素高度
+						GL_RED,				   // 像素数据格式
+						GL_UNSIGNED_BYTE,	   // 像素数据类型
+						bitmap.buffer		   // 指向内存中图像数据的指针
 					);/*
 					int s = sizeof(bitmap.buffer) / sizeof(unsigned char);
 					for (int k = 0; k < s; k++) {
@@ -470,14 +348,14 @@ namespace ifcre {
 					float h = (ch->y1 - ch->y0) * text_scale;
 					//int h = 30;
 					float w = (ch->x1 - ch->x0) * text_scale;
-					float offset = float(ch->offsetY * text_scale);
-					float offset2 = offset - float(h);
-					//float offset = 0;
+					float offsety = float(ch->offsetY * text_scale);
+					float offset2 = offsety - float(h);
+					//float offsety = 0;
 					float offsetx = float(ch->offsetX * text_scale);
 
 					/*point 1*/
 					vert[vertsize + 0][0] = xStart;
-					vert[vertsize + 0][1] = yStart + offset;
+					vert[vertsize + 0][1] = yStart + offsety;
 					//vert[index + 0][2] = zStart;
 					vert[vertsize + 0][2] = ch->x0 / texWidth;
 					vert[vertsize + 0][3] = ch->y0 / texHeight;
@@ -485,7 +363,7 @@ namespace ifcre {
 
 					/*point 2*/
 					vert[vertsize + 1][0] = xStart + w;
-					vert[vertsize + 1][1] = yStart + offset;
+					vert[vertsize + 1][1] = yStart + offsety;
 					//vert[index + 1][2] = zStart;
 					vert[vertsize + 1][2] = ch->x1 / texWidth;
 					vert[vertsize + 1][3] = ch->y0 / texHeight;
@@ -506,7 +384,7 @@ namespace ifcre {
 
 					/*point 5*/
 					vert[vertsize + 4][0] = xStart;
-					vert[vertsize + 4][1] = yStart + offset;
+					vert[vertsize + 4][1] = yStart + offsety;
 					//vert[index + 0][2] = zStart;
 					vert[vertsize + 4][2] = ch->x0 / texWidth;
 					vert[vertsize + 4][3] = ch->y0 / texHeight;
@@ -572,87 +450,111 @@ namespace ifcre {
 			drawText3D(exampletext);
 		}
 
-		void drawText3D(TextNewFromat mytext) {
-			if (text_handle.find(mytext.content) == text_handle.end()) {
-				unsigned vertsize = 0;
-				float texWidth = 1024;
-				float texHeight = 1024;
-				glm::vec3 pStart = mytext.center;
-				glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction);
-				unsigned nSize = mytext.content.size();
-				for (unsigned i = 0; i < nSize; i++) {
-					Character2* ch = getCharacter(mytext.content[i]);
+		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader,Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
+			m_text3d_shader->use();
+			m_text3d_shader->setMat4("projection", m_projection);
+			m_text3d_shader->setMat4("modelview", m_modelview);
 
-					float h = (ch->y1 - ch->y0) * mytext.size;
-					float w = (ch->x1 - ch->x0) * mytext.size;
-					float offset = float(ch->offsetY * mytext.size);
-					float offset2 = offset - float(h);
-					float offsetx = float(ch->offsetX * mytext.size);
+			vector<Vector<float>> temp;
+			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
+				TextNewFromat nowText;
+				nowText.content = texts[text];
+				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
+				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
+				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
+				m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
+				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
+				temp.emplace_back(ttmp);
+				nowText.size = text_data[j + 13];
+				drawText3D(nowText);
+			}
+		}
 
-					glm::vec3 curStart = pStart + offset * verticalDirection;
-					glm::vec3 temp1 = pStart + offset2 * verticalDirection;
-					glm::vec3 temp2 = pStart + w * mytext.direction + offset * verticalDirection;
-					glm::vec3 temp3 = temp1 + w * mytext.direction;
+		void drawText3D(TextNewFromat& mytext) {
+			unsigned vertsize = 0;
+			float texWidth = 1024;
+			float texHeight = 1024;
+			glm::vec3 pStart = mytext.center;
+			float totalW = 0;
+			float maxH = 0;
+			unsigned nSize = mytext.content.size();
+			for (unsigned i = 0; i < nSize; i++) {
+				Character2* ch = getCharacter(mytext.content[i]);
+				maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
+				totalW += (ch->x1 - ch->x0);
+			}
+			maxH *= mytext.size;
+			totalW *= mytext.size * 0.7; // 设置长宽比
 
-					vert3d[vertsize + 0][0] = curStart.x;
-					vert3d[vertsize + 0][1] = curStart.y;
-					vert3d[vertsize + 0][2] = curStart.z;
-					vert3d[vertsize + 0][3] = ch->x0 / texWidth;
-					vert3d[vertsize + 0][4] = ch->y0 / texHeight;
+			glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction); // 通过朝向和法向量计算出另一个坐标轴方向
+			pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
 
-					vert3d[vertsize + 1][0] = temp2.x;
-					vert3d[vertsize + 1][1] = temp2.y;
-					vert3d[vertsize + 1][2] = temp2.z;
-					vert3d[vertsize + 1][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 1][4] = ch->y0 / texHeight;
+			for (unsigned i = 0; i < nSize; i++) {
+				Character2* ch = getCharacter(mytext.content[i]);
 
-					vert3d[vertsize + 2][0] = temp3.x;
-					vert3d[vertsize + 2][1] = temp3.y;
-					vert3d[vertsize + 2][2] = temp3.z;
-					vert3d[vertsize + 2][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 2][4] = ch->y1 / texHeight;
+				float h = (ch->y1 - ch->y0) * mytext.size;
+				float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
+				float offsety = float(ch->offsetY * mytext.size);
+				float offset2 = offsety - float(h);
+				float offsetx = float(ch->offsetX * mytext.size);
 
-					vert3d[vertsize + 3][0] = temp1.x;
-					vert3d[vertsize + 3][1] = temp1.y;
-					vert3d[vertsize + 3][2] = temp1.z;
-					vert3d[vertsize + 3][3] = ch->x0 / texWidth;
-					vert3d[vertsize + 3][4] = ch->y1 / texHeight;
+				glm::vec3 curStart = pStart + offsety * verticalDirection;
+				glm::vec3 temp1 = pStart + offset2 * verticalDirection;
+				glm::vec3 temp2 = pStart + w * mytext.direction + offsety * verticalDirection;
+				glm::vec3 temp3 = temp1 + w * mytext.direction;
 
-					vert3d[vertsize + 4][0] = curStart.x;
-					vert3d[vertsize + 4][1] = curStart.y;
-					vert3d[vertsize + 4][2] = curStart.z;
-					vert3d[vertsize + 4][3] = ch->x0 / texWidth;
-					vert3d[vertsize + 4][4] = ch->y0 / texHeight;
+				vert3d[vertsize + 0][0] = curStart.x;
+				vert3d[vertsize + 0][1] = curStart.y;
+				vert3d[vertsize + 0][2] = curStart.z;
+				vert3d[vertsize + 0][3] = ch->x0 / texWidth; // get normalized coordinate
+				vert3d[vertsize + 0][4] = ch->y0 / texHeight;
 
-					vert3d[vertsize + 5][0] = temp3.x;
-					vert3d[vertsize + 5][1] = temp3.y;
-					vert3d[vertsize + 5][2] = temp3.z;
-					vert3d[vertsize + 5][3] = ch->x1 / texWidth;
-					vert3d[vertsize + 5][4] = ch->y1 / texHeight;
+				vert3d[vertsize + 1][0] = temp2.x;
+				vert3d[vertsize + 1][1] = temp2.y;
+				vert3d[vertsize + 1][2] = temp2.z;
+				vert3d[vertsize + 1][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 1][4] = ch->y0 / texHeight;
 
-					vertsize += 6;
-					pStart = pStart + (offsetx + w) * mytext.direction;
-				}
+				vert3d[vertsize + 2][0] = temp3.x;
+				vert3d[vertsize + 2][1] = temp3.y;
+				vert3d[vertsize + 2][2] = temp3.z;
+				vert3d[vertsize + 2][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 2][4] = ch->y1 / texHeight;
 
-				GLuint textVAO, textVBO;
+				vert3d[vertsize + 3][0] = temp1.x;
+				vert3d[vertsize + 3][1] = temp1.y;
+				vert3d[vertsize + 3][2] = temp1.z;
+				vert3d[vertsize + 3][3] = ch->x0 / texWidth;
+				vert3d[vertsize + 3][4] = ch->y1 / texHeight;
 
-				glGenVertexArrays(1, &textVAO);
-				glBindVertexArray(textVAO);
-				glBindTexture(GL_TEXTURE_2D, _textureId);
-				glGenBuffers(1, &textVBO);
-				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
+				vert3d[vertsize + 4][0] = curStart.x;
+				vert3d[vertsize + 4][1] = curStart.y;
+				vert3d[vertsize + 4][2] = curStart.z;
+				vert3d[vertsize + 4][3] = ch->x0 / texWidth;
+				vert3d[vertsize + 4][4] = ch->y0 / texHeight;
 
-				mappingStruct value = { std::pair<GLuint, GLuint>(textVAO, textVBO) ,vertsize };
-				text_handle[mytext.content] = value;
+				vert3d[vertsize + 5][0] = temp3.x;
+				vert3d[vertsize + 5][1] = temp3.y;
+				vert3d[vertsize + 5][2] = temp3.z;
+				vert3d[vertsize + 5][3] = ch->x1 / texWidth;
+				vert3d[vertsize + 5][4] = ch->y1 / texHeight;
 
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glBindVertexArray(0);
-				glBindTexture(GL_TEXTURE_2D, 0);
+				vertsize += 6;
+				pStart = pStart + (offsetx + w) * mytext.direction;
 			}
 
-			auto the_value = text_handle[mytext.content];
-			auto [textVAO, textVBO] = the_value.vaovbo;
+			GLuint textVAO, textVBO;
+
+			glGenVertexArrays(1, &textVAO);
+			glBindVertexArray(textVAO);
+			glBindTexture(GL_TEXTURE_2D, _textureId);
+			glGenBuffers(1, &textVBO);
+			glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
+
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			glBindTexture(GL_TEXTURE_2D, 0);
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -667,127 +569,12 @@ namespace ifcre {
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-
-			glDrawArrays(GL_TRIANGLES, 0, the_value.vertsize);
+			glDrawArrays(GL_TRIANGLES, 0, vertsize);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_BLEND);
-		}
-
-		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, const glm::mat4& m_projection, const glm::mat4& m_modelview) {
-			m_text3d_shader->use();
-			m_text3d_shader->setMat4("projection", m_projection);
-			m_text3d_shader->setMat4("modelview", m_modelview);
-			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
-				if (text_handle.find(texts[text]) == text_handle.end()) {
-					unsigned vertsize = 0;
-					float texWidth = 1024;
-					float texHeight = 1024;
-					glm::vec3 pStart = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
-					glm::vec3 normal = glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]);
-					glm::vec3 direction = glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]);
-					glm::vec3 color = glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]);
-					m_text3d_shader->setVec3("textColor", color);
-					float size = text_data[j + 13];
-					wstring content = texts[text];
-					glm::vec3 verticalDirection = glm::cross(normal, direction);
-					unsigned nSize = content.size();
-					for (unsigned i = 0; i < nSize; i++) {
-						Character2* ch = getCharacter(content[i]);
-
-						float h = (ch->y1 - ch->y0) * size;
-						float w = (ch->x1 - ch->x0) * size;
-						float offset = float(ch->offsetY * size);
-						float offset2 = offset - float(h);
-						float offsetx = float(ch->offsetX * size);
-
-						glm::vec3 curStart = pStart + offset * verticalDirection;
-						glm::vec3 temp1 = pStart + offset2 * verticalDirection;
-						glm::vec3 temp2 = pStart + w * direction + offset * verticalDirection;
-						glm::vec3 temp3 = temp1 + w * direction;
-
-						vert3d[vertsize + 0][0] = curStart.x;
-						vert3d[vertsize + 0][1] = curStart.y;
-						vert3d[vertsize + 0][2] = curStart.z;
-						vert3d[vertsize + 0][3] = ch->x0 / texWidth;
-						vert3d[vertsize + 0][4] = ch->y0 / texHeight;
-
-						vert3d[vertsize + 1][0] = temp2.x;
-						vert3d[vertsize + 1][1] = temp2.y;
-						vert3d[vertsize + 1][2] = temp2.z;
-						vert3d[vertsize + 1][3] = ch->x1 / texWidth;
-						vert3d[vertsize + 1][4] = ch->y0 / texHeight;
-
-						vert3d[vertsize + 2][0] = temp3.x;
-						vert3d[vertsize + 2][1] = temp3.y;
-						vert3d[vertsize + 2][2] = temp3.z;
-						vert3d[vertsize + 2][3] = ch->x1 / texWidth;
-						vert3d[vertsize + 2][4] = ch->y1 / texHeight;
-
-						vert3d[vertsize + 3][0] = temp1.x;
-						vert3d[vertsize + 3][1] = temp1.y;
-						vert3d[vertsize + 3][2] = temp1.z;
-						vert3d[vertsize + 3][3] = ch->x0 / texWidth;
-						vert3d[vertsize + 3][4] = ch->y1 / texHeight;
-
-						vert3d[vertsize + 4][0] = curStart.x;
-						vert3d[vertsize + 4][1] = curStart.y;
-						vert3d[vertsize + 4][2] = curStart.z;
-						vert3d[vertsize + 4][3] = ch->x0 / texWidth;
-						vert3d[vertsize + 4][4] = ch->y0 / texHeight;
-
-						vert3d[vertsize + 5][0] = temp3.x;
-						vert3d[vertsize + 5][1] = temp3.y;
-						vert3d[vertsize + 5][2] = temp3.z;
-						vert3d[vertsize + 5][3] = ch->x1 / texWidth;
-						vert3d[vertsize + 5][4] = ch->y1 / texHeight;
-
-						vertsize += 6;
-						pStart = pStart + (offsetx + w) * direction;
-					}
-
-					GLuint textVAO, textVBO;
-
-					glGenVertexArrays(1, &textVAO);
-					glBindVertexArray(textVAO);
-					glBindTexture(GL_TEXTURE_2D, _textureId);
-					glGenBuffers(1, &textVBO);
-					glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-					glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
-
-					mappingStruct value = { std::pair<GLuint, GLuint>(textVAO, textVBO) ,vertsize };
-					text_handle[content] = value;
-
-					glBindBuffer(GL_ARRAY_BUFFER, 0);
-					glBindVertexArray(0);
-					glBindTexture(GL_TEXTURE_2D, 0);
-				}
-
-				auto the_value = text_handle[texts[text]];
-				auto [textVAO, textVBO] = the_value.vaovbo;
-
-				glEnable(GL_BLEND);
-				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-				glActiveTexture(GL_TEXTURE0);
-
-				glBindVertexArray(textVAO);
-				glBindTexture(GL_TEXTURE_2D, _textureId);
-				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
-				glEnableVertexAttribArray(1);
-				glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
-
-				glDrawArrays(GL_TRIANGLES, 0, the_value.vertsize);
-
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-				glBindVertexArray(0);
-				glBindTexture(GL_TEXTURE_2D, 0);
-				glDisable(GL_BLEND);
-			}
 		}
 	};
 

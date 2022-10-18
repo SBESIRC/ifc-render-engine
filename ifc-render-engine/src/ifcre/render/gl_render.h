@@ -70,7 +70,7 @@ namespace ifcre {
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderGrid(IFCModel& ifc_model);
 		void renderGridText(Vector<wstring>& texts, Vector<float>& text_data);
-		void renderGridLine(vector<float>& grid_line);
+		void renderGridLine(vector<float>& grid_line, int width, int height);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
