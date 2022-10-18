@@ -455,7 +455,6 @@ namespace ifcre {
 			m_text3d_shader->setMat4("projection", m_projection);
 			m_text3d_shader->setMat4("modelview", m_modelview);
 
-			vector<Vector<float>> temp;
 			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
 				TextNewFromat nowText;
 				nowText.content = texts[text];
@@ -463,8 +462,6 @@ namespace ifcre {
 				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
 				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
 				m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
-				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
-				temp.emplace_back(ttmp);
 				nowText.size = text_data[j + 13];
 				drawText3D(nowText);
 			}
