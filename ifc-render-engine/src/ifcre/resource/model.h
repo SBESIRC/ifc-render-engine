@@ -72,7 +72,7 @@ namespace ifcre {
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
-		IFCModel(Vector<uint32_t> _g_indices, Vector<Real> _g_vertices, Vector<Real> _g_normals, Vector<Vector<uint32_t>> _c_indices, Vector<float> _face_mat, Vector<uint32_t> _edge_indices) :
+		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices, Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) :
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices)  {
 			clock_t start, end;
 			start = clock();
@@ -205,7 +205,7 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
-			trans_c_indices_set.clear();
+			unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t>().swap(cur_c_indices);
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
