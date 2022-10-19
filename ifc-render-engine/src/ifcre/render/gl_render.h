@@ -69,8 +69,8 @@ namespace ifcre {
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderGrid(IFCModel& ifc_model);
-		void renderGridText(Vector<wstring>& texts, Vector<float>& text_data);
-		void renderGridLine(vector<float>& grid_line, int width, int height);
+		void renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);
+		void renderGridLine(vector<float>& grid_line, int width, int height, bool& grid_line_reset);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
@@ -131,7 +131,8 @@ namespace ifcre {
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
 		//TextData textdata = TextData("resources/fonts/default.ttf");
-		TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
+		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
+		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);
 	};
 };

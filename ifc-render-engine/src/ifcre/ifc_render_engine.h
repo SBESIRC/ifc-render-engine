@@ -121,8 +121,8 @@ namespace ifcre {
 		Vector<float> grid_circles;
 		Vector<wstring> grid_text;
 		Vector<float> grid_text_data;
-		//bool to_show_grid = true;
-
+		bool grid_line_reset = true;
+		bool grid_text_reset = true;
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
 		Scene m_scene;

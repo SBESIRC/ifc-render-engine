@@ -251,14 +251,6 @@ namespace ifcre {
 			);							 
 
 			glBindTexture(GL_TEXTURE_2D, 0);
-
-			//exampletext.center = glm::vec3(150.f, 40.f, 0.f);
-			exampletext.center = glm::vec3(50.f, 50.f, 50.f);
-			const wchar_t text2[] = L"3D文字渲染测试";
-			exampletext.content = std::wstring(text2);
-			exampletext.normal = glm::vec3(1.f, 1.f, -1.f);
-			exampletext.direction = glm::vec3(1.f, 1.f, 0.f);
-			exampletext.size = .2f;
 		}
 
 		Character2* getCharacter(wchar_t ch) {
@@ -441,121 +433,114 @@ namespace ifcre {
 			glDisable(GL_BLEND);
 		}
 
-		typedef float TextVertex3D[5];
-		TextVertex3D vert3d[1024];
+		vector<float> vert3dd;
 
-		TextNewFromat exampletext;
-
-		void drawText3D() {
-			drawText3D(exampletext);
-		}
-
-		void drawText3Ds(UniquePtr<GLSLProgram>& m_text3d_shader,Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
+		// 方案A: 一次性计算出所有字符串的位置，并使用一个VAO 优点：最低的draw call 实现简单 缺点：重复字符串多的情况下内存占用较大
+		void drawText3D(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview, bool& text_first) {
 			m_text3d_shader->use();
 			m_text3d_shader->setMat4("projection", m_projection);
 			m_text3d_shader->setMat4("modelview", m_modelview);
 
-			vector<Vector<float>> temp;
-			for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) {
-				TextNewFromat nowText;
-				nowText.content = texts[text];
-				nowText.center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
-				nowText.normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
-				nowText.direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
-				m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
-				vector<float> ttmp = { nowText.center.x , nowText.center.y, nowText.center.z };
-				temp.emplace_back(ttmp);
-				nowText.size = text_data[j + 13];
-				drawText3D(nowText);
+			//static bool text_first = true;
+			static uint32_t textVAO, textVBO;
+			static uint32_t cnt = 0;
+			if (text_first) {
+				text_first = false;
+
+				for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) { // 对每一串字符串
+					wstring content = texts[text];
+					glm::vec3 center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
+					glm::vec3 normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
+					glm::vec3 direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
+					m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
+					Real size = text_data[j + 13];
+
+					float texWidth = 1024;
+					float texHeight = 1024;
+					glm::vec3 pStart = center;
+					float totalW = 0;
+					float maxH = 0;
+					unsigned nSize = content.size();
+					for (unsigned i = 0; i < nSize; i++) {
+						Character2* ch = getCharacter(content[i]);
+						maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
+						totalW += (ch->x1 - ch->x0);
+					}
+					maxH *= size;
+					totalW *= size * 0.7; // 设置长宽比
+
+					glm::vec3 verticalDirection = glm::cross(normal, direction); // 通过朝向和法向量计算出另一个坐标轴方向
+					pStart -= (totalW / 2 * direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
+
+					for (unsigned i = 0; i < nSize; i++) {
+						Character2* ch = getCharacter(content[i]);
+
+						float h = (ch->y1 - ch->y0) * size;
+						float w = (ch->x1 - ch->x0) * size * 0.7;
+						float offsety = float(ch->offsetY * size);
+						float offset2 = offsety - float(h);
+						float offsetx = float(ch->offsetX * size);
+
+						glm::vec3 curStart = pStart + offsety * verticalDirection;
+						glm::vec3 temp1 = pStart + offset2 * verticalDirection;
+						glm::vec3 temp2 = pStart + w * direction + offsety * verticalDirection;
+						glm::vec3 temp3 = temp1 + w * direction;
+
+						vert3dd.emplace_back(curStart.x);
+						vert3dd.emplace_back(curStart.y);
+						vert3dd.emplace_back(curStart.z);
+						vert3dd.emplace_back(ch->x0 / texWidth); // get normalized coordinate
+						vert3dd.emplace_back(ch->y0 / texHeight);
+
+						vert3dd.emplace_back(temp2.x);
+						vert3dd.emplace_back(temp2.y);
+						vert3dd.emplace_back(temp2.z);
+						vert3dd.emplace_back(ch->x1 / texWidth);
+						vert3dd.emplace_back(ch->y0 / texHeight);
+
+						vert3dd.emplace_back(temp3.x);
+						vert3dd.emplace_back(temp3.y);
+						vert3dd.emplace_back(temp3.z);
+						vert3dd.emplace_back(ch->x1 / texWidth);
+						vert3dd.emplace_back(ch->y1 / texHeight);
+
+
+						vert3dd.emplace_back(temp1.x);
+						vert3dd.emplace_back(temp1.y);
+						vert3dd.emplace_back(temp1.z);
+						vert3dd.emplace_back(ch->x0 / texWidth);
+						vert3dd.emplace_back(ch->y1 / texHeight);
+
+						vert3dd.emplace_back(curStart.x);
+						vert3dd.emplace_back(curStart.y);
+						vert3dd.emplace_back(curStart.z);
+						vert3dd.emplace_back(ch->x0 / texWidth);
+						vert3dd.emplace_back(ch->y0 / texHeight);
+
+						vert3dd.emplace_back(temp3.x);
+						vert3dd.emplace_back(temp3.y);
+						vert3dd.emplace_back(temp3.z);
+						vert3dd.emplace_back(ch->x1 / texWidth);
+						vert3dd.emplace_back(ch->y1 / texHeight);
+
+						pStart = pStart + (offsetx + w) * direction;
+					}
+				}
+
+				cnt = vert3dd.size();
+				//GLuint textVAO, textVBO;
+				glGenVertexArrays(1, &textVAO);
+				glBindVertexArray(textVAO);
+				glBindTexture(GL_TEXTURE_2D, _textureId);
+				glGenBuffers(1, &textVBO);
+				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cnt, vert3dd.data(), GL_DYNAMIC_DRAW);
+
+				vector<float>().swap(vert3dd);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				glBindVertexArray(0);
+				glBindTexture(GL_TEXTURE_2D, 0);
 			}
-		}
-
-		void drawText3D(TextNewFromat& mytext) {
-			unsigned vertsize = 0;
-			float texWidth = 1024;
-			float texHeight = 1024;
-			glm::vec3 pStart = mytext.center;
-			float totalW = 0;
-			float maxH = 0;
-			unsigned nSize = mytext.content.size();
-			for (unsigned i = 0; i < nSize; i++) {
-				Character2* ch = getCharacter(mytext.content[i]);
-				maxH = std::max(maxH, (float)(ch->y1 - ch->y0));
-				totalW += (ch->x1 - ch->x0);
-			}
-			maxH *= mytext.size;
-			totalW *= mytext.size * 0.7; // 设置长宽比
-
-			glm::vec3 verticalDirection = glm::cross(mytext.normal, mytext.direction); // 通过朝向和法向量计算出另一个坐标轴方向
-			pStart -= (totalW / 2 * mytext.direction + maxH / 2 * verticalDirection); // pStart偏移至左下角正确位置
-
-			for (unsigned i = 0; i < nSize; i++) {
-				Character2* ch = getCharacter(mytext.content[i]);
-
-				float h = (ch->y1 - ch->y0) * mytext.size;
-				float w = (ch->x1 - ch->x0) * mytext.size * 0.7;
-				float offsety = float(ch->offsetY * mytext.size);
-				float offset2 = offsety - float(h);
-				float offsetx = float(ch->offsetX * mytext.size);
-
-				glm::vec3 curStart = pStart + offsety * verticalDirection;
-				glm::vec3 temp1 = pStart + offset2 * verticalDirection;
-				glm::vec3 temp2 = pStart + w * mytext.direction + offsety * verticalDirection;
-				glm::vec3 temp3 = temp1 + w * mytext.direction;
-
-				vert3d[vertsize + 0][0] = curStart.x;
-				vert3d[vertsize + 0][1] = curStart.y;
-				vert3d[vertsize + 0][2] = curStart.z;
-				vert3d[vertsize + 0][3] = ch->x0 / texWidth; // get normalized coordinate
-				vert3d[vertsize + 0][4] = ch->y0 / texHeight;
-
-				vert3d[vertsize + 1][0] = temp2.x;
-				vert3d[vertsize + 1][1] = temp2.y;
-				vert3d[vertsize + 1][2] = temp2.z;
-				vert3d[vertsize + 1][3] = ch->x1 / texWidth;
-				vert3d[vertsize + 1][4] = ch->y0 / texHeight;
-
-				vert3d[vertsize + 2][0] = temp3.x;
-				vert3d[vertsize + 2][1] = temp3.y;
-				vert3d[vertsize + 2][2] = temp3.z;
-				vert3d[vertsize + 2][3] = ch->x1 / texWidth;
-				vert3d[vertsize + 2][4] = ch->y1 / texHeight;
-
-				vert3d[vertsize + 3][0] = temp1.x;
-				vert3d[vertsize + 3][1] = temp1.y;
-				vert3d[vertsize + 3][2] = temp1.z;
-				vert3d[vertsize + 3][3] = ch->x0 / texWidth;
-				vert3d[vertsize + 3][4] = ch->y1 / texHeight;
-
-				vert3d[vertsize + 4][0] = curStart.x;
-				vert3d[vertsize + 4][1] = curStart.y;
-				vert3d[vertsize + 4][2] = curStart.z;
-				vert3d[vertsize + 4][3] = ch->x0 / texWidth;
-				vert3d[vertsize + 4][4] = ch->y0 / texHeight;
-
-				vert3d[vertsize + 5][0] = temp3.x;
-				vert3d[vertsize + 5][1] = temp3.y;
-				vert3d[vertsize + 5][2] = temp3.z;
-				vert3d[vertsize + 5][3] = ch->x1 / texWidth;
-				vert3d[vertsize + 5][4] = ch->y1 / texHeight;
-
-				vertsize += 6;
-				pStart = pStart + (offsetx + w) * mytext.direction;
-			}
-
-			GLuint textVAO, textVBO;
-
-			glGenVertexArrays(1, &textVAO);
-			glBindVertexArray(textVAO);
-			glBindTexture(GL_TEXTURE_2D, _textureId);
-			glGenBuffers(1, &textVBO);
-			glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertsize * 5, vert3d, GL_DYNAMIC_DRAW);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -569,12 +554,17 @@ namespace ifcre {
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
 
-			glDrawArrays(GL_TRIANGLES, 0, vertsize);
+			glDrawArrays(GL_TRIANGLES, 0, cnt);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_BLEND);
+		}
+
+		// 方案B：使用unordered_map记录多个字符串对应的VAO，调用shader的时候传入对应的移动矩阵（最后乘MVP） 优点：省内存，数据变化灵活，缺点：增加draw call，较难实现
+		void drawText3DProB(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
+			
 		}
 	};
 

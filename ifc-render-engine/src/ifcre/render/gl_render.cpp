@@ -471,31 +471,24 @@ namespace ifcre {
 		glDepthMask(GL_TRUE);
 
 		_defaultConfig();
-		m_text3d_shader->use();
-		m_text3d_shader->setVec3("textColor", color);
-		m_text3d_shader->setMat4("projection", m_projection);
-		m_text3d_shader->setMat4("modelview", m_modelview);
-		texturefont.drawText3D();
+	}
+
+	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& text_reset) {
+		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
+		texturefont.drawText3D(m_text3d_shader, texts, text_data, m_projection, m_modelview, text_reset);
 		_defaultConfig();
 	}
 
-	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data) {
-		texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
-		_defaultConfig();
-	}
-
-	void GLRender::renderGridLine(vector<float>& grid_line , int width, int height)
+	void GLRender::renderGridLine(vector<float>& grid_line , int width, int height, bool& grid_line_reset)
 	{
-		if (grid_line.size() == 0) {
-			return;
-		}
-		static bool line_first = true;
 		static uint32_t grid_vao;
+		static uint32_t grid_line_size = 0;
 
-		if (line_first) {
-			int size = grid_line.size();
-			vector<float> tmp(size * 14 / 12);
-			for (int i = 0, j = 0; i < size; i += 12,j += 14) {
+		if (grid_line_reset) {
+			grid_line_reset = false;
+			grid_line_size = grid_line.size();
+			vector<float> tmp(grid_line_size * 14 / 12);
+			for (int i = 0, j = 0; i < grid_line_size; i += 12,j += 14) {
 				tmp[j] = grid_line[i];
 				tmp[j + 1] = grid_line[i + 1];
 				tmp[j + 2] = grid_line[i + 2];
@@ -521,23 +514,22 @@ namespace ifcre {
 			glGenBuffers(1, &grid_vbo);
 			glBindVertexArray(grid_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, grid_vbo);
-			glBufferData(GL_ARRAY_BUFFER, tmp.size() * sizeof(float), &tmp[0], GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, tmp.size() * sizeof(float), tmp.data(), GL_STATIC_DRAW);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
 			glEnableVertexAttribArray(1);
 			glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(6 * sizeof(float)));
 			glEnableVertexAttribArray(2);
-			line_first = false;
+
+			vector<float>().swap(grid_line);
 		}
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 		m_grid_shader->use();
 		m_grid_shader->setVec2("u_resolution", vec2(width, height));
 		glBindVertexArray(grid_vao);
-		glLineWidth(1.f);
-		glDrawArrays(GL_LINES, 0, grid_line.size() / 3);
-		glLineWidth(1.5f);
+		glDrawArrays(GL_LINES, 0, grid_line_size / 3);
 		_defaultConfig();
 	}
 
