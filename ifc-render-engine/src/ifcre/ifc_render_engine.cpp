@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include "Character.h"
 
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
@@ -58,6 +59,8 @@ namespace ifcre {
 			vector<float>().swap(grid_lines);
 			vector<float>().swap(grid_circles);
 			grid_text.clear();
+			grid_line_reset = true;
+			grid_text_reset = true;
 			vector<float>().swap(grid_text_data);
 		}
 		else if (val == 1) { // 1代表结束传输
@@ -387,16 +390,17 @@ namespace ifcre {
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
+			// -------------- render grid ---------------
 			if (m_render_window->to_show_grid) {
-				m_render.renderGridLine(grid_lines, width, height);
-				m_render.renderGridText(grid_text, grid_text_data);
+				m_render.renderGridLine(grid_lines, width, height, grid_line_reset);
+				m_render.renderGridText(grid_text, grid_text_data, grid_text_reset);
 			}
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//--------------- gizmo rendering ----------------------------------------
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
@@ -404,10 +408,6 @@ namespace ifcre {
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
-			// ----------------------------- render text -----------------------------
-			//auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-			//m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
-
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
