@@ -1,4 +1,4 @@
-#include "mesh_simplier.h"
+﻿#include "mesh_simplier.h"
 //#define threaddbg
 //#define LOG0704
 #define FAKER
@@ -706,9 +706,8 @@ namespace mesh_simplier {
     }
 
     vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) { // 二、
-        vector<Mesh> ret;
         int s_end = c_indices.size(); // 获取构件数量
-        ret.resize(s_end);
+        vector<Mesh> ret(s_end);
         cout << "ret size:" << s_end << endl;
         vector<thread> threads;
 #ifdef ustrd

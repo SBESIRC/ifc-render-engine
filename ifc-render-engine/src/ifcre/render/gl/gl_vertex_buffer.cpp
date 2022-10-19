@@ -1,4 +1,4 @@
-#include "gl_vertex_buffer.h"
+﻿#include "gl_vertex_buffer.h"
 #include <glad/glad.h>
 namespace ifcre {
 	void GLVertexBuffer::init_fun_ptr_map() {
@@ -187,8 +187,8 @@ namespace ifcre {
 		m_size_list.emplace_back(indices.size());
 	}
 	void GLVertexBuffer::uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices) {
-		m_eboid_list.resize(c_indices.size());
-		m_size_list.resize(c_indices.size());
+		Vector<uint32_t>(c_indices.size()).swap(m_eboid_list);
+		Vector<uint32_t>(c_indices.size()).swap(m_size_list);
 		glBindVertexArray(m_vaoid);
 		/*if (!list_generated)
 			*/glGenBuffers(c_indices.size(), m_eboid_list.data());

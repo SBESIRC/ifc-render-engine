@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_PARSER_H_
 #define IFCRE_PARSER_H_
 
@@ -180,6 +180,7 @@ namespace ifcre {
     public:
 	   static SharedPtr<IFCModel> load(String file) {
 		   Datas2OpenGL ge;
+		   
 		   if (endsWith(file, ".midfile")) {
 			   ifstream is(file.c_str(), std::ios::binary);
 			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
@@ -187,10 +188,10 @@ namespace ifcre {
 		   }
 		   else {
 #if _DEBUG
-			   file += ".midfile";
-			   ifstream is(file.c_str(), std::ios::binary);
-			   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-			   is.close();
+			   //file += ".midfile";
+			   //ifstream is(file.c_str(), std::ios::binary);
+			   //ge = ifcsaver::read_datas2OpenGL_from_binary(is);
+			   //is.close();
 #else
 			   auto getmp = generateIFCMidfile(file);
 			   ifcsaver::save_data2OpenGL_into_binary(getmp, file + ".midfile");

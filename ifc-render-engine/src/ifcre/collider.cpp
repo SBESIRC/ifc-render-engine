@@ -1,4 +1,4 @@
-#include "collider.h"
+﻿#include "collider.h"
 
 // INTERFACE
 
@@ -62,13 +62,12 @@ void Collider::filterData() {
 }
 
 void Collider::buildData() {
+	std::vector<Componment>().swap(mBuildDat);
 	mBuildDat.resize(mFilterIndex.size());
 	#pragma omp parallel for schedule(static, 8)
 	for (std::size_t i = 0; i < mFilterIndex.size(); ++i) 
 		mBuildDat[i] = std::move(Componment(mRawData->search_m[mFilterIndex[i]], mRawData->verts));
 	vector<unsigned>().swap(mFilterIndex);
-	/*mFilterIndex.clear();
-	mFilterIndex.shrink_to_fit();*/
 }
 
 #if defined(COLLIDER_USE_BVH)
