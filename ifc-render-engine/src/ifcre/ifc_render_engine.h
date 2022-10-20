@@ -82,6 +82,9 @@ namespace ifcre {
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();
+		//get data ready before draw
+		void dataIntegration();
+		void offscreenRending();
 
 	public:
 		IFCRenderEngine() : m_init(false) {}

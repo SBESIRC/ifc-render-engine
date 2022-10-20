@@ -73,7 +73,6 @@ namespace ifcre {
 			normal = glm::normalize(glm::cross(right, front));
 		}
 	};
-
 	enum CLIPBOXUPDATE {
 		back_inc = 0x00,
 		back_dec = 0x01,
@@ -93,6 +92,8 @@ namespace ifcre {
 		uint32_t edge_vao, plane_vao;
 		uint32_t edge_vbo, edge_ebo, plane_vbo, plane_ebo;
 		Real length = 0, width = 0, height = 0;
+		glm::vec3 pos_after_model_matrix;
+		glm::mat4 cur_model_mat;
 		Vector<uint32_t> cube_element_buffer_object = {
 			//back			 //left			   //front
 			0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11,
@@ -206,14 +207,22 @@ namespace ifcre {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			//ui_id_num += 6;
 		}
+		void bind_the_world_coordination(glm::mat4 model_mat) {
+			cur_model_mat = model_mat;
+		}
+		void setBasePos(glm::vec3 pmin, glm::vec3 pmax) {
+			base_pos = (pmin + pmax) / 2.f;
+		}
 		Vector<glm::vec4> out_as_vec4s() {
+			//TODO: change vec4.w, and rewrite this in shader // DONE!
+			pos_after_model_matrix = cur_model_mat * glm::vec4(base_pos, 1.f);
 			return {
-				glm::vec4(-normal,glm::dot(-normal,base_pos + normal * height / 2.f)),
-				glm::vec4(-right,glm::dot(-right,base_pos + right * width / 2.f)),
-				glm::vec4(-front,glm::dot(-front,base_pos + front * length / 2.f)),
-				glm::vec4(normal,glm::dot(normal,base_pos - normal * height / 2.f)),
-				glm::vec4(right,glm::dot(right,base_pos - right * width / 2.f)),
-				glm::vec4(front,glm::dot(front,base_pos - front * length / 2.f))
+				glm::vec4(-normal,glm::dot(-normal,pos_after_model_matrix + normal * height * cur_model_mat[1][1] / 2.f)),
+				glm::vec4(-right,glm::dot(-right,pos_after_model_matrix + right * width * cur_model_mat[1][1] / 2.f)),
+				glm::vec4(-front,glm::dot(-front,pos_after_model_matrix + front * length * cur_model_mat[1][1] / 2.f)),
+				glm::vec4(normal,glm::dot(normal,pos_after_model_matrix - normal * height * cur_model_mat[1][1] / 2.f)),
+				glm::vec4(right,glm::dot(right,pos_after_model_matrix - right * width * cur_model_mat[1][1] / 2.f)),
+				glm::vec4(front,glm::dot(front,pos_after_model_matrix - front * length * cur_model_mat[1][1] / 2.f))
 			};
 		}
 		const glm::mat4 toMat() const {
@@ -227,96 +236,97 @@ namespace ifcre {
 
 			return basis * ret;
 		}
+#define upadte_rate .5f
 		void updateBox(int direct) {
 			switch (direct)
 			{
 			case back_inc: {
-				length += .01f;
-				base_pos += .005f * front;
+				length += upadte_rate;
+				base_pos += upadte_rate / 2.f * front;
 				break;
 			}
 			case back_dec: {
-				length -= .01f;
-				if (length < .01f) {
-					length = .01f;
+				length -= upadte_rate;
+				if (length < upadte_rate) {
+					length = upadte_rate;
 				}
 				else {
-					base_pos -= .005f * front;
+					base_pos -= upadte_rate / 2.f * front;
 				}
 				break;
 			}
 			case left_inc: {
-				width += .01f;
-				base_pos -= .005f * right;
+				width += upadte_rate;
+				base_pos -= upadte_rate / 2.f * right;
 				break;
 			}
 			case left_dec: {
-				width -= .01f;
-				if (width < .01f) {
-					width = .01f;
+				width -= upadte_rate;
+				if (width < upadte_rate) {
+					width = upadte_rate;
 				}
 				else {
-					base_pos += .005f * right;
+					base_pos += upadte_rate / 2.f * right;
 				}
 				break;
 			}
 			case front_inc: {
-				length += .01f;
-				base_pos -= .005f * front;
+				length += upadte_rate;
+				base_pos -= upadte_rate / 2.f * front;
 				break;
 			}
 			case front_dec: {
-				length -= .01f;
-				if (length < .01f) {
-					length = .01f;
+				length -= upadte_rate;
+				if (length < upadte_rate) {
+					length = upadte_rate;
 				}
 				else {
-					base_pos += .005f * front;
+					base_pos += upadte_rate / 2.f * front;
 				}
 				break;
 			}
 			case right_inc: {
-				width += .01f;
-				base_pos += .005f * right;
+				width += upadte_rate;
+				base_pos += upadte_rate / 2.f * right;
 				break;
 			}
 			case right_dec: {
-				width -= .01f;
-				if (width < .01f) {
-					width = .01f;
+				width -= upadte_rate;
+				if (width < upadte_rate) {
+					width = upadte_rate;
 				}
 				else {
-					base_pos -= .005f * right;
+					base_pos -= upadte_rate / 2.f * right;
 				}
 				break;
 			}
 			case up_inc: {
-				height += .01f;
-				base_pos += .005f * normal;
+				height += upadte_rate;
+				base_pos += upadte_rate / 2.f * normal;
 				break;
 			}
 			case up_dec: {
-				height -= .01f;
-				if (height < .01f) {
-					height = .01f;
+				height -= upadte_rate;
+				if (height < upadte_rate) {
+					height = upadte_rate;
 				}
 				else {
-					base_pos -= .005f * normal;
+					base_pos -= upadte_rate / 2.f * normal;
 				}
 				break;
 			}
 			case down_inc: {
-				height += .01f;
-				base_pos -= .005f * normal;
+				height += upadte_rate;
+				base_pos -= upadte_rate / 2.f * normal;
 				break;
 			}
 			case down_dec: {
-				height -= .01f;
-				if (height < .01f) {
-					height = .01f;
+				height -= upadte_rate;
+				if (height < upadte_rate) {
+					height = upadte_rate;
 				}
 				else {
-					base_pos += .005f * normal;
+					base_pos += upadte_rate / 2.f * normal;
 				}
 				break;
 			}
@@ -324,7 +334,7 @@ namespace ifcre {
 				break;
 			}
 		}
-		const void drawBox() const {
+		const void drawBox(const bool this_flag) const {
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -335,14 +345,16 @@ namespace ifcre {
 			glDrawElements(GL_LINES, cube_element_edge_buffer_object.size(), GL_UNSIGNED_INT, 0);*/
 			glDrawElements(GL_LINES, 48, GL_UNSIGNED_INT, 0);
 
-			glPointSize(20.f);
-			glDrawElements(GL_POINTS, 6, GL_UNSIGNED_INT, (void*)(48 * sizeof(uint32_t)));
-
+			if (this_flag) {
+				glPointSize(20.f);
+				glDrawElements(GL_POINTS, 6, GL_UNSIGNED_INT, (void*)(48 * sizeof(uint32_t)));
+			}
 			glDepthMask(GL_TRUE);
 			glDisable(GL_BLEND);
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
 		}
+
 		const void drawBoxInUILayer() const {
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
@@ -355,6 +367,7 @@ namespace ifcre {
 		}
 	};
 
+
 	class RenderWindow {
 	public:
 		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false , GLFWwindow* wndPtr = NULL);
@@ -366,6 +379,9 @@ namespace ifcre {
 
 		bool swapBuffer();
 		void pollEvents();
+
+		void offScreenRender();
+		void endOffScreenRender();
 
 		void startRenderToWindow();
 		void endRenderToWindow();
@@ -383,16 +399,18 @@ namespace ifcre {
 		uint32_t getFBOId();
 		uint32_t getColorTexId();
 		uint32_t getDepthNormalTexId();
+		uint32_t getAerialColorTexId() { return m_arerial_fb.m_AerialView_rt->getTexId(); }
 		int getClickCompId();
 		int getHoverCompId();
 		int getClickedUIId();
 		int getClpBoxFaceId();
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
+		glm::mat4 getOrthoProjMatrix() { return m_projection2; }
 		bool getHidden() { return hidden; }
 		glm::vec3 getClippingPlanePos() { return use_clip_plane.base_pos; }
 		ClipPlane getClippingPlane();
-		Vector<glm::vec4> getClippingBoxVectors();
+		Vector<glm::vec4> getClippingBoxVectors(bool _hidden);
 		ClipBox getClipBox() { return use_clip_box; }
 		void setCamera(SharedPtr<GLCamera> camera);
 		int get_width() { return m_width; }
@@ -419,7 +437,7 @@ namespace ifcre {
 		bool trigger = false;
 		bool to_show_grid = true;
 
-		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 1.f, 1.f, 1.f);
+		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 100.f, 100.f, 100.f);
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -435,6 +453,11 @@ namespace ifcre {
 			uint32_t fbo_id;
 			SharedPtr<GLRenderTexture> m_msaa_rt;
 		} m_msaa_fb;
+
+		struct {
+			uint32_t fbo_id;
+			SharedPtr<GLRenderTexture> m_AerialView_rt;
+		} m_arerial_fb;
 
 		struct {
 			uint32_t fbo_id;
@@ -458,6 +481,9 @@ namespace ifcre {
 
 		int32_t m_width, m_height;
 		glm::mat4 m_projection;
+		//for a little screen
+		int32_t m_miniwidth, m_miniheight;
+		glm::mat4 m_projection2;
 		public:
 		struct {
 			int32_t horizontal_move = 0, vertical_move = 0;

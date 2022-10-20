@@ -64,7 +64,6 @@ namespace ifcre {
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 		// --------------- render ----------------------
-
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
@@ -72,6 +71,7 @@ namespace ifcre {
 		void renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);
 		void renderGridLine(vector<float>& grid_line, int width, int height, bool& grid_line_reset);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
+		void renderClipBox(const ClipBox& clip_box);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key);
@@ -79,6 +79,8 @@ namespace ifcre {
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
 		unsigned int  loadCubemap(vector<std::string> faces);
 		// for offscreen
+		void AerialViewRender(RenderWindow& w);
+
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
 		// ----- ----- ----- ----- ----- ----- ----- -----
@@ -134,6 +136,12 @@ namespace ifcre {
 		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);
+
+		//offscreen quad
+	private:
+		uint32_t off_vao;
+		unsigned int intermediateFBO;
+		unsigned int screenTexture;
 	};
 };
 

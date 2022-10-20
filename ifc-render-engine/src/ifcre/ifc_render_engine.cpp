@@ -133,9 +133,11 @@ namespace ifcre {
 
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
-			glm::mat4 ifc_model_matrix;
-			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-			ifc_test_model->setModelMatrix(ifc_model_matrix);
+			//glm::mat4 ifc_model_matrix;
+			//util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
+			//ifc_test_model->setModelMatrix(ifc_model_matrix);
+			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_test_model->bbx_model_mat, scale_factor);
+			ifc_test_model->setModelMatrix(ifc_test_model->bbx_model_mat);
 			ifc_test_model->setScaleFactor(scale_factor);
 		}
 		else { // 固定模型矩阵（观察位置）
@@ -146,15 +148,12 @@ namespace ifcre {
 		if (m_render_api == OPENGL_RENDER_API) {
 			//generateIFCMidfile("resources\\models\\ifc_midfile\\newIFC.ifc", 0.01);
 
-			//SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
-			//model_vb->upload(test_model->vertices, test_model->indices);
-			//model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-			//model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
-			//test_model->render_id = m_glrender->addModel(model_vb);
 			if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) { // 固定相机视角方向
 				m_camera = make_shared<GLCamera>(m_view_pos);
 				m_camera->PrecomputingCubeDireciton(m_view_pos); // 为相机预设6个位置
 				m_render_window->setCamera(m_camera);
+				m_render_window->use_clip_box.setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////////
+				m_render_window->use_clip_box.bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
 			}
 
 			// add a rendered model
@@ -196,6 +195,27 @@ namespace ifcre {
 		sleep_time = 10;
 	}
 
+	void IFCRenderEngine::offscreenRending() {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+
+		m_window.offScreenRender();
+		bool registe = m_window.getHidden();
+		dataIntegration();
+		m_render.setViewMatrix(m_camera->getPrecomputedViewMatrix(4));
+		m_render.setModelMatrix(ifc_test_model->bbx_model_mat);
+		m_render.setInitModelMatrix(ifc_test_model->bbx_model_mat);
+		m_render.setMirrorModelMatrix(glm::mat4(1.f));
+		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(4) * ifc_test_model->bbx_model_mat);
+		m_render.setProjectionMatrix(m_window.getOrthoProjMatrix());
+		m_render.setClippingBox(m_window.getClippingBoxVectors(true));
+
+		m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, ALL);
+		m_render.renderClipBox(m_window.getClipBox());
+
+		m_window.endOffScreenRender();
+	}
+
 	void IFCRenderEngine::run()
 	{
 		if (!m_init) {
@@ -204,17 +224,18 @@ namespace ifcre {
 			switch (m_render_api) {
 				case OPENGL_RENDER_API: {
 					auto& m_window = *m_render_window;
+					offscreenRending();
 					while (!m_window.isClose()) {
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
 						m_window.processInput();
-
+						offscreenRending();
 						//test dynamic ebo of components
 						changeGeom();
 
 						drawFrame();
-
+						m_glrender->AerialViewRender(m_window);
 						if (!m_window.swapBuffer()) {
 							break;
 						}
@@ -260,35 +281,17 @@ namespace ifcre {
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
 			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 		}
-		auto model_matrix = ifc_test_model->getModelMatrix();
 
-		ifc_m_matrix = model_matrix;
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
 		{
 			m_window.startRenderToWindow();  // 切换到当前frame buffer
-			glm::mat4 view = m_camera->getViewMatrix();
-			glm::vec3 camera_forwad = m_camera->getViewForward();
-			m_render.setViewMatrix(view);
-			m_render.setModelMatrix(model_matrix);
-			m_render.setInitModelMatrix(ifc_test_model->getInitModelMatrix());
-			m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
-			m_render.setModelViewMatrix(view * model_matrix);
-			m_render.setProjectionMatrix(m_window.getProjMatrix());
-			m_render.setAlpha(1.0);
-			m_render.setCameraDirection(camera_forwad);
-			m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
-			m_render.setClippingBox(m_window.getClippingBoxVectors());
+			dataIntegration();
 
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
 			key = m_window.getClickCompId();
 			m_render.setCompId(key);//m_render.setCompId(m_window.getClickCompId());
-			m_render.setHoverCompId(m_window.getHoverCompId());
-			//m_window.switchRenderBack();
-
-			//float cmrdis = 2.f;
 
 			//todo add gizmo's id here
 			m_window.switchRenderUI();
@@ -302,6 +305,9 @@ namespace ifcre {
 			}
 
 			glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
+			//std::cout << clicked_coord.x << "\t" << clicked_coord.y << "\t" << clicked_coord.z << "\t\n";
+
+			m_window.use_clip_box.bind_the_world_coordination(ifc_test_model->getModelMatrix());
 
 			if (!m_window.rotatelock) {
 				if (m_window.isMouseHorizontalRot()) {
@@ -415,7 +421,7 @@ namespace ifcre {
 
 			m_window.endRenderToWindow();
 		}
-		// post render: render edge
+		// post render
 		m_render.postRender(m_window); // 后处理，清空缓冲
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
@@ -453,6 +459,29 @@ namespace ifcre {
 
 			m_window.geom_changed = false;
 		}
+	}
+
+	void IFCRenderEngine::dataIntegration() {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+
+		auto model_matrix = ifc_test_model->getModelMatrix();
+		ifc_m_matrix = model_matrix;
+
+		glm::mat4 view = m_camera->getViewMatrix();
+		glm::vec3 camera_forwad = m_camera->getViewForward();
+		m_render.setViewMatrix(view);
+		m_render.setModelMatrix(model_matrix);
+		m_render.setInitModelMatrix(model_matrix);
+		m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
+		m_render.setModelViewMatrix(view * model_matrix);
+		m_render.setProjectionMatrix(m_window.getProjMatrix());
+		m_render.setAlpha(1.0);
+		m_render.setCameraDirection(camera_forwad);
+		m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
+		m_render.setClippingBox(m_window.getClippingBoxVectors(m_window.getHidden()));
+
+		m_render.setHoverCompId(m_window.getHoverCompId());
 	}
 
 	void IFCRenderEngine::setSelectCompIds(int val = 0) {
@@ -559,6 +588,7 @@ namespace ifcre {
 		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
 		ifc_test_model->setModelMatrix(model_mat);
 		ifc_test_model->setScaleFactor(scaler);
+
 		m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);
 	}
 
