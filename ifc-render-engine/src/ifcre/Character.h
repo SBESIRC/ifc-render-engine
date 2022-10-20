@@ -433,7 +433,7 @@ namespace ifcre {
 			glDisable(GL_BLEND);
 		}
 
-		vector<float> vert3dd;
+		vector<float> vert3d;
 
 		// 方案A: 一次性计算出所有字符串的位置，并使用一个VAO 优点：最低的draw call 实现简单 缺点：重复字符串多的情况下内存占用较大
 		void drawText3D(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview, bool& text_first) {
@@ -486,57 +486,57 @@ namespace ifcre {
 						glm::vec3 temp2 = pStart + w * direction + offsety * verticalDirection;
 						glm::vec3 temp3 = temp1 + w * direction;
 
-						vert3dd.emplace_back(curStart.x);
-						vert3dd.emplace_back(curStart.y);
-						vert3dd.emplace_back(curStart.z);
-						vert3dd.emplace_back(ch->x0 / texWidth); // get normalized coordinate
-						vert3dd.emplace_back(ch->y0 / texHeight);
+						vert3d.emplace_back(curStart.x);
+						vert3d.emplace_back(curStart.y);
+						vert3d.emplace_back(curStart.z);
+						vert3d.emplace_back(ch->x0 / texWidth); // get normalized coordinate
+						vert3d.emplace_back(ch->y0 / texHeight);
 
-						vert3dd.emplace_back(temp2.x);
-						vert3dd.emplace_back(temp2.y);
-						vert3dd.emplace_back(temp2.z);
-						vert3dd.emplace_back(ch->x1 / texWidth);
-						vert3dd.emplace_back(ch->y0 / texHeight);
+						vert3d.emplace_back(temp2.x);
+						vert3d.emplace_back(temp2.y);
+						vert3d.emplace_back(temp2.z);
+						vert3d.emplace_back(ch->x1 / texWidth);
+						vert3d.emplace_back(ch->y0 / texHeight);
 
-						vert3dd.emplace_back(temp3.x);
-						vert3dd.emplace_back(temp3.y);
-						vert3dd.emplace_back(temp3.z);
-						vert3dd.emplace_back(ch->x1 / texWidth);
-						vert3dd.emplace_back(ch->y1 / texHeight);
+						vert3d.emplace_back(temp3.x);
+						vert3d.emplace_back(temp3.y);
+						vert3d.emplace_back(temp3.z);
+						vert3d.emplace_back(ch->x1 / texWidth);
+						vert3d.emplace_back(ch->y1 / texHeight);
 
 
-						vert3dd.emplace_back(temp1.x);
-						vert3dd.emplace_back(temp1.y);
-						vert3dd.emplace_back(temp1.z);
-						vert3dd.emplace_back(ch->x0 / texWidth);
-						vert3dd.emplace_back(ch->y1 / texHeight);
+						vert3d.emplace_back(temp1.x);
+						vert3d.emplace_back(temp1.y);
+						vert3d.emplace_back(temp1.z);
+						vert3d.emplace_back(ch->x0 / texWidth);
+						vert3d.emplace_back(ch->y1 / texHeight);
 
-						vert3dd.emplace_back(curStart.x);
-						vert3dd.emplace_back(curStart.y);
-						vert3dd.emplace_back(curStart.z);
-						vert3dd.emplace_back(ch->x0 / texWidth);
-						vert3dd.emplace_back(ch->y0 / texHeight);
+						vert3d.emplace_back(curStart.x);
+						vert3d.emplace_back(curStart.y);
+						vert3d.emplace_back(curStart.z);
+						vert3d.emplace_back(ch->x0 / texWidth);
+						vert3d.emplace_back(ch->y0 / texHeight);
 
-						vert3dd.emplace_back(temp3.x);
-						vert3dd.emplace_back(temp3.y);
-						vert3dd.emplace_back(temp3.z);
-						vert3dd.emplace_back(ch->x1 / texWidth);
-						vert3dd.emplace_back(ch->y1 / texHeight);
+						vert3d.emplace_back(temp3.x);
+						vert3d.emplace_back(temp3.y);
+						vert3d.emplace_back(temp3.z);
+						vert3d.emplace_back(ch->x1 / texWidth);
+						vert3d.emplace_back(ch->y1 / texHeight);
 
 						pStart = pStart + (offsetx + w) * direction;
 					}
 				}
 
-				cnt = vert3dd.size();
+				cnt = vert3d.size();
 				//GLuint textVAO, textVBO;
 				glGenVertexArrays(1, &textVAO);
 				glBindVertexArray(textVAO);
 				glBindTexture(GL_TEXTURE_2D, _textureId);
 				glGenBuffers(1, &textVBO);
 				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
-				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cnt, vert3dd.data(), GL_DYNAMIC_DRAW);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cnt, vert3d.data(), GL_DYNAMIC_DRAW);
 
-				vector<float>().swap(vert3dd);
+				vector<float>().swap(vert3d);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				glBindVertexArray(0);
 				glBindTexture(GL_TEXTURE_2D, 0);

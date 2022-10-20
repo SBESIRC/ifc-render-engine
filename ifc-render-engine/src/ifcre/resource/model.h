@@ -52,12 +52,10 @@ namespace ifcre {
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
 			clock_t start, end;
 			start = clock();
-			Vector<CompState>().swap(comp_states);
-			comp_states.resize(c_indices.size(), VIS);
+			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
-
-			material_data.resize(facs);
+			Vector<MaterialData>(facs).swap(material_data);
 			for (size_t i = 0; i < facs; i++) {
 				material_data[i].kd = glm::vec3(datas.face_mat[i].ka_r, datas.face_mat[i].ka_g, datas.face_mat[i].ka_b);
 				material_data[i].ks = glm::vec3(datas.face_mat[i].ks_r, datas.face_mat[i].ks_g, datas.face_mat[i].ks_b);
@@ -74,15 +72,14 @@ namespace ifcre {
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
-		IFCModel(Vector<uint32_t> _g_indices, Vector<Real> _g_vertices, Vector<Real> _g_normals, Vector<Vector<uint32_t>> _c_indices, Vector<float> _face_mat, Vector<uint32_t> _edge_indices) :
+		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices, Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) :
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices)  {
 			clock_t start, end;
 			start = clock();
-			Vector<CompState>().swap(comp_states);
-			comp_states.resize(c_indices.size(), VIS);
+			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
 
 			size_t faces = _face_mat.size() / 8;// 获取面的数量
-			material_data.resize(faces);
+			Vector<MaterialData>(faces).swap(material_data);
 			for (size_t i = 0,j = 0 ; i < faces; ++i, j+=8) {
 				material_data[i].kd = glm::vec3(_face_mat[j], _face_mat[j+1], _face_mat[j+2]);
 				material_data[i].ks = glm::vec3(_face_mat[j+3], _face_mat[j+4], _face_mat[j+5]);
@@ -161,8 +158,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
-			Vector<Real>().swap(ver_attrib);
-			ver_attrib.resize(s / 3 * 10);//no!
+			Vector<Real>(s / 3 * 10).swap(ver_attrib);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];								// 位置.x
@@ -182,8 +178,7 @@ namespace ifcre {
 
 		// just add compid attribute for each vertex on which component it is
 		void generateCompIds() { // comp_ids: 顶点索引找到对应的物件索引
-			Vector<uint32_t>().swap(comp_ids);
-			comp_ids.resize(g_vertices.size() / 3);
+			Vector<uint32_t>(g_vertices.size() / 3).swap(comp_ids);
 			int j = 0;
 			for (int i = 0; i < c_indices.size(); i++) {
 				auto ix = c_indices[i];
@@ -196,8 +191,7 @@ namespace ifcre {
 
 		// add color attribute for each vertex
 		Vector<Real>& getVerColor() {
-			Vector<Real>().swap(g_kd_color);
-			g_kd_color.resize(g_vertices.size());
+			Vector<Real>(g_vertices.size()).swap(g_kd_color);
 			for (int i = 0; i < c_indices.size(); i++) {
 				for (int j = 0; j < c_indices[i].size(); j++) {
 					g_kd_color[3 * c_indices[i][j]] = material_data[i].kd.x;
@@ -211,7 +205,7 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
-			trans_c_indices_set.clear();
+			unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t>().swap(cur_c_indices);
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
@@ -284,8 +278,7 @@ namespace ifcre {
 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
-			Vector<Real>().swap(comps_bbx);
-			comps_bbx.resize(cindicessize * 6);		// 每个物件对应6个float值
+			Vector<Real>(cindicessize * 6).swap(comps_bbx); // 每个物件对应6个float值
 			Real a_min[3], a_max[3];
 			int bbx_offset = 0;
 			for (auto& ix : c_indices) {
