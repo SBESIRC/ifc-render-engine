@@ -475,7 +475,7 @@ namespace ifcre {
 		glLineWidth(7.f);
 		clip_box.drawBox(false);
 		glDepthMask(GL_TRUE);
-		glLineWidth(3.f);
+		glLineWidth(1.5f);
 		_defaultConfig();
 	}
 
@@ -824,6 +824,7 @@ namespace ifcre {
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
 		m_offscreen_program->setFloat("scale", .25f);
+		m_offscreen_program->setInt("this_flag", 0);
 		//m_offscreen_program->setFloat("mod", 1.f);
 
 		glm::vec2 win_size = w.getWindowSize();
@@ -850,7 +851,7 @@ namespace ifcre {
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
 		m_offscreen_program->setFloat("scale", 1.f);
-		//m_offscreen_program->setFloat("mod", 0.f);
+		m_offscreen_program->setInt("this_flag", 1);
 
 		glm::vec2 win_size = w.getWindowSize(); //获取存储屏幕大小
 		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y); //获取纹理到屏幕缩放比例

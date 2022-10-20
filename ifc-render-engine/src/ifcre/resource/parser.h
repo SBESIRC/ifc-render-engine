@@ -157,14 +157,14 @@ vector<real_t> generate_bbx_for_collision(const Datas2OpenGL& datas) {
 		x_max = y_max = z_max = numeric_limits<real_t>::lowest();
 		for (size_t j = 0; j < datas.search_m[i].size(); j++) {
 			//x
-			x_min = min(x_min, datas.verts[datas.search_m[i][j] * 3]);
-			x_max = max(x_max, datas.verts[datas.search_m[i][j] * 3]);
-			//y
-			y_min = min(y_min, datas.verts[datas.search_m[i][j] * 3 + 1]);
-			y_max = max(y_max, datas.verts[datas.search_m[i][j] * 3 + 1]);
-			//z
-			z_min = min(z_min, datas.verts[datas.search_m[i][j] * 3 + 2]);
-			z_max = max(z_max, datas.verts[datas.search_m[i][j] * 3 + 2]);
+			x_min = std::min(x_min, datas.verts[datas.search_m[i][j] * 3]);
+			x_max = std::max(x_max, datas.verts[datas.search_m[i][j] * 3]);
+			//y	
+			y_min = std::min(y_min, datas.verts[datas.search_m[i][j] * 3 + 1]);
+			y_max = std::max(y_max, datas.verts[datas.search_m[i][j] * 3 + 1]);
+			//z	
+			z_min = std::min(z_min, datas.verts[datas.search_m[i][j] * 3 + 2]);
+			z_max = std::max(z_max, datas.verts[datas.search_m[i][j] * 3 + 2]);
 		}
 		ret[6 * i] = x_min, ret[6 * i + 1] = y_min, ret[6 * i + 2] = z_min;
 		ret[6 * i + 3] = x_max, ret[6 * i + 4] = y_max, ret[6 * i + 5] = z_max;

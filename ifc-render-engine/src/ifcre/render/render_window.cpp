@@ -769,16 +769,16 @@ namespace ifcre {
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
-        float dis_ = 3.f;
+        float dis_ = 7.5f;
         int bili = 1;
         m_miniwidth = m_width / bili;
         m_miniheight = m_height / bili;
-        //float ratios = (Real)w / h;
-        //m_projection = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
-        //m_projection = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
+        float ratios = (Real)w / h;
+        m_projection2 = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
+        //m_projection2 = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
         /*
-        m_projection = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
-        m_projection = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
+        m_projection2 = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
+        m_projection2 = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
         auto& mfb = m_framebuffer;
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);

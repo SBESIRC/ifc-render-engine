@@ -195,18 +195,18 @@ namespace ifcre {
 		sleep_time = 10;
 	}
 
-	void IFCRenderEngine::offscreenRending() {
+	void IFCRenderEngine::offscreenRending(const int index) {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
 		m_window.offScreenRender();
 		bool registe = m_window.getHidden();
 		dataIntegration();
-		m_render.setViewMatrix(m_camera->getPrecomputedViewMatrix(4));
+		m_render.setViewMatrix(m_camera->getPrecomputedViewMatrix(index));
 		m_render.setModelMatrix(ifc_test_model->bbx_model_mat);
 		m_render.setInitModelMatrix(ifc_test_model->bbx_model_mat);
 		m_render.setMirrorModelMatrix(glm::mat4(1.f));
-		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(4) * ifc_test_model->bbx_model_mat);
+		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_test_model->bbx_model_mat);
 		m_render.setProjectionMatrix(m_window.getOrthoProjMatrix());
 		m_render.setClippingBox(m_window.getClippingBoxVectors(true));
 

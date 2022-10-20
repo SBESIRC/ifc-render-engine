@@ -84,7 +84,7 @@ namespace ifcre {
 		void changeGeom();
 		//get data ready before draw
 		void dataIntegration();
-		void offscreenRending();
+		void offscreenRending(const int index = 4);
 
 	public:
 		IFCRenderEngine() : m_init(false) {}

@@ -440,6 +440,7 @@ namespace ifcre {
 			"in vec2 f_texcoord[5];\r\n"
 			"uniform sampler2D screenTexture;\r\n"
 			"uniform sampler2D depthNormalTexture;\r\n"
+			"uniform int this_flag;\r\n"
 			"const vec2 _Sensitivity = vec2(1.0, 1.0);\r\n"
 			"const vec4 _EdgeColor = vec4(0.0, 0.0, 0.0, 1.0);\r\n"
 			"const vec4 _BackgroundColor = vec4(1.0, 1.0, 1.0, 1.0);\r\n"
@@ -477,6 +478,10 @@ namespace ifcre {
 			"#ifndef ONLY_DEPTH_NROMAL_RES\r\n"
 			"FragColor = vec4(withEdge.rgb, 1.0);\r\n"
 			"#else\r\n"
+			"vec3 textcolor = texture(screenTexture, f_texcoord[0]).rgb;\r\n"
+			"float judgement = textcolor.x * textcolor.y * textcolor.z;\r\n"
+			"if(this_flag == 0 && judgement > 0.9999)\r\n"
+			"discard;\r\n"
 			"FragColor = vec4(texture(screenTexture, f_texcoord[0]).rgb,1.0);\r\n"
 			"#endif\r\n"
 			"}\r\n";

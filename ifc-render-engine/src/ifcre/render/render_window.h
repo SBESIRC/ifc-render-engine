@@ -437,7 +437,7 @@ namespace ifcre {
 		bool trigger = false;
 		bool to_show_grid = true;
 
-		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 100.f, 100.f, 100.f);
+		ClipBox use_clip_box = ClipBox(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 40.f, 40.f, 80.f);
 	private:
 
 		void createFramebuffer(int w, int h);
