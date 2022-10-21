@@ -13,10 +13,13 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <freetype/ftglyph.h>
+#include FT_GLYPH_H
+#include FT_BITMAP_H
 
 #include <GLFW/glfw3.h>
 #define Char char
-
+#define _textureWidth 1024
+#define _textureHeight 1024
 //#include "bmp.h"
 
 namespace ifcre {
@@ -239,12 +242,12 @@ namespace ifcre {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);	// 指定纹理的放大,缩小滤波，使用线性方式，即当图片放大的时候插值方式 
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
+			//将图片的rgb数据上传给opengl.
 			glTexImage2D(
 				GL_TEXTURE_2D,				//! 指定是二维图片
 				0,							//! 指定为第一级别，纹理可以做mipmap,即lod,离近的就采用级别大的，远则使用较小的纹理
 				GL_RED,						//! 纹理的使用的存储格式
-				1024, 1024,					//! 纹理宽高，可容纳大约 1024/16 * 1024/16 = 4096个汉字
+				_textureWidth, _textureHeight,					//! 纹理宽高，可容纳大约 1024/16 * 1024/16 = 4096个汉字
 				0,							//! 是否的边
 				GL_RED,					 	//! 数据的格式，bmp中，windows,操作系统中存储的数据是bgr格式
 				GL_UNSIGNED_BYTE, 0		 	//! 数据是8bit数据
@@ -256,7 +259,7 @@ namespace ifcre {
 		Character2* getCharacter(wchar_t ch) {
 			wchar_t& word = ch;
 			if (_character[word].notGenerated()) { // 说明字符还没有绘制到纹理上，则进行绘制
-				if (_xStart + _fontSize > 1024) { // 写满一行,重新开始
+				if (_xStart + _fontSize > _textureWidth) { // 写满一行,重新开始
 					//this line filled, enter next line
 					_xStart = 0;
 					_yStart += _fontSize; // y开始位置要增加
@@ -265,14 +268,41 @@ namespace ifcre {
 				FT_Error error = 0;
 				FT_Glyph glyph;
 				error = FT_Get_Glyph(_face->glyph, &glyph);
-				
-				FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);// Convert the glyph to a bitmap.
+
+				///**
+				//*   根据字体的大小决定是否使用反锯齿绘制模式
+				//*   当字体比较小的是说建议使用ft_render_mode_mono
+				//*   当字体比较大的情况下12以上，建议使用ft_render_mode_normal模式
+				//**/
+				//if (!(word >= L'0' && word <= L'9'))
+				//{
+				//	FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
+				//}
+				//else
+				//{
+					FT_Glyph_To_Bitmap(&glyph, ft_render_mode_mono, 0, 1);
+				//}
+				//FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);// Convert the glyph to a bitmap.
 				FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
 				FT_Bitmap& bitmap = bitmap_glyph->bitmap;//This reference will make accessing the bitmap easier
 
 				/*if (FT_Load_Char(_face, ch, FT_LOAD_RENDER)) {
 					std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
 				}*/
+				//FT_Bitmap ftBitmap;
+				//FT_Bitmap_New(&ftBitmap);
+				//if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
+				//{
+				//	if (FT_Bitmap_Convert((FT_Library)_library, &bitmap, &ftBitmap, 1) == 0)
+				//	{
+				//		/**
+				//		*   Go through the bitmap and convert all of the nonzero values to 0xFF (white).
+				//		*/
+				//		for (unsigned char* p = ftBitmap.buffer, *endP = p + ftBitmap.width * ftBitmap.rows; p != endP; ++p)
+				//			*p ^= -*p ^ *p;
+				//		bitmap = ftBitmap;
+				//	}
+				//}
 
 				//if no data, write a cube with _fontSize / 4 width & place _fontSize / 2 width in texture
 				if (_face->glyph->bitmap.width == 0 || _face->glyph->bitmap.rows == 0) {
@@ -326,8 +356,8 @@ namespace ifcre {
 			auto wstringtemp = std::wstring(text);
 			if (text_handle.find(wstringtemp) == text_handle.end()) {
 				unsigned vertsize = 0;
-				float texWidth = 1024;
-				float texHeight = 1024;
+				float texWidth = _textureWidth;
+				float texHeight = _textureHeight;
 				float xStart = 0;
 				float yStart = 0;
 				unsigned nSize = wcslen(text);
@@ -455,8 +485,8 @@ namespace ifcre {
 					m_text3d_shader->setVec3("textColor", glm::vec3(text_data[j + 9], text_data[j + 10], text_data[j + 11]));
 					Real size = text_data[j + 13];
 
-					float texWidth = 1024;
-					float texHeight = 1024;
+					float texWidth = _textureWidth;
+					float texHeight = _textureHeight;
 					glm::vec3 pStart = center;
 					float totalW = 0;
 					float maxH = 0;
