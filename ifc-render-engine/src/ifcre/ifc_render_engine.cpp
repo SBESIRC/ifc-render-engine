@@ -133,9 +133,6 @@ namespace ifcre {
 
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
-			//glm::mat4 ifc_model_matrix;
-			//util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_model_matrix, scale_factor);
-			//ifc_test_model->setModelMatrix(ifc_model_matrix);
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_test_model->bbx_model_mat, scale_factor);
 			ifc_test_model->setModelMatrix(ifc_test_model->bbx_model_mat);
 			ifc_test_model->setScaleFactor(scale_factor);
@@ -152,9 +149,9 @@ namespace ifcre {
 				m_camera = make_shared<GLCamera>(m_view_pos);
 				m_camera->PrecomputingCubeDireciton(m_view_pos); // 为相机预设6个位置
 				m_render_window->setCamera(m_camera);
-				m_render_window->use_clip_box.setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////////
-				m_render_window->use_clip_box.bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
 			}
+			m_render_window->use_clip_box.setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////////
+			m_render_window->use_clip_box.bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
 
 			// add a rendered model
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();

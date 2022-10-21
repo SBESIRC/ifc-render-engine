@@ -27,7 +27,7 @@ namespace ifcre {
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 
-		static const char* v_axis_vk = "#version 460\r\n"
+		static const char* v_axis_vk = "#version 430\r\n"
 			"layout(location = 0) in vec3 aPos;\r\n"
 			"layout(location = 0) flat out vec3 color;\r\n"
 			"layout(std140, binding = 0)uniform TransformMVPUBO{\r\n"
