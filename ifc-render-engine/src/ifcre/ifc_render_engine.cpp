@@ -379,7 +379,7 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
-			//m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {

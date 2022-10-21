@@ -1,4 +1,4 @@
-#version 430
+#version 460
 #define PI 3.14159265358979323846
 
 layout(location = 0)in float vDistance;
