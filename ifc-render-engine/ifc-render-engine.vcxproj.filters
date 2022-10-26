@@ -22,8 +22,8 @@
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
-    <ClCompile Include="src\ifcre\collider.cpp" />
     <ClCompile Include="src\ifcre\stb_image.cpp" />
+    <ClCompile Include="src\ifcre\collider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -63,13 +63,13 @@
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
     <ClInclude Include="src\ifcre\mesh_simplier.h" />
-    <ClInclude Include="src\ifcre\collider.h" />
     <ClInclude Include="src\ifcre\bmp.h" />
     <ClInclude Include="src\ifcre\Character.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
     <ClInclude Include="src\ifcre\grid.h" />
     <ClInclude Include="src\ifcre\Axis.h" />
+    <ClInclude Include="src\ifcre\collider.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -129,6 +129,7 @@
     <None Include="..\workdir\shaders\grid.frag" />
     <None Include="..\workdir\shaders\grid.vert" />
     <None Include="..\workdir\shaders\text3d.vert" />
+    <None Include="src\gen_shader_consts.py" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

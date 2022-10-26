@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <vector>
 #include <iostream>
 #include <omp.h>
@@ -57,6 +57,7 @@
 #include "bvh/vector.hpp"
 #include "bvh/triangle.hpp"
 #include "bvh/sweep_sah_builder.hpp"
+#include <unordered_set>
 // #include "bvh/binned_sah_builder.hpp"
 
 #if defined(COLLIDER_DEBUG) && defined(COLLIDER_PRINT_RUNTIME)
@@ -72,12 +73,12 @@ std::cout << message << ::difftime(sec, fir) << std::endl
 
 
 template<class _IndexType, class _ScalarType>
-class ComponmentWrapper{
+class ComponmentWrapper {
 public:
 
 	using ScalarType = _ScalarType;
 	ComponmentWrapper() = default;
-	ComponmentWrapper(const std::vector<_IndexType> & _idx, const std::vector<ScalarType> & _dat){
+	ComponmentWrapper(const std::vector<_IndexType>& _idx, const std::vector<ScalarType>& _dat) {
 		const auto indexPtr = _idx.data();
 		const auto indexSiz = _idx.size();
 		// this->pointCnt = indexSiz;
@@ -100,8 +101,8 @@ public:
 		return this->bounding_box().center();
 	}
 
-	private:
-		bvh::BoundingBox<ScalarType> mBox;
+private:
+	bvh::BoundingBox<ScalarType> mBox;
 };
 
 class Collider {
@@ -113,14 +114,14 @@ public:
 	using Scalar = double;
 #endif
 	using IndexType = unsigned;
-	using Filter = bool (*) (const Datas4Component &);
-	using Condition = bool (*) (const Datas4Component &, const Datas4Component &);
+	//using Filter = bool (*) (const Datas4Component&);
+	//using Condition = bool (*) (const Datas4Component&, const Datas4Component&);
 private:
 	using Vector3 = bvh::Vector3<Scalar>;
 	using Triangle = bvh::Triangle<Scalar>;
 	using Bvh = bvh::Bvh<Scalar>;
 	using Box = bvh::BoundingBox<Scalar>;
-	using rawData = Datas2OpenGL;
+	//using rawData = Datas2OpenGL;
 	using Componment = ComponmentWrapper<IndexType, Scalar>;
 public:
 	struct indexPair {
@@ -133,14 +134,16 @@ public:
 	};
 
 public:
-	void bufferData(const rawData * dataSet = nullptr);
-	void addFilter(Filter filter);
-	void addCondition(Condition condition);
-	void getCollisionPair(indexPair* const allocatedMemory, const uint64_t siz, uint64_t * const retSiz);
+	void bufferData(const vector<uint32_t>& _g_indices, const vector<float>& _g_vertices, const vector<vector<uint32_t>>& _c_indices);
+	//void addFilter(Filter filter);
+	void setTotalIds(const unordered_set<int>& totalIds);
+	//void addCondition(Condition condition);
+	void setRespetcIds(const unordered_set<int>& idsA, const unordered_set<int>& idsB);
+	void getCollisionPair(indexPair* const allocatedMemory, const uint64_t siz, uint64_t* const retSiz);
 	std::vector<indexPair> getCollisionPair();
 	std::vector<IndexType> getIndexArr();
 protected:
-	void filterData();
+	//void filterData();
 	void buildData();
 #if defined(COLLIDER_USE_BVH) && !defined(COLLIDER_USE_SORT) && !defined(COLLIDER_USE_SUPER_FILTER)
 	void broadPhaseProcess_BVH();
@@ -149,24 +152,27 @@ protected:
 #elif defined(COLLIDER_USE_SUPER_FILTER)
 	void broadPhaseProcess_FILTER();
 #endif
-	void narrowPhaseProcess();
 	void conditionFilter();
+	void narrowPhaseProcess();
 private:
 #if defined(COLLIDER_USE_BVH)
-	void processBVH(const Bvh & bvh);
+	void processBVH(const Bvh& bvh);
 #endif
 	bool isIntersect(const Box lhs, const Box rhs);
 	bool fastTriangleIntersect(Triangle lhs, Triangle rhs);
 private:
-	Filter mFilter;
-	Condition mCondition;
+	//Filter mFilter;
+	//Condition mCondition;
 	std::size_t mComponmentSize;
-	std::vector<Componment> mBuildDat;
-	std::vector<unsigned> mFilterIndex;
+	std::vector<Componment> mBuildDat; // 存bvh适应data
+	std::unordered_set<int> idsC; // 要进行碰撞的ids
+	std::unordered_set<int> idsA; // 要进行碰撞的ids
+	std::unordered_set<int> idsB; // 要进行碰撞的ids
 	std::vector<indexPair> mIndexArr;
-	const rawData* mRawData;
+	//const rawData* mRawData;
+
+	vector<uint32_t> vert_indices;//vert_indices// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
+	vector<float> verts;//verts// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
+	vector<vector<uint32_t>> search_m; //search_m// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 }
 ;
-
-
-
