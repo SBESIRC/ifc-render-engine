@@ -72,8 +72,9 @@ namespace ifcre {
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
-		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices, Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) :
-			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices)  {
+		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices,
+			Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) : //, Vector<uint32_t>& _comp_types) :
+			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices) { //, comp_types(_comp_types) {
 			clock_t start, end;
 			start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
@@ -455,9 +456,9 @@ namespace ifcre {
 		}
 
 		void setModelMatrix(const glm::mat4& model) {
+			mirror_model = model * glm::inverse(bbx_model_mat);
 			m_model = model;
 			m_init_model = m_model;
-			mirror_model = glm::mat4(1.f);
 		}
 		glm::mat4 getModelMatrix() {
 			return m_model;
@@ -468,6 +469,10 @@ namespace ifcre {
 		
 		glm::mat4 getMirrorModelMatrix() {
 			return mirror_model;
+		}
+
+		glm::mat4 getPreComputeModelMatrix(int i) {
+			return glm::translate(glm::mat4(1.f), m_cube_direction_transform[i]);
 		}
 
 		void generate_circleLines(vector<float>& grid_lines, vector<float>& grid_circles, int per_degree = 30) {
@@ -514,8 +519,6 @@ namespace ifcre {
 					grid_lines.emplace_back(grid_circles[j + 11]); // line width
 					grid_lines.emplace_back(1.); // line type
 				}
-
-
 			}
 		}
 
@@ -546,6 +549,7 @@ namespace ifcre {
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
+		glm::mat4 bbx_model_mat;
 
 		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
 		//Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
@@ -561,6 +565,7 @@ namespace ifcre {
 		Vector<Real> g_kd_color;				// 依次存储各个顶点(漫反射项)颜色的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_normals;					// 依次存储各个顶点法向量的x、y、z信息，数量为顶点数量的三倍
 		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
+		//Vector<uint32_t> comp_types;				// 存储构件所属类型，数量等同于构件数
 
 		Vector<bool> is_trans;
 		Vector<glm::vec3> m_cube_direction_transform;

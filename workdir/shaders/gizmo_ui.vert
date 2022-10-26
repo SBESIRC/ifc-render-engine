@@ -1,4 +1,4 @@
-#version 430
+#version 460
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 uvs;
 layout(location = 2) in int aid;
@@ -10,5 +10,5 @@ layout (location = 0) flat out int id;
 
 void main(){
     id = aid;
-    gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, .8, 0., 0.);
+    gl_Position = ubo.view_matrix * vec4(aPos, 1.0) + vec4(.9, -.8, 0., 0.);
 }

@@ -23,6 +23,7 @@ namespace ifcre {
 		virtual void set_c_indices(int val) = 0;
 		virtual void set_face_mat(float val) = 0;
 		virtual void set_edge_indices(int val) = 0;
+		//virtual void set_comp_types(int val) = 0;
 
 
 		virtual void init(GLFWwindow *) = 0;
@@ -60,6 +61,7 @@ namespace ifcre {
 		void set_c_indices(int val);
 		void set_face_mat(float val);
 		void set_edge_indices(int val);
+		//void set_comp_types(int val);
 
 		void set_grid_data(int val);
 		void set_grid_lines(float val);
@@ -82,6 +84,9 @@ namespace ifcre {
 
 		//test dynamic ebo of components, using keyboard input
 		void changeGeom();
+		//get data ready before draw
+		void dataIntegration();
+		void offscreenRending(const int index = 4);
 
 	public:
 		IFCRenderEngine() : m_init(false) {}
@@ -116,6 +121,7 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> _c_indices;
 		Vector<float> _face_mat;
 		Vector<uint32_t> _edge_indices;
+		//Vector<uint32_t> _comp_types;
 
 		Vector<float> grid_lines;
 		Vector<float> grid_circles;

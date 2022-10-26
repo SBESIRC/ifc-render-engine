@@ -1,4 +1,4 @@
-#version 430
+#version 460
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in int this_id;
 layout(std140, binding = 0)uniform TransformMVPUBO{

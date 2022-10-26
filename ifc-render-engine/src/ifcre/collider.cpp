@@ -62,8 +62,7 @@ void Collider::filterData() {
 }
 
 void Collider::buildData() {
-	std::vector<Componment>().swap(mBuildDat);
-	mBuildDat.resize(mFilterIndex.size());
+	std::vector<Componment>(mFilterIndex.size()).swap(mBuildDat);
 	#pragma omp parallel for schedule(static, 8)
 	for (std::size_t i = 0; i < mFilterIndex.size(); ++i) 
 		mBuildDat[i] = std::move(Componment(mRawData->search_m[mFilterIndex[i]], mRawData->verts));
@@ -448,6 +447,7 @@ void Collider::narrowPhaseProcess(){
 
 #if defined(COLLIDER_USE_BVH)
 void Collider::processBVH(const Bvh & mBvh){
+	std::vector<indexPair>().swap(this->mIndexArr);
 	// auto nodeCnt = mBvh.node_count;
 	struct alignas(16) RecursiveInfo{
 		int phaseDummy;

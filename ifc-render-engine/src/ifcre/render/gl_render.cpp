@@ -135,6 +135,29 @@ namespace ifcre {
 		glLineWidth(1.5f);
 		_defaultConfig();
 
+		//quad for post processing
+		//vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+		Vector<float> quadVertices = {
+			// positions   // texCoords
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			-1.0f, -1.0f,  0.0f, 0.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+
+			-1.0f,  1.0f,  0.0f, 1.0f,
+			 1.0f, -1.0f,  1.0f, 0.0f,
+			 1.0f,  1.0f,  1.0f, 1.0f
+		};
+
+		uint32_t off_vbo;
+		glGenVertexArrays(1, &off_vao);
+		glGenBuffers(1, &off_vbo);
+		glBindVertexArray(off_vao);
+		glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
+		glBufferData(GL_ARRAY_BUFFER, quadVertices.size() * sizeof(float), quadVertices.data(), GL_STATIC_DRAW);
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		// ----- ----- ----- ----- ----- ----- -----
 
 	}
@@ -162,6 +185,7 @@ namespace ifcre {
 		default:break;
 		}
 	}
+
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
 	{
 		auto& vb_map = m_vertex_buffer_map;
@@ -428,20 +452,37 @@ namespace ifcre {
 
 	void GLRender::renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id) {
 		if (!hidden) {
-
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
 			m_clip_plane_shader->use();
 			m_clip_plane_shader->setInt("ui_id", clp_face_id);
-			clip_box.drawBox();
+			//std::cout << clp_face_id << std::endl;
+			m_clip_plane_shader->setVec3("this_color", glm::vec3(0.f, 1.f, 1.f));
+			clip_box.drawBox(true);
 			_defaultConfig();
 		}
+	}
+
+	void GLRender::renderClipBox(const ClipBox& clip_box) {
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+		m_clip_plane_shader->use();
+		m_clip_plane_shader->setInt("ui_id", -1);
+		m_clip_plane_shader->setVec3("this_color", glm::vec3(1.f, 0.f, 0.f));
+		glDisable(DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS);
+		glDepthMask(GL_FALSE);
+		glLineWidth(7.f);
+		clip_box.drawBox(false);
+		glDepthMask(GL_TRUE);
+		glLineWidth(1.5f);
+		_defaultConfig();
 	}
 
 	void GLRender::renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box) {
 		if (!hidden) {
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * mirror_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
 			m_clip_plane_UI_shader->use();
 			clip_box.drawBoxInUILayer();
 		}
@@ -772,37 +813,33 @@ namespace ifcre {
 		return textureID;
 	}
 
+	void GLRender::AerialViewRender(RenderWindow& w) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, w.getAerialColorTexId());
+		if (w.getDepthNormalTexId() != -1) {
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D, w.getDepthNormalTexId());
+		}
+		m_offscreen_program->use();
+		m_offscreen_program->setInt("screenTexture", 0);
+		m_offscreen_program->setInt("depthNormalTexture", 1);
+		m_offscreen_program->setFloat("scale", .25f);
+		m_offscreen_program->setInt("this_flag", 0);
+		//m_offscreen_program->setFloat("mod", 1.f);
+
+		glm::vec2 win_size = w.getWindowSize();
+		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y);
+		m_offscreen_program->setVec2("screenTexTexelSize", win_texel_size);
+
+		glDisable(GL_DEPTH_TEST);
+		glBindVertexArray(off_vao);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		_defaultConfig();
+	}
+
 	void GLRender::postRender(RenderWindow& w)
 	{
-		static bool first = false;
-		static uint32_t off_vao;
-		static unsigned int intermediateFBO;
-		static unsigned int screenTexture;
-
-		if (!first) {
-			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords	// 位置 纹理坐标
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-			 1.0f,  1.0f,  1.0f, 1.0f
-			};
-			uint32_t off_vbo;
-			glGenVertexArrays(1, &off_vao);
-			glGenBuffers(1, &off_vbo);
-			glBindVertexArray(off_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);						// 读入顶点数据
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));		//读入纹理数据
-
-			first = true;
-		}
 
 		glActiveTexture(GL_TEXTURE0); // texture 0 // 在绑定之前激活相应的纹理单元
 		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());// 获取颜色纹理序号 并绑定
@@ -813,6 +850,8 @@ namespace ifcre {
 		m_offscreen_program->use(); // 激活着色器程序 //进行渲染
 		m_offscreen_program->setInt("screenTexture", 0);
 		m_offscreen_program->setInt("depthNormalTexture", 1);
+		m_offscreen_program->setFloat("scale", 1.f);
+		m_offscreen_program->setInt("this_flag", 1);
 
 		glm::vec2 win_size = w.getWindowSize(); //获取存储屏幕大小
 		glm::vec2 win_texel_size = glm::vec2(1.0 / win_size.x, 1.0 / win_size.y); //获取纹理到屏幕缩放比例

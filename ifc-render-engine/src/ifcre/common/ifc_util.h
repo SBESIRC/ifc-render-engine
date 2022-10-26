@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_UTIL_H_
 #define IFCRE_UTIL_H_
 
@@ -32,7 +32,7 @@ namespace ifcre {
 			Real scales = 15.f / (.7f * mmdimens + 20.f);
 			glm::vec3 offset = glm::vec3(-(pMin.x + pMax.x) / 2, -(pMin.y + pMax.y) / 2, -(pMin.z + pMax.z) / 2);
 			o_model = glm::mat4(1.0f);
-			o_model = glm::scale(o_model, glm::vec3(-scales, scales, scales));
+			o_model = glm::scale(o_model, glm::vec3(scales, scales, scales));
 			//scale(scales, scales, scales);
 			o_model = glm::translate(o_model, offset);
 			o_scale_factor = scales;

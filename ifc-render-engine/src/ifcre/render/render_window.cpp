@@ -420,11 +420,11 @@ namespace ifcre {
         if (!hidden) {
             if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
                 //use_clip_plane.base_pos += use_clip_plane.moveSpeed * use_clip_plane.normal;
-                use_clip_box.base_pos += use_clip_box.moveSpeed * use_clip_box.normal;
+                use_clip_box.base_pos += use_clip_box.moveSpeed * use_clip_box.front;
             }
             if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
                 //use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
-                use_clip_box.base_pos -= use_clip_box.moveSpeed * use_clip_box.normal;
+                use_clip_box.base_pos -= use_clip_box.moveSpeed * use_clip_box.front;
             }
             //rotate clipping box
             //if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
@@ -491,6 +491,7 @@ namespace ifcre {
         double now_time = glfwGetTime();
         m_delta_time = now_time - m_last_time;
         m_last_time = now_time;
+        //std::cout << "fps:\t" << 1. / m_delta_time << std::endl;
 
         m_mouse_status.horizontal_move = 0;
         m_mouse_status.vertical_move = 0;
@@ -501,6 +502,24 @@ namespace ifcre {
     void RenderWindow::pollEvents()
     {
         glfwPollEvents();
+    }
+
+    void RenderWindow::offScreenRender() {
+        m_cur_fbo = m_arerial_fb.fbo_id;
+        glBindFramebuffer(GL_FRAMEBUFFER, m_arerial_fb.fbo_id);
+        m_cur_rt = m_arerial_fb.m_AerialView_rt.get();
+        m_cur_rt->attach(m_arerial_fb.fbo_id);
+        glBindFramebuffer(GL_FRAMEBUFFER, m_arerial_fb.fbo_id);
+    }
+
+    void RenderWindow::endOffScreenRender() {
+        if (m_cur_fbo != m_arerial_fb.fbo_id) {
+            std::cout << "ERROR in OffScreenRender, fbo changed.\n";
+            return;
+        }
+        m_cur_fbo = 0;
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        //m_cur_rt = m_framebuffer.m_default_rt.get();
     }
 
     void RenderWindow::startRenderToWindow()
@@ -678,8 +697,8 @@ namespace ifcre {
         //return use_clip_plane;
     }
 
-    Vector<glm::vec4> RenderWindow::getClippingBoxVectors() {
-        if (hidden)
+    Vector<glm::vec4> RenderWindow::getClippingBoxVectors(bool _hidden) {
+        if (_hidden)
             return hidden_box_vector;
         return use_clip_box.out_as_vec4s();
     }
@@ -750,17 +769,22 @@ namespace ifcre {
         m_width = w;
         m_height = h;
         m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
-        //float dis_ = 7.f;
-        //float ratios = (Real)w / h;
-        //m_projection = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
-        //m_projection = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
+        float dis_ = 7.5f;
+        int bili = 1;
+        m_miniwidth = m_width / bili;
+        m_miniheight = m_height / bili;
+        float ratios = (Real)w / h;
+        m_projection2 = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
+        //m_projection2 = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
         /*
-        m_projection = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
-        m_projection = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
+        m_projection2 = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
+        m_projection2 = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
         auto& mfb = m_framebuffer;
         //mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH32);
         mfb.m_default_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+        m_arerial_fb.m_AerialView_rt = make_shared<GLRenderTexture>(m_miniwidth, m_miniheight, DEPTH_WRITE_ONLY);
         glCreateFramebuffers(1, &mfb.fbo_id);
+        glCreateFramebuffers(1, &m_arerial_fb.fbo_id);
         //glBindFramebuffer(GL_FRAMEBUFFER, mfb.fbo_id);
         //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, mfb.m_default_rt->getTexId(), 0);
         //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, mfb.m_default_rt->getDepthId(), 0);
@@ -783,6 +807,8 @@ namespace ifcre {
 
         mfb.m_depth_normal_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
         mfb.m_comp_id_rt = make_shared<GLRenderTexture>(w, h, DEPTH_WRITE_ONLY);
+
+        //m_cur_rt = m_arerial_fb.m_AerialView_rt.get();
 
         if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;

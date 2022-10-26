@@ -30,6 +30,8 @@ namespace Example {
         public static extern void ifcre_set_face_mat(float val);
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_set_edge_indices(int val);
+        //[DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        //public static extern void ifcre_set_comp_types(int val);
 
         [DllImport("ifc-render-engine.dll")]//, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
 #pragma warning disable CS3001 // 参数类型不符合 CLS

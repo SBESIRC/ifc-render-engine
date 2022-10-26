@@ -1,4 +1,4 @@
-#version 430
+#version 460
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec3 aColor;
@@ -24,8 +24,8 @@ void main()
 
 	vGoColor = aColor;
 	vec4 p = vec4(aPos, 1.0);
-	vec4 eyePos = ubo.model * p; 
-	vFragPos = eyePos.xyz;// 片段位置
+	vec4 eyePos = ubo.model * p;
+	vFragPos = eyePos.xyz;
 	vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
@@ -36,6 +36,7 @@ void main()
 	}
 	vComp = aComp;
 	//vNormal = ubo.transpose_inv_model * aNormal;
-	vNormal = aNormal;
+	vNormal = ubo.transpose_inv_model * aNormal;
+	vNormal=aNormal;
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }

@@ -1,10 +1,11 @@
-#version 430
+#version 460
 out vec4 FragColor;
 
 in vec2 f_texcoord[5];
 
 uniform sampler2D screenTexture;
 uniform sampler2D depthNormalTexture;
+uniform int this_flag;
 
 const vec2 _Sensitivity = vec2(1.0, 1.0);
 const vec4 _EdgeColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -51,6 +52,10 @@ void main(){
 #ifndef ONLY_DEPTH_NROMAL_RES
     FragColor = vec4(withEdge.rgb, 1.0);
 #else
+	vec3 textcolor = texture(screenTexture, f_texcoord[0]).rgb;
+	float judgement = textcolor.x * textcolor.y * textcolor.z;
+	if(this_flag == 0 && judgement > 0.9999)
+		discard;
     FragColor = vec4(texture(screenTexture, f_texcoord[0]).rgb,1.0);
 #endif
 }

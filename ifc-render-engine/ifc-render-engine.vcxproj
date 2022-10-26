@@ -202,6 +202,7 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ifcre\Axis.h" />
     <ClInclude Include="src\ifcre\bmp.h" />
     <ClInclude Include="src\ifcre\Character.h" />
     <ClInclude Include="src\ifcre\collider.h" />

@@ -1,4 +1,4 @@
-#version 430
+#version 460
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 uvs;
 layout(location = 2) in int aid;
@@ -8,7 +8,7 @@ layout(std140, binding = 0)uniform TransformMVPUBO{
 
 uniform int hover_id;
 
-out vec2 TexCoord; // 传出纹理坐标
+out vec2 TexCoord;
 out flat int thisid;
 
 void main(){
