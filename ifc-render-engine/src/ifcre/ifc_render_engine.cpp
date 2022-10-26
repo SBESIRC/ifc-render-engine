@@ -94,19 +94,32 @@ namespace ifcre {
 	}
 
 
-	void IFCRenderEngine::set_collide_idsC(int val) {
-		collide_idsC.emplace_back(val);
+
+	void IFCRenderEngine::set_collide_command(int val) {
+		if (val == 0) { // 开始传输A、B数据前先进行清空
+			collide_idsA.clear();
+			collide_idsB.clear();
+			collide_idsC.clear();
+		}
+		else if (val == 1) { // A、B传输完成，进行碰撞检测
+			collider->bufferData(_g_indices, _g_vertices, _c_indices); // 此处会清空原始数据
+			collider->setTotalIds(collide_idsC);
+			collider->setRespetcIds(collide_idsA, collide_idsB);
+
+			collider->getIndexArr();
+		}
 	}
 	void IFCRenderEngine::set_collide_idsA(int val) {
-		collide_idsA.emplace_back(val);
+		collide_idsA.insert(val);
+		collide_idsC.insert(val);
 	}
 	void IFCRenderEngine::set_collide_idsB(int val) {
-		collide_idsB.emplace_back(val);
+		collide_idsB.insert(val);
+		collide_idsC.insert(val);
 	}
-
 	int IFCRenderEngine::get_collide_ids_size()
 	{
-		//return m_render_window->chosen_list.size();
+		return collider->getIndexArr().size();
 	}
 	void IFCRenderEngine::get_collide_ids(int* arr) {
 		//std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
@@ -149,6 +162,7 @@ namespace ifcre {
 		String model_file = configs["file"];
 		if (model_file == "nil") {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
+			collider = make_shared<Collider>();
 		}
 		else {
 			if (try_ifc) {

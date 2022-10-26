@@ -47,10 +47,9 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_grid_text(const char* val);
 	__declspec(dllexport) void ifcre_set_grid_text_data(float val);
 
-	__declspec(dllexport) void ifcre_set_collide_idsC(int val);
+	__declspec(dllexport) void ifcre_set_collide_command(int val);
 	__declspec(dllexport) void ifcre_set_collide_idsA(int val);
 	__declspec(dllexport) void ifcre_set_collide_idsB(int val);
-
 	__declspec(dllexport) int ifcre_get_collide_ids_size();
 	__declspec(dllexport) void ifcre_get_collide_ids(int* arr);
 #ifdef __cplusplus
