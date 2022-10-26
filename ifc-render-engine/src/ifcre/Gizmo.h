@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <map>
 #include <string>
@@ -48,233 +48,233 @@ namespace ifcre {
 			float coord_plane[] = {
 				// position     uv cordination	ids
 				//back 0
-				 k, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 0),
+				k, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 0),
 				-k, -k, -k2,		.33f, .00f,		util::int_as_float(id_num + 0),
 				-k,  k, -k2,		.33f, .50f,		util::int_as_float(id_num + 0),
-				 k,  k, -k2,		.00f, .50f,		util::int_as_float(id_num + 0),
-				 //left 4
-				 -k2, -k,  k,		1.0f, .50f,		util::int_as_float(id_num + 1),
-				 -k2,  k,  k,		1.0f, 1.0f,		util::int_as_float(id_num + 1),
-				 -k2,  k, -k,		.67f, 1.0f,		util::int_as_float(id_num + 1),
-				 -k2, -k, -k,		.67f, .50f,		util::int_as_float(id_num + 1),
-				 //front 8
-				 -k, -k,  k2,		.00f, .50f,		util::int_as_float(id_num + 2),
-				  k, -k,  k2,		.33f, .50f,		util::int_as_float(id_num + 2),
-				  k,  k,  k2,		.33f, 1.0f,		util::int_as_float(id_num + 2),
-				 -k,  k,  k2,		.00f, 1.0f,		util::int_as_float(id_num + 2),
-				 //right 12
-				  k2, -k,  k,		.67f, .00f,		util::int_as_float(id_num + 3),
-				  k2, -k, -k,		1.0f, .00f,		util::int_as_float(id_num + 3),
-				  k2,  k, -k,		1.0f, .50f,		util::int_as_float(id_num + 3),
-				  k2,  k,  k,		.67f, .50f,		util::int_as_float(id_num + 3),
-				  //up 16
-				  -k,  k2,  k,		.33f, .50f,		util::int_as_float(id_num + 4),
-				   k,  k2,  k,		.67f, .50f,		util::int_as_float(id_num + 4),
-				   k,  k2, -k,		.67f, 1.0f,		util::int_as_float(id_num + 4),
-				  -k,  k2, -k,		.33f, 1.0f,		util::int_as_float(id_num + 4),
-				  //down 20
-				   k, -k2, -k,		.67f, .00f,		util::int_as_float(id_num + 5),
-				  -k, -k2, -k,		.33f, .00f,		util::int_as_float(id_num + 5),
-				  -k, -k2,  k,		.33f, .50f,		util::int_as_float(id_num + 5),
-				   k, -k2,  k,		.67f, .50f,		util::int_as_float(id_num + 5),
+				k,  k, -k2,		.00f, .50f,		util::int_as_float(id_num + 0),
+				//left 4
+				-k2, -k,  k,		1.0f, .50f,		util::int_as_float(id_num + 1),
+				-k2,  k,  k,		1.0f, 1.0f,		util::int_as_float(id_num + 1),
+				-k2,  k, -k,		.67f, 1.0f,		util::int_as_float(id_num + 1),
+				-k2, -k, -k,		.67f, .50f,		util::int_as_float(id_num + 1),
+				//front 8
+				-k, -k,  k2,		.00f, .50f,		util::int_as_float(id_num + 2),
+				k, -k,  k2,		.33f, .50f,		util::int_as_float(id_num + 2),
+				k,  k,  k2,		.33f, 1.0f,		util::int_as_float(id_num + 2),
+				-k,  k,  k2,		.00f, 1.0f,		util::int_as_float(id_num + 2),
+				//right 12
+				k2, -k,  k,		.67f, .00f,		util::int_as_float(id_num + 3),
+				k2, -k, -k,		1.0f, .00f,		util::int_as_float(id_num + 3),
+				k2,  k, -k,		1.0f, .50f,		util::int_as_float(id_num + 3),
+				k2,  k,  k,		.67f, .50f,		util::int_as_float(id_num + 3),
+				//up 16
+				-k,  k2,  k,		.33f, .50f,		util::int_as_float(id_num + 4),
+				k,  k2,  k,		.67f, .50f,		util::int_as_float(id_num + 4),
+				k,  k2, -k,		.67f, 1.0f,		util::int_as_float(id_num + 4),
+				-k,  k2, -k,		.33f, 1.0f,		util::int_as_float(id_num + 4),
+				//down 20
+				k, -k2, -k,		.67f, .00f,		util::int_as_float(id_num + 5),
+				-k, -k2, -k,		.33f, .00f,		util::int_as_float(id_num + 5),
+				-k, -k2,  k,		.33f, .50f,		util::int_as_float(id_num + 5),
+				k, -k2,  k,		.67f, .50f,		util::int_as_float(id_num + 5),
 
-				   //edge back up 24
-				   -k,	 k, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
-					k,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
-					k,  k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
-					k,  k2, -k,		.00f, .00f,		util::int_as_float(id_num + 6),
-					-k, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 6),
-					-k, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
+				//edge back up 24
+				-k,	 k, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
+				k,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
+				k,  k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
+				k,  k2, -k,		.00f, .00f,		util::int_as_float(id_num + 6),
+				-k, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 6),
+				-k, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 6),
 
-					//edge back left 30
-					-k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 7),
-					-k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
-					-k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
-					-k,   k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
-					-k2,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
-					-k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 7),
+				//edge back left 30
+				-k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 7),
+				-k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
+				-k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
+				-k,   k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
+				-k2,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 7),
+				-k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 7),
 
-					//edge back down 36
-					-k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
-					-k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
-					-k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 8),
-					 k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 8),
-					 k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
-					 k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
+				//edge back down 36
+				-k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
+				-k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
+				-k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 8),
+				k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 8),
+				k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
+				k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 8),
 
-					 //edge back right 42
-					  k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
-					  k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
-					  k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 9),
-					  k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 9),
-					  k2,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
-					  k,   k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
+				//edge back right 42
+				k,  -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
+				k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
+				k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 9),
+				k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 9),
+				k2,  k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
+				k,   k, -k2,		.00f, .00f,		util::int_as_float(id_num + 9),
 
-					  //edge left up 48
-					  -k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
-					  -k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
-					  -k,  k2, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
-					  -k,  k2,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
-					  -k2, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
-					  -k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				//edge left up 48
+				-k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				-k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				-k,  k2, -k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				-k,  k2,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				-k2, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
+				-k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 10),
 
-					  //edge left down 54
-					  -k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  -k2,-k2, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  -k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  -k, -k2,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  -k2,-k2,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  -k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
-					  //edge right up 60
-						k, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
-					   k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
-					   k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
-					   k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
-					   k2, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
-						k, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				//edge left down 54
+				-k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				-k2,-k2, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				-k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				-k, -k2,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				-k2,-k2,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				-k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 11),
+				//edge right up 60
+				k, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				k2,  k, -k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				k2, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
+				k, k2,  k,		.00f, .00f,		util::int_as_float(id_num + 12),
 
-						//edge right down 66
-						 k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
-						 k2,-k2, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
-						 k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
-						 k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 13),
-						 k2, -k2, k,		.00f, .00f,		util::int_as_float(id_num + 13),
-						 k,  -k2, k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				//edge right down 66
+				k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				k2,-k2, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				k2, -k2, k,		.00f, .00f,		util::int_as_float(id_num + 13),
+				k,  -k2, k,		.00f, .00f,		util::int_as_float(id_num + 13),
 
-						 //edge left front 72
-						 -k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 14),
-						 -k2, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
-						  -k, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
-						  -k,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
-						 -k2,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
-						 -k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 14),
+				//edge left front 72
+				-k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 14),
+				-k2, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
+				-k, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
+				-k,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
+				-k2,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 14),
+				-k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 14),
 
-						 //edge right front 78
-						  k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 15),
-						  k2, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
-						   k, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
-						   k,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
-						  k2,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
-						  k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 15),
+				//edge right front 78
+				k2, -k,  k,		.00f, .00f,		util::int_as_float(id_num + 15),
+				k2, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
+				k, -k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
+				k,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
+				k2,  k, k2,		.00f, .00f,		util::int_as_float(id_num + 15),
+				k2,  k,  k,		.00f, .00f,		util::int_as_float(id_num + 15),
 
-						  //edge up front 84
-						  -k, k2,  k,			.00f, .00f,		util::int_as_float(id_num + 16),
-						  -k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
-						  -k,  k, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
-						   k,  k, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
-						   k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
-						   k, k2,  k,			.00f, .00f,		util::int_as_float(id_num + 16),
+				//edge up front 84
+				-k, k2,  k,			.00f, .00f,		util::int_as_float(id_num + 16),
+				-k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
+				-k,  k, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
+				k,  k, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
+				k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 16),
+				k, k2,  k,			.00f, .00f,		util::int_as_float(id_num + 16),
 
-						   //edge down front 90
-						   -k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 17),
-						   -k, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 17),
-						   -k, -k,  k2,		.00f, .00f,		util::int_as_float(id_num + 17),
-							k, -k,  k2,		.00f, .00f,		util::int_as_float(id_num + 17),
-							k, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 17),
-							k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 17),
+				//edge down front 90
+				-k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 17),
+				-k, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 17),
+				-k, -k,  k2,		.00f, .00f,		util::int_as_float(id_num + 17),
+				k, -k,  k2,		.00f, .00f,		util::int_as_float(id_num + 17),
+				k, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 17),
+				k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 17),
 
-							//point back left up 96
-							-k2, k, -k,			.00f, .00f,		util::int_as_float(id_num + 18),
-							-k2, k, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
-							-k, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 18),
-							-k, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
-							-k2, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
-							-k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 18),
-							-k, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 18),
+				//point back left up 96
+				-k2, k, -k,			.00f, .00f,		util::int_as_float(id_num + 18),
+				-k2, k, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
+				-k, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 18),
+				-k, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
+				-k2, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 18),
+				-k2, k2, -k,		.00f, .00f,		util::int_as_float(id_num + 18),
+				-k, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 18),
 
-							//point back right up 103
-							k2, k, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
-							k2, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
-							k, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
-							k, k2, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
-							k2, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 19),
-							k2, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
-							k, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
+				//point back right up 103
+				k2, k, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
+				k2, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
+				k, k, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
+				k, k2, -k2,			.00f, .00f,		util::int_as_float(id_num + 19),
+				k2, k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 19),
+				k2, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
+				k, k2, -k,			.00f, .00f,		util::int_as_float(id_num + 19),
 
-							//point back left down 110
-							-k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k2, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k2, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
-							-k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
+				//point back left down 110
+				-k2, -k, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k2, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k2, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
+				-k, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 20),
 
-							//point back left down 117
-							k2, -k, -k,			.00f, .00f,		util::int_as_float(id_num + 21),
-							k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
-							k, -k, -k2,			.00f, .00f,		util::int_as_float(id_num + 21),
-							k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
-							k2, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
-							k2, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 21),
-							k, -k2, -k,			.00f, .00f,		util::int_as_float(id_num + 21),
+				//point back left down 117
+				k2, -k, -k,			.00f, .00f,		util::int_as_float(id_num + 21),
+				k2, -k, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
+				k, -k, -k2,			.00f, .00f,		util::int_as_float(id_num + 21),
+				k, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
+				k2, -k2, -k2,		.00f, .00f,		util::int_as_float(id_num + 21),
+				k2, -k2, -k,		.00f, .00f,		util::int_as_float(id_num + 21),
+				k, -k2, -k,			.00f, .00f,		util::int_as_float(id_num + 21),
 
-							//point front left up 124
-							-k2, k, k,			.00f, .00f,		util::int_as_float(id_num + 22),
-							-k2, k, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
-							-k, k, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
-							-k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
-							-k2, k2, k2,		.00f, .00f,		util::int_as_float(id_num + 22),
-							-k2, k2, k,			.00f, .00f,		util::int_as_float(id_num + 22),
-							-k, k2, k,			.00f, .00f,		util::int_as_float(id_num + 22),
+				//point front left up 124
+				-k2, k, k,			.00f, .00f,		util::int_as_float(id_num + 22),
+				-k2, k, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
+				-k, k, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
+				-k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 22),
+				-k2, k2, k2,		.00f, .00f,		util::int_as_float(id_num + 22),
+				-k2, k2, k,			.00f, .00f,		util::int_as_float(id_num + 22),
+				-k, k2, k,			.00f, .00f,		util::int_as_float(id_num + 22),
 
-							//point front right up 131
-							k2, k, k,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k2, k, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k, k, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k2, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k2, k2, k,			.00f, .00f,		util::int_as_float(id_num + 23),
-							k, k2, k,			.00f, .00f,		util::int_as_float(id_num + 23),
+				//point front right up 131
+				k2, k, k,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k2, k, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k, k, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k2, k2, k2,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k2, k2, k,			.00f, .00f,		util::int_as_float(id_num + 23),
+				k, k2, k,			.00f, .00f,		util::int_as_float(id_num + 23),
 
-							//point front left down 138
-							-k2, -k, k,			.00f, .00f,		util::int_as_float(id_num + 24),
-							-k2,-k, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
-							-k, -k, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
-							-k,-k2, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
-							-k2,-k2, k2,		.00f, .00f,		util::int_as_float(id_num + 24),
-							-k2,-k2, k,			.00f, .00f,		util::int_as_float(id_num + 24),
-							-k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 24),
+				//point front left down 138
+				-k2, -k, k,			.00f, .00f,		util::int_as_float(id_num + 24),
+				-k2,-k, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
+				-k, -k, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
+				-k,-k2, k2,			.00f, .00f,		util::int_as_float(id_num + 24),
+				-k2,-k2, k2,		.00f, .00f,		util::int_as_float(id_num + 24),
+				-k2,-k2, k,			.00f, .00f,		util::int_as_float(id_num + 24),
+				-k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 24),
 
-							//point front right down 145
-							k2, -k, k,			.00f, .00f,		util::int_as_float(id_num + 25),
-							k2,-k, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
-							k, -k, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
-							k,-k2, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
-							k2, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 25),
-							k2,-k2, k,			.00f, .00f,		util::int_as_float(id_num + 25),
-							k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 25)
-							//// position     uv cordination	ids
-							////back
-							// k, -k, -k,		.00f, .00f,		id_num + 0.f,
-							//-k, -k, -k,		.33f, .00f,		id_num + 0.f,
-							//-k,  k, -k,		.33f, .50f,		id_num + 0.f,
-							// k,  k, -k,		.00f, .50f,		id_num + 0.f,
-							////left
-							//-k, -k,  k,		1.0f, .50f,		id_num + 1.f,
-							//-k,  k,  k,		1.0f, 1.0f,		id_num + 1.f,
-							//-k,  k, -k,		.67f, 1.0f,		id_num + 1.f,
-							//-k, -k, -k,		.67f, .50f,		id_num + 1.f,
-							////front
-							//-k, -k,  k,		.00f, .50f,		id_num + 2.f,
-							// k, -k,  k,		.33f, .50f,		id_num + 2.f,
-							// k,  k,  k,		.33f, 1.0f,		id_num + 2.f,
-							//-k,  k,  k,		.00f, 1.0f,		id_num + 2.f,
-							////right
-							// k, -k,  k,		.67f, .00f,		id_num + 3.f,
-							// k, -k, -k,		1.0f, .00f,		id_num + 3.f,
-							// k,  k, -k,		1.0f, .50f,		id_num + 3.f,
-							// k,  k,  k,		.67f, .50f,		id_num + 3.f,
-							////up
-							//-k,  k,  k,		.33f, .50f,		id_num + 4.f,
-							// k,  k,  k,		.67f, .50f,		id_num + 4.f,
-							// k,  k, -k,		.67f, 1.0f,		id_num + 4.f,
-							//-k,  k, -k,		.33f, 1.0f,		id_num + 4.f,
-							////down
-							// k, -k, -k,		.67f, .00f,		id_num + 5.f,
-							//-k, -k, -k,		.33f, .00f,		id_num + 5.f,
-							//-k, -k,  k,		.33f, .50f,		id_num + 5.f,
-							// k, -k,  k,		.67f, .50f,		id_num + 5.f
+				//point front right down 145
+				k2, -k, k,			.00f, .00f,		util::int_as_float(id_num + 25),
+				k2,-k, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
+				k, -k, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
+				k,-k2, k2,			.00f, .00f,		util::int_as_float(id_num + 25),
+				k2, -k2, k2,		.00f, .00f,		util::int_as_float(id_num + 25),
+				k2,-k2, k,			.00f, .00f,		util::int_as_float(id_num + 25),
+				k, -k2, k,			.00f, .00f,		util::int_as_float(id_num + 25)
+				//// position     uv cordination	ids
+				////back
+				// k, -k, -k,		.00f, .00f,		id_num + 0.f,
+				//-k, -k, -k,		.33f, .00f,		id_num + 0.f,
+				//-k,  k, -k,		.33f, .50f,		id_num + 0.f,
+				// k,  k, -k,		.00f, .50f,		id_num + 0.f,
+				////left
+				//-k, -k,  k,		1.0f, .50f,		id_num + 1.f,
+				//-k,  k,  k,		1.0f, 1.0f,		id_num + 1.f,
+				//-k,  k, -k,		.67f, 1.0f,		id_num + 1.f,
+				//-k, -k, -k,		.67f, .50f,		id_num + 1.f,
+				////front
+				//-k, -k,  k,		.00f, .50f,		id_num + 2.f,
+				// k, -k,  k,		.33f, .50f,		id_num + 2.f,
+				// k,  k,  k,		.33f, 1.0f,		id_num + 2.f,
+				//-k,  k,  k,		.00f, 1.0f,		id_num + 2.f,
+				////right
+				// k, -k,  k,		.67f, .00f,		id_num + 3.f,
+				// k, -k, -k,		1.0f, .00f,		id_num + 3.f,
+				// k,  k, -k,		1.0f, .50f,		id_num + 3.f,
+				// k,  k,  k,		.67f, .50f,		id_num + 3.f,
+				////up
+				//-k,  k,  k,		.33f, .50f,		id_num + 4.f,
+				// k,  k,  k,		.67f, .50f,		id_num + 4.f,
+				// k,  k, -k,		.67f, 1.0f,		id_num + 4.f,
+				//-k,  k, -k,		.33f, 1.0f,		id_num + 4.f,
+				////down
+				// k, -k, -k,		.67f, .00f,		id_num + 5.f,
+				//-k, -k, -k,		.33f, .00f,		id_num + 5.f,
+				//-k, -k,  k,		.33f, .50f,		id_num + 5.f,
+				// k, -k,  k,		.67f, .50f,		id_num + 5.f
 			};
 
 			glGenVertexArrays(1, &gizmoVAO);
