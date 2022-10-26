@@ -93,6 +93,29 @@ namespace ifcre {
 		grid_text_data.emplace_back(val);
 	}
 
+
+	void IFCRenderEngine::set_collide_idsC(int val) {
+		collide_idsC.emplace_back(val);
+	}
+	void IFCRenderEngine::set_collide_idsA(int val) {
+		collide_idsA.emplace_back(val);
+	}
+	void IFCRenderEngine::set_collide_idsB(int val) {
+		collide_idsB.emplace_back(val);
+	}
+
+	int IFCRenderEngine::get_collide_ids_size()
+	{
+		//return m_render_window->chosen_list.size();
+	}
+	void IFCRenderEngine::get_collide_ids(int* arr) {
+		//std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
+		//for (size_t i = 0; i < v.size(); i++)
+		//{
+		//	arr[i] = v[i];
+		//}
+	}
+
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		auto& configs = m_cache_configs;
