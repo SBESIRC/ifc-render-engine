@@ -25,6 +25,7 @@ namespace ifcre {
 		Vector<Vector<uint32_t>>().swap(_c_indices);
 		Vector<Real>().swap(_face_mat);
 		Vector<uint32_t>().swap(_edge_indices);
+		//Vector<uint32_t>().swap(_comp_types);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -53,6 +54,10 @@ namespace ifcre {
 	void IFCRenderEngine::set_edge_indices(int val) {
 		_edge_indices.emplace_back(val);
 	}
+
+	//void IFCRenderEngine::set_comp_types(int val) {
+	//	_comp_types.emplace_back(val);
+	//}
 
 	void IFCRenderEngine::set_grid_data(int val) {
 		if (val == 0) { // 0代表清空轴网数据
@@ -120,7 +125,7 @@ namespace ifcre {
 
 		String model_file = configs["file"];
 		if (model_file == "nil") {
-			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
+			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
 		}
 		else {
 			if (try_ifc) {
