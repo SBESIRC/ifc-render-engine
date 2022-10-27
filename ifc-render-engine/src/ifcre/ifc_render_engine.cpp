@@ -106,7 +106,8 @@ namespace ifcre {
 			collider->setTotalIds(collide_idsC);
 			collider->setRespetcIds(collide_idsA, collide_idsB);
 
-			collider->getIndexArr();
+			v = collider->getIndexArr();
+			collide_size = v.size();
 		}
 	}
 	void IFCRenderEngine::set_collide_idsA(int val) {
@@ -117,16 +118,13 @@ namespace ifcre {
 		collide_idsB.insert(val);
 		collide_idsC.insert(val);
 	}
-	int IFCRenderEngine::get_collide_ids_size()
-	{
-		return collider->getIndexArr().size();
+	int IFCRenderEngine::get_collide_ids_size()	{
+		return collide_size;
 	}
 	void IFCRenderEngine::get_collide_ids(int* arr) {
-		//std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
-		//for (size_t i = 0; i < v.size(); i++)
-		//{
-		//	arr[i] = v[i];
-		//}
+		for (size_t i = 0; i < v.size(); i++) {
+			arr[i] = v[i];
+		}
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)

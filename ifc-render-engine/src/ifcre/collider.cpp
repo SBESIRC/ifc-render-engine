@@ -28,9 +28,6 @@ void Collider::setRespetcIds(const unordered_set<int>& _idsA, const unordered_se
 
 std::vector<Collider::indexPair> Collider::getCollisionPair() {
 	clock_t fir, sec;
-	/*TIME_(
-		this->filterData();
-	, fir, sec, "filter : ");*/
 	TIME_(
 		this->buildData();
 	, fir, sec, "build : ");
@@ -63,10 +60,6 @@ void Collider::getCollisionPair(Collider::indexPair* const allocatedMemory, cons
 	::memcpy(allocatedMemory, ret.data(), (uint64_t)sizeof(indexPair) * (*retSiz));
 }
 
-//void Collider::filterData() {
-//	this->mComponmentSize = mFilterIndex.size();
-//}
-
 void Collider::buildData() {
 	std::vector<Componment>(idsC.size()).swap(mBuildDat);
 #pragma omp parallel for schedule(static, 8)
@@ -98,12 +91,6 @@ void Collider::broadPhaseProcess_BVH() {
 
 void Collider::conditionFilter() {
 	decltype(this->mIndexArr) tempIndexArr;
-	/*tempIndexArr.reserve(mIndexArr.size());
-	for (auto [lhs, rhs] : mIndexArr) {
-		if (lhs != rhs)	{
-			tempIndexArr.emplace_back(lhs, rhs);
-		}
-	}*/
 	vector<indexPair>().swap(tempIndexArr);
 	for (const auto idA : idsA) {
 		for (const auto idB : idsB) {

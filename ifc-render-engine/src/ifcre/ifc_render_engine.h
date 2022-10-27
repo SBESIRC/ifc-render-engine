@@ -146,6 +146,8 @@ namespace ifcre {
 		unordered_set<int> collide_idsC;
 		unordered_set<int> collide_idsA;
 		unordered_set<int> collide_idsB;
+		int collide_size = 0;
+		Vector<uint32_t> v;
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
 		Scene m_scene;
