@@ -553,7 +553,7 @@ namespace ifcre {
 
 		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
 		//Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w
-	private:
+	public:
 		glm::mat4 m_model;						
 		glm::mat4 m_init_model;					
 		glm::mat4 mirror_model;					

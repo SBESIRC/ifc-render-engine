@@ -156,15 +156,15 @@ private:
 	bool isIntersect(const Box lhs, const Box rhs);
 	bool fastTriangleIntersect(Triangle lhs, Triangle rhs);
 private:
-	std::size_t mComponmentSize;
-	std::vector<Componment> mBuildDat; // 存bvh适应data
-	static std::unordered_set<uint32_t> idsC; // 要进行碰撞的ids
-	static std::unordered_set<uint32_t> idsA; // 要进行碰撞的ids
-	static std::unordered_set<uint32_t> idsB; // 要进行碰撞的ids
-	static std::vector<indexPair> mIndexArr;
+	size_t mComponmentSize;
+	vector<Componment> mBuildDat; // 存bvh适应data
+	unordered_set<uint32_t> idsC; // 要进行碰撞的ids
+	unordered_set<uint32_t> idsA; // 要进行碰撞的ids
+	unordered_set<uint32_t> idsB; // 要进行碰撞的ids
+	vector<indexPair> mIndexArr;
 
-	static vector<uint32_t> vert_indices;//vert_indices// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
-	static vector<float> verts;//verts// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
-	static vector<vector<uint32_t>> search_m; //search_m// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
+	vector<uint32_t> vert_indices;//vert_indices// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
+	vector<float> verts;//verts// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
+	vector<vector<uint32_t>> search_m; //search_m// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 }
 ;

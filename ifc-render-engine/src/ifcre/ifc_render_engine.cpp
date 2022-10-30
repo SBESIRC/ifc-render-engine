@@ -165,6 +165,9 @@ namespace ifcre {
 		else {
 			if (try_ifc) {
 				ifc_test_model = IFCParser::load(model_file);
+				_g_indices = ifc_test_model->g_indices;
+				_g_vertices = ifc_test_model->g_vertices;
+				_c_indices = ifc_test_model->c_indices;
 			}
 			else {
 				test_model = DefaultParser::load(model_file);
