@@ -105,9 +105,9 @@ namespace ifcre {
 			collider->bufferData(_g_indices, _g_vertices, _c_indices); // 此处会清空原始数据
 			collider->setTotalIds(collide_idsC);
 			collider->setRespetcIds(collide_idsA, collide_idsB);
-
-			v = collider->getIndexArr();
-			collide_size = v.size();
+			vector<uint32_t>().swap(collide_twin);
+			collide_twin = collider->getIndexArr();
+			collide_size = collide_twin.size();
 		}
 	}
 	void IFCRenderEngine::set_collide_idsA(int val) {
@@ -122,7 +122,7 @@ namespace ifcre {
 		return collide_size;
 	}
 	void IFCRenderEngine::get_collide_ids(int* arr) {
-		for (size_t i = 0; i < v.size(); i++) {
+		for (size_t i = 0; i < collide_twin.size(); i++) {
 			arr[i] = v[i];
 		}
 	}
