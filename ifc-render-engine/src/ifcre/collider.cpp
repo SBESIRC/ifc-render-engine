@@ -16,12 +16,12 @@ void Collider::bufferData(const vector<uint32_t>& _g_indices, const vector<float
 	search_m = _c_indices;
 }
 
-void Collider::setTotalIds(const unordered_set<int>& totalIds) {
+void Collider::setTotalIds(const unordered_set<uint32_t>& totalIds) {
 	idsC = totalIds;
 	this->mComponmentSize = idsC.size();
 }
 
-void Collider::setRespetcIds(const unordered_set<int>& _idsA, const unordered_set<int>& _idsB) {
+void Collider::setRespetcIds(const unordered_set<uint32_t>& _idsA, const unordered_set<uint32_t>& _idsB) {
 	idsA = _idsA;
 	idsB = _idsB;
 }

@@ -132,8 +132,8 @@ public:
 
 public:
 	void bufferData(const vector<uint32_t>& _g_indices, const vector<float>& _g_vertices, const vector<vector<uint32_t>>& _c_indices);
-	void setTotalIds(const unordered_set<int>& totalIds);
-	void setRespetcIds(const unordered_set<int>& idsA, const unordered_set<int>& idsB);
+	void setTotalIds(const unordered_set<uint32_t>& totalIds);
+	void setRespetcIds(const unordered_set<uint32_t>& idsA, const unordered_set<uint32_t>& idsB);
 	void getCollisionPair(indexPair* const allocatedMemory, const uint64_t siz, uint64_t* const retSiz);
 	std::vector<indexPair> getCollisionPair();
 	std::vector<IndexType> getIndexArr();
@@ -158,13 +158,13 @@ private:
 private:
 	std::size_t mComponmentSize;
 	std::vector<Componment> mBuildDat; // 存bvh适应data
-	std::unordered_set<int> idsC; // 要进行碰撞的ids
-	std::unordered_set<int> idsA; // 要进行碰撞的ids
-	std::unordered_set<int> idsB; // 要进行碰撞的ids
-	std::vector<indexPair> mIndexArr;
+	static std::unordered_set<uint32_t> idsC; // 要进行碰撞的ids
+	static std::unordered_set<uint32_t> idsA; // 要进行碰撞的ids
+	static std::unordered_set<uint32_t> idsB; // 要进行碰撞的ids
+	static std::vector<indexPair> mIndexArr;
 
-	vector<uint32_t> vert_indices;//vert_indices// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
-	vector<float> verts;//verts// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
-	vector<vector<uint32_t>> search_m; //search_m// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
+	static vector<uint32_t> vert_indices;//vert_indices// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
+	static vector<float> verts;//verts// 依次存储各个顶点位置的x、y、z信息，数量为顶点数量的三倍
+	static vector<vector<uint32_t>> search_m; //search_m// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 }
 ;

@@ -143,9 +143,9 @@ namespace ifcre {
 		bool grid_text_reset = true;
 
 		SharedPtr<Collider> collider;
-		unordered_set<int> collide_idsC;
-		unordered_set<int> collide_idsA;
-		unordered_set<int> collide_idsB;
+		unordered_set<uint32_t> collide_idsC;
+		unordered_set<uint32_t> collide_idsA;
+		unordered_set<uint32_t> collide_idsB;
 		int collide_size = 0;
 		Vector<uint32_t> collide_twin;
 	private:

@@ -111,19 +111,19 @@ namespace ifcre {
 		}
 	}
 	void IFCRenderEngine::set_collide_idsA(int val) {
-		collide_idsA.insert(val);
-		collide_idsC.insert(val);
+		collide_idsA.insert((uint32_t)val);
+		collide_idsC.insert((uint32_t)val);
 	}
 	void IFCRenderEngine::set_collide_idsB(int val) {
-		collide_idsB.insert(val);
-		collide_idsC.insert(val);
+		collide_idsB.insert((uint32_t)val);
+		collide_idsC.insert((uint32_t)val);
 	}
 	int IFCRenderEngine::get_collide_ids_size()	{
 		return collide_size;
 	}
 	void IFCRenderEngine::get_collide_ids(int* arr) {
 		for (size_t i = 0; i < collide_twin.size(); i++) {
-			arr[i] = v[i];
+			arr[i] = (int)collide_twin[i];
 		}
 	}
 
