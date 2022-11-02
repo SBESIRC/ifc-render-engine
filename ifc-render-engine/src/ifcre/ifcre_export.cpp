@@ -133,27 +133,51 @@ void ifcre_set_grid_data(int val) {
 	auto& re = *render_engine;
 	re.set_grid_data(val);
 }
-
 void ifcre_set_grid_lines(float val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
 	re.set_grid_lines(val);
 }
-
 void ifcre_set_grid_circles(float val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
 	re.set_grid_circles(val);
 }
-
 void ifcre_set_grid_text(const char* val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
 	re.set_grid_text(val);
 }
-
 void ifcre_set_grid_text_data(float val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
 	re.set_grid_text_data(val);
+}
+
+void ifcre_set_collide_command(int val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_collide_command(val);
+}
+void ifcre_set_collide_idsA(int val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_collide_idsA(val);
+}
+void ifcre_set_collide_idsB(int val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.set_collide_idsB(val);
+}
+int ifcre_get_collide_ids_size()
+{
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	return re.get_collide_ids_size();
+}
+void ifcre_get_collide_ids(int* arr)
+{
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.get_collide_ids(arr);
 }

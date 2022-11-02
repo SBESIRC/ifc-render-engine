@@ -7,7 +7,7 @@
 #include "common/std_types.h"
 #include "resource/model.h"
 #include <map>
-
+#include "collider.h"
 #include "ifcrender/ifc_render.h"
 namespace ifcre {
 
@@ -46,6 +46,12 @@ namespace ifcre {
 		virtual void set_grid_circles(float val) = 0;
 		virtual void set_grid_text(String val) = 0;
 		virtual void set_grid_text_data(float val) = 0;
+
+		virtual void set_collide_command(int val) = 0;
+		virtual void set_collide_idsA(int val) = 0;
+		virtual void set_collide_idsB(int val) = 0;
+		virtual int get_collide_ids_size() = 0;
+		virtual void get_collide_ids(int* arr) = 0;
 	};
 
 
@@ -69,6 +75,12 @@ namespace ifcre {
 		void set_grid_text(String val);
 		void set_grid_text_data(float val);
 
+		void set_collide_command(int val);
+		void set_collide_idsA(int val);
+		void set_collide_idsB(int val);
+		int get_collide_ids_size();
+		void get_collide_ids(int* arr);
+		
 		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow *);
 		void run();
@@ -129,6 +141,13 @@ namespace ifcre {
 		Vector<float> grid_text_data;
 		bool grid_line_reset = true;
 		bool grid_text_reset = true;
+
+		SharedPtr<Collider> collider;
+		unordered_set<uint32_t> collide_idsC;
+		unordered_set<uint32_t> collide_idsA;
+		unordered_set<uint32_t> collide_idsB;
+		int collide_size = 0;
+		Vector<uint32_t> collide_twin;
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
 		Scene m_scene;

@@ -93,6 +93,40 @@ namespace ifcre {
 		grid_text_data.emplace_back(val);
 	}
 
+
+
+	void IFCRenderEngine::set_collide_command(int val) {
+		if (val == 0) { // 开始传输A、B数据前先进行清空
+			collide_idsA.clear();
+			collide_idsB.clear();
+			collide_idsC.clear();
+		}
+		else if (val == 1) { // A、B传输完成，进行碰撞检测
+			collider->bufferData(_g_indices, _g_vertices, _c_indices); // 此处会清空原始数据
+			collider->setTotalIds(collide_idsC);
+			collider->setRespetcIds(collide_idsA, collide_idsB);
+			vector<uint32_t>().swap(collide_twin);
+			collide_twin = collider->getIndexArr();
+			collide_size = collide_twin.size();
+		}
+	}
+	void IFCRenderEngine::set_collide_idsA(int val) {
+		collide_idsA.insert((uint32_t)val);
+		collide_idsC.insert((uint32_t)val);
+	}
+	void IFCRenderEngine::set_collide_idsB(int val) {
+		collide_idsB.insert((uint32_t)val);
+		collide_idsC.insert((uint32_t)val);
+	}
+	int IFCRenderEngine::get_collide_ids_size()	{
+		return collide_size;
+	}
+	void IFCRenderEngine::get_collide_ids(int* arr) {
+		for (size_t i = 0; i < collide_twin.size(); i++) {
+			arr[i] = (int)collide_twin[i];
+		}
+	}
+
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		auto& configs = m_cache_configs;
@@ -126,10 +160,14 @@ namespace ifcre {
 		String model_file = configs["file"];
 		if (model_file == "nil") {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
+			collider = make_shared<Collider>();
 		}
 		else {
 			if (try_ifc) {
 				ifc_test_model = IFCParser::load(model_file);
+				_g_indices = ifc_test_model->g_indices;
+				_g_vertices = ifc_test_model->g_vertices;
+				_c_indices = ifc_test_model->c_indices;
 			}
 			else {
 				test_model = DefaultParser::load(model_file);

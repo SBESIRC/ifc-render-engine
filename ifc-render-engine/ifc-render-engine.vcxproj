@@ -161,7 +161,7 @@
       <Optimization>MaxSpeed</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -202,10 +202,10 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ifcre\collider.h" />
     <ClInclude Include="src\ifcre\Axis.h" />
     <ClInclude Include="src\ifcre\bmp.h" />
     <ClInclude Include="src\ifcre\Character.h" />
-    <ClInclude Include="src\ifcre\collider.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
@@ -281,6 +281,8 @@
     <None Include="..\workdir\shaders\text.frag" />
     <None Include="..\workdir\shaders\text.vert" />
     <None Include="..\workdir\shaders\text3d.vert" />
+    <None Include="src\gen_shader_consts.py" />
+    <None Include=".editorconfig" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
