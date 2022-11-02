@@ -130,10 +130,14 @@
     <None Include="..\workdir\shaders\grid.vert" />
     <None Include="..\workdir\shaders\text3d.vert" />
     <None Include="src\gen_shader_consts.py" />
+    <None Include=".editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">
       <UniqueIdentifier>{789911ef-e823-4d96-aeeb-0bfa026c9449}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
   </ItemGroup>
 </Project>
