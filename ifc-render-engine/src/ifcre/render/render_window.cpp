@@ -360,6 +360,7 @@ namespace ifcre {
             m_window = (GLFWwindow*)wndPtr;
             //glfwMakeContextCurrent(m_window);
         }
+        glsl_version = "#version 460";
         m_window = glfwGetCurrentContext();
         glfwSetWindowUserPointer(m_window, this);
         glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
@@ -448,7 +449,7 @@ namespace ifcre {
             //    //use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
             //    use_clip_box.rotateByRight(-use_clip_box.rotateSpeed);
             //}
-
+            /*
             if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS) {//-z increase
                 use_clip_box.updateBox(CLIPBOXUPDATE::back_inc);
             }
@@ -466,7 +467,7 @@ namespace ifcre {
             }
             else if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS) {//+y decrease
                 use_clip_box.updateBox(CLIPBOXUPDATE::up_dec);
-            }
+            }*/
         }
 
         if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {

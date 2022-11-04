@@ -186,6 +186,13 @@
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
     <ClCompile Include="src\ifcre\render\gl\glad.c" />
     <ClCompile Include="src\ifcre\render\gl\glsl_program.cpp" />
@@ -219,6 +226,15 @@
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
+    <ClInclude Include="src\ifcre\imgui\imconfig.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_internal.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ifcre\mesh_simplier.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_uniform_buffer.h" />
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
@@ -245,6 +261,7 @@
     <ClInclude Include="src\ifcre\resource\parser.h" />
     <ClInclude Include="src\ifcre\resource\plugin.h" />
     <ClInclude Include="src\ifcre\ifcrender\scene.h" />
+    <ClInclude Include="src\ifcre\SimpleUI.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
   </ItemGroup>
   <ItemGroup>

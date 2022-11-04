@@ -237,8 +237,8 @@ namespace ifcre {
 
 			return basis * ret;
 		}
-#define upadte_rate .5f
-		void updateBox(int direct) {
+#define upadte_rate .5f*dis
+		void updateBox(int direct, float dis) {
 			switch (direct)
 			{
 			case back_inc: {
@@ -429,6 +429,15 @@ namespace ifcre {
 		bool isMouseMove();
 		bool isRightMouseClicked();
 
+		// ----- ----- ----- ----- ----- -----
+
+		String get_glsl_verison() const {
+			return glsl_version;
+		}
+		GLFWwindow* get_glfw_window() const {
+			return m_window;
+		}
+
 
 		// ---------- 
 		//int geomframe = 0;
@@ -485,6 +494,7 @@ namespace ifcre {
 
 		// memory management by GLFW
 		GLFWwindow* m_window;
+		String glsl_version;
 
 		int32_t m_width, m_height;
 		glm::mat4 perspective_projection;

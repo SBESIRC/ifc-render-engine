@@ -145,6 +145,7 @@ namespace ifcre {
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
 				m_glrender = make_shared<GLRender>();
+				m_glrender->bind_ui_to_window(*m_render_window);
 			}
 			else if (m_render_api == VULKAN_RENDER_API) {
 				m_scene.m_ifcObject = ifc_test_model.get();
@@ -328,6 +329,7 @@ namespace ifcre {
 		{
 			m_window.startRenderToWindow();  // 切换到当前frame buffer
 			dataIntegration();
+#pragma region COMP THINGS
 
 #ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
@@ -387,7 +389,7 @@ namespace ifcre {
 				int finalsig = xsig + ysig;
 				if (finalsig) {
 					//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
-					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0));
+					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0), mouse_move_vec.length());
 				}
 				last_clp_face_key = clp_face_key + 26;
 			}
@@ -396,10 +398,12 @@ namespace ifcre {
 			}
 #endif
 
-			//// 0. prev: render normal and depth tex of the scene
-#ifndef ONLY_DEPTH_NROMAL_RES
-			m_window.switchRenderDepthNormal();
-#endif
+#pragma endregion
+
+//			//// 0. prev: render normal and depth tex of the scene
+//#ifndef ONLY_DEPTH_NROMAL_RES
+//			m_window.switchRenderDepthNormal();
+//#endif
 #ifndef TEST_COMP_ID_RES
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
 #endif
@@ -433,9 +437,8 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			//8, render map view
-
 #endif
+			//8. render sup things
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
 
@@ -461,7 +464,8 @@ namespace ifcre {
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
-
+			//m_render.ui_update();
+			//m_render.simpleui->render();
 			m_window.endRenderToWindow();
 		}
 		// post render

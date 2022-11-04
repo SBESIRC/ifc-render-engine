@@ -15,6 +15,7 @@
 #include "../Character.h"
 #include "../Gizmo.h"
 #include "../Axis.h"
+#include "../SimpleUI.h"
 
 #include "../common/ifc_enum.h"
 #include "../resource/model.h"
@@ -85,7 +86,18 @@ namespace ifcre {
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
 		// ----- ----- ----- ----- ----- ----- ----- -----
-
+#pragma region UI changes
+		SharedPtr<SimpleUI> simpleui;
+		float thisk = 0.f;
+		void bind_ui_to_window(RenderWindow& w) {
+			simpleui = make_shared<SimpleUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
+		}
+		void ui_update() {
+			ImVec4 tempvec = ImVec4(m_bg_color.x, m_bg_color.y, m_bg_color.z, m_bg_color.w);
+			simpleui->updateFrame(thisk, tempvec);
+			m_bg_color = glm::vec4(tempvec.x, tempvec.y, tempvec.z, tempvec.w);
+		}
+#pragma endregion
 	private:
 		Map<uint32_t, SharedPtr<GLVertexBuffer>> m_vertex_buffer_map;
 		GLUniformBufferMap  m_uniform_buffer_map;
@@ -129,7 +141,7 @@ namespace ifcre {
 
 		// render option
 	private:
-		const glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
+		glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
@@ -138,7 +150,6 @@ namespace ifcre {
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);
 		EngineAxis myaxis = EngineAxis();
-
 		//offscreen quad
 	private:
 		uint32_t off_vao;
