@@ -7,6 +7,14 @@
 #include "../common/std_types.h"
 #include "model.h"
 
+using std::string;
+using std::vector;
+using std::ofstream;
+using std::ifstream;
+using std::ios;
+using std::unordered_map;
+
+
 namespace ifcsaver {
 	void save_string_into_binary(const string& source, ofstream& os) {
 		size_t s = sizeof(char) * source.length();
@@ -14,7 +22,7 @@ namespace ifcsaver {
 		os.write(source.c_str(), s);
 	}
 
-	string read_string_from_binary(ifstream& is) {
+	std::string read_string_from_binary(ifstream& is) {
 		size_t s;
 		char str[10000];
 		is.read((char*)&s, sizeof(size_t));

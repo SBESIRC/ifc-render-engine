@@ -137,7 +137,7 @@ namespace ifcre {
 
 		Vector<float> grid_lines;
 		Vector<float> grid_circles;
-		Vector<wstring> grid_text;
+		Vector<Wstring> grid_text;
 		Vector<float> grid_text_data;
 		bool grid_line_reset = true;
 		bool grid_text_reset = true;

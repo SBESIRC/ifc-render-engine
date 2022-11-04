@@ -212,7 +212,7 @@ namespace ifcre {
 		int _fontSize;
 		bool vboflag = false;
 
-		std::unordered_map<std::wstring, mappingStruct> text_handle;
+		std::unordered_map<Wstring, mappingStruct> text_handle;
 
 
 		typedef float TextVertex[4];
@@ -353,7 +353,7 @@ namespace ifcre {
 		}
 
 		void drawText(const wchar_t* text, float text_scale) { //生成网格，贴上纹理绘制文字
-			auto wstringtemp = std::wstring(text);
+			auto wstringtemp = Wstring(text);
 			if (text_handle.find(wstringtemp) == text_handle.end()) {
 				unsigned vertsize = 0;
 				float texWidth = _textureWidth;
@@ -463,10 +463,10 @@ namespace ifcre {
 			glDisable(GL_BLEND);
 		}
 
-		vector<float> vert3d;
+		Vector<float> vert3d;
 
 		// 方案A: 一次性计算出所有字符串的位置，并使用一个VAO 优点：最低的draw call 实现简单 缺点：重复字符串多的情况下内存占用较大
-		void drawText3D(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview, bool& text_first) {
+		void drawText3D(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<Wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview, bool& text_first) {
 			m_text3d_shader->use();
 			m_text3d_shader->setMat4("projection", m_projection);
 			m_text3d_shader->setMat4("modelview", m_modelview);
@@ -478,7 +478,7 @@ namespace ifcre {
 				text_first = false;
 
 				for (int text = 0, j = 0; text < texts.size(); ++text, j += 14) { // 对每一串字符串
-					wstring content = texts[text];
+					std::wstring content = texts[text];
 					glm::vec3 center = glm::vec3(text_data[j + 0], text_data[j + 1], text_data[j + 2]);
 					glm::vec3 normal = glm::normalize(glm::vec3(text_data[j + 3], text_data[j + 4], text_data[j + 5]));
 					glm::vec3 direction = glm::normalize(glm::vec3(text_data[j + 6], text_data[j + 7], text_data[j + 8]));
@@ -566,7 +566,7 @@ namespace ifcre {
 				glBindBuffer(GL_ARRAY_BUFFER, textVBO);
 				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cnt, vert3d.data(), GL_DYNAMIC_DRAW);
 
-				vector<float>().swap(vert3d);
+				Vector<float>().swap(vert3d);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				glBindVertexArray(0);
 				glBindTexture(GL_TEXTURE_2D, 0);
@@ -593,7 +593,7 @@ namespace ifcre {
 		}
 
 		// 方案B：使用unordered_map记录多个字符串对应的VAO，调用shader的时候传入对应的移动矩阵（最后乘MVP） 优点：省内存，数据变化灵活，缺点：增加draw call，较难实现
-		void drawText3DProB(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
+		void drawText3DProB(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<Wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
 			
 		}
 	};

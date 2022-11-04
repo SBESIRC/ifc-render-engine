@@ -14,6 +14,7 @@
 #include "gl_camera.h"
 #include "../Character.h"
 #include "../Gizmo.h"
+#include "../Axis.h"
 
 #include "../common/ifc_enum.h"
 #include "../resource/model.h"
@@ -68,8 +69,8 @@ namespace ifcre {
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		void renderGrid(IFCModel& ifc_model);
-		void renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);
-		void renderGridLine(vector<float>& grid_line, int width, int height, bool& grid_line_reset);
+		void renderGridText(Vector<Wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);
+		void renderGridLine(Vector<float>& grid_line, int width, int height, bool& grid_line_reset);
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBox(const ClipBox& clip_box);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
@@ -77,7 +78,7 @@ namespace ifcre {
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
-		unsigned int  loadCubemap(vector<std::string> faces);
+		unsigned int  loadCubemap(Vector<String> faces);
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
 
@@ -136,6 +137,7 @@ namespace ifcre {
 		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);
+		EngineAxis myaxis = EngineAxis();
 
 		//offscreen quad
 	private:

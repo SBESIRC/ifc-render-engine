@@ -69,7 +69,7 @@ namespace ifcre {
 			vector<float>().swap(grid_text_data);
 		}
 		else if (val == 1) { // 1代表结束传输
-			ifc_test_model->generate_circleLines(grid_lines, grid_circles);
+			//ifc_test_model->generate_circleLines(grid_lines, grid_circles);
 			//m_render_window->to_show_grid = true;
 		}
 		else if (val == 2) { // 2代表隐藏轴网显示

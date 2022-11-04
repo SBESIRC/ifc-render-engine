@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_STD_TYPES_H_
 
 #include <cstdint>
@@ -27,6 +27,10 @@ namespace ifcre {
 
 	template <typename T>
 	using Vector = std::vector<T>;
+	
+	using Wstring = std::wstring;
+	template <typename T>
+	using Unordered_set = std::unordered_set<T>;
 	template <typename K, typename V>
 	using Map = std::map<K, V>;
 	using std::make_pair;

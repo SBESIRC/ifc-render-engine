@@ -9,6 +9,7 @@
 #include "gl/gl_render_texture.h"
 #include "gl_camera.h"
 #include "../common/ifc_util.h"
+#include "../resource/model.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>

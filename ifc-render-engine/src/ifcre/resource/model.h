@@ -2,21 +2,23 @@
 #ifndef IFCRE_OBJECT_H_
 #define IFCRE_OBJECT_H_
 
-
+//#define _HAS_STD_BYTE 0
 #include "../common/std_types.h"
 #include "../common/ifc_util.h"
 #include "../mesh_simplier.h"
 #include <cstdio>
 #include <fstream>
 #include <iostream>
-#include <unordered_set>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-#define _USE_MATH_DEFINES
-#include <math.h>
+//#define _USE_MATH_DEFINES
+
+#define M_PI       3.14159265358979323846   // pi
+
+//#include <math.h>
 
 extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
@@ -67,7 +69,7 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes();	// 生成边
+			//generate_edges_by_msMeshes();	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -206,7 +208,7 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			Vector<uint32_t> no_transparency_ind;
-			unordered_set<uint32_t>().swap(trans_c_indices_set);
+			Unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t>().swap(cur_c_indices);
 			int v_count = 0;
 			for (int i = 0; i < c_indices.size(); ++i) {
@@ -284,8 +286,8 @@ namespace ifcre {
 			int bbx_offset = 0;
 			for (auto& ix : c_indices) {
 				size_t s = ix.size();
-				a_min[0] = a_min[1] = a_min[2] = numeric_limits<real_t>::max();
-				a_max[0] = a_max[1] = a_max[2] = numeric_limits<real_t>::lowest();
+				a_min[0] = a_min[1] = a_min[2] = std::numeric_limits<real_t>::max();
+				a_max[0] = a_max[1] = a_max[2] = std::numeric_limits<real_t>::lowest();
 				for (size_t i = 0; i < s; i++) {
 					for (int j = 0; j < 3; j++) {
 						a_min[j] = std::min(g_vertices[3 * ix[i] + j], a_min[j]);
@@ -475,7 +477,31 @@ namespace ifcre {
 			return glm::translate(glm::mat4(1.f), m_cube_direction_transform[i]);
 		}
 
-		void generate_circleLines(vector<float>& grid_lines, vector<float>& grid_circles, int per_degree = 30) {
+		void enlarge_scale(float div, glm::vec3 targpos) {
+			glm::mat4 trans_center(1.0f);
+			glm::vec3 world_pos = m_model * glm::vec4(m_center, 1.f);
+			trans_center = glm::translate(trans_center, world_pos);
+			m_model = m_model * trans_center;
+
+			glm::vec3 dis = targpos - world_pos;
+			float len_of_dis = glm::length(dis);
+
+			//std::cout << "targpos: " << targpos.x << " " << targpos.y << " " << targpos.z << std::endl;
+			//std::cout << "world_pos: " << world_pos.x << " " << world_pos.y << " " << world_pos.z << std::endl;
+
+			float changed = div > 0.f ? 1.25f : 0.8f;
+			m_scale_factor *= changed;
+			m_model = glm::scale(m_model, glm::vec3(changed, changed, changed));
+			for (int i = 0; i < 3; i++)
+				m_model[3][i] *= changed;
+
+			glm::mat4 trans_click_center(1.0f);/*
+			trans_click_center = glm::translate(trans_click_center, world_pos + dis * len_of_dis / 20.f);*/
+			trans_click_center = glm::translate(trans_click_center, -world_pos * changed);
+			m_model = trans_click_center * m_model;
+		}
+
+		void generate_circleLines(Vector<float>& grid_lines, Vector<float>& grid_circles, int per_degree = 30) {
 			int circle_lines = (359 + per_degree) / per_degree;//change per_degree by radius（able to upgrade）
 			int circle_pt_cnt = circle_lines * 6;
 			Vector<float> oneCircle(circle_pt_cnt);
@@ -545,7 +571,7 @@ namespace ifcre {
 		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
 
-		unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
+		Unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
