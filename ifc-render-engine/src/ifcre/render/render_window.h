@@ -406,14 +406,16 @@ namespace ifcre {
 		int getClickedUIId();
 		int getClpBoxFaceId();
 		glm::vec2 getWindowSize();
-		glm::mat4 getProjMatrix();
-		glm::mat4 getOrthoProjMatrix() { return m_projection2; }
+		glm::mat4 getProjMatrix(bool _isperspective);
+		glm::mat4 getPerspectiveProjMatrix();
+		glm::mat4 getOrthoProjMatrix() { m_projection = ortho_projection; isperspective = false; return ortho_projection; }
 		bool getHidden() { return hidden; }
 		glm::vec3 getClippingPlanePos() { return use_clip_plane.base_pos; }
 		ClipPlane getClippingPlane();
 		Vector<glm::vec4> getClippingBoxVectors(bool _hidden);
 		ClipBox getClipBox() { return use_clip_box; }
 		void setCamera(SharedPtr<GLCamera> camera);
+		void setIfcModel(SharedPtr<IFCModel> ifcModel);
 		int get_width() { return m_width; }
 		int get_height() { return m_height; }
 
@@ -475,16 +477,24 @@ namespace ifcre {
 
 		// refer to camera of ifc engine
 		SharedPtr<GLCamera> m_camera;
+
+		//refer to ifc model
+		SharedPtr<IFCModel> ifc_model;
+
 		uint32_t m_cur_fbo;
 
 		// memory management by GLFW
 		GLFWwindow* m_window;
 
 		int32_t m_width, m_height;
-		glm::mat4 m_projection;
+		glm::mat4 perspective_projection;
 		//for a little screen
 		int32_t m_miniwidth, m_miniheight;
-		glm::mat4 m_projection2;
+		glm::mat4 ortho_projection;
+
+		glm::mat4 m_projection;//the projection used currently
+		bool isperspective = true;
+
 		public:
 		struct {
 			int32_t horizontal_move = 0, vertical_move = 0;

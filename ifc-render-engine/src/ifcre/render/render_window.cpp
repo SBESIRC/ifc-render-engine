@@ -209,6 +209,7 @@ namespace ifcre {
         RenderWindow* that = (RenderWindow*)glfwGetWindowUserPointer(window);
         auto& camera = *(that->m_camera);
         auto& status = that->m_mouse_status;
+        auto& ifc_model = that->ifc_model;
         double click_x, click_y;
         glfwGetCursorPos(window, &click_x, &click_y);
         float click_z = that->_getClickedDepthValue(click_x, click_y);
@@ -216,7 +217,11 @@ namespace ifcre {
             //that->_setClickedWorldCoords(click_x, click_y, click_z);
             //that->_setClickedWorldColors(click_x, click_y, false);
         //}
-        camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
+        if (that->isperspective)
+            camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
+        else {
+            ifc_model->enlarge_scale(yoffset > 0 ? 1.0f : -1.0f, that->m_mouse_status.click_world_center);
+        }
 
         Real w = that->m_width, h = that->m_height;
         glm::vec4 pos = glm::vec4(status.click_world_center, 1.0);
@@ -294,19 +299,19 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             switch (action) {
             case GLFW_PRESS: {
-                double click_x, click_y;
-                glfwGetCursorPos(window, &click_x, &click_y);
-                float click_z = that->_getClickedDepthValue(click_x, click_y);
-                if (click_z != 1.0) {
-                    that->_setClickedWorldCoords(click_x, click_y, click_z);
+                //double click_x, click_y;
+                //glfwGetCursorPos(window, &click_x, &click_y);
+                //float click_z = that->_getClickedDepthValue(click_x, click_y);
+                //if (click_z != 1.0) {
+                //    that->_setClickedWorldCoords(click_x, click_y, click_z);
 #ifdef TEST_COMP_ID
                     //that->_setClickedWorldColors(click_x, click_y, false);
 #endif // TEST_COMP_ID
-                    that->m_mouse_status.click_init_mask = 1;
-                }
-                else {
-                    that->m_mouse_status.click_init_mask = -1;
-                }
+                //    that->m_mouse_status.click_init_mask = 1;
+                //}
+                //else {
+                //    that->m_mouse_status.click_init_mask = -1;
+                //}
                 status.rbtn_down = true;
                 break;
             }
@@ -687,8 +692,17 @@ namespace ifcre {
         return glm::vec2(m_width, m_height);
     }
 
-    glm::mat4 RenderWindow::getProjMatrix() {
-        return m_projection;
+    glm::mat4 RenderWindow::getProjMatrix(bool _isperspective) {
+        if (_isperspective)
+            return getPerspectiveProjMatrix();
+        else
+            return getOrthoProjMatrix();
+    }
+
+    glm::mat4 RenderWindow::getPerspectiveProjMatrix() {
+        m_projection = perspective_projection;
+        isperspective = true;
+        return perspective_projection;
     }
 
     ClipPlane RenderWindow::getClippingPlane() {
@@ -706,6 +720,11 @@ namespace ifcre {
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)
     {
         m_camera = camera;
+    }
+
+    void RenderWindow::setIfcModel(SharedPtr<IFCModel> ifcModel)
+    {
+        ifc_model = ifcModel;
     }
 
 // --------------------- mouse status ---------------------
@@ -768,15 +787,15 @@ namespace ifcre {
         }
         m_width = w;
         m_height = h;
-        m_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
+        perspective_projection = glm::perspective(glm::radians(fov), (Real)w / h, m_znear, m_zfar);
         float dis_ = 7.5f;
         int bili = 1;
         m_miniwidth = m_width / bili;
         m_miniheight = m_height / bili;
         float ratios = (Real)w / h;
-        m_projection2 = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .1f, 100.f);
+        ortho_projection = glm::ortho(-dis_ * ratios, dis_ * ratios, -dis_, dis_, .001f, 100.f);
         //m_projection2 = glm::ortho(.5f * w, -.5f * w, .5f * h, -.5f * h);
-        /*
+         /*
         m_projection2 = glm::scale(m_projection, glm::vec3(w / 2, h / 2, 1));
         m_projection2 = glm::translate(m_projection, glm::vec3(1.f, 1.f, 0.f));*/
         auto& mfb = m_framebuffer;

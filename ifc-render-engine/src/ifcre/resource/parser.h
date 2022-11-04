@@ -161,8 +161,8 @@ vector<real_t> generate_bbx_for_collision(const Datas2OpenGL& datas) {
 	vector<real_t> ret(6 * comp_size);
 	for (size_t i = 0; i < comp_size; i++) {
 		real_t x_min, x_max, y_min, y_max, z_min, z_max;
-		x_min = y_min = z_min = numeric_limits<real_t>::max();
-		x_max = y_max = z_max = numeric_limits<real_t>::lowest();
+		x_min = y_min = z_min = std::numeric_limits<real_t>::max();
+		x_max = y_max = z_max = std::numeric_limits<real_t>::lowest();
 		for (size_t j = 0; j < datas.search_m[i].size(); j++) {
 			//x
 			x_min = std::min(x_min, datas.verts[datas.search_m[i][j] * 3]);

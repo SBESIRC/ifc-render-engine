@@ -193,6 +193,8 @@ namespace ifcre {
 				m_camera->PrecomputingCubeDireciton(m_view_pos); // 为相机预设6个位置
 				m_render_window->setCamera(m_camera);
 			}
+
+			m_render_window->setIfcModel(ifc_test_model);/////////////////
 			m_render_window->use_clip_box.setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////////
 			m_render_window->use_clip_box.bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
 
@@ -364,6 +366,7 @@ namespace ifcre {
 						ifc_test_model->translate(step);
 						//wrong way here
 						//m_camera->translateByHoverDiv(step);
+						//printvec3(step);
 					}
 					m_last_hover_pos = clicked_coord;
 					m_last_rmclick = true;
@@ -515,7 +518,7 @@ namespace ifcre {
 		m_render.setInitModelMatrix(model_matrix);
 		m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 		m_render.setModelViewMatrix(view * model_matrix);
-		m_render.setProjectionMatrix(m_window.getProjMatrix());
+		m_render.setProjectionMatrix(m_window.getProjMatrix(false));
 		m_render.setAlpha(1.0);
 		m_render.setCameraDirection(camera_forwad);
 		m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
