@@ -38,7 +38,7 @@ namespace ifcre {
 
 		virtual void SetSleepTime(int val) = 0;
 		virtual bool saveImage(const char* filePath) = 0;
-		virtual void SetClipBox() = 0;
+		//virtual void SetClipBox() = 0;
 		virtual void zoom2Home() = 0;
 
 		virtual void set_grid_data(int val) = 0;
@@ -90,7 +90,7 @@ namespace ifcre {
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 		bool saveImage(const char* filePath);
-		void SetClipBox();
+		//void SetClipBox();
 		void zoom2Home();
 		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
@@ -165,8 +165,7 @@ namespace ifcre {
 
 		bool trigger = false;
 
-		int last_clp_face_key = 0;
-		int last_hovered_face_key = 0;
+		bool show_aerial_view = true;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 

@@ -62,21 +62,21 @@ namespace ifcre {
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
 		void setClippingPlane(const glm::vec4& clip_plane);
-		void setClippingBox(const Vector<glm::vec4>& clip_box);
+		void setClippingBox(const bool hidden);
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 		// --------------- render ----------------------
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
-		void renderGrid(IFCModel& ifc_model);
+		//void renderGrid(IFCModel& ifc_model);
 		void renderGridText(Vector<Wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);
 		void renderGridLine(Vector<float>& grid_line, int width, int height, bool& grid_line_reset);
-		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
-		void renderClipBox(const ClipBox& clip_box);
-		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
+		void renderClipBox(const bool hidden);
+		void renderClipBox();
+		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
-		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key);
+		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
 		unsigned int  loadCubemap(Vector<String> faces);
@@ -86,16 +86,43 @@ namespace ifcre {
 		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
 		// ----- ----- ----- ----- ----- ----- ----- -----
-#pragma region UI changes
-		SharedPtr<SimpleUI> simpleui;
-		float thisk = 0.f;
-		void bind_ui_to_window(RenderWindow& w) {
-			simpleui = make_shared<SimpleUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
+		// ------------- clips -------------------------
+
+		int last_clp_face_key = 0;
+		int last_hovered_face_key = 0;
+		glm::vec3 getClippingPlanePos() { return use_clip_plane.base_pos; }
+		ClipPlane getClippingPlane() {
+			//if (hidden)
+			return hidden_clip_plane;
+			//return use_clip_plane;
 		}
-		void ui_update() {
-			ImVec4 tempvec = ImVec4(m_bg_color.x, m_bg_color.y, m_bg_color.z, m_bg_color.w);
-			simpleui->updateFrame(thisk, tempvec);
-			m_bg_color = glm::vec4(tempvec.x, tempvec.y, tempvec.z, tempvec.w);
+		Vector<glm::vec4> getClippingBoxVectors(bool _hidden) {
+			if (_hidden)
+				return hidden_box_vector;
+			return use_clip_box->out_as_vec4s();
+		}
+		SharedPtr<ClipBox> getClipBox() {
+			return use_clip_box;
+		}
+		// ----- ----- ----- ----- ----- ----- ----- -----
+#pragma region UI changes
+		SharedPtr<ClipBoxUI> simpleui;
+		void bind_ui_to_window(RenderWindow& w) {
+			simpleui = make_shared<ClipBoxUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
+		}
+		void ui_update(bool hidden) {
+			int my_key = last_clp_face_key - 26;
+			glm::vec2 this_face_normal = glm::vec2(0.f);
+			if (my_key >= 0) {
+				auto temp = m_projection * m_modelview * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
+				temp /= temp.w;
+				this_face_normal = glm::vec2(temp.x, temp.y);/*
+				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
+			}
+			simpleui->updateFrame(hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos);
+		}
+		void bind_ui_to_clipbox() {
+			simpleui->bind_clip_box(use_clip_box);
 		}
 #pragma endregion
 	private:
@@ -144,12 +171,22 @@ namespace ifcre {
 		glm::vec4 m_depnor_value = glm::vec4(0.5f, 0.5f, 1.0f, 1.0f);
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+		glm::vec4 m_bg_color_off = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
 		//TextData textdata = TextData("resources/fonts/default.ttf");
 		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);
 		EngineAxis myaxis = EngineAxis();
+
+	public:
+		SharedPtr<ClipBox> use_clip_box = make_shared<ClipBox>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 40.f, 40.f, 80.f);
+	private:
+		ClipPlane hidden_clip_plane = glm::vec4(0.f, 0.f, 0.f, -1.f);
+		ClipPlane use_clip_plane = glm::vec4(0.f, 1.f, 0.f, 2.f);
+		int ui_id_num = 26;
+		const Vector<glm::vec4> hidden_box_vector = Vector<glm::vec4>(6, glm::vec4(0.f, 0.f, 0.f, -1.f));
+
 		//offscreen quad
 	private:
 		uint32_t off_vao;

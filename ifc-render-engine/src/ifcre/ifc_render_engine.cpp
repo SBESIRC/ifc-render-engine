@@ -196,8 +196,9 @@ namespace ifcre {
 			}
 
 			m_render_window->setIfcModel(ifc_test_model);/////////////////
-			m_render_window->use_clip_box.setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////////
-			m_render_window->use_clip_box.bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
+			m_glrender->getClipBox()->setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////
+			m_glrender->getClipBox()->bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
+			m_glrender->bind_ui_to_clipbox();///////////////////////
 
 			// add a rendered model
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -251,10 +252,12 @@ namespace ifcre {
 		m_render.setMirrorModelMatrix(glm::mat4(1.f));
 		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_test_model->bbx_model_mat);
 		m_render.setProjectionMatrix(m_window.getOrthoProjMatrix());
-		m_render.setClippingBox(m_window.getClippingBoxVectors(true));
+		m_render.setClippingBox(true);
 
-		m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, ALL);
-		m_render.renderClipBox(m_window.getClipBox());
+		m_render.render(ifc_test_model->render_id, OFFLINE_SHADING, ALL);
+		if (!registe) {
+			m_render.renderClipBox();
+		}
 
 		m_window.endOffScreenRender();
 	}
@@ -278,7 +281,9 @@ namespace ifcre {
 						changeGeom();
 
 						drawFrame();
-						m_glrender->AerialViewRender(m_window);
+						if (!show_aerial_view) {
+							m_glrender->AerialViewRender(m_window);
+						}
 						if (!m_window.swapBuffer()) {
 							break;
 						}
@@ -340,26 +345,50 @@ namespace ifcre {
 			//todo add gizmo's id here
 			m_window.switchRenderUI();
 			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
-			m_render.renderClipBoxInUIlayer(m_window.getHidden(), m_window.getClipBox());
+			m_render.renderClipBoxInUIlayer(m_window.getHidden());
 			ui_key = m_window.getClickedUIId();
 			if (ui_key > -1 && ui_key < 26 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
 				cube_num = ui_key;
 				m_render_window->m_mouse_status.single_click = false;
 			}
+			else if (ui_key > 25) {
+				ui_key -= 26;
+				//int xsig = (mouse_move_vec.x > 0) ? 1 : ((mouse_move_vec.x < 0) ? -1 : 0);
+				//int ysig = (mouse_move_vec.y > 0) ? 1 : ((mouse_move_vec.y < 0) ? -1 : 0);
+				//int finalsig = xsig + ysig;
+				//if (finalsig) {
+				//	//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
+				//	m_glrender->getClipBox()->updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0), mouse_move_vec.length());
+				//}
+				m_render.last_clp_face_key = ui_key + 26;
+			}
 
 			glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
 			//std::cout << clicked_coord.x << "\t" << clicked_coord.y << "\t" << clicked_coord.z << "\t\n";
 
-			m_window.use_clip_box.bind_the_world_coordination(ifc_test_model->getModelMatrix());
+			m_glrender->getClipBox()->bind_the_world_coordination(ifc_test_model->getModelMatrix());
+
+			m_render.last_hovered_face_key = m_window.getClpBoxFaceId();
+
+			/*if (clp_face_key > -1 && clp_face_key < 26) {
+				m_render.last_hovered_face_key = clp_face_key;
+			}*/
+#endif
+
+#pragma endregion
+
+#pragma region mouse work
 
 			if (!m_window.rotatelock) {
-				if (m_window.isMouseHorizontalRot()) {
-					m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
-				}
-				if (m_window.isMouseVerticalRot()) {
+				if (m_window.getHidden()) {
+					if (m_window.isMouseHorizontalRot()) {
+						m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
+					}
+					if (m_window.isMouseVerticalRot()) {
 
-					m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
+						m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
+					}
 				}
 				if (m_window.isRightMouseClicked()) {
 					if (m_window.isMouseMove() && m_last_rmclick) {
@@ -381,22 +410,6 @@ namespace ifcre {
 				mouse_move_vec.x = m_window.getMouseHorizontalVel();
 				mouse_move_vec.y = m_window.getMouseVerticalVel();
 			}
-			clp_face_key = m_window.getClpBoxFaceId();
-			if (clp_face_key > 25) {
-				clp_face_key -= 26;
-				int xsig = (mouse_move_vec.x > 0) ? 1 : ((mouse_move_vec.x < 0) ? -1 : 0);
-				int ysig = (mouse_move_vec.y > 0) ? 1 : ((mouse_move_vec.y < 0) ? -1 : 0);
-				int finalsig = xsig + ysig;
-				if (finalsig) {
-					//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
-					m_window.use_clip_box.updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0), mouse_move_vec.length());
-				}
-				last_clp_face_key = clp_face_key + 26;
-			}
-			else if(!m_render_window->m_mouse_status.lbtn_down) {
-				last_hovered_face_key = clp_face_key;
-			}
-#endif
 
 #pragma endregion
 
@@ -437,6 +450,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
+			//m_render.ui_update(m_window.getHidden());
 #endif
 			//8. render sup things
 			// render sky box
@@ -449,10 +463,7 @@ namespace ifcre {
 			}
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//--------------- gizmo rendering ----------------------------------------
-			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize(), last_hovered_face_key);
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
+			
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
@@ -461,11 +472,15 @@ namespace ifcre {
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// -------------- render clipping plane, not normal render procedure ---------------
-			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
+			m_render.renderClipBox(m_window.getHidden());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
-			//m_render.ui_update();
 			//m_render.simpleui->render();
+
+			//--------------- gizmo rendering ----------------------------------------
+			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
 			m_window.endRenderToWindow();
 		}
 		// post render
@@ -522,11 +537,11 @@ namespace ifcre {
 		m_render.setInitModelMatrix(model_matrix);
 		m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 		m_render.setModelViewMatrix(view * model_matrix);
-		m_render.setProjectionMatrix(m_window.getProjMatrix(false));
+		m_render.setProjectionMatrix(m_window.getProjMatrix(true));
 		m_render.setAlpha(1.0);
 		m_render.setCameraDirection(camera_forwad);
-		m_render.setClippingPlane(m_window.getClippingPlane().out_as_vec4());
-		m_render.setClippingBox(m_window.getClippingBoxVectors(m_window.getHidden()));
+		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
+		m_render.setClippingBox(m_window.getHidden());
 
 		m_render.setHoverCompId(m_window.getHoverCompId());
 	}
@@ -580,32 +595,32 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::SetClipBox() {
-		if (m_render_window == nullptr) {
-			return;
-		}
-		Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-		uint32_t c_indices_size = ifc_test_model->c_indices.size();
-		for (auto& id : m_render_window->chosen_list) {
-			if (id > c_indices_size) {
-				continue;
-			}
-			for (int i = 0; i < 3; i++) {
-				ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-			}
-			for (int i = 3; i < 6; i++) {
-				ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-			}
-		}
-		Vector<Real> ret2(24); // 一个bbx有8个顶点，每个顶点要3个float存储位置
-		for (int i = 0; i < 8; i++) {
-			ret2[i * 3] = i & 1 ? ret[3] : ret[0];
-			ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
-			ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
-		}
-		//glm::vec3 center;
-		m_render_window->use_clip_box = ClipBox(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
-	}
+	//void IFCRenderEngine::SetClipBox() {
+	//	if (m_render_window == nullptr) {
+	//		return;
+	//	}
+	//	Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+	//	uint32_t c_indices_size = ifc_test_model->c_indices.size();
+	//	for (auto& id : m_render_window->chosen_list) {
+	//		if (id > c_indices_size) {
+	//			continue;
+	//		}
+	//		for (int i = 0; i < 3; i++) {
+	//			ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+	//		}
+	//		for (int i = 3; i < 6; i++) {
+	//			ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
+	//		}
+	//	}
+	//	Vector<Real> ret2(24); // 一个bbx有8个顶点，每个顶点要3个float存储位置
+	//	for (int i = 0; i < 8; i++) {
+	//		ret2[i * 3] = i & 1 ? ret[3] : ret[0];
+	//		ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
+	//		ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
+	//	}
+	//	//glm::vec3 center;
+	//	m_glrender->use_clip_box = ClipBox(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
+	//}
 
 	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
 		sleep_time = sleepTime;

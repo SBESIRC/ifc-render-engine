@@ -160,6 +160,7 @@ namespace ifcre {
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		// ----- ----- ----- ----- ----- ----- -----
 
+		use_clip_box->glInit(ui_id_num);
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 
@@ -294,6 +295,25 @@ namespace ifcre {
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+
+			m_test_shader->use();
+			break;
+		}
+		case OFFLINE_SHADING: {
+			auto& color = m_bg_color_off;
+			glClearColor(color.r, color.g, color.b, color.a);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_init_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_init_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
@@ -450,22 +470,22 @@ namespace ifcre {
 		glDisable(GL_BLEND);
 	}
 
-	void GLRender::renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id) {
+	void GLRender::renderClipBox(const bool hidden) {
 		if (!hidden) {
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_shader->use();
-			m_clip_plane_shader->setInt("ui_id", clp_face_id);
+			m_clip_plane_shader->setInt("ui_id", last_clp_face_key);
 			//std::cout << clp_face_id << std::endl;
 			m_clip_plane_shader->setVec3("this_color", glm::vec3(0.f, 1.f, 1.f));
-			clip_box.drawBox(true);
+			use_clip_box->drawBox(true);
 			_defaultConfig();
 		}
 	}
 
-	void GLRender::renderClipBox(const ClipBox& clip_box) {
+	void GLRender::renderClipBox() {
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 		m_clip_plane_shader->use();
 		m_clip_plane_shader->setInt("ui_id", -1);
 		m_clip_plane_shader->setVec3("this_color", glm::vec3(1.f, 0.f, 0.f));
@@ -473,20 +493,21 @@ namespace ifcre {
 		glDepthFunc(GL_ALWAYS);
 		glDepthMask(GL_FALSE);
 		glLineWidth(7.f);
-		clip_box.drawBox(false);
+		use_clip_box->drawBox(false);
 		glDepthMask(GL_TRUE);
-		glLineWidth(1.5f);
+		glLineWidth(3.f);
 		_defaultConfig();
 	}
 
-	void GLRender::renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box) {
+	void GLRender::renderClipBoxInUIlayer(const bool hidden) {
 		if (!hidden) {
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_UI_shader->use();
-			clip_box.drawBoxInUILayer();
+			use_clip_box->drawBoxInUILayer();
 		}
 	}
+
 
 	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
@@ -723,7 +744,7 @@ namespace ifcre {
 
 	}
 
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key)
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
@@ -886,6 +907,7 @@ namespace ifcre {
 		glBindVertexArray(off_vao);
 		//glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		_defaultConfig();
 	}
 
@@ -1058,8 +1080,8 @@ namespace ifcre {
 		m_clip_plane = clip_plane;
 	}
 
-	void GLRender::setClippingBox(const Vector<glm::vec4>& clip_box) {
-		m_clip_box = clip_box;
+	void GLRender::setClippingBox(const bool hidden) {
+		m_clip_box = getClippingBoxVectors(hidden);
 	}
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
 		return m_projection * m_modelview * a;
