@@ -115,6 +115,7 @@ namespace ifcre {
 		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
 		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
+		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -194,6 +195,7 @@ namespace ifcre {
 		}
 	}
 
+	//this GLRender::render has been abandoned
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
 	{
 		auto& vb_map = m_vertex_buffer_map;
@@ -291,6 +293,7 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
 			m_comp_id_program->use();
 			break;
 		}
@@ -1173,9 +1176,12 @@ namespace ifcre {
 		m_clip_box = getClippingBoxVectors(hidden);
 	}
 
-	void GLRender::setOpenDrawingMatch(glm::vec4 plane) {
+	void GLRender::updateOpenDrawingMatch(bool _flag) {
 		// TODO open Drawing match
-		m_drawing_match_plane = plane;
+		if (_flag)
+			m_drawing_match_plane = drawing_plane.to_vec4();
+		else
+			m_drawing_match_plane = hidden_drawing_plane;
 	}
 
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {

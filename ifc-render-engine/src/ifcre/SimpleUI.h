@@ -105,7 +105,7 @@ namespace ifcre {
 		void bind_clip_box(SharedPtr<ClipBox> _clipbox) {
 			clipbox = _clipbox;
 		}
-		void updateFrame(bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos) {
+		void updateFrame(bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos) {
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
@@ -124,6 +124,7 @@ namespace ifcre {
 				//ImGui::SliderFloat("float", &f, .0f, 1.f);
 				ImGui::ColorEdit3("clear color", (float*)&my_color); // Edit 3 floats representing a color
 				ImGui::DragFloat3("basepos", (float*)&base_pos, ishidden ? 0.f : .33f);
+				ImGui::DragFloat3("drawingplane_basepos", (float*)&drawingplane_pos, ishidden ? 0.f : .33f);
 				ImGui::DragFloat("width", (float*)&clipbox->width, ishidden ? 0.f : .33f, .01f, FLT_MAX);
 				ImGui::DragFloat("height", (float*)&clipbox->height, ishidden ? 0.f : .33f, .01f, FLT_MAX);
 				ImGui::DragFloat("length", (float*)&clipbox->length, ishidden ? 0.f : .33f, .01f, FLT_MAX);

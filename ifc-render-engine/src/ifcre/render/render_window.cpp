@@ -500,14 +500,6 @@ namespace ifcre {
         {
             openDrawingMatch = false;
         }
-        if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS)
-        {
-            drawing_plane += glm::vec4(0., .05, 0., 0.);
-        }
-        if (glfwGetKey(m_window, GLFW_KEY_3) == GLFW_PRESS)
-        {
-            drawing_plane += glm::vec4(0., -.05, 0., 0.);
-        }
 
         if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
             trigger = true;
@@ -743,12 +735,6 @@ namespace ifcre {
         m_projection = perspective_projection;
         isperspective = true;
         return perspective_projection;
-    }
-
-    glm::vec4 RenderWindow::getDrawingPlane(bool _show) {
-        if (_show)
-            return drawing_plane.to_vec4();
-        return hidden_drawing_plane;         // y is an infinite big pos
     }
 
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)

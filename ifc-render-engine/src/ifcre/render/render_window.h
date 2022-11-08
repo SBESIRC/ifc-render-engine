@@ -16,44 +16,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 namespace ifcre {
-	struct DrawingMatchPlane {
-	public:
-		glm::vec3 normal;
-		glm::vec3 front;
-		glm::vec3 right;
-		glm::vec3 base_pos;
-		glm::mat4 cur_model_mat;
-		glm::vec3 model_center;
-		DrawingMatchPlane() {}
-		~DrawingMatchPlane() {}
-		DrawingMatchPlane(glm::vec4 p) {
-			normal = p;
-			base_pos = glm::vec3(0.);
-			front = glm::vec3(0., 0., -1.);
-			right = glm::normalize(glm::cross(front, normal));
-		}
-
-		void operator+=(glm::vec4 p)
-		{
-			normal += glm::vec3(p);
-		}
-
-		void bind_the_world_coordination(glm::mat4 model_mat) {
-			cur_model_mat = model_mat;
-		}
-
-		void get_center(glm::vec3 center)
-		{
-			model_center = center;
-		}
-		glm::vec4 to_vec4()
-		{
-			glm::mat4 model(1.0f);
-			model = glm::translate(model, model_center);
-			return model * glm::vec4(normal, 1.0);
-		}
-	};
-
+	
 	class RenderWindow {
 	public:
 		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false , GLFWwindow* wndPtr = NULL);
@@ -100,8 +63,8 @@ namespace ifcre {
 		void setIfcModel(SharedPtr<IFCModel> ifcModel);
 		int get_width() { return m_width; }
 		int get_height() { return m_height; }
+
 		bool getShowDrawing() { return showDrawing; }	// drawing match shader
-		glm::vec4 getDrawingPlane(bool _show);
 
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
@@ -133,7 +96,6 @@ namespace ifcre {
 		bool trigger = false;
 		bool to_show_grid = true;
 
-		DrawingMatchPlane drawing_plane = glm::vec4(0.f, 0.f, 0.f, 1.f);
 	private:
 
 		void createFramebuffer(int w, int h);
@@ -233,7 +195,6 @@ namespace ifcre {
 		// the option of whether to open the drawing match
 		bool showDrawing = false;
 		bool openDrawingMatch = false;
-		glm::vec4 hidden_drawing_plane = glm::vec4(0.f, 10000.f, 0.f, 1.f);
 
 	public:
 		//------ chosen list

@@ -21,7 +21,6 @@ void main()
 	vGoColor = aColor * 0.5;
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos = ubo.model * p;
-	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vDistance = dot(eyePos.xyz, ubo.clip_plane.xyz) - ubo.clip_plane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
@@ -30,5 +29,6 @@ void main()
 		//	break;
 		//}
 	}
+	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }

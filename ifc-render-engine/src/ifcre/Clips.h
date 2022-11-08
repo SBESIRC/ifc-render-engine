@@ -394,5 +394,56 @@ namespace ifcre {
 			glDisable(GL_CULL_FACE);
 		}
 	};
+
+	struct DrawingMatchPlane {
+	public:
+		glm::vec3 normal;
+		glm::vec3 front;
+		glm::vec3 right;
+		glm::vec3 base_pos;
+		glm::mat4 cur_model_mat;
+		glm::vec3 model_center;
+		DrawingMatchPlane() {}
+		~DrawingMatchPlane() {}
+		DrawingMatchPlane(glm::vec4 p) {
+			normal = p;
+			base_pos = glm::vec3(0.);
+			front = glm::vec3(0., 0., -1.);
+			right = glm::normalize(glm::cross(front, normal));
+		}
+
+		void operator+=(glm::vec4 p)
+		{
+			normal += glm::vec3(p);
+		}
+
+		void bind_the_world_coordination(glm::mat4 model_mat) {
+			cur_model_mat = model_mat;
+		}
+
+		void get_center(glm::vec3 center)
+		{
+			model_center = center;
+		}
+		glm::vec4 to_vec4()
+		{
+			glm::mat4 model(1.0f);
+			model = glm::translate(model, model_center);
+			return model * glm::vec4(normal, 1.0);
+		}
+		void update_my_self(int input) {
+			switch (input)
+			{
+			case 0:
+				base_pos += glm::vec3(0., .05, 0.);
+				break;
+			case 1:
+				base_pos -= glm::vec3(0., .05, 0.);
+				break;
+			default:
+				break;
+			}
+		}
+	};
 }
 #endif

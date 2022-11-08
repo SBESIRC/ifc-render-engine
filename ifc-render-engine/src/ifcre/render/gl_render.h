@@ -62,7 +62,7 @@ namespace ifcre {
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
 		void setClippingPlane(const glm::vec4& clip_plane);
-		void setOpenDrawingMatch(glm::vec4 plane);
+		void updateOpenDrawingMatch(bool _flag);
 		void setClippingBox(const bool hidden);
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
@@ -106,6 +106,12 @@ namespace ifcre {
 		SharedPtr<ClipBox> getClipBox() {
 			return use_clip_box;
 		}
+
+		glm::vec4 getDrawingPlane(bool _show) {
+			if (_show)
+				return drawing_plane.to_vec4();
+			return hidden_drawing_plane;         // y is an infinite big pos
+		}
 		// ----- ----- ----- ----- ----- ----- ----- -----
 #pragma region UI changes
 		SharedPtr<ClipBoxUI> simpleui;
@@ -121,7 +127,7 @@ namespace ifcre {
 				this_face_normal = glm::vec2(temp.x, temp.y);/*
 				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
 			}
-			simpleui->updateFrame(hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos);
+			simpleui->updateFrame(hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.base_pos);
 		}
 		void bind_ui_to_clipbox() {
 			simpleui->bind_clip_box(use_clip_box);
@@ -186,14 +192,16 @@ namespace ifcre {
 		SceneGizmo gizmo = SceneGizmo(0);
 		EngineAxis myaxis = EngineAxis();
 
-	public:
 		SharedPtr<ClipBox> use_clip_box = make_shared<ClipBox>(glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), 40.f, 40.f, 80.f);
-	private:
 		ClipPlane hidden_clip_plane = glm::vec4(0.f, 0.f, 0.f, -1.f);
 		ClipPlane use_clip_plane = glm::vec4(0.f, 1.f, 0.f, 2.f);
 		int ui_id_num = 26;
 		const Vector<glm::vec4> hidden_box_vector = Vector<glm::vec4>(6, glm::vec4(0.f, 0.f, 0.f, -1.f));
+	public:
+		DrawingMatchPlane drawing_plane = glm::vec4(0.f, 0.f, 0.f, 1.f);
 
+		// the option of whether to open the drawing match
+		glm::vec4 hidden_drawing_plane = glm::vec4(0.f, 10000.f, 0.f, 1.f);
 		//offscreen quad
 	private:
 		uint32_t off_vao;

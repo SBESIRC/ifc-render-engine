@@ -20,7 +20,6 @@ layout(location = 2) out vec3 vFragPos;
 layout(location = 3) flat out int vComp;
 layout(location = 4) out float vDistance;
 layout(location = 5) out float vDistanceM[7];
-//layout(location = 6) out float dis_drawing_plane;
 void main()
 {
 
@@ -36,7 +35,6 @@ void main()
 		//	break;
 		//}
 	}
-	//dis_drawing_plane = eyePos.y - ubo.drawing_plane.y;
 	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vComp = aComp;
 	vNormal = ubo.transpose_inv_model * aNormal;

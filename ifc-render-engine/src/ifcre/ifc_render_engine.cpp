@@ -199,6 +199,7 @@ namespace ifcre {
 			m_glrender->getClipBox()->setBasePos(ifc_test_model->getpMin(), ifc_test_model->getpMax());///////////////////
 			m_glrender->getClipBox()->bind_the_world_coordination(ifc_test_model->bbx_model_mat);///////////////////////
 			m_glrender->bind_ui_to_clipbox();///////////////////////
+			m_glrender->drawing_plane.get_center(ifc_test_model->getModelCenter());/////////////
 
 			// add a rendered model
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
@@ -548,7 +549,7 @@ namespace ifcre {
 		m_render.setCameraDirection(camera_forwad);
 		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
 		m_render.setClippingBox(m_window.getHidden());
-		m_render.setOpenDrawingMatch(m_window.getDrawingPlane(m_window.getShowDrawing()));
+		m_render.updateOpenDrawingMatch(m_window.getShowDrawing());
 
 		m_render.setHoverCompId(m_window.getHoverCompId());
 	}
