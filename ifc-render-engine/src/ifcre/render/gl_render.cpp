@@ -16,7 +16,7 @@ namespace ifcre {
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 7);
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
@@ -90,6 +90,12 @@ namespace ifcre {
 
 		String v_text3d = util::read_file("shaders/text3d.vert");
 		m_text3d_shader = make_unique<GLSLProgram>(v_text3d.c_str(), f_text.c_str());
+
+		// ------------- drawing match shader test ------------
+		String v_drawing = util::read_file("shaders/drawing_match.vert");
+		String f_drawing = util::read_file("shaders/drawing_match.frag");
+		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
+
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -129,6 +135,7 @@ namespace ifcre {
 		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_skybox_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_grid_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_drawing_match_shader->bindUniformBlock("TransformMVPUBO", 2);		// ------------- drawing match shader test ------------
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -298,6 +305,7 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -336,6 +344,7 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -360,6 +369,7 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
 			m_edge_shader->use();
 			break;
 		}
@@ -370,6 +380,7 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -885,6 +896,84 @@ namespace ifcre {
 		return textureID;
 	}
 
+	// ------------- drawing match shading -------------
+	void GLRender::renderDrawing(IFCModel& ifc_model) {
+		static bool first = true;
+		static uint32_t drawing_vao;
+		static uint32_t drawingTex;
+		static float drawing_width, drawing_height;
+		float ratio = 0.01;			// based on the ratio of drawing.  //e.g. 1:100
+		if (first)
+		{
+			float quadVertices[] = {
+				// positions		// texCoords
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				-1.0f, 0.0f,  1.0f,  0.0f, 0.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+				 1.0f, 0.0f, -1.0f,  1.0f, 1.0f
+			};
+			uint32_t drawing_vbo;
+			glGenVertexArrays(1, &drawing_vao);
+			glGenBuffers(1, &drawing_vbo);
+			glBindVertexArray(drawing_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, drawing_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glGenTextures(1, &drawingTex);
+			glBindTexture(GL_TEXTURE_2D, drawingTex);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+			int width, height, nrChannels;
+			unsigned char* data = stbi_load("resources\\textures\\scenegizmo3.png", &width, &height, &nrChannels, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				drawing_width = width * ratio;
+				drawing_height = height * ratio;
+			}
+			else
+			{
+				std::cout << "Failed to load texture" << std::endl;
+			}
+			stbi_image_free(data);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			first = false;
+		}
+		glm::mat4 scale(1.0f);
+		glm::mat4 y_translate(1.0f);
+		y_translate = glm::translate(y_translate, glm::vec3(m_drawing_match_plane));
+		scale = glm::scale(scale, glm::vec3(drawing_width, 1.0, drawing_height));
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * y_translate * scale));
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		m_drawing_match_shader->use();
+		m_drawing_match_shader->setInt("Drawing", 0);
+
+		glBindVertexArray(drawing_vao);
+		glBindTexture(GL_TEXTURE_2D, drawingTex);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	void GLRender::AerialViewRender(RenderWindow& w) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, w.getAerialColorTexId());
@@ -1083,6 +1172,12 @@ namespace ifcre {
 	void GLRender::setClippingBox(const bool hidden) {
 		m_clip_box = getClippingBoxVectors(hidden);
 	}
+
+	void GLRender::setOpenDrawingMatch(glm::vec4 plane) {
+		// TODO open Drawing match
+		m_drawing_match_plane = plane;
+	}
+
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
 		return m_projection * m_modelview * a;
 	}

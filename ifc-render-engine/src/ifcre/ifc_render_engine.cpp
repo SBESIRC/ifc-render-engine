@@ -450,7 +450,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			//m_render.ui_update(m_window.getHidden());
+			m_render.ui_update(m_window.getHidden());
 #endif
 			//8. render sup things
 			// render sky box
@@ -474,8 +474,14 @@ namespace ifcre {
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+
+			// ------------- drawing match shading ----------------------------------
+			if (m_window.getShowDrawing())
+				m_render.renderDrawing(*ifc_test_model);
+			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
-			//m_render.simpleui->render();
+			m_render.simpleui->render();
 
 			//--------------- gizmo rendering ----------------------------------------
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
@@ -542,6 +548,7 @@ namespace ifcre {
 		m_render.setCameraDirection(camera_forwad);
 		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
 		m_render.setClippingBox(m_window.getHidden());
+		m_render.setOpenDrawingMatch(m_window.getDrawingPlane(m_window.getShowDrawing()));
 
 		m_render.setHoverCompId(m_window.getHoverCompId());
 	}

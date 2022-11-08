@@ -62,6 +62,7 @@ namespace ifcre {
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
 		void setClippingPlane(const glm::vec4& clip_plane);
+		void setOpenDrawingMatch(glm::vec4 plane);
 		void setClippingBox(const bool hidden);
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
@@ -80,6 +81,7 @@ namespace ifcre {
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
 		unsigned int  loadCubemap(Vector<String> faces);
+		void renderDrawing(IFCModel& ifc_model);			// ------------- drawing match shading -------------
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
 
@@ -144,6 +146,8 @@ namespace ifcre {
 		glm::vec4 m_clip_plane;
 		Vector<glm::vec4> m_clip_box;// m_clip_box.size() MUST be 6!
 
+		glm::vec4 m_drawing_match_plane;	// drawing match shader test ----------
+
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;
 		UniquePtr<GLSLProgram> m_normal_depth_program;
@@ -162,6 +166,9 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_skybox_shader;
 		UniquePtr<GLSLProgram> m_grid_shader;
 		UniquePtr<GLSLProgram> m_text3d_shader;
+
+		UniquePtr<GLSLProgram> m_drawing_match_shader;	// drawing match shader test ----------
+
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
 		void _defaultConfig();

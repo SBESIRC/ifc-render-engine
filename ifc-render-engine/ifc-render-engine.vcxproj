@@ -280,6 +280,8 @@
     <None Include="..\workdir\shaders\collision.vert" />
     <None Include="..\workdir\shaders\comp_id_write.frag" />
     <None Include="..\workdir\shaders\comp_id_write.vert" />
+    <None Include="..\workdir\shaders\drawing_match.frag" />
+    <None Include="..\workdir\shaders\drawing_match.vert" />
     <None Include="..\workdir\shaders\edge.frag" />
     <None Include="..\workdir\shaders\edge.vert" />
     <None Include="..\workdir\shaders\gizmo.frag" />

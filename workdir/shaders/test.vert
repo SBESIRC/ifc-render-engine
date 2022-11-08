@@ -11,6 +11,7 @@ layout(std140, binding = 0)uniform TransformsUBO{
 	vec4 uUserClipPlane;			// 176 ~ 192
 	mat4 model;						// 192 ~ 256
 	vec4 uUserClipBox[6];			// 256 ~ 352
+	vec4 drawing_plane;				// 352 ~ 368
 } ubo;
 
 layout(location = 0) out vec3 vGoColor;
@@ -18,7 +19,8 @@ layout(location = 1) out vec3 vNormal;
 layout(location = 2) out vec3 vFragPos;
 layout(location = 3) flat out int vComp;
 layout(location = 4) out float vDistance;
-layout(location = 5) out float vDistanceM[6];
+layout(location = 5) out float vDistanceM[7];
+//layout(location = 6) out float dis_drawing_plane;
 void main()
 {
 
@@ -34,8 +36,9 @@ void main()
 		//	break;
 		//}
 	}
+	//dis_drawing_plane = eyePos.y - ubo.drawing_plane.y;
+	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vComp = aComp;
-	//vNormal = ubo.transpose_inv_model * aNormal;
 	vNormal = ubo.transpose_inv_model * aNormal;
 	vNormal=aNormal;
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);

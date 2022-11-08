@@ -9,17 +9,19 @@ layout(std140, binding = 0)uniform TransformMVPUBO{
 	mat4 model;					// 64 ~ 128
     vec4 clip_plane;            // 128 ~ 144
 	vec4 uUserClipBox[6];		// 144 ~ 240
+	vec4 drawing_plane;			// 240 ~ 256
 } ubo;
 
 layout(location = 0) out vec3 vGoColor;
 layout(location = 1) out float vDistance;
-layout(location = 2) out float vDistanceM[6];
+layout(location = 2) out float vDistanceM[7];
 
 void main()
 {
 	vGoColor = aColor * 0.5;
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos = ubo.model * p;
+	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vDistance = dot(eyePos.xyz, ubo.clip_plane.xyz) - ubo.clip_plane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
