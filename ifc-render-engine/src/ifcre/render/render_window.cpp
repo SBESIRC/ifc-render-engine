@@ -109,7 +109,7 @@ namespace ifcre {
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
-                    if (m_mouse_status.double_click && clicked_comp_id == m_mouse_status.click_comp_id) {
+                    if (m_mouse_status.double_click) {// && clicked_comp_id == m_mouse_status.click_comp_id) {
                         trigger = true;//do zoom
                         m_mouse_status.double_click = false;
                     }
@@ -244,7 +244,7 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_LEFT) {
             switch (action) {
             case GLFW_PRESS: {
-                //status.double_click = false;
+                status.double_click = false;
                 single_before = std::chrono::system_clock::now();
                 glfwGetCursorPos(window, &pre_click_x, &pre_click_y);
                 float click_z = that->_getClickedDepthValue(pre_click_x, pre_click_y);
