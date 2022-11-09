@@ -245,7 +245,6 @@ namespace ifcre {
 		auto& m_window = *m_render_window;
 
 		m_window.offScreenRender();
-		bool registe = m_window.getHidden();
 		dataIntegration();
 		m_render.setViewMatrix(m_camera->getPrecomputedViewMatrix(index));
 		m_render.setModelMatrix(ifc_test_model->bbx_model_mat);
@@ -254,11 +253,8 @@ namespace ifcre {
 		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_test_model->bbx_model_mat);
 		m_render.setProjectionMatrix(m_window.getOrthoProjMatrix());
 		m_render.setClippingBox(true);
-
 		m_render.render(ifc_test_model->render_id, OFFLINE_SHADING, ALL);
-		if (!registe) {
-			m_render.renderClipBox();
-		}
+		m_render.renderClipBox();
 
 		m_window.endOffScreenRender();
 	}
@@ -282,7 +278,7 @@ namespace ifcre {
 						changeGeom();
 
 						drawFrame();
-						if (!show_aerial_view) {
+						if (!m_window.getHidden()) {
 							m_glrender->AerialViewRender(m_window);
 						}
 						if (!m_window.swapBuffer()) {
@@ -414,14 +410,6 @@ namespace ifcre {
 
 #pragma endregion
 
-//			//// 0. prev: render normal and depth tex of the scene
-//#ifndef ONLY_DEPTH_NROMAL_RES
-//			m_window.switchRenderDepthNormal();
-//#endif
-#ifndef TEST_COMP_ID_RES
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, NORMAL_DEPTH_WRITE);
-#endif
-			//m_window.switchRenderBack();
 #ifndef ONLY_DEPTH_NROMAL_RES
 			// 1. render scene
 			m_window.switchRenderColor();
@@ -443,15 +431,18 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
-			m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			//m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {
-				m_render.ModelVertexUpdate(select_bbx_id, ifc_test_model->generate_bbxs_by_vec({ m_window.chosen_list }));
+				auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
+				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx);
+
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			m_render.ui_update(m_window.getHidden());
+			//m_render.ui_update(m_window.getHidden());
 #endif
 			//8. render sup things
 			// render sky box
@@ -481,13 +472,13 @@ namespace ifcre {
 			if (m_window.getShowDrawing())
 				m_render.renderDrawing(*ifc_test_model);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-			
-			m_render.simpleui->render();
+
 
 			//--------------- gizmo rendering ----------------------------------------
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
+			//m_render.simpleui->render();
 			m_window.endRenderToWindow();
 		}
 		// post render
@@ -544,7 +535,7 @@ namespace ifcre {
 		m_render.setInitModelMatrix(model_matrix);
 		m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 		m_render.setModelViewMatrix(view * model_matrix);
-		m_render.setProjectionMatrix(m_window.getProjMatrix(true));
+		m_render.setProjectionMatrix(m_window.getProjMatrix());
 		m_render.setAlpha(1.0);
 		m_render.setCameraDirection(camera_forwad);
 		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
@@ -658,8 +649,7 @@ namespace ifcre {
 		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
 		ifc_test_model->setModelMatrix(model_mat);
 		ifc_test_model->setScaleFactor(scaler);
-
-		m_camera->set_pos(-15.f * m_camera->getViewForward() / scaler / 4.f);
+		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
 	}
 
 	void IFCRenderEngine::zoom2Home() {

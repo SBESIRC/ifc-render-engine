@@ -54,7 +54,7 @@ namespace ifcre {
 		int getClickedUIId();
 		int getClpBoxFaceId();
 		glm::vec2 getWindowSize();
-		glm::mat4 getProjMatrix(bool _isperspective);
+		glm::mat4 getProjMatrix();
 		glm::mat4 getPerspectiveProjMatrix();
 		glm::mat4 getOrthoProjMatrix() { m_projection = ortho_projection; isperspective = false; return ortho_projection; }
 		bool getHidden() { return hidden; }
@@ -150,7 +150,6 @@ namespace ifcre {
 
 		glm::mat4 m_projection;//the projection used currently
 		bool isperspective = true;
-
 		public:
 		struct {
 			int32_t horizontal_move = 0, vertical_move = 0;
@@ -189,14 +188,15 @@ namespace ifcre {
 		bool key_frame_stopper = true;
 
 		bool hidden = true;
-
+		bool hidden_match = false;
 		bool multichoose = false;
 
 		// the option of whether to open the drawing match
 		bool showDrawing = false;
 		bool openDrawingMatch = false;
-
+		bool proj_mat_match = false;
 	public:
+		bool _isperspectivecurrent = true;
 		//------ chosen list
 		std::set<uint32_t> chosen_list;
 

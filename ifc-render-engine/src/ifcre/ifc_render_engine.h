@@ -165,8 +165,6 @@ namespace ifcre {
 
 		bool trigger = false;
 
-		bool show_aerial_view = true;
-
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;

@@ -509,7 +509,7 @@ namespace ifcre {
 		glLineWidth(7.f);
 		use_clip_box->drawBox(false);
 		glDepthMask(GL_TRUE);
-		glLineWidth(3.f);
+		glLineWidth(1.5f);
 		_defaultConfig();
 	}
 

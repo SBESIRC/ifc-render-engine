@@ -443,51 +443,21 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS) {
             hidden = false;
         }
-        if (!hidden) {
-            if (glfwGetKey(m_window, GLFW_KEY_W) == GLFW_PRESS) {
-                //use_clip_plane.base_pos += use_clip_plane.moveSpeed * use_clip_plane.normal;
-                //use_clip_box.base_pos += use_clip_box.moveSpeed * use_clip_box.front;
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_S) == GLFW_PRESS) {
-                //use_clip_plane.base_pos -= use_clip_plane.moveSpeed * use_clip_plane.normal;
-                //use_clip_box.base_pos -= use_clip_box.moveSpeed * use_clip_box.front;
-            }
-            //rotate clipping box
-            //if (glfwGetKey(m_window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-            //    //use_clip_plane.rotateByFront(use_clip_plane.rotateSpeed);
-            //    use_clip_box.rotateByFront(use_clip_box.rotateSpeed);
-            //}
-            //if (glfwGetKey(m_window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            //    //use_clip_plane.rotateByFront(-use_clip_plane.rotateSpeed);
-            //    use_clip_box.rotateByFront(-use_clip_box.rotateSpeed);
-            //}
-            //if (glfwGetKey(m_window, GLFW_KEY_UP) == GLFW_PRESS) {
-            //    //use_clip_plane.rotateByRight(use_clip_plane.rotateSpeed);
-            //    use_clip_box.rotateByRight(use_clip_box.rotateSpeed);
-            //}
-            //if (glfwGetKey(m_window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            //    //use_clip_plane.rotateByRight(-use_clip_plane.rotateSpeed);
-            //    use_clip_box.rotateByRight(-use_clip_box.rotateSpeed);
-            //}
-            /*
-            if (glfwGetKey(m_window, GLFW_KEY_O) == GLFW_PRESS) {//-z increase
-                use_clip_box.updateBox(CLIPBOXUPDATE::back_inc);
-            }
-            else if (glfwGetKey(m_window, GLFW_KEY_P) == GLFW_PRESS) {//-z decrease
-                use_clip_box.updateBox(CLIPBOXUPDATE::back_dec);
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_U) == GLFW_PRESS) {//+x increase
-                use_clip_box.updateBox(CLIPBOXUPDATE::right_inc);
-            }
-            else if (glfwGetKey(m_window, GLFW_KEY_I) == GLFW_PRESS) {//+x decrease
-                use_clip_box.updateBox(CLIPBOXUPDATE::right_dec);
-            }
-            if (glfwGetKey(m_window, GLFW_KEY_K) == GLFW_PRESS) {//+y increase
-                use_clip_box.updateBox(CLIPBOXUPDATE::up_inc);
-            }
-            else if (glfwGetKey(m_window, GLFW_KEY_L) == GLFW_PRESS) {//+y decrease
-                use_clip_box.updateBox(CLIPBOXUPDATE::up_dec);
-            }*/
+
+        if (!hidden_match && glfwGetKey(m_window, GLFW_KEY_R) == GLFW_PRESS) {
+            hidden_match = true;
+            hidden = !hidden;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_R) == GLFW_RELEASE) {
+            hidden_match = false;
+        }
+
+        if (!proj_mat_match && glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_PRESS) {
+            proj_mat_match = true;
+            _isperspectivecurrent = !_isperspectivecurrent;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_RELEASE) {
+            proj_mat_match = false;
         }
 
         // drawing match shader option 
@@ -724,8 +694,8 @@ namespace ifcre {
         return glm::vec2(m_width, m_height);
     }
 
-    glm::mat4 RenderWindow::getProjMatrix(bool _isperspective) {
-        if (_isperspective)
+    glm::mat4 RenderWindow::getProjMatrix() {
+        if (_isperspectivecurrent)
             return getPerspectiveProjMatrix();
         else
             return getOrthoProjMatrix();
