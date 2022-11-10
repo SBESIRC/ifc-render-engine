@@ -19,7 +19,7 @@ namespace ifcre {
 		EngineAxis() {
 			float coord_axis[] = {
 				0.0, 0.0, 0.0,
-				1.0, 0.0, 0.0,	// x-axis
+				-1.0, 0.0, 0.0,	// x-axis
 				0.0, 0.0, 0.0,
 				0.0, 1.0, 0.0,	// y-axis
 				0.0, 0.0, 0.0,
