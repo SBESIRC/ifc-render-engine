@@ -157,7 +157,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
-			Vector<Real>(s / 3 * 10).swap(ver_attrib);//no!
+			Vector<Real>(s / 3 * 11).swap(ver_attrib);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];								// 位置.x
@@ -166,11 +166,13 @@ namespace ifcre {
 				ver_attrib[offset + i + 3] = g_normals[i];							// 法向量.x
 				ver_attrib[offset + i + 4] = g_normals[i + 1];						// 法向量.y
 				ver_attrib[offset + i + 5] = g_normals[i + 2];						// 法向量.z
-				ver_attrib[offset + i + 6] = g_kd_color[i];							// 颜色.x
-				ver_attrib[offset + i + 7] = g_kd_color[i + 1];						// 颜色.y
-				ver_attrib[offset + i + 8] = g_kd_color[i + 2];						// 颜色.z
-				ver_attrib[offset + i + 9] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // 所在物件的索引
-				offset += 7;
+				uint32_t color_ind = i / 3 * 4;
+				ver_attrib[offset + i + 6] = g_kd_color[color_ind];					// 颜色.r
+				ver_attrib[offset + i + 7] = g_kd_color[color_ind + 1];				// 颜色.g
+				ver_attrib[offset + i + 8] = g_kd_color[color_ind + 2];				// 颜色.b
+				ver_attrib[offset + i + 9] = g_kd_color[color_ind + 3];				// 颜色.a
+				ver_attrib[offset + i + 10] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // 所在物件的索引
+				offset += 8;
 			}
 			return ver_attrib;
 		}
@@ -189,16 +191,22 @@ namespace ifcre {
 		}
 
 		// add color attribute for each vertex
-		Vector<Real>& getVerColor() {
-			Vector<Real>(g_vertices.size()).swap(g_kd_color);
+		Vector<Real> getVerColor() {
+			g_kd_color.resize(g_vertices.size() / 3 * 4);
 			for (int i = 0; i < c_indices.size(); i++) {
 				for (int j = 0; j < c_indices[i].size(); j++) {
-					g_kd_color[3 * c_indices[i][j]] = material_data[i].kd.x;
-					g_kd_color[3 * c_indices[i][j] + 1] = material_data[i].kd.y;
-					g_kd_color[3 * c_indices[i][j] + 2] = material_data[i].kd.z;
+					g_kd_color[4 * c_indices[i][j]] = material_data[i].kd.x;
+					g_kd_color[4 * c_indices[i][j] + 1] = material_data[i].kd.y;
+					g_kd_color[4 * c_indices[i][j] + 2] = material_data[i].kd.z;
+					g_kd_color[4 * c_indices[i][j] + 3] = material_data[i].alpha;
 				}
 			}
 			return g_kd_color;
+		}
+
+		// not used
+		bool is_this_comp_transparency(uint32_t index) {
+			return material_data[index].alpha < .99;
 		}
 		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {

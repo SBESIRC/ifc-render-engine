@@ -119,7 +119,7 @@ namespace ifcre {
 		void bind_ui_to_window(RenderWindow& w) {
 			simpleui = make_shared<ClipBoxUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
 		}
-		void ui_update(SharedPtr<bool> mousemove, bool hidden) {
+		void ui_update(SharedPtr<bool> mousemove, bool hidden, float& global_alpha, float& trans_alpha) {
 			int my_key = last_clp_face_key - 26;
 			glm::vec2 this_face_normal = glm::vec2(0.f);
 			if (my_key >= 0) {
@@ -128,7 +128,10 @@ namespace ifcre {
 				this_face_normal = glm::vec2(temp.x, temp.y);/*
 				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
 			}
-			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.base_pos);
+			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.base_pos, global_alpha, trans_alpha);
+		}
+		void alpha_update() {
+
 		}
 		void bind_ui_to_clipbox() {
 			simpleui->bind_clip_box(use_clip_box);

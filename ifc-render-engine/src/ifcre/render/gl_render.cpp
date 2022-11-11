@@ -302,6 +302,9 @@ namespace ifcre {
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
@@ -371,6 +374,9 @@ namespace ifcre {
 			break;
 		}
 		case EDGE_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
@@ -380,6 +386,9 @@ namespace ifcre {
 			break;
 		}
 		case CHOSEN_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));

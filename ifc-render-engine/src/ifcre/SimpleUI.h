@@ -1,8 +1,5 @@
-﻿#pragma once
-
-#ifndef SIMPLEUI_H_
-#define SIMPLEUI_H_
-
+﻿#ifndef SIMPLEUI_H
+#define SIMPLEUI_H 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -105,7 +102,8 @@ namespace ifcre {
 		void bind_clip_box(SharedPtr<ClipBox> _clipbox) {
 			clipbox = _clipbox;
 		}
-		void updateFrame(SharedPtr<bool>& mousemove, bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos) {
+		void updateFrame(SharedPtr<bool>& mousemove, bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos
+			, float& global_alpha, float& trans_alpha) {
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
@@ -169,6 +167,14 @@ namespace ifcre {
 				/*ImGui::SameLine();
 				ImGui::Text("counter = %d", counter);*/
 				//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+				ImGui::End();
+			}
+
+			{
+				ImGui::Begin("Alpha test");
+				ImGui::Text("Control the alpha of each component.");
+				ImGui::SliderFloat("global_alpha", &global_alpha, .0f, 1.f);
+				ImGui::SliderFloat("trans_alpha", &trans_alpha, .0f, 1.f);
 				ImGui::End();
 			}
 

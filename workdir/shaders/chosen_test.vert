@@ -1,7 +1,7 @@
 #version 460
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
-layout(location = 2) in vec3 aColor;
+layout(location = 2) in vec4 aColor;
 layout(location = 3) in int aComp;
 
 layout(std140, binding = 0)uniform TransformsUBO{
@@ -14,7 +14,7 @@ layout(std140, binding = 0)uniform TransformsUBO{
 	vec4 drawing_plane;				// 352 ~ 368
 } ubo;
 
-layout(location = 0) out vec3 vGoColor;
+layout(location = 0) out vec4 vGoColor;
 layout(location = 1) out vec3 vNormal;
 out vec3 vFragPos;
 layout(location = 3) flat out int vComp;

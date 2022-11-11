@@ -167,6 +167,9 @@ namespace ifcre {
 
 		bool trigger = false;
 
+		float global_alpha = 1.f;
+		float trans_alpha = .3f;
+
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;

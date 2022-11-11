@@ -1,5 +1,5 @@
 #version 460
-layout(location = 0) in vec3 vGoColor;
+layout(location = 0) in vec4 vGoColor;
 layout(location = 1) in vec3 vNormal;
 in vec3 vFragPos;
 layout(location = 3) flat in int vComp;
@@ -29,15 +29,15 @@ void main()
 		
 	if(vDistanceM[6] > 0.03) discard;
 	
-	vec3 color = vGoColor;
+	vec4 color = vGoColor;
 	if (ubo.h_comp == vComp) {
-		color = vGoColor / 4 * 3 + vec3(0.0, 0.25, 0.0);
+		color = vGoColor / 4 * 3 + vec4(0.0, 0.25, 0.0, 0.0);
     }
 	vec3 norm = normalize(vNormal);
-	vec3 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;
+	//vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;
 
-	color = color * 0.7 + diffuse;
-    FragColor = vec4(color, ubo.alpha);
+	//color = color * 0.7 + diffuse;
+    FragColor = color;
 	float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);
-	if(k >.0 && ubo.alpha > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
+	if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
 }

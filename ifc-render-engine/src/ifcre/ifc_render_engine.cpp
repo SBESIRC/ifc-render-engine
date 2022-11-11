@@ -207,11 +207,14 @@ namespace ifcre {
 			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
 			if (try_ifc) {
 				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//上传数据vbo & ebo
-				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 10, (void*)0);						//位置
-				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 10, (void*)(3 * sizeof(Real)));		//法向量
-				model_vb->vertexAttribDesc(2, 3, sizeof(Real) * 10, (void*)(6 * sizeof(Real)));		//颜色
-				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 10, (void*)(9 * sizeof(Real)));		//所在物件的索引
-
+				// position 3
+				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 11, (void*)0);//位置
+				// normal 3
+				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 11, (void*)(3 * sizeof(Real)));//法向量
+				// color 4
+				model_vb->vertexAttribDesc(2, 4, sizeof(Real) * 11, (void*)(6 * sizeof(Real)));//颜色
+				// comp id 1
+				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 11, (void*)(10 * sizeof(Real)));//所在物件的索引
 				if (use_transparency) {
 					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
 					model_vb->uploadTransElements(ifc_test_model->trans_ind);
@@ -423,7 +426,7 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
 
 			//3. render transparency scene// 渲染透明的构件
-			m_render.setAlpha(0.3);
+			m_render.setAlpha(trans_alpha);
 			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
 			//4. render chosen scene, transparency// 渲染选中的透明构件
@@ -444,7 +447,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			m_render.ui_update(mousemove, m_window.getHidden());
+			m_render.ui_update(mousemove, m_window.getHidden(), global_alpha, trans_alpha);
 #endif
 			//8. render sup things
 			// render sky box
@@ -539,7 +542,7 @@ namespace ifcre {
 		m_render.setMirrorModelMatrix(ifc_test_model->getMirrorModelMatrix());
 		m_render.setModelViewMatrix(view * model_matrix);
 		m_render.setProjectionMatrix(m_window.getProjMatrix());
-		m_render.setAlpha(1.0);
+		m_render.setAlpha(global_alpha);
 		m_render.setCameraDirection(camera_forwad);
 		m_render.setCameraPos(camera_pos);
 		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
