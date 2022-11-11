@@ -175,6 +175,7 @@ namespace ifcre {
 			}
 		}
 
+		mousemove = make_shared<bool>(true);///////////////////////////////////////////
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
 			util::get_model_matrix_byBBX(ifc_test_model->getpMin(), ifc_test_model->getpMax(), ifc_test_model->bbx_model_mat, scale_factor);
@@ -377,15 +378,16 @@ namespace ifcre {
 
 #pragma region mouse work
 
-			if (!m_window.rotatelock) {
-				if (m_window.getHidden()) {
-					if (m_window.isMouseHorizontalRot()) {
-						m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
-					}
-					if (m_window.isMouseVerticalRot()) {
+			if (*mousemove && !m_window.rotatelock) {
+				/*if (m_window.getHidden()) {
 
-						m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
-					}
+				}*/
+				if (m_window.isMouseHorizontalRot()) {
+					m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
+				}
+				if (m_window.isMouseVerticalRot()) {
+
+					m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
 				}
 				if (m_window.isRightMouseClicked()) {
 					if (m_window.isMouseMove() && m_last_rmclick) {
@@ -442,7 +444,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			//m_render.ui_update(m_window.getHidden());
+			m_render.ui_update(mousemove, m_window.getHidden());
 #endif
 			//8. render sup things
 			// render sky box
@@ -478,7 +480,7 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//m_render.simpleui->render();
+			m_render.simpleui->render();
 			m_window.endRenderToWindow();
 		}
 		// post render

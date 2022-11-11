@@ -107,6 +107,8 @@ namespace ifcre {
 		int key;
 		int ui_key;
 		int clp_face_key;
+
+		SharedPtr<bool> mousemove;
 	private:
 		void drawFrame();
 		

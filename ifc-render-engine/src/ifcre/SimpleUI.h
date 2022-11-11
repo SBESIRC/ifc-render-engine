@@ -105,7 +105,7 @@ namespace ifcre {
 		void bind_clip_box(SharedPtr<ClipBox> _clipbox) {
 			clipbox = _clipbox;
 		}
-		void updateFrame(bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos) {
+		void updateFrame(SharedPtr<bool>& mousemove, bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos) {
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
@@ -116,47 +116,54 @@ namespace ifcre {
 
 			{
 				//static int counter = 0;
-				ImGui::Begin("Hello world!");
-				ImGui::Text("This is some useful text");
+				ImGui::Begin("Clipping information");
+				ImGui::Text("Use for clipping box & drawing plane.");
 				//ImGui::Checkbox("Demo window", &show_demo_window);
 				//ImGui::Checkbox("Another window", &show_another_window);
 
-				//ImGui::SliderFloat("float", &f, .0f, 1.f);
-				ImGui::ColorEdit3("clear color", (float*)&my_color); // Edit 3 floats representing a color
-				ImGui::DragFloat3("basepos", (float*)&base_pos, ishidden ? 0.f : .33f);
-				ImGui::DragFloat3("drawingplane_basepos", (float*)&drawingplane_pos, ishidden ? 0.f : .33f);
-				ImGui::DragFloat("width", (float*)&clipbox->width, ishidden ? 0.f : .33f, .01f, FLT_MAX);
-				ImGui::DragFloat("height", (float*)&clipbox->height, ishidden ? 0.f : .33f, .01f, FLT_MAX);
-				ImGui::DragFloat("length", (float*)&clipbox->length, ishidden ? 0.f : .33f, .01f, FLT_MAX);
-				if (update_face_key >= 0) {
-					ImGuiIO& io = ImGui::GetIO();
+				ImGuiIO& io = ImGui::GetIO();
+				if (io.WantCaptureMouse) {
+					*mousemove = false;
+					//ImGui::SliderFloat("float", &f, .0f, 1.f);
+					ImGui::ColorEdit3("clear color", (float*)&my_color); // Edit 3 floats representing a color
+					ImGui::DragFloat3("basepos", (float*)&base_pos, ishidden ? 0.f : .33f);
+					ImGui::DragFloat3("drawingplane_basepos", (float*)&drawingplane_pos, ishidden ? 0.f : .33f);
+					ImGui::DragFloat("width", (float*)&clipbox->width, ishidden ? 0.f : .33f, .01f, FLT_MAX);
+					ImGui::DragFloat("height", (float*)&clipbox->height, ishidden ? 0.f : .33f, .01f, FLT_MAX);
+					ImGui::DragFloat("length", (float*)&clipbox->length, ishidden ? 0.f : .33f, .01f, FLT_MAX);
+					if (update_face_key >= 0) {
 
-					ImGui::Button("forward");
-					if (ImGui::IsItemActive()) {
-						clipbox->updateBox(update_face_key * 2);
-
-					}
-					ImGui::Button("Drag me!");
-					if (ImGui::IsItemActive()) {
-						ImGui::GetForegroundDrawList()->AddLine(io.MouseClickedPos[0], io.MousePos, line_color);
-						ImVec2 mouse_drag_delta = ImGui::GetMouseDragDelta(0);//ImGui::GetMouseDragDelta(0, 0.0f);//io.MouseDelta;
-						/*float mddl = imvec2length(mouse_drag_delta);
-						float lddl = imvec2length(last_drag_delta);*/
-						ImVec2 div_of_this = ImVec2(mouse_drag_delta.x - last_drag_delta.x, last_drag_delta.y - mouse_drag_delta.y);
-
-						float times = imvec2glmvec2(div_of_this, this_normal);
-						if (/*mddl > lddl*/times > 0)
+						ImGui::Button("forward");
+						if (ImGui::IsItemActive()) {
 							clipbox->updateBox(update_face_key * 2);
-						else if (/*mddl < lddl*/times < 0)
-							clipbox->updateBox(update_face_key * 2 + 1);
 
-						last_drag_delta = mouse_drag_delta;
-					}
-					ImGui::Button("backward");
-					if (ImGui::IsItemActive()) {
-						clipbox->updateBox(update_face_key * 2 + 1);
+						}
+						ImGui::Button("Drag me!");
+						if (ImGui::IsItemActive()) {
+							ImGui::GetForegroundDrawList()->AddLine(io.MouseClickedPos[0], io.MousePos, line_color);
+							ImVec2 mouse_drag_delta = ImGui::GetMouseDragDelta(0);//ImGui::GetMouseDragDelta(0, 0.0f);//io.MouseDelta;
+							/*float mddl = imvec2length(mouse_drag_delta);
+							float lddl = imvec2length(last_drag_delta);*/
+							ImVec2 div_of_this = ImVec2(mouse_drag_delta.x - last_drag_delta.x, last_drag_delta.y - mouse_drag_delta.y);
+
+							float times = imvec2glmvec2(div_of_this, this_normal);
+							if (/*mddl > lddl*/times > 0)
+								clipbox->updateBox(update_face_key * 2);
+							else if (/*mddl < lddl*/times < 0)
+								clipbox->updateBox(update_face_key * 2 + 1);
+
+							last_drag_delta = mouse_drag_delta;
+						}
+						ImGui::Button("backward");
+						if (ImGui::IsItemActive()) {
+							clipbox->updateBox(update_face_key * 2 + 1);
+						}
 					}
 				}
+				else {
+					*mousemove = true;
+				}
+
 				//if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
 				//	counter++;
 				/*ImGui::SameLine();
