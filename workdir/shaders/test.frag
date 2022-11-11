@@ -1,10 +1,11 @@
 #version 460
 layout(location = 0) in vec3 vGoColor;
 layout(location = 1) in vec3 vNormal;
-layout(location = 2) in vec3 vFragPos;
+in vec3 vFragPos;
 layout(location = 3) flat in int vComp;
 layout(location = 4) in float vDistance;
 layout(location = 5) in float vDistanceM[7];
+in vec3 vNormal2;
 //layout(location = 6) in float dis_drawing_plane;
 
 layout(std140, binding = 1)uniform IFCRenderUBO{
@@ -36,6 +37,6 @@ void main()
 
 	color = color * 0.7 + diffuse;
     FragColor = vec4(color, ubo.alpha);
-	
-	if(vDistanceM[6] > 0.0) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
+	float k =-dot(ubo.cameraDirection,norm);
+	if(k <-.025) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
 }

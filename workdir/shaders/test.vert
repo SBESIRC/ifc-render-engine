@@ -16,10 +16,11 @@ layout(std140, binding = 0)uniform TransformsUBO{
 
 layout(location = 0) out vec3 vGoColor;
 layout(location = 1) out vec3 vNormal;
-layout(location = 2) out vec3 vFragPos;
+out vec3 vFragPos;
 layout(location = 3) flat out int vComp;
 layout(location = 4) out float vDistance;
 layout(location = 5) out float vDistanceM[7];
+out vec3 vNormal2;
 void main()
 {
 
@@ -37,7 +38,8 @@ void main()
 	}
 	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vComp = aComp;
-	vNormal = ubo.transpose_inv_model * aNormal;
+	//vNormal = ubo.transpose_inv_model * aNormal;
 	vNormal=aNormal;
+	vNormal2 = (ubo.view_model * vec4(aNormal, 1.0)).xyz;
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }
