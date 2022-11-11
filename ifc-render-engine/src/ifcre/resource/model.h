@@ -51,9 +51,9 @@ namespace ifcre {
 
 	class IFCModel {
 	public:
-		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices) {
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m) {
 			clock_t start, end;
-			start = clock();
+			//start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
@@ -70,13 +70,13 @@ namespace ifcre {
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
 			generate_edges_by_msMeshes();	// 生成边
-			end = clock();
-			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+			//end = clock();
+			//std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
 		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices,
 			Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) : //, Vector<uint32_t>& _comp_types) :
-			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices), edge_indices(_edge_indices) { //, comp_types(_comp_types) {
+			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) { //, comp_types(_comp_types) {
 			clock_t start, end;
 			start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
@@ -108,12 +108,8 @@ namespace ifcre {
 			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
 			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
 			for (mesh_simplier::Mesh mes : meshes) {
-#ifdef PAIRREP
 				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
 				c_edge_indices.emplace_back(mes.edge_indexp);
-#else
-				new_edge_index.insert(new_edge_index.end(), mes.edge_index.begin(), mes.edge_index.end());
-#endif
 			}
 			cur_edge_ind = edge_indices;
 			return edge_indices;
@@ -425,8 +421,7 @@ namespace ifcre {
 		}
 
 		void PrecomputingCubeDirection() {
-			m_cube_direction_transform.clear();
-			m_cube_direction_transform.resize(26, glm::vec3(0.f, 0.f, 0.f));
+			Vector<glm::vec3>(26, glm::vec3(0.f, 0.f, 0.f)).swap(m_cube_direction_transform);
 			/*glm::vec3 temp = pMax - pMin;
 			glm::vec3 div = temp / 2.f;
 			m_cube_direction_transform.push_back(-glm::vec3(div.x, 0., 0.));

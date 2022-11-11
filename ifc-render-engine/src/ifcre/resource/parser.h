@@ -195,17 +195,10 @@ namespace ifcre {
 			   is.close();
 		   }
 		   else {
-#if _DEBUG
-			   //file += ".midfile";
-			   //ifstream is(file.c_str(), std::ios::binary);
-			   //ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-			   //is.close();
-#else
 			   auto getmp = generateIFCMidfile(file);
 			   ifcsaver::save_data2OpenGL_into_binary(getmp, file + ".midfile");
 			   ifstream is((file + ".midfile").c_str(), std::ios::binary);
 			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-#endif
 		   }
 		   
 		   auto ret = make_shared<IFCModel>(ge);

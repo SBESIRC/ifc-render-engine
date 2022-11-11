@@ -560,8 +560,7 @@ namespace ifcre {
 				m_render_window->chosen_changed_x = true;
 			}
 			if (to_show_states == 0) {
-				Vector<CompState>().swap(ifc_test_model->comp_states);
-				ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), DUMP);
+				Vector<CompState>(ifc_test_model->c_indices.size(), DUMP).swap(ifc_test_model->comp_states);
 				Vector<uint32_t>().swap(ifc_test_model->cur_c_indices);
 			}
 			m_render_window->chosen_list.clear();
@@ -572,8 +571,7 @@ namespace ifcre {
 			}
 			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
 			m_render_window->geom_changed = true;
-			Vector<CompState>().swap(ifc_test_model->comp_states);
-			ifc_test_model->comp_states.resize(ifc_test_model->c_indices.size(), VIS);
+			Vector<CompState>(ifc_test_model->c_indices.size(), VIS).swap(ifc_test_model->comp_states);
 			ifc_test_model->cur_c_indices.clear();
 			for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
 				ifc_test_model->cur_c_indices.emplace_back(i);
