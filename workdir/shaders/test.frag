@@ -13,6 +13,7 @@ layout(std140, binding = 1)uniform IFCRenderUBO{
 	int c_comp;				// 4 ~ 8
 	int h_comp;				// 8 ~ 12
 	vec3 cameraDirection;	// 16 ~ 32
+	vec3 cameraPosition;	// 32 ~ 48
 } ubo;
 
 layout(location = 0) out vec4 FragColor;
@@ -37,6 +38,6 @@ void main()
 
 	color = color * 0.7 + diffuse;
     FragColor = vec4(color, ubo.alpha);
-	float k =-dot(ubo.cameraDirection,norm);
-	if(k <-.025) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
+	float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);
+	if(k >.0 && ubo.alpha > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
 }

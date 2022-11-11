@@ -15,7 +15,7 @@ namespace ifcre {
 	{
 		// mvp, trans_inv_model
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
-		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
+		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
 		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
@@ -310,9 +310,11 @@ namespace ifcre {
 			transformUBO.update(256, 96, m_clip_box.data());
 			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
 
+			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
 			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+			ifcRenderUBO.update(32, 12, glm::value_ptr(m_camera_pos));
 
 			m_test_shader->use();
 			break;
@@ -329,6 +331,7 @@ namespace ifcre {
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
 
+			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
 			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
@@ -1158,6 +1161,9 @@ namespace ifcre {
 	}
 	void GLRender::setCameraDirection(const glm::vec3& m_front) {
 		m_camera_front = m_front;
+	}
+	void GLRender::setCameraPos(const glm::vec3& m_pos) {
+		m_camera_pos = m_pos;
 	}
 	void GLRender::setCompId(const int& comp_id)
 	{

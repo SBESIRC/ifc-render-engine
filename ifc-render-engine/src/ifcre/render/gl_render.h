@@ -61,6 +61,7 @@ namespace ifcre {
 		void setCompId(const int& comp_id);
 		void setHoverCompId(const int& comp_id);
 		void setCameraDirection(const glm::vec3& m_front);
+		void setCameraPos(const glm::vec3& m_pos);
 		void setClippingPlane(const glm::vec4& clip_plane);
 		void updateOpenDrawingMatch(bool _flag);
 		void setClippingBox(const bool hidden);
@@ -144,8 +145,9 @@ namespace ifcre {
 		glm::mat4 mirror_model;
 		glm::mat4 m_view;
 		glm::mat4 m_projection;
-		float m_alpha;
+		float m_alpha = 1.0;
 		glm::vec3 m_camera_front;
+		glm::vec3 m_camera_pos;
 		int m_compId;
 		int m_hoverCompId;
 

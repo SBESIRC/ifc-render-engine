@@ -532,6 +532,7 @@ namespace ifcre {
 
 		glm::mat4 view = m_camera->getViewMatrix();
 		glm::vec3 camera_forwad = m_camera->getViewForward();
+		glm::vec3 camera_pos = m_camera->getViewPos();
 		m_render.setViewMatrix(view);
 		m_render.setModelMatrix(model_matrix);
 		m_render.setInitModelMatrix(model_matrix);
@@ -540,6 +541,7 @@ namespace ifcre {
 		m_render.setProjectionMatrix(m_window.getProjMatrix());
 		m_render.setAlpha(1.0);
 		m_render.setCameraDirection(camera_forwad);
+		m_render.setCameraPos(camera_pos);
 		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
 		m_render.setClippingBox(m_window.getHidden());
 		m_render.updateOpenDrawingMatch(m_window.getShowDrawing());
