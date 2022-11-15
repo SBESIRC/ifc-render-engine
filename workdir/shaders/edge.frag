@@ -12,7 +12,7 @@ void main()
 	}
 	if(vDistance<0.0)
 		discard;
-	if(vDistanceM[6] > 0.03) discard;
+	if(vDistanceM[6] > 0.0) discard;
 	
     FragColor = vGoColor;
 	//if(vDistanceM[6] > 0.0) FragColor = vec4(1.0, 0.6, 0.0, 1.0);

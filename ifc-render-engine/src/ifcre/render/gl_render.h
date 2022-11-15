@@ -130,7 +130,7 @@ namespace ifcre {
 				this_face_normal = glm::vec2(temp.x, temp.y);/*
 				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
 			}
-			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.base_pos, global_alpha, trans_alpha);
+			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha);
 		}
 		void alpha_update() {
 

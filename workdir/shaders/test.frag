@@ -26,7 +26,7 @@ void main()
 	if(vDistance<0.0)
 		discard;
 		
-	if(vDistanceM[6] > 0.03) discard;
+	if(vDistanceM[6] > 0.0) discard;
 	
 	vec4 color = vGoColor;
 	if (ubo.h_comp == vComp) {

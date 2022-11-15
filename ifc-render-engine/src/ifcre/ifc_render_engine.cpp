@@ -456,7 +456,7 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			m_render.ui_update(mousemove, m_window.getHidden(), global_alpha, trans_alpha);
+			m_render.ui_update(mousemove, m_window.getHidden() && !m_window.getShowDrawing(), global_alpha, trans_alpha);
 #endif
 			//8. render sup things
 			// render sky box
