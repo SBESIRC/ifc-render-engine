@@ -25,14 +25,15 @@ void main()
 	if(vDistance<0.0)
 		discard;
 	if(dis_drawing_plane > 0.0) discard;
-	vec4 color = vGoColor / 2.0 + vec4(0.0, 0.5, 0.0, 0.0);
+	vec3 color = vGoColor.rgb / 2.0 + vec3(0.0, 0.5, 0.0);
 	if (ubo.h_comp == vComp) {
-		color = vGoColor / 4.0 * 3.0 + vec4(0.0, 0.25, 0.0, 0.0);
+		color = vGoColor.rgb / 4.0 * 3.0 + vec3(0.0, 0.25, 0.0);
     }
 	vec3 norm = normalize(vNormal);
-	vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;
+	vec4 colorr = vec4(color.r, color.g, color.b, vGoColor.a);
+	vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * colorr * 0.3;
 
-	color = color * 0.7 + diffuse;
+	colorr = colorr * 0.7 + diffuse;
     //FragColor = vec4(color, ubo.alpha);
-	FragColor = color;
+	FragColor = colorr;
 }
