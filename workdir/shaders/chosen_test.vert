@@ -3,6 +3,7 @@ layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec4 aColor;
 layout(location = 3) in int aComp;
+layout(location = 4) in int alou;
 
 layout(std140, binding = 0)uniform TransformsUBO{
 	mat4 view_model;				// 0 ~ 64
@@ -12,7 +13,12 @@ layout(std140, binding = 0)uniform TransformsUBO{
 	mat4 model;						// 192 ~ 256
 	vec4 uUserClipBox[6];			// 256 ~ 352
 	vec4 drawing_plane;				// 352 ~ 368
+						// 368 ~ 432
 } ubo;
+
+layout(std140, binding = 3)uniform StoreyOffsetTransformUBO{
+	mat4 storeyOffset_mat[100];		// 0 ~ 6400
+} sotubo;
 
 layout(location = 0) out vec4 vGoColor;
 layout(location = 1) out vec3 vNormal;
@@ -26,7 +32,7 @@ void main()
 
 	vGoColor = aColor;
 	vec4 p = vec4(aPos, 1.0);
-	vec4 eyePos = ubo.model * p;
+	vec4 eyePos = ubo.model * sotubo.storeyOffset_mat[alou] * p;
 	vFragPos = eyePos.xyz;
 	vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;
 	for(int i=0;i<6;i++){
@@ -38,7 +44,7 @@ void main()
 	}
 	dis_drawing_plane = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vComp = aComp;
-	vNormal = ubo.transpose_inv_model * aNormal;
-	vNormal=aNormal;
-	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
+	//vNormal = ubo.transpose_inv_model * aNormal;
+	vNormal = aNormal;
+	gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[alou] * vec4(aPos, 1.0);
 }

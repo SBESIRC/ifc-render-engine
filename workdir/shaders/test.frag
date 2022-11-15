@@ -5,7 +5,6 @@ in vec3 vFragPos;
 layout(location = 3) flat in int vComp;
 layout(location = 4) in float vDistance;
 layout(location = 5) in float vDistanceM[7];
-in vec3 vNormal2;
 //layout(location = 6) in float dis_drawing_plane;
 
 layout(std140, binding = 1)uniform IFCRenderUBO{

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_UNIFORM_BUFFER_H_
 #define IFCRE_UNIFORM_BUFFER_H_
 
@@ -14,6 +14,7 @@ namespace ifcre {
 		SharedPtr<GLUniformBuffer> transformsUBO;		// index 0
 		SharedPtr<GLUniformBuffer> ifcRenderUBO;		// index 1
 		SharedPtr<GLUniformBuffer> transformMVPUBO;		// index 2
+		SharedPtr<GLUniformBuffer> StoreyOffsetTransformUBO;
 	};
 
 	class GLUniformBuffer {

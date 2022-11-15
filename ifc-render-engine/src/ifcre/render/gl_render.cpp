@@ -17,12 +17,14 @@ namespace ifcre {
 		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
 		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8);
+		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
 		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->bindRange(3);
 
-//#ifdef _DEBUG
+#ifdef _DEBUG
 		// program init
 		String v_image_effect = util::read_file("shaders/image_effect.vert");
 		String f_image_effect = util::read_file("shaders/image_effect.frag");
@@ -96,40 +98,47 @@ namespace ifcre {
 		String f_drawing = util::read_file("shaders/drawing_match.frag");
 		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
 
-//#else 
-//		// program init
-//		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
-//		m_normal_depth_program = make_unique<GLSLProgram>(sc::v_normal_depth_write, sc::f_normal_depth_write);
-//		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
-//		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
-//		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
-//		m_chosen_shader = make_unique<GLSLProgram>(sc::v_chosen_test, sc::f_chosen_test);
-//		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
-//		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
-//		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
-//		m_clip_plane_UI_shader = make_unique<GLSLProgram>(sc::v_clp_ui_plane, sc::f_clp_ui_plane);
-//		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
-//		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
-//		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
-//		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
-//		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
-//		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
-//		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
-//		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
-//#endif
+#else 
+		// program init
+		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
+		m_normal_depth_program = make_unique<GLSLProgram>(sc::v_normal_depth_write, sc::f_normal_depth_write);
+		m_comp_id_program = make_unique<GLSLProgram>(sc::v_comp_id_write, sc::f_comp_id_write);
+		m_axis_shader = make_unique<GLSLProgram>(sc::v_axis, sc::f_axis);
+		m_test_shader = make_unique<GLSLProgram>(sc::v_test, sc::f_test);
+		m_chosen_shader = make_unique<GLSLProgram>(sc::v_chosen_test, sc::f_chosen_test);
+		m_select_bbx_shader = make_unique<GLSLProgram>(sc::v_bbx, sc::f_bbx);
+		m_edge_shader = make_unique<GLSLProgram>(sc::v_edge, sc::f_edge);
+		m_clip_plane_shader = make_unique<GLSLProgram>(sc::v_clp_plane, sc::f_clp_plane);
+		m_clip_plane_UI_shader = make_unique<GLSLProgram>(sc::v_clp_ui_plane, sc::f_clp_ui_plane);
+		m_collision_shader = make_unique<GLSLProgram>(sc::v_collision, sc::f_collision);
+		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
+		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
+		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
+		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
+		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
+		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
+		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
+#endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+		m_test_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_chosen_shader->bindUniformBlock("TransformsUBO", 0);
 		m_chosen_shader->bindUniformBlock("IFCRenderUBO", 1);
+		m_chosen_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_collision_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+
+		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
@@ -1209,5 +1218,9 @@ namespace ifcre {
 		sxaswd1.x = (1. + sxaswd1.x) / 2 * window_width;
 		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
 		return glm::vec3(sxaswd1);
+	}
+	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats)
+	{
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());
 	}
 } 

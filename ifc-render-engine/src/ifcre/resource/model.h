@@ -157,7 +157,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
-			Vector<Real>(s / 3 * 11).swap(ver_attrib);//no!
+			Vector<Real>(s / 3 * 12).swap(ver_attrib);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];								// 位置.x
@@ -172,7 +172,8 @@ namespace ifcre {
 				ver_attrib[offset + i + 8] = g_kd_color[color_ind + 2];				// 颜色.b
 				ver_attrib[offset + i + 9] = g_kd_color[color_ind + 3];				// 颜色.a
 				ver_attrib[offset + i + 10] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // 所在物件的索引
-				offset += 8;
+				ver_attrib[offset + i + 11] = util::int_as_float(1);				// 楼层信息
+				offset += 9;
 			}
 			return ver_attrib;
 		}
