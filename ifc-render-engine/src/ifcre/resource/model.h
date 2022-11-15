@@ -51,7 +51,10 @@ namespace ifcre {
 
 	class IFCModel {
 	public:
-		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts), g_normals(datas.vert_normals2), c_indices(datas.search_m) {
+		// generate IFCModel through datas2OpenGL, basically used currently
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts),
+			g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices),
+			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey) {
 			clock_t start, end;
 			//start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
@@ -66,12 +69,79 @@ namespace ifcre {
 			}
 			getVerColor();					// 生成顶点颜色数组
 			generateCompIds();				// 生成顶点到其包含物件的映射
+			generateStoreyIds();
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
 			generate_edges_by_msMeshes();	// 生成边
 			//end = clock();
 			//std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+		}
+		// generate IFCModel using myownfile.dll directly, not used anymore
+		IFCModel(const String ifc_file_name) {
+			const String filename = ifc_file_name;
+
+			std::ifstream is(filename.c_str(), std::ios::binary);
+			if (!is.is_open()) {
+				std::cout << filename << " opened failed.\n";
+				exit(-1);
+			}
+
+			//vertices
+			size_t s;
+			is.read((char*)&s, sizeof(size_t));
+			this->g_vertices.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&this->g_vertices[i], sizeof(Real));
+			}
+			//normals
+			is.read((char*)&s, sizeof(size_t));
+			this->g_normals.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&this->g_normals[i], sizeof(Real));
+			}
+
+			//global_indices
+			is.read((char*)&s, sizeof(size_t));
+			this->g_indices.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&this->g_indices[i], sizeof(unsigned int));
+				this->g_indices[i]--;
+			}
+			//components' indices
+			is.read((char*)&s, sizeof(size_t));
+			size_t tmps;
+			c_indices.resize(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&tmps, sizeof(size_t));
+				Vector<uint32_t> tmpvc(tmps);
+				for (int j = 0; j < tmps; j++) {
+					is.read((char*)&tmpvc[j], sizeof(unsigned int));
+					tmpvc[j]--;
+				}
+				c_indices[i] = tmpvc;
+			}
+
+			//material datas
+			is.read((char*)&s, sizeof(size_t));
+			material_data.resize(s);
+			Vector<MtlData> mat_vec(s);
+			for (int i = 0; i < s; i++) {
+				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
+				is.read((char*)&mat_vec[i].data[7], sizeof(int));
+			}
+			for (int i = 0; i < s; i++) {
+				material_data[i] = MaterialData(
+					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
+					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
+					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
+			}
+			getVerColor();
+			generateStoreyIds();
+			generateCompIds();
+			generate_bbxs_by_comps();
+			getVerAttrib();
+			divide_model_by_alpha();
 		}
 
 		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices,
@@ -172,7 +242,7 @@ namespace ifcre {
 				ver_attrib[offset + i + 8] = g_kd_color[color_ind + 2];				// 颜色.b
 				ver_attrib[offset + i + 9] = g_kd_color[color_ind + 3];				// 颜色.a
 				ver_attrib[offset + i + 10] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // 所在物件的索引
-				ver_attrib[offset + i + 11] = util::int_as_float(1);				// 楼层信息
+				ver_attrib[offset + i + 11] = util::int_as_float(comp_storey_ids[i / 3]);// 楼层信息
 				offset += 9;
 			}
 			return ver_attrib;
@@ -187,6 +257,19 @@ namespace ifcre {
 				int s = ix.size();
 				for (int j = 0; j < s; j++) {
 					comp_ids[ix[j]] = i;
+				}
+			}
+		}
+
+		void generateStoreyIds() {
+			comp_storey_ids.resize(g_vertices.size() / 3);
+			int j = 0;
+			for (int i = 0; i < c_indices.size(); i++)
+			{
+				auto ix = c_indices[i];
+				int s = ix.size();
+				for (int j = 0; j < s; j++) {
+					comp_storey_ids[ix[j]] =/*this components storey id*/this_comp_belongs_to_which_storey[i];
 				}
 			}
 		}
@@ -565,6 +648,9 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
 		Vector<Vector<uint32_t>> c_edge_indices;//ebos of edge, generated after generate_edges_by_msMeshes();
 
+		Vector<Vector<uint32_t>> storeys_comp_id;//storeys_comp_id[x] stores all components' id of No.x storey
+		Vector<int> this_comp_belongs_to_which_storey;//this_comp_belongs_to_which_storey[x] means No.x component belongs to No.this_comp_belongs_to_which_storey[x] storey
+
 		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
@@ -599,6 +685,7 @@ namespace ifcre {
 
 		Vector<bool> is_trans;
 		Vector<glm::vec3> m_cube_direction_transform;
+		Vector<int> comp_storey_ids;// length = num of components; Component no.xxx's storey id is comp_storey_ids[xxx]
 	};
 	
 

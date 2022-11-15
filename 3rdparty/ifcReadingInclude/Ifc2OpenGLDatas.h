@@ -61,6 +61,9 @@ struct Datas4Component {
     std::string guid;
     std::string type;
 
+    std::string storey_name;
+    int storey_index;
+
     std::vector<Properties> propertySet;
 
 };
@@ -72,6 +75,13 @@ struct Datas2OpenGL {
     std::vector<real_t> verts;
     std::vector<real_t> vert_normals2;
     std::vector<Material_new> face_mat;
+
+    std::unordered_map<std::string, int> storey_map_string2int;
+    std::unordered_map<int, std::string> storey_map_int2string;
+
+    std::vector<std::vector<unsigned int>> storeys_component_id;
+
+    std::vector<int> this_comp_belongs_to_which_storey;
 
     std::vector<Datas4Component> componentDatas;
 };

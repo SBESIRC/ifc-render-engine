@@ -67,6 +67,46 @@ namespace ifcsaver {
 		}
 	}
 
+	template <typename T>
+	void save_unordered_map_into_binary(const unordered_map<T, string>& source, ofstream& os) {
+		size_t s = source.size();
+		os.write((const char*)&s, sizeof(size_t));
+		for (auto& pset : source) {
+			save_meta_into_binary<T>(pset.first, os);
+			save_string_into_binary(pset.second, os);
+		}
+	}
+
+	template <typename T> unordered_map<T, string> read_unordered_map_from_binary_1(ifstream& is) {
+		unordered_map<T, string> ret;
+		size_t s = read_meta_from_binary<size_t>(is);
+		for (size_t i = 0; i < s; i++) {
+			T first = read_meta_from_binary<T>(is);
+			ret[first] = read_string_from_binary(is);
+		}
+		return ret;
+	}
+
+	template <typename T>
+	void save_unordered_map_into_binary(const unordered_map<string, T>& source, ofstream& os) {
+		size_t s = source.size();
+		os.write((const char*)&s, sizeof(size_t));
+		for (auto& pset : source) {
+			save_meta_into_binary<T>(pset.second, os);
+			save_string_into_binary(pset.first, os);
+		}
+	}
+
+	template <typename T> unordered_map<string, T> read_unordered_map_from_binary_2(ifstream& is) {
+		unordered_map<string, T> ret;
+		size_t s = read_meta_from_binary<size_t>(is);
+		for (size_t i = 0; i < s; i++) {
+			string first = read_string_from_binary(is);
+			ret[first] = read_meta_from_binary<T>(is);
+		}
+		return ret;
+	}
+
 	unordered_map<string, string> read_properties_from_binary(ifstream& is) {
 		unordered_map<string, string> ret;
 		size_t s = read_meta_from_binary<size_t>(is);
@@ -93,6 +133,10 @@ namespace ifcsaver {
 		for (auto& pset : source.propertySet) {
 			save_properties_into_binary(pset.propertySet, os);
 		}
+
+		// 22.10.27 updated, add storey information
+		save_string_into_binary(source.storey_name, os);
+		save_meta_into_binary<int>(source.storey_index, os);
 	}
 
 	Datas4Component read_datas4Component_from_binary(ifstream& is) {
@@ -112,6 +156,11 @@ namespace ifcsaver {
 			ret.propertySet[i].propertySet.clear();
 			ret.propertySet[i].propertySet = read_properties_from_binary(is);
 		}
+
+		// 22.10.27 updated, add storey information
+		ret.storey_name = read_string_from_binary(is);
+		ret.storey_index = read_meta_from_binary<int>(is);
+
 		return ret;
 	}
 
@@ -133,6 +182,17 @@ namespace ifcsaver {
 		for (size_t i = 0; i < s; i++) {
 			save_datas4Component_into_binary(source.componentDatas[i], os);
 		}
+
+		// 22.10.27 updated, add storey information
+		s = source.storeys_component_id.size();
+		save_meta_into_binary<size_t>(s, os);
+		for (size_t i = 0; i < s; i++) {
+			save_vector_into_binary<unsigned int>(source.storeys_component_id[i], os);
+		}
+		save_unordered_map_into_binary<int>(source.storey_map_string2int, os);
+		save_unordered_map_into_binary<int>(source.storey_map_int2string, os);
+		save_vector_into_binary<int>(source.this_comp_belongs_to_which_storey, os);
+
 		os.close();
 	}
 
@@ -152,6 +212,16 @@ namespace ifcsaver {
 		for (size_t i = 0; i < ret.componentDatas.size(); i++) {
 			ret.componentDatas[i] = read_datas4Component_from_binary(is);
 		}
+
+		// 22.10.27 updated, add storey information
+		ret.storeys_component_id.resize(read_meta_from_binary<size_t>(is));
+		for (size_t i = 0; i < ret.storeys_component_id.size(); i++) {
+			ret.storeys_component_id[i] = read_vector_from_binary<unsigned int>(is);
+		}
+		ret.storey_map_string2int = read_unordered_map_from_binary_2<int>(is);
+		ret.storey_map_int2string = read_unordered_map_from_binary_1<int>(is);
+		ret.this_comp_belongs_to_which_storey = read_vector_from_binary<int>(is);
+
 		return ret;
 	}
 #ifdef _DEBUG
