@@ -27,10 +27,11 @@ void main()
 {
 	vGoColor = vec4(aColor.xyz * 0.5, aColor.w);
 	vec4 p = vec4(aPos, 1.0);
-	//if(showTileView)
-	//	vec4 eyePos = ubo.model * sotubo.storeyOffset_mat[sotubo.floorIndex[alou]] * p;
-	//else
-		vec4 eyePos = ubo.model * p;
+	vec4 eyePos;
+	if(ubo.showTileView > 0)
+		eyePos = ubo.model * sotubo.storeyOffset_mat[alou] * p;
+	else
+		eyePos = ubo.model * p;
 	vDistance = dot(eyePos.xyz, ubo.clip_plane.xyz) - ubo.clip_plane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
@@ -40,8 +41,8 @@ void main()
 		//}
 	}
 	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
-	//if(showTileView)
-	//	gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[sotubo.floorIndex[alou]] * vec4(aPos, 1.0);
-	//else
+	if(ubo.showTileView > 0)
+		gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[alou] * vec4(aPos, 1.0);
+	else
 		gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }

@@ -14,9 +14,9 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7 + sizeof(int));
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7 + 4);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + sizeof(int));
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + 4);
 		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100 + sizeof(int) * 100);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
@@ -139,6 +139,7 @@ namespace ifcre {
 
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_select_bbx_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
@@ -302,7 +303,8 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
-			transformUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+			transformMVPUBO.update(256, 4, &m_TileView);
 			m_comp_id_program->use();
 			break;
 		}
@@ -379,6 +381,7 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformMVPUBO.update(240, 4, &m_TileView);
 			m_select_bbx_shader->use();
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
 			//m_select_bbx_shader->setMat4("projection", m_projection);
@@ -427,6 +430,8 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -1142,8 +1147,8 @@ namespace ifcre {
 		return id;
 	}
 
-	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
-		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
+	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices, const Vector<uint32_t>& floors) {
+		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices, floors);
 	}
 
 	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
@@ -1212,9 +1217,16 @@ namespace ifcre {
 			m_drawing_match_plane = hidden_drawing_plane;
 	}
 
-	void GLRender::TileView(bool _flag)
+	void GLRender::TileView(bool show)
 	{
-		m_TileView = _flag;
+		if (show) {
+			m_TileView = 1;
+			//std::cout << "open tile view " << m_TileView <<  std::endl;
+		}
+		else {
+			m_TileView = 0;
+			//std::cout << "close tile view " << m_TileView << std::endl;
+		}
 	}
 
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
@@ -1231,6 +1243,6 @@ namespace ifcre {
 	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<uint32_t>& floorIndex)
 	{
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
-		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, offsets_mats.data());			// real floor index to sort floor
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
 	}
 } 

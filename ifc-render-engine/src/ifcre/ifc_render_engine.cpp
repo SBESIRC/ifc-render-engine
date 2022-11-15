@@ -450,7 +450,11 @@ namespace ifcre {
 			if (m_window.getClickCompId() >= 0) {
 				auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
 				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
-				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx);
+
+				Vector<uint32_t> floors;
+				for (auto it = m_window.chosen_list.begin(); it != m_window.chosen_list.end(); it++)
+					floors.push_back(ifc_test_model->this_comp_belongs_to_which_storey[*it]);
+				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx, floors);
 
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
