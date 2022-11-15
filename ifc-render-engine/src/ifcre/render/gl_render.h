@@ -64,11 +64,12 @@ namespace ifcre {
 		void setCameraPos(const glm::vec3& m_pos);
 		void setClippingPlane(const glm::vec4& clip_plane);
 		void updateOpenDrawingMatch(bool _flag);
+		void TileView(bool _flag);						// tile view
 		void setClippingBox(const bool hidden);
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 
-		void upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats);
+		void upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<uint32_t>& floorIndex);
 		// --------------- render ----------------------
 		void render(uint32_t render_id, RenderTypeEnum type);
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
@@ -160,6 +161,8 @@ namespace ifcre {
 		Vector<glm::vec4> m_clip_box;// m_clip_box.size() MUST be 6!
 
 		glm::vec4 m_drawing_match_plane;	// drawing match shader test ----------
+
+		bool m_TileView = false;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;

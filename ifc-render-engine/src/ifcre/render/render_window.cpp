@@ -471,6 +471,17 @@ namespace ifcre {
             openDrawingMatch = false;
         }
 
+        // tile view
+        if (!openTileView && glfwGetKey(m_window, GLFW_KEY_2) == GLFW_PRESS)
+        {
+            openTileView = true;
+            showTileView = !showTileView;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_2) == GLFW_RELEASE)
+        {
+            openTileView = false;
+        }
+
         if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
             trigger = true;
         }

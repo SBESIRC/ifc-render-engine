@@ -22,7 +22,7 @@ namespace ifcsaver {
 		os.write(source.c_str(), s);
 	}
 
-	std::string read_string_from_binary(ifstream& is) {
+	string read_string_from_binary(ifstream& is) {
 		size_t s;
 		char str[10000];
 		is.read((char*)&s, sizeof(size_t));
@@ -58,15 +58,6 @@ namespace ifcsaver {
 		return ret;
 	}
 
-	void save_properties_into_binary(const unordered_map<string, string>& source, ofstream& os) {
-		size_t s = source.size();
-		os.write((const char*)&s, sizeof(size_t));
-		for (auto& pset : source) {
-			save_string_into_binary(pset.first, os);
-			save_string_into_binary(pset.second, os);
-		}
-	}
-
 	template <typename T>
 	void save_unordered_map_into_binary(const unordered_map<T, string>& source, ofstream& os) {
 		size_t s = source.size();
@@ -92,8 +83,8 @@ namespace ifcsaver {
 		size_t s = source.size();
 		os.write((const char*)&s, sizeof(size_t));
 		for (auto& pset : source) {
-			save_meta_into_binary<T>(pset.second, os);
 			save_string_into_binary(pset.first, os);
+			save_meta_into_binary<T>(pset.second, os);
 		}
 	}
 
@@ -105,6 +96,15 @@ namespace ifcsaver {
 			ret[first] = read_meta_from_binary<T>(is);
 		}
 		return ret;
+	}
+
+	void save_properties_into_binary(const unordered_map<string, string>& source, ofstream& os) {
+		size_t s = source.size();
+		os.write((const char*)&s, sizeof(size_t));
+		for (auto& pset : source) {
+			save_string_into_binary(pset.first, os);
+			save_string_into_binary(pset.second, os);
+		}
 	}
 
 	unordered_map<string, string> read_properties_from_binary(ifstream& is) {

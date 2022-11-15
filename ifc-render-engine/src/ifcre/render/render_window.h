@@ -65,6 +65,7 @@ namespace ifcre {
 		int get_height() { return m_height; }
 
 		bool getShowDrawing() { return showDrawing; }	// drawing match shader
+		bool getShowTileView() { return showTileView; }	// tile view
 
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
@@ -194,6 +195,10 @@ namespace ifcre {
 		// the option of whether to open the drawing match
 		bool showDrawing = false;
 		bool openDrawingMatch = false;
+
+		bool showTileView = false;
+		bool openTileView = false;
+
 		bool proj_mat_match = false;
 	public:
 		bool _isperspectivecurrent = true;

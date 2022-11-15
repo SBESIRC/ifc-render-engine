@@ -54,8 +54,9 @@ namespace ifcre {
 		// generate IFCModel through datas2OpenGL, basically used currently
 		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts),
 			g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices),
-			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey) {
-			clock_t start, end;
+			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey),
+				storeys_comp_id(datas.storeys_component_id) {
+				clock_t start, end;
 			//start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
 			
@@ -71,6 +72,8 @@ namespace ifcre {
 			generateCompIds();				// 生成顶点到其包含物件的映射
 			generateStoreyIds();
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
+			generate_bbxs_each_floor();
+			cal_tile_matrix();
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
 			generate_edges_by_msMeshes();	// 生成边
@@ -140,6 +143,8 @@ namespace ifcre {
 			generateStoreyIds();
 			generateCompIds();
 			generate_bbxs_by_comps();
+			generate_bbxs_each_floor();
+			cal_tile_matrix();
 			getVerAttrib();
 			divide_model_by_alpha();
 		}
@@ -475,6 +480,42 @@ namespace ifcre {
 			}
 		}*/
 
+		void generate_bbxs_each_floor() {								// generate each floor's bbxs and sorting
+			for (int i = 0; i < storeys_comp_id.size(); i++) {
+				std::set<uint32_t> temp_comp_indices;
+				for (int j = 0; j < storeys_comp_id[i].size(); j++) {
+					temp_comp_indices.insert(storeys_comp_id[i][j]);
+				}
+				Vector<Real> bbx_floor = generate_bbxs_bound_by_vec(temp_comp_indices);		// floor's component's bbx
+				bbx_floor.push_back(i);														// add the current floor number
+				bbxs_each_floor.push_back(bbx_floor);
+			}
+
+			std::sort(bbxs_each_floor.begin(), bbxs_each_floor.end(), [](Vector<Real>a, Vector<Real>b) { return a[1] < b[1]; });	// Ascending by y-axis
+
+			Vector<uint32_t> floorIndex(100, 0);
+			for (int i = 0; i < bbxs_each_floor.size(); i++) {			// let the real floor number index to the sorted floor number
+				int id = bbxs_each_floor[i][6];							// the real floor number
+				floorIndex[id] = i;
+				bbxs_each_floor[i].pop_back();
+			}
+			realFloor2sortFloor = floorIndex;
+		}
+
+		void cal_tile_matrix() {
+			float max_delta_z = 0;
+			float scale = 2.0;
+			for (int i = 0; i < bbxs_each_floor.size(); i++) {
+				max_delta_z = std::max(max_delta_z, bbxs_each_floor[i][5] - bbxs_each_floor[i][2]);
+			}
+			for (int i = 0; i < bbxs_each_floor.size(); i++) {
+				float delta_y = bbxs_each_floor[i][1] - bbxs_each_floor[0][1];
+				glm::mat4 model(1.f);
+				model = glm::translate(model, glm::vec3(0, -delta_y, -max_delta_z * scale * i));
+				tile_matrix.push_back(model);
+			}
+		}
+
 		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;
 			for (auto i : input_comp_ids) {
@@ -510,6 +551,14 @@ namespace ifcre {
 
 		glm::vec3 getModelCenter() {
 			return m_center;
+		}
+
+		Vector<glm::mat4> tile_offsets_mats() {
+			return tile_matrix;
+		}
+
+		Vector<uint32_t> floorIndex() {
+			return realFloor2sortFloor;
 		}
 
 		void PrecomputingCubeDirection() {
@@ -666,6 +715,10 @@ namespace ifcre {
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
 
 		glm::mat4 bbx_model_mat;
+
+		Vector <Vector<Real> > bbxs_each_floor;	// each element have six member // e.g (pmin[0], pmin[1], pmin[2], pmax[0], pmax[1], pmax[2])
+		Vector <uint32_t> realFloor2sortFloor;		// the real floor number index to the sorted floor number
+		Vector <glm::mat4> tile_matrix;			// tile view matrix
 
 		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
 		//Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w

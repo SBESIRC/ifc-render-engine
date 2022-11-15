@@ -14,10 +14,10 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7 + sizeof(int));
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8);
-		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100);
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + sizeof(int));
+		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100 + sizeof(int) * 100);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
@@ -321,6 +321,7 @@ namespace ifcre {
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
 			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -363,6 +364,7 @@ namespace ifcre {
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
 			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -391,6 +393,7 @@ namespace ifcre {
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
 			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+			transformMVPUBO.update(256, 4, &m_TileView);
 			m_edge_shader->use();
 			break;
 		}
@@ -405,6 +408,7 @@ namespace ifcre {
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
 			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -1208,6 +1212,11 @@ namespace ifcre {
 			m_drawing_match_plane = hidden_drawing_plane;
 	}
 
+	void GLRender::TileView(bool _flag)
+	{
+		m_TileView = _flag;
+	}
+
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
 		return m_projection * m_modelview * a;
 	}
@@ -1219,8 +1228,9 @@ namespace ifcre {
 		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
 		return glm::vec3(sxaswd1);
 	}
-	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats)
+	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<uint32_t>& floorIndex)
 	{
-		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, offsets_mats.data());			// real floor index to sort floor
 	}
 } 
