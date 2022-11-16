@@ -30,10 +30,10 @@ void main()
 		color = vGoColor.rgb / 4.0 * 3.0 + vec3(0.0, 0.25, 0.0);
     }
 	vec3 norm = normalize(vNormal);
-	vec4 colorr = vec4(color.r, color.g, color.b, vGoColor.a);
-	vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * colorr * 0.3;
+	//vec4 colorr = vec4(color.r, color.g, color.b, vGoColor.a);
+	vec3 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;
 
-	colorr = colorr * 0.7 + diffuse;
+	color = color * 0.7 + diffuse;
     //FragColor = vec4(color, ubo.alpha);
-	FragColor = colorr;
+	FragColor = vec4(color, vGoColor.a);
 }

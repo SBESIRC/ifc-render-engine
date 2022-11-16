@@ -101,11 +101,11 @@ namespace ifcre {
 			"color = vGoColor.rgb / 4.0 * 3.0 + vec3(0.0, 0.25, 0.0);\r\n"
 			"}\r\n"
 			"vec3 norm = normalize(vNormal);\r\n"
-			"vec4 colorr = vec4(color.r, color.g, color.b, vGoColor.a);\r\n"
-			"vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * colorr * 0.3;\r\n"
-			"colorr = colorr * 0.7 + diffuse;\r\n"
+			"//vec4 colorr = vec4(color.r, color.g, color.b, vGoColor.a);\r\n"
+			"vec3 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;\r\n"
+			"color = color * 0.7 + diffuse;\r\n"
 			"//FragColor = vec4(color, ubo.alpha);\r\n"
-			"FragColor = colorr;\r\n"
+			"FragColor = vec4(color, vGoColor.a);\r\n"
 			"}\r\n";
 
 		static const char* v_chosen_test = "#version 460\r\n"

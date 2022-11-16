@@ -665,7 +665,14 @@ namespace ifcre {
 		glm::mat4 model_mat;
 		Real scaler = 0;
 		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
-		ifc_test_model->setModelMatrix(model_mat);
+		//ifc_test_model->setModelMatrix(model_mat);
+		if (m_render_window->getShowTileView()) {
+			glm::mat4 trans = ifc_test_model->tile_matrix[ifc_test_model->this_comp_belongs_to_which_storey[*m_render_window->chosen_list.begin()]];
+			ifc_test_model->setModelMatrix(model_mat * util::inverse_mat4(trans));
+		}
+		else {
+			ifc_test_model->setModelMatrix(model_mat);
+		}
 		ifc_test_model->setScaleFactor(scaler);
 		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
 	}
