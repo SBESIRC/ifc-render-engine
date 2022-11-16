@@ -47,7 +47,7 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- ----- -----
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
-		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices, const Vector<uint32_t>& floors);
+		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
 
@@ -65,6 +65,7 @@ namespace ifcre {
 		void setClippingPlane(const glm::vec4& clip_plane);
 		void updateOpenDrawingMatch(bool _flag);
 		void TileView(bool show);						// tile view
+		void setStoreyMat(glm::mat4 matrix);
 		void setClippingBox(const bool hidden);
 		glm::vec4 get_test_matrix(const glm::vec4& a) const;
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
@@ -163,6 +164,7 @@ namespace ifcre {
 		glm::vec4 m_drawing_match_plane;	// drawing match shader test ----------
 
 		int m_TileView;
+		glm::mat4 storeyOffset_mat;
 
 		// --------------- glsl program -----------------
 		UniquePtr<GLSLProgram> m_offscreen_program;

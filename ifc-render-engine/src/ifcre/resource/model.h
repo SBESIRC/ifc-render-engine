@@ -487,7 +487,7 @@ namespace ifcre {
 					temp_comp_indices.insert(storeys_comp_id[i][j]);
 				}
 				Vector<Real> bbx_floor = generate_bbxs_bound_by_vec(temp_comp_indices);		// floor's component's bbx
-				bbx_floor.push_back(i);														// add the current floor number
+				bbx_floor.push_back(this_comp_belongs_to_which_storey[storeys_comp_id[i][0]]);	// add the current floor number
 				bbxs_each_floor.push_back(bbx_floor);
 			}
 

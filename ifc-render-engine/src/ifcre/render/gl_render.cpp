@@ -383,6 +383,7 @@ namespace ifcre {
 			transformMVPUBO.update(144, 96, m_clip_box.data());
 			transformMVPUBO.update(240, 4, &m_TileView);
 			m_select_bbx_shader->use();
+			m_select_bbx_shader->setMat4("storeyOffset_mat", storeyOffset_mat);
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
 			//m_select_bbx_shader->setMat4("projection", m_projection);
 			break;
@@ -1147,8 +1148,8 @@ namespace ifcre {
 		return id;
 	}
 
-	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices, const Vector<uint32_t>& floors) {
-		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices, floors);
+	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
+		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
 	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
@@ -1227,6 +1228,10 @@ namespace ifcre {
 			m_TileView = 0;
 			//std::cout << "close tile view " << m_TileView << std::endl;
 		}
+	}
+
+	void GLRender::setStoreyMat(glm::mat4 matrix) {
+		storeyOffset_mat = matrix;
 	}
 
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {

@@ -451,10 +451,12 @@ namespace ifcre {
 				auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
 				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
 
-				Vector<uint32_t> floors;
-				for (auto it = m_window.chosen_list.begin(); it != m_window.chosen_list.end(); it++)
-					floors.push_back(ifc_test_model->this_comp_belongs_to_which_storey[*it]);
-				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx, floors);
+				if (!m_window.chosen_list.empty()) {
+					uint32_t floor_id = ifc_test_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()];
+					m_render.setStoreyMat(ifc_test_model->tile_matrix[floor_id]);
+				}
+
+				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx);
 
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
