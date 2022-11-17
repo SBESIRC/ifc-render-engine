@@ -63,9 +63,9 @@ namespace ifcre {
 			"void main()\r\n"
 			"{\r\n"
 			"// gl_Position = projection * modelview * vec4(aPos, 1.0);\r\n"
-			"if(ubo.showTileView > 0)\r\n"
-			"gl_Position = ubo.proj_view_model * storeyOffset_mat * vec4(aPos, 1.0);\r\n"
-			"else\r\n"
+			"// if(ubo.showTileView > 0)\r\n"
+			"// 	gl_Position = ubo.proj_view_model * storeyOffset_mat * vec4(aPos, 1.0);\r\n"
+			"// else\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
 			"}\r\n";
 		static const char* f_chosen_test = "#version 460\r\n"

@@ -442,6 +442,24 @@ namespace ifcre {
 			return ret;
 		}
 
+		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices, bool flag) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+			for (auto& id : comp_indices) {
+				glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+				ret[0] = std::min(ret[0], pos.x);
+				ret[1] = std::min(ret[1], pos.y);
+				ret[2] = std::min(ret[2], pos.z);
+
+				pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+				ret[3] = std::max(ret[3], pos.x);
+				ret[4] = std::max(ret[4], pos.y);
+				ret[5] = std::max(ret[5], pos.z);
+			}
+			return ret;
+		}
+
 		Vector<Real> generate_bbxs_by_vec(const std::set<uint32_t>& comp_indices) {
 			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices);
 			/*Vector<Real> ret2(24);

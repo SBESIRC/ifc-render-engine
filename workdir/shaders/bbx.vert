@@ -13,8 +13,8 @@ uniform mat4 storeyOffset_mat;
 void main()
 {
 	// gl_Position = projection * modelview * vec4(aPos, 1.0);
-	if(ubo.showTileView > 0)
-		gl_Position = ubo.proj_view_model * storeyOffset_mat * vec4(aPos, 1.0);
-	else
-		gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
+	// if(ubo.showTileView > 0)
+	// 	gl_Position = ubo.proj_view_model * storeyOffset_mat * vec4(aPos, 1.0);
+	// else
+	 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);
 }

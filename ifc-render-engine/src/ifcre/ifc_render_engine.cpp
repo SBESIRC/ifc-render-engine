@@ -448,7 +448,8 @@ namespace ifcre {
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {
-				auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+				auto bound_vecs = !m_window.getShowTileView() ? ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list })
+					: ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list }, true);
 				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
 
 				if (!m_window.chosen_list.empty()) {
