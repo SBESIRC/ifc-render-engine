@@ -170,6 +170,8 @@ namespace ifcre {
 		float global_alpha = 1.f;
 		float trans_alpha = .3f;
 
+		bool clipboxButton = false;
+
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;

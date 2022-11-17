@@ -102,6 +102,12 @@ namespace ifcre {
 		void bind_clip_box(SharedPtr<ClipBox> _clipbox) {
 			clipbox = _clipbox;
 		}
+		void updateBool(bool& this_bools) {
+			ImGui::Begin("all boolean");
+
+			ImGui::Checkbox("a", &this_bools);
+			ImGui::End();
+		}
 		void updateFrame(SharedPtr<bool>& mousemove, bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos
 			, float& global_alpha, float& trans_alpha) {
 			ImGui_ImplOpenGL3_NewFrame();

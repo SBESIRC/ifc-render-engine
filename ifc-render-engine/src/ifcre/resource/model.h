@@ -487,15 +487,15 @@ namespace ifcre {
 					temp_comp_indices.insert(storeys_comp_id[i][j]);
 				}
 				Vector<Real> bbx_floor = generate_bbxs_bound_by_vec(temp_comp_indices);		// floor's component's bbx
-				bbx_floor.push_back(this_comp_belongs_to_which_storey[storeys_comp_id[i][0]]);	// add the current floor number
+				bbx_floor.push_back(util::int_as_float(this_comp_belongs_to_which_storey[storeys_comp_id[i][0]]));		// add the current floor number
 				bbxs_each_floor.push_back(bbx_floor);
 			}
 
 			std::sort(bbxs_each_floor.begin(), bbxs_each_floor.end(), [](Vector<Real>a, Vector<Real>b) { return a[1] < b[1]; });	// Ascending by y-axis
 
-			Vector<uint32_t> floorIndex(100, 0);
+			Vector<int> floorIndex(100, 0);
 			for (int i = 0; i < bbxs_each_floor.size(); i++) {			// let the real floor number index to the sorted floor number
-				int id = bbxs_each_floor[i][6];							// the real floor number
+				int id = util::float_as_int(bbxs_each_floor[i][6]);							// the real floor number
 				floorIndex[id] = i;
 				bbxs_each_floor[i].pop_back();
 			}
@@ -557,7 +557,7 @@ namespace ifcre {
 			return tile_matrix;
 		}
 
-		Vector<uint32_t> floorIndex() {
+		Vector<int> floorIndex() {
 			return realFloor2sortFloor;
 		}
 
@@ -717,7 +717,7 @@ namespace ifcre {
 		glm::mat4 bbx_model_mat;
 
 		Vector <Vector<Real> > bbxs_each_floor;	// each element have six member // e.g (pmin[0], pmin[1], pmin[2], pmax[0], pmax[1], pmax[2])
-		Vector <uint32_t> realFloor2sortFloor;		// the real floor number index to the sorted floor number
+		Vector <int> realFloor2sortFloor;		// the real floor number index to the sorted floor number
 		Vector <glm::mat4> tile_matrix;			// tile view matrix
 
 		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t

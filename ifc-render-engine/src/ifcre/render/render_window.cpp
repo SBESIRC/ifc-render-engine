@@ -459,7 +459,13 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_Q) == GLFW_RELEASE) {
             proj_mat_match = false;
         }
-
+        if (!openText && glfwGetKey(m_window, GLFW_KEY_T) == GLFW_PRESS) {
+            openText = true;
+            showText = !showText;
+        }
+        if (glfwGetKey(m_window, GLFW_KEY_T) == GLFW_RELEASE) {
+            openText = false;
+        }
         // drawing match shader option 
         if (!openDrawingMatch && glfwGetKey(m_window, GLFW_KEY_1) == GLFW_PRESS)
         {

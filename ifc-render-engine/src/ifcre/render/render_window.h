@@ -66,7 +66,7 @@ namespace ifcre {
 
 		bool getShowDrawing() { return showDrawing; }	// drawing match shader
 		bool getShowTileView() { return showTileView; }	// tile view
-
+		bool getShowText() { return showText; }
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
 		glm::vec3 getVirtualHoverWorldCoord();
@@ -198,6 +198,9 @@ namespace ifcre {
 
 		bool showTileView = false;
 		bool openTileView = false;
+
+		bool showText = false;
+		bool openText = false;
 
 		bool proj_mat_match = false;
 	public:

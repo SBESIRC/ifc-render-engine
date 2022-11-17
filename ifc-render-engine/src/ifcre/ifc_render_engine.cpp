@@ -462,6 +462,7 @@ namespace ifcre {
 			}
 
 			m_render.ui_update(mousemove, m_window.getHidden() && !m_window.getShowDrawing(), global_alpha, trans_alpha);
+
 #endif
 			//8. render sup things
 			// render sky box
@@ -481,7 +482,13 @@ namespace ifcre {
 				, m_camera->getViewPos()
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-			
+
+			// ----------------------------- render text -----------------------------
+			if (m_window.getShowText()) {
+				auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
+				m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+			}
+
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

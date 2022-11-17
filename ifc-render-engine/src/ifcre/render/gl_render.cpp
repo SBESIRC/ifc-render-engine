@@ -566,10 +566,10 @@ namespace ifcre {
 		glDepthFunc(GL_ALWAYS); // always pass depth test
 		glDepthMask(GL_FALSE); // forbit import from depth test
 		//textdata.render_text(text, glm::vec3(position), scale);
-		texturefont.drawText(text, 1.f);
+		//texturefont.drawText(text, 1.f);
 
 		m_text_shader->setVec2("offset", glm::vec2(position) + glm::vec2(100.f, 100.f));
-		texturefont.drawText(text2, .5f);
+		//texturefont.drawText(text2, .5f);
 		/*static bool lockk = false;
 		if (!lockk) {
 			texturefont.init_bmp();
@@ -1245,7 +1245,7 @@ namespace ifcre {
 		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
 		return glm::vec3(sxaswd1);
 	}
-	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<uint32_t>& floorIndex)
+	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<int>& floorIndex)
 	{
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
