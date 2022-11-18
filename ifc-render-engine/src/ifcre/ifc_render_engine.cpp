@@ -427,6 +427,8 @@ namespace ifcre {
 			// 1. render scene
 			m_window.switchRenderColor();
 
+			m_render.renderSkyBox(m_window.returnPerispectiveMat());
+
 			m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 

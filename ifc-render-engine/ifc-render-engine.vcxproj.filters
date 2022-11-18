@@ -88,6 +88,7 @@
     <ClInclude Include="src\ifcre\imgui\imstb_textedit.h" />
     <ClInclude Include="src\ifcre\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ifcre\Clips.h" />
+    <ClInclude Include="src\ifcre\SkyBox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">

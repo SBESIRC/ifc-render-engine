@@ -34,6 +34,10 @@ namespace ifcre {
             _updateCameraVectors();
         }
 
+        glm::vec3 getViewUp() {
+            return m_up;
+        }
+
         glm::mat4 getViewMatrix() {
             //glm::mat4 ret(1.0f);
             return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix

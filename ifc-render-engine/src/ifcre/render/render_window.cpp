@@ -724,6 +724,10 @@ namespace ifcre {
         return perspective_projection;
     }
 
+    glm::mat4 RenderWindow::returnPerispectiveMat() {
+        return m_projection;
+    }
+
     void RenderWindow::setCamera(SharedPtr<GLCamera> camera)
     {
         m_camera = camera;

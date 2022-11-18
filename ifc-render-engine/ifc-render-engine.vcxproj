@@ -264,6 +264,7 @@
     <ClInclude Include="src\ifcre\resource\plugin.h" />
     <ClInclude Include="src\ifcre\ifcrender\scene.h" />
     <ClInclude Include="src\ifcre\SimpleUI.h" />
+    <ClInclude Include="src\ifcre\SkyBox.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
   </ItemGroup>
   <ItemGroup>

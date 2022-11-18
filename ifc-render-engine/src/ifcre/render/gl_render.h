@@ -16,6 +16,7 @@
 #include "../Gizmo.h"
 #include "../Axis.h"
 #include "../SimpleUI.h"
+#include "../SkyBox.h"
 
 #include "../common/ifc_enum.h"
 #include "../resource/model.h"
@@ -80,11 +81,12 @@ namespace ifcre {
 		void renderGridLine(Vector<float>& grid_line, int width, int height, bool& grid_line_reset);
 		void renderClipBox(const bool hidden);
 		void renderClipBox();
+		void renderSkyBox(const glm::mat4& porjmat);
+		//void renderSkybox1(const glm::mat3& view_matrix, const glm::mat4& projection);
 		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
-		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
 		unsigned int  loadCubemap(Vector<String> faces);
 		void renderDrawing(IFCModel& ifc_model);			// ------------- drawing match shading -------------
 		// for offscreen
@@ -181,9 +183,9 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_gizmo_shader;
 		UniquePtr<GLSLProgram> m_gizmo_UI_shader;
 		UniquePtr<GLSLProgram> m_text_shader;
-		UniquePtr<GLSLProgram> m_skybox_shader;
 		UniquePtr<GLSLProgram> m_grid_shader;
 		UniquePtr<GLSLProgram> m_text3d_shader;
+		UniquePtr<GLSLProgram> m_skybox_shader;
 
 		UniquePtr<GLSLProgram> m_drawing_match_shader;	// drawing match shader test ----------
 
@@ -214,6 +216,8 @@ namespace ifcre {
 
 		// the option of whether to open the drawing match
 		glm::vec4 hidden_drawing_plane = glm::vec4(0.f, 10000.f, 0.f, 1.f);
+		SharedPtr<mySkyBox> skyBox = make_shared<mySkyBox>();
+		glm::mat4 special_projmat;
 		//offscreen quad
 	private:
 		uint32_t off_vao;

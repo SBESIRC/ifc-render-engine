@@ -82,10 +82,6 @@ namespace ifcre {
 		String f_text = util::read_file("shaders/text.frag");
 		m_text_shader = make_unique<GLSLProgram>(v_text.c_str(), f_text.c_str());
 
-		String v_skybox = util::read_file("shaders/skybox.vert");
-		String f_skybox = util::read_file("shaders/skybox.frag");
-		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
-
 		String v_grid = util::read_file("shaders/grid.vert");
 		String f_grid = util::read_file("shaders/grid.frag");
 		m_grid_shader = make_unique<GLSLProgram>(v_grid.c_str(), f_grid.c_str());
@@ -98,6 +94,9 @@ namespace ifcre {
 		String f_drawing = util::read_file("shaders/drawing_match.frag");
 		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
 
+		String v_skybox = util::read_file("shaders/skybox.vert");
+		String f_skybox = util::read_file("shaders/skybox.frag");
+		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -114,10 +113,10 @@ namespace ifcre {
 		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
 		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
 		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
-		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
 		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
 		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
+		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -309,10 +308,6 @@ namespace ifcre {
 			break;
 		}
 		case DEFAULT_SHADING: {
-			auto& color = m_bg_color;
-			glClearColor(color.r, color.g, color.b, color.a);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -553,6 +548,16 @@ namespace ifcre {
 		}
 	}
 
+	void GLRender::renderSkyBox(const glm::mat4& porjmat) {
+		auto& color = m_bg_color;
+		glClearColor(color.r, color.g, color.b, color.a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_skybox_shader->use();
+		m_skybox_shader->setMat4("view_matrix", porjmat * glm::mat4(glm::mat3(m_view)));
+		skyBox->drawSkyBox();
+		_defaultConfig();
+	}
 
 	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
@@ -810,7 +815,7 @@ namespace ifcre {
 		m_gizmo_UI_shader->use();
 		gizmo.drawGizmoInUiLayer();
 	}
-
+	/*
 	void GLRender::renderSkybox(const glm::mat3& view_matrix, const glm::mat4& m_projection) {
 		static bool first = true;
 		static uint32_t skybox_vao;
@@ -898,7 +903,7 @@ namespace ifcre {
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS); // set depth function back to default
-	}
+	}*/
 
 	unsigned int  GLRender::loadCubemap(vector<std::string> faces)
 	{
@@ -968,7 +973,7 @@ namespace ifcre {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 			int width, height, nrChannels;
-			unsigned char* data = stbi_load("resources\\textures\\scenegizmo3.png", &width, &height, &nrChannels, 0);
+			unsigned char* data = stbi_load("resources\\textures\\x1x.png", &width, &height, &nrChannels, 0);
 			if (data)
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);

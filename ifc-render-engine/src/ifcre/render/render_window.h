@@ -56,6 +56,7 @@ namespace ifcre {
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 		glm::mat4 getPerspectiveProjMatrix();
+		glm::mat4 returnPerispectiveMat();
 		glm::mat4 getOrthoProjMatrix() { m_projection = ortho_projection; isperspective = false; return ortho_projection; }
 		bool getHidden() { return hidden; }
 		Vector<glm::vec4> getClippingBoxVectors(bool _hidden);
