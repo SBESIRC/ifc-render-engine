@@ -187,6 +187,9 @@ namespace ifcre {
 		const Real m_znear = 0.1f, m_zfar = 1000.0f;
 		const Real fov = 45.0f;
 
+		float dis_ = 7.5f;
+		float othrolong = 100.f;
+
 		bool key_frame_stopper = true;
 
 		bool hidden = true;
@@ -219,6 +222,7 @@ namespace ifcre {
 		void _setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z);
 		float _getClickedDepthValue(double clicked_x, double clicked_y);
 		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp);
+		void update_ortho(float yoffset);
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 	};

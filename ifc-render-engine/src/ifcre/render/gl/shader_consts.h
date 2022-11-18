@@ -662,26 +662,6 @@ namespace ifcre {
 			"vec4 pos = view_matrix * vec4(aPos, 1.0);\r\n"
 			"gl_Position = pos.xyww;\r\n"
 			"}\r\n";
-		static const char* f_skybox1 = "#version 460 core\r\n"
-			"out vec4 FragColor;\r\n"
-			"in vec3 TexCoords;\r\n"
-			"uniform samplerCube skybox;\r\n"
-			"void main()\r\n"
-			"{\r\n"
-			"FragColor = texture(skybox, TexCoords);\r\n"
-			"}\r\n";
-
-		static const char* v_skybox1 = "#version 460 core\r\n"
-			"layout (location = 0) in vec3 aPos;\r\n"
-			"out vec3 TexCoords;\r\n"
-			"uniform mat4 projection;\r\n"
-			"uniform mat4 view;\r\n"
-			"void main()\r\n"
-			"{\r\n"
-			"TexCoords = aPos;\r\n"
-			"vec4 pos = projection * view * vec4(aPos, 1.0);\r\n"
-			"gl_Position = pos.xyww;\r\n"
-			"}\r\n";
 		static const char* f_test = "#version 460\r\n"
 			"layout(location = 0) in vec4 vGoColor;\r\n"
 			"layout(location = 1) in vec3 vNormal;\r\n"
