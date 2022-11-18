@@ -150,6 +150,8 @@
     <None Include="..\workdir\shaders\text3d.vert" />
     <None Include="..\workdir\shaders\drawing_match.frag" />
     <None Include="..\workdir\shaders\drawing_match.vert" />
+    <None Include="..\workdir\shaders\tile_view_drawing.frag" />
+    <None Include="..\workdir\shaders\tile_view_drawing.vert" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="shaders">

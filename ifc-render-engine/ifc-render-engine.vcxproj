@@ -303,6 +303,8 @@
     <None Include="..\workdir\shaders\text.frag" />
     <None Include="..\workdir\shaders\text.vert" />
     <None Include="..\workdir\shaders\text3d.vert" />
+    <None Include="..\workdir\shaders\tile_view_drawing.frag" />
+    <None Include="..\workdir\shaders\tile_view_drawing.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

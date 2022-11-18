@@ -94,6 +94,11 @@ namespace ifcre {
 		String f_drawing = util::read_file("shaders/drawing_match.frag");
 		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
 
+		// ------------- tile-view's drawing ------------
+		String v_tile_drawing = util::read_file("shaders/tile_view_drawing.vert");
+		String f_tile_drawing = util::read_file("shaders/tile_view_drawing.frag");
+		m_tile_view_drawing_shader = make_unique<GLSLProgram>(v_tile_drawing.c_str(), f_tile_drawing.c_str());
+
 		String v_skybox = util::read_file("shaders/skybox.vert");
 		String f_skybox = util::read_file("shaders/skybox.frag");
 		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
@@ -146,6 +151,7 @@ namespace ifcre {
 		m_skybox_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_grid_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_drawing_match_shader->bindUniformBlock("TransformMVPUBO", 2);		// ------------- drawing match shader test ------------
+		m_tile_view_drawing_shader->bindUniformBlock("TransformMVPUBO", 2);	// ------------- tile-view's drawing ------------
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -1013,6 +1019,86 @@ namespace ifcre {
 		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
+	// ------------- tile-view's drawing -------------
+	void GLRender::renderTileViewDrawing(IFCModel& ifc_model) {
+		static uint32_t floorNum;		// the count of floor
+		static bool first = true;
+		static uint32_t tile_vao;
+		static uint32_t tileTex[100];
+		static float tex_width[100], tex_height[100];
+		float ratio = 0.01;			// based on the ratio of drawing.  //e.g. 1:100
+		if (first)
+		{
+			floorNum = ifc_model.tile_matrix.size();
+			float quadVertices[] = {
+				// positions		// texCoords
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				-1.0f, 0.0f,  1.0f,  0.0f, 0.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+				 1.0f, 0.0f, -1.0f,  1.0f, 1.0f
+			};
+			uint32_t drawing_vbo;
+			glGenVertexArrays(1, &tile_vao);
+			glGenBuffers(1, &drawing_vbo);
+			glBindVertexArray(tile_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, drawing_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glGenTextures(100, tileTex);
+			for (int i = 0; i < floorNum; i++) {
+				glBindTexture(GL_TEXTURE_2D, tileTex[i]);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+				int width, height, nrChannels;
+				unsigned char* data = stbi_load("resources\\textures\\scenegizmo3.png", &width, &height, &nrChannels, 0);
+				if (data)
+				{
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					glGenerateMipmap(GL_TEXTURE_2D);
+					tex_width[i] = width * ratio;
+					tex_height[i] = height * ratio;
+				}
+				else
+				{
+					std::cout << "Failed to load texture" << std::endl;
+				}
+				stbi_image_free(data);
+
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			first = false;
+		}
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBindVertexArray(tile_vao);
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		m_tile_view_drawing_shader->use();
+		m_tile_view_drawing_shader->setInt("Drawing", 0);
+
+		for (int i = 0; i < floorNum; i++) {
+			glm::mat4 scale(1.0f);
+			glm::mat4 y_translate(1.0f);
+			scale = glm::scale(scale, glm::vec3(tex_width[i], 1.0, tex_height[i]));
+			y_translate = glm::translate(y_translate, glm::vec3(m_tile_view_lowest_y_plane[i]));	// translate to the current floor's minY
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * ifc_model.tile_matrix[i] * y_translate * scale));
+			glBindTexture(GL_TEXTURE_2D, tileTex[i]);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	void GLRender::AerialViewRender(RenderWindow& w) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, w.getAerialColorTexId());
@@ -1227,11 +1313,20 @@ namespace ifcre {
 	{
 		if (show) {
 			m_TileView = 1;
-			//std::cout << "open tile view " << m_TileView <<  std::endl;
 		}
 		else {
 			m_TileView = 0;
-			//std::cout << "close tile view " << m_TileView << std::endl;
+		}
+	}
+	void GLRender::TileViewMatrix(SharedPtr<IFCModel> ifcModel) {
+
+		for (int i = 0; i < ifcModel->bbxs_each_floor.size(); i++) {
+			glm::mat4 model(1.0f);
+			glm::vec3 bbx_center = ifcModel->get_bbx_center(ifcModel->bbxs_each_floor[i]);
+			model = glm::translate(model, bbx_center);
+			float delta_y = bbx_center[1] - ifcModel->bbxs_each_floor[i][1];
+			model = glm::translate(model, glm::vec3(0., -delta_y, 0.));
+			m_tile_view_lowest_y_plane.push_back(model * glm::vec4(0.f, 0.f, 0.f, 1.f));
 		}
 	}
 

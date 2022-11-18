@@ -403,6 +403,8 @@ namespace ifcre {
 		//sglm::vec3 base_pos;
 		glm::mat4 cur_model_mat;
 		glm::vec3 model_center;
+		Real lowest_y;
+
 		DrawingMatchPlane() {}
 		~DrawingMatchPlane() {}
 		DrawingMatchPlane(glm::vec4 p) {
@@ -425,10 +427,17 @@ namespace ifcre {
 		{
 			model_center = center;
 		}
+
+		void get_lowest_y(Vector <Vector<Real> > floors_bbx)
+		{
+			lowest_y = floors_bbx[0][1] - model_center[1];
+		}
+
 		glm::vec4 to_vec4()
 		{
 			glm::mat4 model(1.0f);
 			model = glm::translate(model, model_center);
+			model = glm::translate(model, glm::vec3(0., lowest_y, 0.));
 			return model * glm::vec4(normal, 1.0);
 		}
 		void update_my_self(int input) {

@@ -171,6 +171,8 @@ namespace ifcre {
 		float trans_alpha = .3f;
 
 		bool clipboxButton = false;
+		bool drawingMatchButton = false;
+		bool tileViewButton = false;
 
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 

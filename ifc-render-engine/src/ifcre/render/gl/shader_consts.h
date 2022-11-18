@@ -671,7 +671,7 @@ namespace ifcre {
 			"FragColor = texture(skybox, TexCoords);\r\n"
 			"}\r\n";
 
-		static const char* v_skybox = "#version 460 core\r\n"
+		static const char* v_skybox1 = "#version 460 core\r\n"
 			"layout (location = 0) in vec3 aPos;\r\n"
 			"out vec3 TexCoords;\r\n"
 			"uniform mat4 projection;\r\n"
@@ -804,6 +804,28 @@ namespace ifcre {
 			"{\r\n"
 			"gl_Position = projection * modelview * vec4(pos, 1.0);\r\n"
 			"TexCoords = texcoord;\r\n"
+			"}\r\n";
+
+		static const char* f_tile_view_drawing = "#version 460\r\n"
+			"out vec4 FragColor;\r\n"
+			"in vec2 TexCoords;\r\n"
+			"uniform sampler2D Drawing;\r\n"
+			"void main(){\r\n"
+			"vec4 color = texture(Drawing, TexCoords);\r\n"
+			"if(color.a < 0.1)\r\n"
+			"discard;\r\n"
+			"FragColor = vec4(color.rgb, 0.6);\r\n"
+			"}\r\n";
+		static const char* v_tile_view_drawing = "#version 460\r\n"
+			"layout (location = 0) in vec3 aPos;\r\n"
+			"layout (location = 1) in vec2 aTexCoords;\r\n"
+			"layout(std140, binding = 2)uniform TransformMVPUBO{\r\n"
+			"mat4 proj_view_model;       // 0 ~ 64\r\n"
+			"} ubo;\r\n"
+			"out vec2 TexCoords;\r\n"
+			"void main(){\r\n"
+			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
+			"TexCoords = aTexCoords;\r\n"
 			"}\r\n";
 
 	}// shader_consts

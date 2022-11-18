@@ -81,6 +81,7 @@ namespace ifcre {
 		void renderGridLine(Vector<float>& grid_line, int width, int height, bool& grid_line_reset);
 		void renderClipBox(const bool hidden);
 		void renderClipBox();
+		void TileViewMatrix(SharedPtr<IFCModel> ifcModel);
 		void renderSkyBox(const glm::mat4& porjmat);
 		//void renderSkybox1(const glm::mat3& view_matrix, const glm::mat4& projection);
 		void renderClipBoxInUIlayer(const bool hidden);
@@ -89,6 +90,7 @@ namespace ifcre {
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
 		void renderDrawing(IFCModel& ifc_model);			// ------------- drawing match shading -------------
+		void renderTileViewDrawing(IFCModel& ifc_model);	// ------------- tile-view's drawing -------------
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
 
@@ -164,6 +166,7 @@ namespace ifcre {
 		Vector<glm::vec4> m_clip_box;// m_clip_box.size() MUST be 6!
 
 		glm::vec4 m_drawing_match_plane;	// drawing match shader test ----------
+		Vector<glm::vec4> m_tile_view_lowest_y_plane;
 
 		int m_TileView;
 		glm::mat4 storeyOffset_mat;
@@ -188,6 +191,7 @@ namespace ifcre {
 		UniquePtr<GLSLProgram> m_skybox_shader;
 
 		UniquePtr<GLSLProgram> m_drawing_match_shader;	// drawing match shader test ----------
+		UniquePtr<GLSLProgram> m_tile_view_drawing_shader;	// drawing match shader test ----------
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:

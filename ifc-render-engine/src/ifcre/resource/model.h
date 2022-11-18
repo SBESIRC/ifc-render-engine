@@ -534,6 +534,12 @@ namespace ifcre {
 			}
 		}
 
+		glm::vec3 get_bbx_center(const Vector<Real>& ret) {
+			glm::vec3 pMin = glm::vec3(ret[0], ret[1], ret[2]);
+			glm::vec3 pMax = glm::vec3(ret[3], ret[4], ret[5]);
+			return (pMin + pMax) * 0.5f;
+		}
+
 		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;
 			for (auto i : input_comp_ids) {
