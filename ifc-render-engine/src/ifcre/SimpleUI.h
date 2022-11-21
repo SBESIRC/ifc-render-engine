@@ -103,17 +103,21 @@ namespace ifcre {
 			clipbox = _clipbox;
 		}
 
-		void updateBool(bool& clipboxButton, bool& drawingMatchButton, bool& tileViewButton) {	// control whether to open the functions
+		void updateBool(bool& clipboxButton, bool& drawingMatchButton, bool& tileViewButton, bool& colliderButton, bool& next_collider) {	// control whether to open the functions
 			ImGui::Begin("The functions");
 
 			ImGui::Checkbox("open ClipBox", &clipboxButton);
 			ImGui::Checkbox("open DrawingMatch", &drawingMatchButton);
 			ImGui::Checkbox("open TileView", &tileViewButton);
+			ImGui::Checkbox("show Collider", &colliderButton);
+			if (colliderButton) {
+				next_collider = ImGui::Button("next collision");
+			}
 			ImGui::End();
 		}
 
 		void updateFrame(SharedPtr<bool>& mousemove, bool ishidden, int update_face_key, glm::vec2 this_normal, glm::vec4& my_color, glm::vec3& base_pos, glm::vec3& drawingplane_pos
-			, float& global_alpha, float& trans_alpha) {
+			, float& global_alpha, float& trans_alpha, float& script_scale_fractor) {
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
@@ -185,6 +189,7 @@ namespace ifcre {
 				ImGui::Text("Control the alpha of each component.");
 				ImGui::SliderFloat("global_alpha", &global_alpha, .0f, 1.f);
 				ImGui::SliderFloat("trans_alpha", &trans_alpha, .0f, 1.f);
+				ImGui::SliderFloat("script_scale_fractor", &script_scale_fractor, .0f, 5.f);
 				ImGui::End();
 			}
 

@@ -96,6 +96,7 @@ namespace ifcre {
 		void setDefaultStatus();
 		bool rotatelock = false;
 		bool trigger = false;
+		bool collidertrig = false;
 		bool to_show_grid = true;
 
 	private:

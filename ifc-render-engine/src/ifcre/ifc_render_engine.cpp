@@ -235,7 +235,9 @@ namespace ifcre {
 				model_vb->UploadElementEdge(ifc_test_model->edge_indices);
 
 				//hey bro 8 look here, its where your job should be!
-				model_vb->uploadCollisionElementBuffer(ifc_test_model->generate_ebo_from_component_ids(this->ifc_test_model->collision_pairs));
+				collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
+				ifc_test_model->collider_ind_count = (ifc_test_model->collider_ind_count + 1) % (ifc_test_model->collider_inde_hard.size() / 2);
+				model_vb->uploadCollisionElementBuffer(ifc_test_model->generate_ebo_from_component_ids(collision_list));
 
 				ifc_test_model->render_id = m_glrender->addModel(model_vb);
 
@@ -273,6 +275,37 @@ namespace ifcre {
 		m_render.renderClipBox();
 
 		m_window.endOffScreenRender();
+	}
+
+	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+
+		glm::mat4 model_mat;
+		Real scaler = 0;
+		glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
+		glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
+		util::get_model_matrix_byBBX(pmin, pmax, model_mat, scaler);
+		if (/*m_window.getShowTileView()*/tileViewButton) {
+			glm::mat4 trans = ifc_test_model->tile_matrix[ifc_test_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()]];
+			ifc_test_model->setModelMatrix(model_mat * util::inverse_mat4(trans));
+		}
+		else
+			ifc_test_model->setModelMatrix(model_mat);
+		ifc_test_model->setScaleFactor(scaler);
+		ifc_test_model->curcenter = (pmin + pmax) / 2.f;
+		m_camera->set_pos((m_window._isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
+
+		//flag_between_zoom_reset = true;
+
+	}
+
+	void IFCRenderEngine::reset_coord(glm::vec3& clicked_coord) {
+		if (flag_between_zoom_reset) {
+			auto& m_window = *m_render_window;
+			clicked_coord = m_window.getClickedWorldCoord();
+			flag_between_zoom_reset = false;
+		}
 	}
 
 	void IFCRenderEngine::run()
@@ -330,20 +363,49 @@ namespace ifcre {
 
 		glm::fvec2 mouse_move_vec(0.f);
 
+#pragma region transform by mouse
 		// -------------- ifc model transform by mouse ---------------
-		
 
+		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
+		//reset_coord(clicked_coord);
 		if (cube_change_log) {
 			ifc_test_model->TranslateToCubeDirection(cube_num); // 设置模型位置
 			m_camera->RotateToCubeDirection(cube_num); // 设置相机数据
 			cube_change_log = false;
 		}
-		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
+		/*if (m_window.getClickCompId() >= 0 && m_window.trigger) {
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
 			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
+		}*/
+		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
+			m_window.trigger = false;
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+			zoom_into(bound_vecs, clicked_coord);
 		}
+		if (m_window.collidertrig) {
+			m_window.collidertrig = !m_window.collidertrig;
+			//showcolid = true;
+			collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
+			ifc_test_model->collider_ind_count = (ifc_test_model->collider_ind_count + 1) % (ifc_test_model->collider_inde_hard.size() / 2);
+			//m_window.chosen_changed = true;
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec(collision_list);
+			zoom_into(bound_vecs, clicked_coord);
 
+			glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
+			glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
+			/*auto tempp = ifc_test_model->getModelMatrix() * glm::vec4(pmin, 1.0f);
+			tempp /= tempp.w;
+			pmin = tempp;
+
+			tempp = ifc_test_model->getModelMatrix() * glm::vec4(pmax, 1.0f);
+			tempp /= tempp.w;
+			pmax = tempp;*/
+			clipboxButton = true;
+			collider_trans_flag = true;
+			m_render.getClipBox()->setBox(pmin, pmax);
+		}
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+#pragma endregion
 		{
 			m_window.startRenderToWindow();  // 切换到当前frame buffer
 			dataIntegration();
@@ -377,16 +439,10 @@ namespace ifcre {
 				m_render.last_clp_face_key = ui_key + 26;
 			}
 
-			glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
-			//std::cout << clicked_coord.x << "\t" << clicked_coord.y << "\t" << clicked_coord.z << "\t\n";
-
 			m_glrender->getClipBox()->bind_the_world_coordination(ifc_test_model->getModelMatrix());
 
 			m_render.last_hovered_face_key = m_window.getClpBoxFaceId();
 
-			/*if (clp_face_key > -1 && clp_face_key < 26) {
-				m_render.last_hovered_face_key = clp_face_key;
-			}*/
 #endif
 
 #pragma endregion
@@ -450,13 +506,21 @@ namespace ifcre {
 			m_render.render(ifc_test_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
-			//m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			if (showcolid)
+			{
+				m_render.render(ifc_test_model->render_id, COLLISION_RENDER, COLLISION);
+			}
 
 			//7. render bounding box
 			if (m_window.getClickCompId() >= 0) {
 				auto bound_vecs = !/*m_window.getShowTileView()*/tileViewButton ? ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list })
 					: ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list }, true);
 				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
+
+				/*for (auto it : m_window.chosen_list) {
+					std::cout << it << " ";
+				}
+				std::cout << std::endl;*/
 
 				if (!m_window.chosen_list.empty()) {
 					uint32_t floor_id = ifc_test_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()];
@@ -468,8 +532,11 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton, global_alpha, trans_alpha);
-			m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton);
+			m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton,
+				global_alpha, trans_alpha,
+				script_scale_fractor
+			);
+			m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_window.collidertrig);
 #endif
 			//8. render sup things
 			// render sky box
@@ -503,12 +570,13 @@ namespace ifcre {
 
 			// ------------- drawing match shading ----------------------------------
 			if (/*m_window.getShowDrawing()*/drawingMatchButton)
-				m_render.renderDrawing(*ifc_test_model);
+				m_render.renderDrawing(*ifc_test_model, script_scale_fractor);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 			
 			// ------------- tile view drawing shading ---------------------------------- // don't use this, there are a few errors!!!
 			if (/*m_window.getShowTileView()*/tileViewButton)
-				m_render.renderTileViewDrawing(*ifc_test_model);
+				;
+			//m_render.renderTileViewDrawing(*ifc_test_model);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//--------------- gizmo rendering ----------------------------------------
@@ -555,6 +623,11 @@ namespace ifcre {
 				ifc_test_model->cur_chosen_trans_ind);
 
 			m_window.geom_changed = false;
+		}
+		if (collider_trans_flag && !collision_list.empty()) {
+			ifc_test_model->generate_collision_list(collision_list);
+			m_render.CollisionGeomUpdate(ifc_test_model->render_id, ifc_test_model->collision_ebo);
+			collider_trans_flag = false;
 		}
 	}
 

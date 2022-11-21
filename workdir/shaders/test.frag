@@ -37,6 +37,6 @@ void main()
 
 	//color = color * 0.7 + diffuse;
     FragColor = color;
-	float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);
-	if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
+	//float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);
+	//if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);
 }

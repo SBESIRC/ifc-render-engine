@@ -339,6 +339,13 @@ namespace ifcre {
 				}
 			}
 		}
+		void generate_collision_list(std::vector<uint32_t>& collision_list) {
+			Vector<uint32_t> ret;
+			for (auto i : collision_list) {
+				ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
+			}
+			collision_ebo = ret;
+		}
 
 		void update_chosen_and_vis_list() {
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
@@ -410,11 +417,7 @@ namespace ifcre {
 
 		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
-				if (id > c_indices_size || comps_bbx.size() == 0) {
-					continue;
-				}
 				for (int i = 0; i < 3; i++) {
 					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
 				}
@@ -427,11 +430,7 @@ namespace ifcre {
 
 		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			uint32_t c_indices_size = c_indices.size();
 			for (auto& id : comp_indices) {
-				if (id > c_indices_size || comps_bbx.size() == 0) {
-					continue;
-				}
 				for (int i = 0; i < 3; i++) {
 					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
 				}
@@ -460,16 +459,33 @@ namespace ifcre {
 			return ret;
 		}
 
+		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices, bool flag) {
+			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
+			for (auto& id : comp_indices) {
+				glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+				ret[0] = std::min(ret[0], pos.x);
+				ret[1] = std::min(ret[1], pos.y);
+				ret[2] = std::min(ret[2], pos.z);
+
+				pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+				ret[3] = std::max(ret[3], pos.x);
+				ret[4] = std::max(ret[4], pos.y);
+				ret[5] = std::max(ret[5], pos.z);
+			}
+			return ret;
+		}
+
 		Vector<Real> generate_bbxs_by_vec(const std::set<uint32_t>& comp_indices) {
 			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices);
-			/*Vector<Real> ret2(24);
+			Vector<Real> ret2(24);
 			for (int i = 0; i < 8; i++) {
 				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
 				ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
 				ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
-			}*/
-			return generate_bbxs_by_vec2(ret);
-
+			}
+			return ret2;
 		}
 
 		Vector<Real> generate_bbxs_by_vec2(const Vector<Real>& ret) {
@@ -519,6 +535,7 @@ namespace ifcre {
 			}
 			realFloor2sortFloor = floorIndex;
 		}
+
 
 		void cal_tile_matrix() {
 			float max_delta_z = 0;
@@ -575,6 +592,9 @@ namespace ifcre {
 
 		glm::vec3 getModelCenter() {
 			return m_center;
+		}
+		glm::vec3 getCurModelCenter() {
+
 		}
 
 		Vector<glm::mat4> tile_offsets_mats() {
@@ -736,9 +756,14 @@ namespace ifcre {
 
 		Unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
+		Vector<uint32_t> collision_ebo;//ebo of collision meshes, this is ready for GlUpload()
+
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
+		const Vector<uint32_t> collider_inde_hard = { 250, 422, 250, 140, 250, 535, 422, 535, 140, 535 };
+		int collider_ind_count = 0;
 
 		glm::mat4 bbx_model_mat;
+		glm::vec3 curcenter;
 
 		Vector <Vector<Real> > bbxs_each_floor;	// each element have six member // e.g (pmin[0], pmin[1], pmin[2], pmax[0], pmax[1], pmax[2])
 		Vector <int> realFloor2sortFloor;		// the real floor number index to the sorted floor number

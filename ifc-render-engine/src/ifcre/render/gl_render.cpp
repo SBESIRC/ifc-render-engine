@@ -122,6 +122,7 @@ namespace ifcre {
 		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
 		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
 		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
+		m_tile_view_drawing_shader = make_unique<GLSLProgram>(sc::v_tile_view_drawing, sc::f_tile_view_drawing);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
@@ -705,47 +706,9 @@ namespace ifcre {
 	//}
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
-		//static bool first = true;
-		//static uint32_t axis_vao;
-		//if (first) {
-		//	float coord_axis[] = {
-		//		0.0, 0.0, 0.0,
-		//		1.0, 0.0, 0.0,	// x-axis
-		//		0.0, 0.0, 0.0,
-		//		0.0, 1.0, 0.0,	// y-axis
-		//		0.0, 0.0, 0.0,
-		//		0.0, 0.0, 1.0	// z-axis
-		//	};
-		//	uint32_t axis_vbo;
-		//	glGenVertexArrays(1, &axis_vao);
-		//	glGenBuffers(1, &axis_vbo);
-		//	glBindVertexArray(axis_vao);
-		//	glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
-		//	glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
-		//	glEnableVertexAttribArray(0);
-		//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		//	first = false;
-		//}
-		//glm::vec3 model_center = ifc_model.getModelCenter();
-		//glm::mat4 model = ifc_model.getModelMatrix();
-		//float scale_factor = ifc_model.getScaleFactor();
-
-		////model[3][0] = model[3][1] = model[3][2] = 0;
-		//glm::mat4 trans_center(1.0f);
-		//glm::mat4 trans_click_center(1.0f);
-		//trans_center = glm::translate(trans_center, model_center);
-		//model = model * trans_center;
-		//glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
-		//
-		//float len_ref = glm::length(init_view_pos);
-		//float len = glm::length(view_pos - pick_center);
-		////printf("%f\n", scale_factor);
-		//float scale = len / len_ref / scale_factor * 0.25f;
-		//model = glm::scale(model, glm::vec3(scale, scale, scale));
-
 		//trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
 		//model = trans_click_center * model;
-		myaxis.update_model_mat_info(ifc_model.getModelMatrix(), ifc_model.getModelCenter(), ifc_model.getScaleFactor(),
+		myaxis.update_model_mat_info(ifc_model.getModelMatrix(), ifc_model.curcenter, ifc_model.getScaleFactor(),
 			pick_center, view_pos, init_view_pos);
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * myaxis.axis_model));
@@ -942,7 +905,7 @@ namespace ifcre {
 	}
 
 	// ------------- drawing match shading -------------
-	void GLRender::renderDrawing(IFCModel& ifc_model) {
+	void GLRender::renderDrawing(IFCModel& ifc_model, float k) {
 		static bool first = true;
 		static uint32_t drawing_vao;
 		static uint32_t drawingTex;
@@ -979,7 +942,7 @@ namespace ifcre {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 			int width, height, nrChannels;
-			unsigned char* data = stbi_load("resources\\textures\\x1x.png", &width, &height, &nrChannels, 0);
+			unsigned char* data = stbi_load("resources\\textures\\scrpit.png", &width, &height, &nrChannels, 0);
 			if (data)
 			{
 				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -1000,7 +963,7 @@ namespace ifcre {
 		glm::mat4 scale(1.0f);
 		glm::mat4 y_translate(1.0f);
 		y_translate = glm::translate(y_translate, glm::vec3(m_drawing_match_plane));
-		scale = glm::scale(scale, glm::vec3(drawing_width, 1.0, drawing_height));
+		scale = glm::scale(scale, glm::vec3(drawing_width * k, 1.0, drawing_height * k));
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * y_translate * scale));
 
@@ -1060,7 +1023,7 @@ namespace ifcre {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 				int width, height, nrChannels;
-				unsigned char* data = stbi_load("resources\\textures\\scenegizmo3.png", &width, &height, &nrChannels, 0);
+				unsigned char* data = stbi_load("resources\\textures\\scrpit.png", &width, &height, &nrChannels, 0);
 				if (data)
 				{
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -1089,7 +1052,9 @@ namespace ifcre {
 		for (int i = 0; i < floorNum; i++) {
 			glm::mat4 scale(1.0f);
 			glm::mat4 y_translate(1.0f);
-			scale = glm::scale(scale, glm::vec3(tex_width[i], 1.0, tex_height[i]));
+			float k = 2.f;
+			float ratio = 1.f;
+			scale = glm::scale(scale, glm::vec3(tex_width[i] * k, 1.0, tex_height[i] * k * ratio));
 			y_translate = glm::translate(y_translate, glm::vec3(m_tile_view_lowest_y_plane[i]));	// translate to the current floor's minY
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * ifc_model.tile_matrix[i] * y_translate * scale));
 			glBindTexture(GL_TEXTURE_2D, tileTex[i]);
@@ -1249,6 +1214,10 @@ namespace ifcre {
 
 	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo) {
 		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_no_trans_ebo, chosen_trans_ebo);
+	}
+
+	void GLRender::CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo) {
+		m_vertex_buffer_map[render_id]->uploadCollisionElementBuffer(collid_ebo);
 	}
 
 	void GLRender::setViewMatrix(const glm::mat4& view) {

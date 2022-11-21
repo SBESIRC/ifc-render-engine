@@ -100,6 +100,10 @@ namespace ifcre {
 		void dataIntegration();
 		void offscreenRending(const int index = 4);
 
+		void zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord);
+		bool flag_between_zoom_reset = false;
+		void reset_coord(glm::vec3& clicked_coord);
+
 	public:
 		IFCRenderEngine() : m_init(false) {}
 		// not thread safety
@@ -174,6 +178,12 @@ namespace ifcre {
 		bool drawingMatchButton = false;
 		bool tileViewButton = false;
 
+		bool collider_trans_flag = false;
+
+		float script_scale_fractor = 1.f;
+		bool showcolid = false;
+
+		std::vector<uint32_t> collision_list;
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;

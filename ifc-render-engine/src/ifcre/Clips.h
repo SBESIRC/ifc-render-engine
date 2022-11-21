@@ -360,6 +360,17 @@ namespace ifcre {
 				break;
 			}
 		}
+
+		void setBox(glm::vec3 pmin, glm::vec3 pmax) {//this pmin & pmax has been model transoformed
+			glm::vec3 div = pmax - pmin;
+			glm::vec3 midp = pmin + div / 2.f;
+			div *= 1.2f;
+			base_pos = midp;
+			height = std::fabs(div.y);
+			length = std::fabs(div.z);
+			width = std::fabs(div.x);
+		}
+
 		const void drawBox(const bool this_flag) const {
 
 			glEnable(GL_BLEND);

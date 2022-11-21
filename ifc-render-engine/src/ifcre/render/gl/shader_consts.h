@@ -236,7 +236,7 @@ namespace ifcre {
 			"float fin = mod(st.x,.1);\r\n"
 			"fin=smoothstep(.04,.06,fin);\r\n"
 			"outColor=mix(outColor,one ,fin*.5);\r\n"
-			"FragColor = vec4(outColor, alpha);\r\n"
+			"FragColor = vec4(outColor, 0.5);\r\n"
 			"}\r\n";
 
 		static const char* v_collision = "#version 460\r\n"
@@ -662,6 +662,26 @@ namespace ifcre {
 			"vec4 pos = view_matrix * vec4(aPos, 1.0);\r\n"
 			"gl_Position = pos.xyww;\r\n"
 			"}\r\n";
+		static const char* f_skybox1 = "#version 460 core\r\n"
+			"out vec4 FragColor;\r\n"
+			"in vec3 TexCoords;\r\n"
+			"uniform samplerCube skybox;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"FragColor = texture(skybox, TexCoords);\r\n"
+			"}\r\n";
+
+		static const char* v_skybox1 = "#version 460 core\r\n"
+			"layout (location = 0) in vec3 aPos;\r\n"
+			"out vec3 TexCoords;\r\n"
+			"uniform mat4 projection;\r\n"
+			"uniform mat4 view;\r\n"
+			"void main()\r\n"
+			"{\r\n"
+			"TexCoords = aPos;\r\n"
+			"vec4 pos = projection * view * vec4(aPos, 1.0);\r\n"
+			"gl_Position = pos.xyww;\r\n"
+			"}\r\n";
 		static const char* f_test = "#version 460\r\n"
 			"layout(location = 0) in vec4 vGoColor;\r\n"
 			"layout(location = 1) in vec3 vNormal;\r\n"
@@ -695,8 +715,8 @@ namespace ifcre {
 			"//vec4 diffuse = max(dot(norm, ubo.cameraDirection), 0.0) * color * 0.3;\r\n"
 			"//color = color * 0.7 + diffuse;\r\n"
 			"FragColor = color;\r\n"
-			"float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);\r\n"
-			"if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
+			"//float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);\r\n"
+			"//if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);\r\n"
 			"}\r\n";
 
 		static const char* v_test = "#version 460\r\n"

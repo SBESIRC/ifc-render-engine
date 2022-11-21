@@ -51,6 +51,7 @@ namespace ifcre {
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
+		void CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo);
 
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
@@ -89,7 +90,7 @@ namespace ifcre {
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
-		void renderDrawing(IFCModel& ifc_model);			// ------------- drawing match shading -------------
+		void renderDrawing(IFCModel& ifc_model, float k);			// ------------- drawing match shading -------------
 		void renderTileViewDrawing(IFCModel& ifc_model);	// ------------- tile-view's drawing -------------
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
@@ -127,7 +128,7 @@ namespace ifcre {
 		void bind_ui_to_window(RenderWindow& w) {
 			simpleui = make_shared<ClipBoxUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
 		}
-		void ui_update(SharedPtr<bool> mousemove, bool hidden, float& global_alpha, float& trans_alpha) {
+		void ui_update(SharedPtr<bool> mousemove, bool hidden, float& global_alpha, float& trans_alpha, float& script_scale_fractor) {
 			int my_key = last_clp_face_key - 26;
 			glm::vec2 this_face_normal = glm::vec2(0.f);
 			if (my_key >= 0) {
@@ -136,7 +137,7 @@ namespace ifcre {
 				this_face_normal = glm::vec2(temp.x, temp.y);/*
 				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
 			}
-			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha);
+			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha, script_scale_fractor);
 		}
 		void alpha_update() {
 
