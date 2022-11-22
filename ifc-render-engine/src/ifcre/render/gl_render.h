@@ -124,18 +124,27 @@ namespace ifcre {
 		}
 		// ----- ----- ----- ----- ----- ----- ----- -----
 #pragma region UI changes
+#define thresh 1.f
 		SharedPtr<ClipBoxUI> simpleui;
 		void bind_ui_to_window(RenderWindow& w) {
 			simpleui = make_shared<ClipBoxUI>(w.get_glfw_window(), w.get_glsl_verison().c_str());
 		}
-		void ui_update(SharedPtr<bool> mousemove, bool hidden, float& global_alpha, float& trans_alpha, float& script_scale_fractor) {
+		void ui_update(SharedPtr<bool> mousemove, bool hidden, float& global_alpha, float& trans_alpha, float& script_scale_fractor, glm::vec2 dragmove, bool lbtn) {
 			int my_key = last_clp_face_key - 26;
 			glm::vec2 this_face_normal = glm::vec2(0.f);
-			if (my_key >= 0) {
-				auto temp = m_projection * m_modelview * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
-				temp /= temp.w;
-				this_face_normal = glm::vec2(temp.x, temp.y);/*
-				std::cout << my_key << " " << this_face_normal.x << " " << this_face_normal.y << "\n";*/
+			if (lbtn && my_key >= 0 && !hidden) {
+
+				//auto temp = m_projection * m_view * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
+				auto temp = m_view * use_clip_box->face_normal[my_key];
+				temp = temp / temp.w;
+				this_face_normal = glm::normalize(glm::vec2(temp.x, temp.y));
+				//std::cout << my_key << ": " << this_face_normal.x << " " << this_face_normal.y << "\n";
+				//std::cout << "drag: " << dragmove.x << " " << dragmove.y << "\n";
+				float times = glm::dot(this_face_normal, dragmove);
+				if (times > 0)
+					use_clip_box->updateBox(my_key * 2, times * global_alpha * 0.04f);
+				else if (/*mddl < lddl*/times < 0)
+					use_clip_box->updateBox(my_key * 2 + 1, -times * global_alpha * 0.04f);
 			}
 			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha, script_scale_fractor);
 		}

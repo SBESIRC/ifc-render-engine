@@ -404,6 +404,43 @@ namespace ifcre {
 			collider_trans_flag = true;
 			m_render.getClipBox()->setBox(pmin, pmax);
 		}
+
+#pragma region mouse work
+
+		if (*mousemove && !m_window.rotatelock) {
+			/*if (m_window.getHidden()) {
+
+			}*/
+			if (m_window.isMouseHorizontalRot()) {
+				m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
+			}
+			if (m_window.isMouseVerticalRot()) {
+
+				m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
+			}
+		}
+		else {
+			mouse_move_vec.x = m_window.getMouseHorizontalVel();
+			mouse_move_vec.y = m_window.getMouseVerticalVel();
+		}
+		if (m_window.isRightMouseClicked()) {
+			if (m_window.isMouseMove() && m_last_rmclick) {
+				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+				glm::vec3 step = hover - m_last_hover_pos;
+				ifc_test_model->translate(step);
+				//wrong way here
+				//m_camera->translateByHoverDiv(step);
+				//printvec3(step);
+			}
+			m_last_hover_pos = clicked_coord;
+			m_last_rmclick = true;
+		}
+		else {
+			m_last_rmclick = false;
+		}
+
+#pragma endregion
+
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 #pragma endregion
 		{
@@ -411,7 +448,6 @@ namespace ifcre {
 			dataIntegration();
 #pragma region COMP THINGS
 
-#ifdef TEST_COMP_ID_RES
 			m_window.switchRenderCompId();
 			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
 			key = m_window.getClickCompId();
@@ -443,47 +479,10 @@ namespace ifcre {
 
 			m_render.last_hovered_face_key = m_window.getClpBoxFaceId();
 
-#endif
-
 #pragma endregion
 
-#pragma region mouse work
+#pragma region main render
 
-			if (*mousemove && !m_window.rotatelock) {
-				/*if (m_window.getHidden()) {
-
-				}*/
-				if (m_window.isMouseHorizontalRot()) {
-					m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
-				}
-				if (m_window.isMouseVerticalRot()) {
-
-					m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
-				}
-				if (m_window.isRightMouseClicked()) {
-					if (m_window.isMouseMove() && m_last_rmclick) {
-						glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
-						glm::vec3 step = hover - m_last_hover_pos;
-						ifc_test_model->translate(step);
-						//wrong way here
-						//m_camera->translateByHoverDiv(step);
-						//printvec3(step);
-					}
-					m_last_hover_pos = clicked_coord;
-					m_last_rmclick = true;
-				}
-				else {
-					m_last_rmclick = false;
-				}
-			}
-			else {
-				mouse_move_vec.x = m_window.getMouseHorizontalVel();
-				mouse_move_vec.y = m_window.getMouseVerticalVel();
-			}
-
-#pragma endregion
-
-#ifndef ONLY_DEPTH_NROMAL_RES
 			// 1. render scene
 			m_window.switchRenderColor();
 
@@ -534,10 +533,11 @@ namespace ifcre {
 
 			m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton,
 				global_alpha, trans_alpha,
-				script_scale_fractor
+				script_scale_fractor, m_window.getDragMouseMove(), m_window.getlbtndown()
 			);
 			m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_window.collidertrig);
-#endif
+
+			*mousemove = !clipboxButton;
 			//8. render sup things
 			// render sky box
 			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
@@ -584,6 +584,9 @@ namespace ifcre {
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			m_render.simpleui->render();
+
+#pragma endregion
+
 			m_window.endRenderToWindow();
 		}
 		// post render

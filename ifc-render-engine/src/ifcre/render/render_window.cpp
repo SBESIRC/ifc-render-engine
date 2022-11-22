@@ -213,6 +213,18 @@ namespace ifcre {
         }
         status.last_mouse_x = xpos;
         status.last_mouse_y = ypos;
+
+        auto cur_pos = glm::vec2(xpos, ypos);
+        if (status.lbtn_down) {
+            auto f = glm::length(cur_pos - status.last_pos_screen);
+            if (f > 1.f)
+                status.mousemove_div = cur_pos - status.last_pos_screen;
+            else
+                status.mousemove_div = glm::vec2(0.f);
+            //std::cout << status.mousemove_div.x << " " << status.mousemove_div.y << "\n";
+            status.mousemove_div.y *= -1.f;
+        }
+        status.last_pos_screen = cur_pos;
     }
 
     void RenderWindow::scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {

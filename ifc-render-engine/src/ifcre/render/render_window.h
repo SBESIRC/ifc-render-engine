@@ -53,6 +53,13 @@ namespace ifcre {
 		int getHoverCompId();
 		int getClickedUIId();
 		int getClpBoxFaceId();
+		glm::vec2 getDragMouseMove() {
+			if (m_mouse_status.lbtn_down) {
+				return m_mouse_status.mousemove_div;
+			}
+			return glm::vec2(0.f);
+		}
+		bool getlbtndown() { return m_mouse_status.lbtn_down; }
 		glm::vec2 getWindowSize();
 		glm::mat4 getProjMatrix();
 		glm::mat4 getPerspectiveProjMatrix();
@@ -172,6 +179,9 @@ namespace ifcre {
 
 			float chosen_ui_id = -1.f;
 			int clpbox_face_id = -1;
+
+			glm::vec2 mousemove_div;
+			glm::vec2 last_pos_screen = glm::vec2(0., 0.);
 		}m_mouse_status;
 		private:
 		struct {
