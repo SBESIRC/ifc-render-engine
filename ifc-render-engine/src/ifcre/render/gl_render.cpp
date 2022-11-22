@@ -1314,9 +1314,9 @@ namespace ifcre {
 		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
 		return glm::vec3(sxaswd1);
 	}
-	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats, const Vector<int>& floorIndex)
+	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats)
 	{
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
-		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
+		//m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
 	}
 } 

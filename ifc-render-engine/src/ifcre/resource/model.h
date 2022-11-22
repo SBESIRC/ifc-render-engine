@@ -527,15 +527,14 @@ namespace ifcre {
 
 			std::sort(bbxs_each_floor.begin(), bbxs_each_floor.end(), [](Vector<Real>a, Vector<Real>b) { return a[1] < b[1]; });	// Ascending by y-axis
 
-			Vector<int> floorIndex(100, 0);
-			for (int i = 0; i < bbxs_each_floor.size(); i++) {			// let the real floor number index to the sorted floor number
-				int id = util::float_as_int(bbxs_each_floor[i][6]);							// the real floor number
-				floorIndex[id] = i;
-				bbxs_each_floor[i].pop_back();
-			}
-			realFloor2sortFloor = floorIndex;
+			//Vector<int> floorIndex(100, 0);
+			//for (int i = 0; i < bbxs_each_floor.size(); i++) {			// let the real floor number index to the sorted floor number
+			//	int id = util::float_as_int(bbxs_each_floor[i][6]);							// the real floor number
+			//	floorIndex[id] = i;
+			//	bbxs_each_floor[i].pop_back();
+			//}
+			//realFloor2sortFloor = floorIndex;
 		}
-
 
 		void cal_tile_matrix() {
 			float max_delta_z = 0;
@@ -549,6 +548,15 @@ namespace ifcre {
 				model = glm::translate(model, glm::vec3(0, -delta_y, -max_delta_z * scale * i));
 				tile_matrix.push_back(model);
 			}
+
+			// let the tile_matrix ordered by the order of stoerys_comp_id
+			Vector <glm::mat4> tile_matrix_ordered_temp(bbxs_each_floor.size(), glm::mat4(1.f));
+			for (int i = 0; i < bbxs_each_floor.size(); i++) {
+				int id = util::float_as_int(bbxs_each_floor[i][6]);			// read the real stoery_id
+				tile_matrix_ordered_temp[id] = tile_matrix[i];
+				//bbxs_each_floor[i].pop_back();
+			}
+			tile_matrix_ordered = tile_matrix_ordered_temp;
 		}
 
 		glm::vec3 get_bbx_center(const Vector<Real>& ret) {
@@ -598,7 +606,7 @@ namespace ifcre {
 		}
 
 		Vector<glm::mat4> tile_offsets_mats() {
-			return tile_matrix;
+			return tile_matrix_ordered;
 		}
 
 		Vector<int> floorIndex() {
@@ -765,9 +773,10 @@ namespace ifcre {
 		glm::mat4 bbx_model_mat;
 		glm::vec3 curcenter;
 
-		Vector <Vector<Real> > bbxs_each_floor;	// each element have six member // e.g (pmin[0], pmin[1], pmin[2], pmax[0], pmax[1], pmax[2])
+		Vector <Vector<Real> > bbxs_each_floor;	// each element have seven member // e.g (pmin[0], pmin[1], pmin[2], pmax[0], pmax[1], pmax[2], stoery_id)
 		Vector <int> realFloor2sortFloor;		// the real floor number index to the sorted floor number
 		Vector <glm::mat4> tile_matrix;			// tile view matrix
+		Vector <glm::mat4> tile_matrix_ordered;			// tile view matrix ordered by the order of storeys_comp_id
 
 		//Vector<float> grid_lines; // position xyzxyz color: rgba...起点xyz 终点xyz 颜色rgba 线宽w 线型t
 		//Vector<float> grid_circles; // 圆环中心xyz 圆环朝向xyz 圆环颜色rgba 圆环半径r 线宽w

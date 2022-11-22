@@ -18,7 +18,7 @@ layout(std140, binding = 0)uniform TransformsUBO{
 
 layout(std140, binding = 3)uniform StoreyOffsetTransformUBO{
 	mat4 storeyOffset_mat[100];		// 0 ~ 6400
-	int floorIndex[100];			// 6400 ~ 6800
+	//int floorIndex[100];			// 6400 ~ 6800
 } sotubo;
 
 layout(location = 0) out vec4 vGoColor;
