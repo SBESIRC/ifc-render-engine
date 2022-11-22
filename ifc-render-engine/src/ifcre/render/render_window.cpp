@@ -28,6 +28,11 @@ namespace ifcre {
         m_mouse_status.click_world_center = t;
         m_mouse_status.click_x = clicked_x;
         m_mouse_status.click_y = clicked_y;
+
+        glm::mat4 p_inv = glm::inverse(m_projection);
+        t = p_inv * ndc;
+        t = t / t.w;
+        m_mouse_status.clicked_view_cord_center = t;
     }
 
     float RenderWindow::_getClickedDepthValue(double clicked_x, double clicked_y)
@@ -201,7 +206,7 @@ namespace ifcre {
             }
 
             glm::vec4 ndc(x, y, status.click_z, 1.0f);
-            glm::mat4 vp_inv = glm::inverse(that->m_projection * camera.getViewMatrix());
+            glm::mat4 vp_inv = glm::inverse(that->m_projection * that->m_camera->getViewMatrix());
             glm::vec4 t = vp_inv * ndc;
             t = t / t.w;
             status.hover_world_center = t;
@@ -210,6 +215,12 @@ namespace ifcre {
             status.click_world_center = t;
             status.click_y = status.click_y + (ypos - status.last_mouse_y);
             status.click_x = status.click_x + (xpos - status.last_mouse_x);
+
+            glm::mat4 p_inv = glm::inverse(that->m_projection);
+            t = p_inv * ndc;
+            t = t / t.w;
+            status.hovered_view_cord_center = t;
+            status.clicked_view_cord_center = t;
         }
         status.last_mouse_x = xpos;
         status.last_mouse_y = ypos;
@@ -217,7 +228,8 @@ namespace ifcre {
         auto cur_pos = glm::vec2(xpos, ypos);
         if (status.lbtn_down) {
             auto f = glm::length(cur_pos - status.last_pos_screen);
-            if (f > 1.f)
+            //std::cout << "f: " << f << std::endl;
+            if (f > .9f)
                 status.mousemove_div = cur_pos - status.last_pos_screen;
             else
                 status.mousemove_div = glm::vec2(0.f);
@@ -769,6 +781,12 @@ namespace ifcre {
     glm::vec3 RenderWindow::getVirtualHoverWorldCoord()
     {
         return m_mouse_status.hover_world_center;
+    }
+    glm::vec3 RenderWindow::getClickedViewCordCoord() {
+        return m_mouse_status.clicked_view_cord_center;
+    }
+    glm::vec3 RenderWindow::getVirtualHoverViewCordCoord() {
+        return m_mouse_status.hovered_view_cord_center;
     }
     float RenderWindow::getMouseHorizontalVel()
     {

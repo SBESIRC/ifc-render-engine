@@ -106,7 +106,7 @@ namespace ifcre {
         // based on IfcModel->translate(glm::vec3& step)
         void translateByHoverDiv(glm::vec3& step) {
             //translating -= step;
-            m_pos -= step;
+            m_pos -= step.x * m_right + step.y * m_up + step.z * m_front;
             //std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
         }
 

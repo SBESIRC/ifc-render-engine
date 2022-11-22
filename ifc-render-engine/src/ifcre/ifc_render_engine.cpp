@@ -425,14 +425,14 @@ namespace ifcre {
 		}
 		if (m_window.isRightMouseClicked()) {
 			if (m_window.isMouseMove() && m_last_rmclick) {
-				glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+				glm::vec3 hover = m_window.getVirtualHoverViewCordCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
-				ifc_test_model->translate(step);
+				//ifc_test_model->translate(step);
 				//wrong way here
-				//m_camera->translateByHoverDiv(step);
+				m_camera->translateByHoverDiv(step);
 				//printvec3(step);
 			}
-			m_last_hover_pos = clicked_coord;
+			m_last_hover_pos = m_window.getClickedViewCordCoord();
 			m_last_rmclick = true;
 		}
 		else {

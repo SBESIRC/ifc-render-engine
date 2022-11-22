@@ -135,16 +135,16 @@ namespace ifcre {
 			if (lbtn && my_key >= 0 && !hidden) {
 
 				//auto temp = m_projection * m_view * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
-				auto temp = m_view * use_clip_box->face_normal[my_key];
-				temp = temp / temp.w;
+				auto temp = m_projection * m_view * m_model * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
+				//temp = temp / temp.w;
 				this_face_normal = glm::normalize(glm::vec2(temp.x, temp.y));
 				//std::cout << my_key << ": " << this_face_normal.x << " " << this_face_normal.y << "\n";
 				//std::cout << "drag: " << dragmove.x << " " << dragmove.y << "\n";
 				float times = glm::dot(this_face_normal, dragmove);
 				if (times > 0)
-					use_clip_box->updateBox(my_key * 2, times * global_alpha * 0.04f);
+					use_clip_box->updateBox(my_key * 2, times * 0.1f);
 				else if (/*mddl < lddl*/times < 0)
-					use_clip_box->updateBox(my_key * 2 + 1, -times * global_alpha * 0.04f);
+					use_clip_box->updateBox(my_key * 2 + 1, -times * 0.1f);
 			}
 			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha, script_scale_fractor);
 		}

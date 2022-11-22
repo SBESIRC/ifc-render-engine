@@ -96,8 +96,13 @@ namespace ifcre {
 			0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9, 10, 8, 10, 11,
 			//right				   //up					   //down
 			12, 13, 14, 12, 14, 15, 16, 17, 18, 16, 18, 19, 20, 21, 22, 20, 22, 23 };
-		Vector<uint32_t> cube_element_edge_buffer_object = { 0,1,1,2,2,3,3,0, 4,5,5,6,6,7,7,4, 8,9,9,10,10,11,11,8,
-			12,13,13,14,14,15,15,12, 16,17,17,18,18,19,19,16, 20,21,21,22,22,23,23,20,
+		Vector<uint32_t> cube_element_edge_buffer_object = {
+			0,1,1,2,2,3,3,0,
+			4,5,5,6,6,7,7,4,
+			8,9,9,10,10,11,11,8,
+			12,13,13,14,14,15,15,12,
+			16,17,17,18,18,19,19,16,
+			20,21,21,22,22,23,23,20,
 			//points
 			24, 25, 26, 27, 28, 29,
 			//normals
@@ -186,23 +191,32 @@ namespace ifcre {
 				//normals
 				0,	0,	-k,		util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
 				0,	0,	-k * 2,	util::int_as_float(ui_id_num + 1)/*ui_id_num + 1.f*/,
+
 				-k,	0,	0,		util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
 				-k * 2,	0,	0,	util::int_as_float(ui_id_num + 2)/*ui_id_num + 2.f*/,
+
 				0,	0,	k,		util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
 				0,	0,	k * 2,	util::int_as_float(ui_id_num + 3)/*ui_id_num + 3.f*/,
+
 				k,	0,	0,		util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
 				k * 2,	0,	0,	util::int_as_float(ui_id_num + 4)/*ui_id_num + 4.f*/,
+
 				0,	k,	0,		util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
 				0,	k * 2,	0,	util::int_as_float(ui_id_num + 5)/*ui_id_num + 5.f*/,
+
 				0,	-k,	0,		util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/,
 				0,	-k * 2,	0,	util::int_as_float(ui_id_num + 6)/*ui_id_num + 6.f*/
 
 			};
-			face_normal = {
+			face_normal = {/*
 				//back							//left							//front
-				glm::vec4(0.f,0.f,-k,1.f),	glm::vec4(-k,0.f,0.f,1.f),	glm::vec4(0.f,0.f,k,1.f),
+				glm::vec4(-front,0.f),	glm::vec4(-right,0.f),	glm::vec4(front,1.f),
 				//right							//up							//down
-				glm::vec4(k,0.f,0.f,1.f),		glm::vec4(0.f,k,0.f,1.f),		glm::vec4(0.f,-k,0.f,1.f)
+				glm::vec4(right,0.f),		glm::vec4(normal,0.f),		glm::vec4(-normal,0.f)*/
+				//back							//left							//front
+				glm::vec4(0.f, 0.f, -1.f, 0.f),	glm::vec4(-1.f, 0.f, 0.f, 0.f),	glm::vec4(0.f, 0.f, 1.f, 0.f),
+				//right							//up							//down
+				glm::vec4(1.f, 0.f, 0.f, 0.f),	glm::vec4(0.f, 1.f, 0.f, 0.f),	glm::vec4(0.f, -1.f, 0.f, 0.f)
 			};
 			glBindVertexArray(edge_vao);
 			glBindBuffer(GL_ARRAY_BUFFER, edge_vbo);

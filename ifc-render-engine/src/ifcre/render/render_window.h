@@ -54,10 +54,12 @@ namespace ifcre {
 		int getClickedUIId();
 		int getClpBoxFaceId();
 		glm::vec2 getDragMouseMove() {
+			glm::vec2 ret(0.f);
 			if (m_mouse_status.lbtn_down) {
-				return m_mouse_status.mousemove_div;
+				ret = m_mouse_status.mousemove_div;
 			}
-			return glm::vec2(0.f);
+			m_mouse_status.mousemove_div = glm::vec2(0.f);
+			return ret;
 		}
 		bool getlbtndown() { return m_mouse_status.lbtn_down; }
 		glm::vec2 getWindowSize();
@@ -78,6 +80,8 @@ namespace ifcre {
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
 		glm::vec3 getVirtualHoverWorldCoord();
+		glm::vec3 getClickedViewCordCoord();
+		glm::vec3 getVirtualHoverViewCordCoord();
 		float getMouseHorizontalVel();
 		float getMouseVerticalVel();
 		bool isMouseHorizontalRot();
@@ -169,6 +173,9 @@ namespace ifcre {
 			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
 			int32_t click_x = 0, click_y = 0;
+
+			glm::vec3 clicked_view_cord_center = glm::vec3(0., 0., 0.);
+			glm::vec3 hovered_view_cord_center = glm::vec3(0., 0., 0.);
 
 			// 1: inside of model
 			// -1: outside of model
