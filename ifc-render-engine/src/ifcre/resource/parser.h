@@ -164,7 +164,7 @@ namespace ifcsaver {
 		return ret;
 	}
 
-	void save_data2OpenGL_into_binary(const Datas2OpenGL& source, string filename) {
+	void save_data2OpenGL_into_binary(const Datas2OpenGL& source, const vector<vector<uint32_t>>& c_edge_indices, string filename) {
 		ofstream os(filename.c_str(), ios::binary);
 		save_vector_into_binary<unsigned int>(source.vert_indices, os);
 		save_vector_into_binary<unsigned int>(source.edge_indices, os);
@@ -193,10 +193,17 @@ namespace ifcsaver {
 		save_unordered_map_into_binary<int>(source.storey_map_int2string, os);
 		save_vector_into_binary<int>(source.this_comp_belongs_to_which_storey, os);
 
+		//22.11.21 updated, add components' edge index into a vector<vector<uint32_t>> into .midfile
+		s = c_edge_indices.size();
+		save_meta_into_binary<size_t>(s, os);
+		for (size_t i = 0; i < s; i++) {
+			save_vector_into_binary<uint32_t>(c_edge_indices[i], os);
+		}
+
 		os.close();
 	}
 
-	Datas2OpenGL read_datas2OpenGL_from_binary(ifstream& is) {
+	Datas2OpenGL read_datas2OpenGL_from_binary(ifstream& is, vector<vector<uint32_t>>& the_c_edge_indices) {
 		Datas2OpenGL ret;
 		ret.vert_indices = read_vector_from_binary<unsigned int>(is);
 		ret.edge_indices = read_vector_from_binary<unsigned int>(is);//ret.search_m.clear();
@@ -221,6 +228,12 @@ namespace ifcsaver {
 		ret.storey_map_string2int = read_unordered_map_from_binary_2<int>(is);
 		ret.storey_map_int2string = read_unordered_map_from_binary_1<int>(is);
 		ret.this_comp_belongs_to_which_storey = read_vector_from_binary<int>(is);
+
+		//22.11.21 updated, add components' edge index into a vector<vector<uint32_t>> into .midfile
+		the_c_edge_indices.resize(read_meta_from_binary<size_t>(is));
+		for (size_t i = 0; i < the_c_edge_indices.size(); i++) {
+			the_c_edge_indices[i] = read_vector_from_binary<uint32_t>(is);
+		}
 
 		return ret;
 	}
@@ -256,7 +269,7 @@ namespace ifcre {
 	class IFCParser {
 		// TODO
     public:
-	   static SharedPtr<IFCModel> load(String file) {
+	   /*static SharedPtr<IFCModel> load(String file) {
 		   Datas2OpenGL ge;
 		   
 		   if (endsWith(file, ".midfile")) {
@@ -280,31 +293,40 @@ namespace ifcre {
 			   });
 		   ret->collision_pairs = collider.getIndexArr();*/
 		   return ret;
-	   }
-
-//	   static SharedPtr<IFCModel> load(String file) {
-//#ifdef _DEBUG
-//		   file += ".midfile";
-//		   ifstream is(file.c_str(), std::ios::binary);
-//		   Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-//		   is.close();
-//#else
-//		   Datas2OpenGL ge = generateIFCMidfile(file);
-//		   ifcsaver::save_data2OpenGL_into_binary(ge, file + ".midfile");
-//#endif
-//		   auto ret = make_shared<IFCModel>(ge);
-//		   //Collider collider;
-//		   //collider.bufferData(&ge);
-//		   //collider.addFilter([](const Datas4Component& hcg) {return true; });
-//		   //collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
-//		   //ret->collision_pairs = collider.getIndexArr();
-//		   return ret;
-//	   }
+	   }*/
 
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());
 		}
+
+		static SharedPtr<IFCModel> load(String file) {
+			bool flag;
+#ifdef _DEBUG
+			flag = true;
+			file += ".midfile";
+			ifstream is(file.c_str(), std::ios::binary);
+			vector<vector<uint32_t>> the_c_edge_indices;
+			Datas2OpenGL ge = ifcsaver::read_datas2OpenGL_from_binary(is, the_c_edge_indices);
+			is.close();
+
+			auto ret = make_shared<IFCModel>(ge, flag);
+			ret->c_edge_indices = the_c_edge_indices;
+			ret->generate_edges_by_msMeshes(flag);
+#else
+			flag = false;
+			Datas2OpenGL ge = generateIFCMidfile(file);
+			auto ret = make_shared<IFCModel>(ge, flag);
+			ifcsaver::save_data2OpenGL_into_binary(ge, ret->c_edge_indices, file + ".midfile");
+#endif
+			Collider collider;
+			collider.bufferData(&ge);
+			collider.addFilter([](const Datas4Component& hcg) {return true; });
+			collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
+			ret->collision_pairs = collider.getIndexArr();
+			return ret;
+		}
 	};
+
 
 	class DefaultParser {
 	public:
