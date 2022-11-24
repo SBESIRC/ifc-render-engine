@@ -7,7 +7,7 @@
 #include "common/std_types.h"
 #include "resource/model.h"
 #include <map>
-#include "collider.h"
+
 #include "ifcrender/ifc_render.h"
 namespace ifcre {
 
@@ -26,14 +26,14 @@ namespace ifcre {
 		//virtual void set_comp_types(int val) = 0;
 
 
-		virtual void init(GLFWwindow *) = 0;
+		virtual void init(GLFWwindow*) = 0;
 		//virtual void init2(GLFWwindow* ) = 0;
 		//virtual void initialize(Map<String, String> &configs) = 0;
 		//virtual void setFloat() = 0;
 		virtual void run() = 0;
 		virtual int getSelectedCompId() = 0;
 		virtual int getSelectedCompIdsSize() = 0;
-		virtual void getSelectedCompIds(int *arr) = 0;
+		virtual void getSelectedCompIds(int* arr) = 0;
 		virtual void setSelectCompIds(int val) = 0;
 
 		virtual void SetSleepTime(int val) = 0;
@@ -46,12 +46,6 @@ namespace ifcre {
 		virtual void set_grid_circles(float val) = 0;
 		virtual void set_grid_text(String val) = 0;
 		virtual void set_grid_text_data(float val) = 0;
-
-		virtual void set_collide_command(int val) = 0;
-		virtual void set_collide_idsA(int val) = 0;
-		virtual void set_collide_idsB(int val) = 0;
-		virtual int get_collide_ids_size() = 0;
-		virtual void get_collide_ids(int* arr) = 0;
 	};
 
 
@@ -75,18 +69,12 @@ namespace ifcre {
 		void set_grid_text(String val);
 		void set_grid_text_data(float val);
 
-		void set_collide_command(int val);
-		void set_collide_idsA(int val);
-		void set_collide_idsB(int val);
-		int get_collide_ids_size();
-		void get_collide_ids(int* arr);
-		
 		//void init2(GLFWwindow* wndPtr);
-		void init(GLFWwindow *);
+		void init(GLFWwindow*);
 		void run();
 		int getSelectedCompId();
 		int getSelectedCompIdsSize();
-		void getSelectedCompIds(int *arr);
+		void getSelectedCompIds(int* arr);
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 		bool saveImage(const char* filePath);
@@ -115,7 +103,7 @@ namespace ifcre {
 		SharedPtr<bool> mousemove;
 	private:
 		void drawFrame();
-		
+
 	private:
 		Map<String, String> m_cache_configs;
 		bool m_init;
@@ -147,13 +135,6 @@ namespace ifcre {
 		Vector<float> grid_text_data;
 		bool grid_line_reset = true;
 		bool grid_text_reset = true;
-
-		SharedPtr<Collider> collider;
-		unordered_set<uint32_t> collide_idsC;
-		unordered_set<uint32_t> collide_idsA;
-		unordered_set<uint32_t> collide_idsB;
-		int collide_size = 0;
-		Vector<uint32_t> collide_twin;
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
 		Scene m_scene;
@@ -161,7 +142,6 @@ namespace ifcre {
 	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 15); // 摄像机位置 // z轴正方向出屏幕
 		glm::vec3 m_last_hover_pos = glm::vec3(0);
-		glm::vec3 m_last_hover_pos_cmp = glm::vec3(0);
 		// right mouse click
 		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;

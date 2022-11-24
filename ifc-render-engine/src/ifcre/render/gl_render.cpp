@@ -7,7 +7,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "../grid.h"
 namespace ifcre {
 
 	// ------------ construction ---------------------
@@ -592,13 +591,13 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
-	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& text_reset) {
+	void GLRender::renderGridText(Vector<std::wstring>& texts, Vector<float>& text_data, bool& text_reset) {
 		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		texturefont.drawText3D(m_text3d_shader, texts, text_data, m_projection, m_modelview, text_reset);
 		_defaultConfig();
 	}
 
-	void GLRender::renderGridLine(vector<float>& grid_line , int width, int height, bool& grid_line_reset)
+	void GLRender::renderGridLine(Vector<float>& grid_line , int width, int height, bool& grid_line_reset)
 	{
 		static uint32_t grid_vao;
 		static uint32_t grid_line_size = 0;
@@ -606,7 +605,7 @@ namespace ifcre {
 		if (grid_line_reset) {
 			grid_line_reset = false;
 			grid_line_size = grid_line.size();
-			vector<float> tmp(grid_line_size * 14 / 12);
+			Vector<float> tmp(grid_line_size * 14 / 12);
 			for (int i = 0, j = 0; i < grid_line_size; i += 12,j += 14) {
 				tmp[j] = grid_line[i];
 				tmp[j + 1] = grid_line[i + 1];
@@ -641,12 +640,12 @@ namespace ifcre {
 			glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(6 * sizeof(float)));
 			glEnableVertexAttribArray(2);
 
-			vector<float>().swap(grid_line);
+			Vector<float>().swap(grid_line);
 		}
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 		m_grid_shader->use();
-		m_grid_shader->setVec2("u_resolution", vec2(width, height));
+		m_grid_shader->setVec2("u_resolution", glm::vec2(width, height));
 		glBindVertexArray(grid_vao);
 		glDrawArrays(GL_LINES, 0, grid_line_size / 3);
 		_defaultConfig();
@@ -874,7 +873,7 @@ namespace ifcre {
 		glDepthFunc(GL_LESS); // set depth function back to default
 	}*/
 
-	unsigned int  GLRender::loadCubemap(vector<std::string> faces)
+	unsigned int  GLRender::loadCubemap(Vector<std::string> faces)
 	{
 		unsigned int textureID;
 		glGenTextures(1, &textureID);

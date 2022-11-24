@@ -75,7 +75,6 @@
     <ClInclude Include="src\ifcre\Character.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
-    <ClInclude Include="src\ifcre\grid.h" />
     <ClInclude Include="src\ifcre\Axis.h" />
     <ClInclude Include="src\ifcre\SimpleUI.h" />
     <ClInclude Include="src\ifcre\imgui\imconfig.h" />

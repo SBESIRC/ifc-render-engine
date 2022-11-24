@@ -2,7 +2,6 @@
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
-#include "grid.h"
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -86,45 +85,11 @@ namespace ifcre {
 		grid_circles.emplace_back(val);
 	}
 	void IFCRenderEngine::set_grid_text(String val) {
-		wstring wstr(val.begin(), val.end());
+		std::wstring wstr(val.begin(), val.end());
 		grid_text.emplace_back(wstr);
 	}
 	void IFCRenderEngine::set_grid_text_data(float val) {
 		grid_text_data.emplace_back(val);
-	}
-
-
-
-	void IFCRenderEngine::set_collide_command(int val) {
-		if (val == 0) { // 开始传输A、B数据前先进行清空
-			collide_idsA.clear();
-			collide_idsB.clear();
-			collide_idsC.clear();
-		}
-		else if (val == 1) { // A、B传输完成，进行碰撞检测
-			collider->bufferData(_g_indices, _g_vertices, _c_indices); // 此处会清空原始数据
-			collider->setTotalIds(collide_idsC);
-			collider->setRespetcIds(collide_idsA, collide_idsB);
-			vector<uint32_t>().swap(collide_twin);
-			collide_twin = collider->getIndexArr();
-			collide_size = collide_twin.size();
-		}
-	}
-	void IFCRenderEngine::set_collide_idsA(int val) {
-		collide_idsA.insert((uint32_t)val);
-		collide_idsC.insert((uint32_t)val);
-	}
-	void IFCRenderEngine::set_collide_idsB(int val) {
-		collide_idsB.insert((uint32_t)val);
-		collide_idsC.insert((uint32_t)val);
-	}
-	int IFCRenderEngine::get_collide_ids_size()	{
-		return collide_size;
-	}
-	void IFCRenderEngine::get_collide_ids(int* arr) {
-		for (size_t i = 0; i < collide_twin.size(); i++) {
-			arr[i] = (int)collide_twin[i];
-		}
 	}
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
@@ -161,14 +126,10 @@ namespace ifcre {
 		String model_file = configs["file"];
 		if (model_file == "nil") {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
-			collider = make_shared<Collider>();
 		}
 		else {
 			if (try_ifc) {
 				ifc_test_model = IFCParser::load(model_file);
-				_g_indices = ifc_test_model->g_indices;
-				_g_vertices = ifc_test_model->g_vertices;
-				_c_indices = ifc_test_model->c_indices;
 			}
 			else {
 				test_model = DefaultParser::load(model_file);
@@ -352,7 +313,7 @@ namespace ifcre {
 		}
 	}
 
-// private:
+	// private:
 	void IFCRenderEngine::drawFrame()
 	{
 		auto& m_render = *m_glrender;
@@ -566,7 +527,7 @@ namespace ifcre {
 			}
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			
+
 			// -------------- render axis, not normal render procedure ---------------
 			m_render.renderAxis(*ifc_test_model
 				, clicked_coord
@@ -589,7 +550,7 @@ namespace ifcre {
 			if (/*m_window.getShowDrawing()*/drawingMatchButton)
 				m_render.renderDrawing(*ifc_test_model, script_scale_fractor);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-			
+
 			// ------------- tile view drawing shading ---------------------------------- // don't use this, there are a few errors!!!
 			if (/*m_window.getShowTileView()*/tileViewButton)
 				;
@@ -609,7 +570,7 @@ namespace ifcre {
 		// post render
 		m_render.postRender(m_window); // 后处理，清空缓冲
 	}
-// ----- ----- ----- ----- ----- ----- ----- ----- 
+	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 
 	void IFCRenderEngine::changeGeom() {
@@ -765,7 +726,7 @@ namespace ifcre {
 	{
 		return m_render_window->chosen_list.size();
 	}
-	void IFCRenderEngine::getSelectedCompIds(int *arr) {
+	void IFCRenderEngine::getSelectedCompIds(int* arr) {
 		std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
 		for (size_t i = 0; i < v.size(); i++)
 		{
@@ -794,7 +755,7 @@ namespace ifcre {
 		if (ifc_test_model == NULL) {
 			return;
 		}
-		
+
 		zoombyBBX(ifc_test_model->getpMax(), ifc_test_model->getpMin());
 	}
 

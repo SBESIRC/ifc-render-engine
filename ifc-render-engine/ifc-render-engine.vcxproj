@@ -218,7 +218,6 @@
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
-    <ClInclude Include="src\ifcre\grid.h" />
     <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
     <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />

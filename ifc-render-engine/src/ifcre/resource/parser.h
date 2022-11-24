@@ -238,68 +238,68 @@ namespace ifcsaver {
 		return ret;
 	}
 #ifdef _DEBUG
-//this bbx generation fuction is for collision detection
-vector<real_t> generate_bbx_for_collision(const Datas2OpenGL& datas) {
-	size_t comp_size = datas.search_m.size();
-	vector<real_t> ret(6 * comp_size);
-	for (size_t i = 0; i < comp_size; i++) {
-		real_t x_min, x_max, y_min, y_max, z_min, z_max;
-		x_min = y_min = z_min = std::numeric_limits<real_t>::max();
-		x_max = y_max = z_max = std::numeric_limits<real_t>::lowest();
-		for (size_t j = 0; j < datas.search_m[i].size(); j++) {
-			//x
-			x_min = std::min(x_min, datas.verts[datas.search_m[i][j] * 3]);
-			x_max = std::max(x_max, datas.verts[datas.search_m[i][j] * 3]);
-			//y	
-			y_min = std::min(y_min, datas.verts[datas.search_m[i][j] * 3 + 1]);
-			y_max = std::max(y_max, datas.verts[datas.search_m[i][j] * 3 + 1]);
-			//z	
-			z_min = std::min(z_min, datas.verts[datas.search_m[i][j] * 3 + 2]);
-			z_max = std::max(z_max, datas.verts[datas.search_m[i][j] * 3 + 2]);
+	//this bbx generation fuction is for collision detection
+	vector<real_t> generate_bbx_for_collision(const Datas2OpenGL& datas) {
+		size_t comp_size = datas.search_m.size();
+		vector<real_t> ret(6 * comp_size);
+		for (size_t i = 0; i < comp_size; i++) {
+			real_t x_min, x_max, y_min, y_max, z_min, z_max;
+			x_min = y_min = z_min = std::numeric_limits<real_t>::max();
+			x_max = y_max = z_max = std::numeric_limits<real_t>::lowest();
+			for (size_t j = 0; j < datas.search_m[i].size(); j++) {
+				//x
+				x_min = std::min(x_min, datas.verts[datas.search_m[i][j] * 3]);
+				x_max = std::max(x_max, datas.verts[datas.search_m[i][j] * 3]);
+				//y	
+				y_min = std::min(y_min, datas.verts[datas.search_m[i][j] * 3 + 1]);
+				y_max = std::max(y_max, datas.verts[datas.search_m[i][j] * 3 + 1]);
+				//z	
+				z_min = std::min(z_min, datas.verts[datas.search_m[i][j] * 3 + 2]);
+				z_max = std::max(z_max, datas.verts[datas.search_m[i][j] * 3 + 2]);
+			}
+			ret[6 * i] = x_min, ret[6 * i + 1] = y_min, ret[6 * i + 2] = z_min;
+			ret[6 * i + 3] = x_max, ret[6 * i + 4] = y_max, ret[6 * i + 5] = z_max;
 		}
-		ret[6 * i] = x_min, ret[6 * i + 1] = y_min, ret[6 * i + 2] = z_min;
-		ret[6 * i + 3] = x_max, ret[6 * i + 4] = y_max, ret[6 * i + 5] = z_max;
+		return ret;
 	}
-	return ret;
-}
 #endif
 }
 namespace ifcre {
-	
+
 	class IFCParser {
 		// TODO
-    public:
-	   /*static SharedPtr<IFCModel> load(String file) {
-		   Datas2OpenGL ge;
-		   
-		   if (endsWith(file, ".midfile")) {
-			   ifstream is(file.c_str(), std::ios::binary);
-			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-			   is.close();
-		   }
-		   else {
-			   auto getmp = generateIFCMidfile(file);
-			   ifcsaver::save_data2OpenGL_into_binary(getmp, file + ".midfile");
-			   ifstream is((file + ".midfile").c_str(), std::ios::binary);
-			   ge = ifcsaver::read_datas2OpenGL_from_binary(is);
-		   }
-		   
-		   auto ret = make_shared<IFCModel>(ge);
-		   /*Collider collider;
-		   collider.bufferData(&ge);
-		   collider.addFilter([](const Datas4Component& hcg) {return true; });
-		   collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {
-			   return( hcg1.type == "IfcWall" && hcg2.type == "IfcWall");
-			   });
-		   ret->collision_pairs = collider.getIndexArr();*/
-		   return ret;
-	   }*/
+	public:
+		static SharedPtr<IFCModel> load(String file) {
+			Datas2OpenGL ge;
+			vector<vector<uint32_t>> the_c_edge_indices;
+			if (endsWith(file, ".midfile")) {
+				ifstream is(file.c_str(), std::ios::binary);
+				ge = ifcsaver::read_datas2OpenGL_from_binary(is, the_c_edge_indices);
+				is.close();
+			}
+			else {
+				auto getmp = generateIFCMidfile(file);
+				ifcsaver::save_data2OpenGL_into_binary(getmp, the_c_edge_indices, file + ".midfile");
+				ifstream is((file + ".midfile").c_str(), std::ios::binary);
+				ge = ifcsaver::read_datas2OpenGL_from_binary(is, the_c_edge_indices);
+			}
+
+			auto ret = make_shared<IFCModel>(ge);
+			Collider collider;
+			collider.bufferData(&ge);
+			collider.addFilter([](const Datas4Component& hcg) {return true; });
+			collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {
+				return(hcg1.type == "IfcWall" && hcg2.type == "IfcWall");
+				});
+			ret->collision_pairs = collider.getIndexArr();
+			return ret;
+		}
 
 		static bool endsWith(const string s, const string sub) {
 			return s.rfind(sub) == (s.length() - sub.length());
 		}
 
-		static SharedPtr<IFCModel> load(String file) {
+		/*static SharedPtr<IFCModel> load(String file) {
 			bool flag;
 #ifdef _DEBUG
 			flag = true;
@@ -324,9 +324,8 @@ namespace ifcre {
 			collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {return hcg1.type != hcg2.type; });
 			ret->collision_pairs = collider.getIndexArr();
 			return ret;
-		}
+		}*/
 	};
-
 
 	class DefaultParser {
 	public:
@@ -334,28 +333,28 @@ namespace ifcre {
 			objl::Loader loader;
 			loader.LoadFile(file);
 
-            std::vector<unsigned int> indices;
-            std::vector<float> vertices;
-            // Go through each loaded mesh and out its contents
-            for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
-                // Copy one of the loaded meshes to be our current mesh
-                objl::Mesh curMesh = loader.LoadedMeshes[i];
+			std::vector<unsigned int> indices;
+			std::vector<float> vertices;
+			// Go through each loaded mesh and out its contents
+			for (int i = 0; i < loader.LoadedMeshes.size(); i++) {
+				// Copy one of the loaded meshes to be our current mesh
+				objl::Mesh curMesh = loader.LoadedMeshes[i];
 
-                for (int j = 0; j < curMesh.Vertices.size(); j++) {
-                    vertices.push_back(curMesh.Vertices[j].Position.X);
-                    vertices.push_back(curMesh.Vertices[j].Position.Y);
-                    vertices.push_back(curMesh.Vertices[j].Position.Z);
+				for (int j = 0; j < curMesh.Vertices.size(); j++) {
+					vertices.push_back(curMesh.Vertices[j].Position.X);
+					vertices.push_back(curMesh.Vertices[j].Position.Y);
+					vertices.push_back(curMesh.Vertices[j].Position.Z);
 
-                    vertices.push_back(curMesh.Vertices[j].Normal.X);
-                    vertices.push_back(curMesh.Vertices[j].Normal.Y);
-                    vertices.push_back(curMesh.Vertices[j].Normal.Z);
-                }
+					vertices.push_back(curMesh.Vertices[j].Normal.X);
+					vertices.push_back(curMesh.Vertices[j].Normal.Y);
+					vertices.push_back(curMesh.Vertices[j].Normal.Z);
+				}
 
 
-                indices = curMesh.Indices;
-            }
+				indices = curMesh.Indices;
+			}
 
-            return make_shared<DefaultModel>(indices, vertices);
+			return make_shared<DefaultModel>(indices, vertices);
 		}
 	};
 }
