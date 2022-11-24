@@ -424,20 +424,37 @@ namespace ifcre {
 			mouse_move_vec.y = m_window.getMouseVerticalVel();
 		}
 		if (m_window.isRightMouseClicked()) {
+#ifdef test_cmr
+			glm::vec3 hover = m_window.getVirtualHoverViewCordCoord();
+#else
+			glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+#endif // test_cmr
+			//printvec3(hover, "           hover");
 			if (m_window.isMouseMove() && m_last_rmclick) {
-				glm::vec3 hover = m_window.getVirtualHoverViewCordCoord();
 				glm::vec3 step = hover - m_last_hover_pos;
-				//ifc_test_model->translate(step);
+#ifdef test_cmr
 				//wrong way here
 				m_camera->translateByHoverDiv(step);
-				//printvec3(step);
+#else
+				ifc_test_model->translate(step);
+#endif // test_cmr
 			}
-			m_last_hover_pos = m_window.getClickedViewCordCoord();
+
+			//printvec3(m_last_hover_pos, "m_last_hover_pos");
 			m_last_rmclick = true;
 		}
 		else {
 			m_last_rmclick = false;
 		}
+#ifdef test_cmr
+		m_last_hover_pos = m_window.getClickedViewCordCoord();
+#else
+		m_last_hover_pos = m_window.getClickedWorldCoord();
+#endif // test_cmr
+		/*if (m_window.scrolltrigger) {
+			m_camera->zoom( clicked_coord, m_window.scrollyoffset > 0 ? 1.0f : -1.0f);
+			m_window.scrolltrigger = false;
+		}*/
 
 #pragma endregion
 

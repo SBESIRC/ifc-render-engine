@@ -7,7 +7,7 @@
 #include <sstream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define printvec3(a) std::cout<<a.x<<" "<<a.y<<" "<<a.z<<"\n"
+#define printvec3(a,b) std::cout << b <<": " << a.x<<" "<<a.y<<" "<<a.z<<"\n"
 
 namespace ifcre {
 	namespace util {

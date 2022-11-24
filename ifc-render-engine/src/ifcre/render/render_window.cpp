@@ -10,6 +10,9 @@ namespace ifcre {
     double lastX, lastY, curX, curY;
     double rlastX, rlastY, rcurX, rcurY;
     // --------------------- event helper ----------------------
+
+    // parameters: ndc coordination
+    // input ndc, set mouse_status.click to world coordination
     void RenderWindow::_setClickedWorldCoords(double clicked_x, double clicked_y, double clicked_z) {
         // OpenGL Screen space:
         //  ^y
@@ -35,6 +38,8 @@ namespace ifcre {
         m_mouse_status.clicked_view_cord_center = t;
     }
 
+    // parameter: the index of the position in a frame
+    // read depth value from framebuffer's depth buffer and return it
     float RenderWindow::_getClickedDepthValue(double clicked_x, double clicked_y)
     {
         Real z;
@@ -44,6 +49,8 @@ namespace ifcre {
         return z;
     }
 
+    // parameter: the index of the position in a frame
+    // get the comp id /ui id from different framebuffers
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp) {
 
         //glm::vec3 getColor;
@@ -210,17 +217,9 @@ namespace ifcre {
             glm::vec4 t = vp_inv * ndc;
             t = t / t.w;
             status.hover_world_center = t;
-            //status.click_world_center.x = t.x;
-            //status.click_world_center.y = t.y;
             status.click_world_center = t;
             status.click_y = status.click_y + (ypos - status.last_mouse_y);
             status.click_x = status.click_x + (xpos - status.last_mouse_x);
-
-            glm::mat4 p_inv = glm::inverse(that->m_projection);
-            t = p_inv * ndc;
-            t = t / t.w;
-            status.hovered_view_cord_center = t;
-            status.clicked_view_cord_center = t;
         }
         status.last_mouse_x = xpos;
         status.last_mouse_y = ypos;
@@ -251,6 +250,9 @@ namespace ifcre {
             //that->_setClickedWorldCoords(click_x, click_y, click_z);
             //that->_setClickedWorldColors(click_x, click_y, false);
         //}
+
+        that->scrolltrigger = true;
+        that->scrollyoffset = yoffset;
         if (that->isperspective)
             camera.zoom(that->m_mouse_status.click_world_center, yoffset > 0 ? 1.0f : -1.0f);
         else {

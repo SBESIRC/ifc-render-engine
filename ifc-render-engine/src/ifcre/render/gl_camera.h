@@ -8,6 +8,8 @@
 #include <glm/gtx/quaternion.hpp>
 #include "../common/std_types.h"
 
+//#define test_cmr
+
 namespace ifcre {
 
     enum class Camera_Movement {
@@ -106,8 +108,13 @@ namespace ifcre {
         // based on IfcModel->translate(glm::vec3& step)
         void translateByHoverDiv(glm::vec3& step) {
             //translating -= step;
+#ifdef test_cmr
             m_pos -= step.x * m_right + step.y * m_up + step.z * m_front;
-            //std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+#else
+            step = glm::inverse(getViewMatrix()) * glm::vec4(step, 0.0);
+            m_pos -= step.x * m_right + step.y * m_up + step.z * m_front;
+#endif // test_cmr
+            //std::cout <<"m_pos:"<< m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
         }
 
         void RotateToCubeDirection(int num) {

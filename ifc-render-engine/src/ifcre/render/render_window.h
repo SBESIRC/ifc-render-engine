@@ -108,6 +108,9 @@ namespace ifcre {
 		bool rotatelock = false;
 		bool trigger = false;
 		bool collidertrig = false;
+		bool scrolltrigger = false;
+		double scrollyoffset = 0.0;
+
 		bool to_show_grid = true;
 
 	private:
