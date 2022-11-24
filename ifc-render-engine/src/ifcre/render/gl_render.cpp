@@ -14,13 +14,15 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7);
-		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(32);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 7);
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7 + 4);
+		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
+		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + 4);
+		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100 + sizeof(int) * 100);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
 		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->bindRange(3);
 
 #ifdef _DEBUG
 		// program init
@@ -80,16 +82,26 @@ namespace ifcre {
 		String f_text = util::read_file("shaders/text.frag");
 		m_text_shader = make_unique<GLSLProgram>(v_text.c_str(), f_text.c_str());
 
-		String v_skybox = util::read_file("shaders/skybox.vert");
-		String f_skybox = util::read_file("shaders/skybox.frag");
-		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
-
 		String v_grid = util::read_file("shaders/grid.vert");
 		String f_grid = util::read_file("shaders/grid.frag");
 		m_grid_shader = make_unique<GLSLProgram>(v_grid.c_str(), f_grid.c_str());
 
 		String v_text3d = util::read_file("shaders/text3d.vert");
 		m_text3d_shader = make_unique<GLSLProgram>(v_text3d.c_str(), f_text.c_str());
+
+		// ------------- drawing match shader test ------------
+		String v_drawing = util::read_file("shaders/drawing_match.vert");
+		String f_drawing = util::read_file("shaders/drawing_match.frag");
+		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
+
+		// ------------- tile-view's drawing ------------
+		String v_tile_drawing = util::read_file("shaders/tile_view_drawing.vert");
+		String f_tile_drawing = util::read_file("shaders/tile_view_drawing.frag");
+		m_tile_view_drawing_shader = make_unique<GLSLProgram>(v_tile_drawing.c_str(), f_tile_drawing.c_str());
+
+		String v_skybox = util::read_file("shaders/skybox.vert");
+		String f_skybox = util::read_file("shaders/skybox.frag");
+		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
 #else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
@@ -106,29 +118,41 @@ namespace ifcre {
 		m_gizmo_shader = make_unique<GLSLProgram>(sc::v_gizmo, sc::f_gizmo);
 		m_gizmo_UI_shader = make_unique<GLSLProgram>(sc::v_gizmo_ui, sc::f_gizmo_ui);
 		m_text_shader = make_unique<GLSLProgram>(sc::v_text, sc::f_text);
-		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 		m_grid_shader = make_unique<GLSLProgram>(sc::v_grid, sc::f_grid);
 		m_text3d_shader = make_unique<GLSLProgram>(sc::v_text3d, sc::f_text);
+		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
+		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
+		m_tile_view_drawing_shader = make_unique<GLSLProgram>(sc::v_tile_view_drawing, sc::f_tile_view_drawing);
 #endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);
+		m_test_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_chosen_shader->bindUniformBlock("TransformsUBO", 0);
 		m_chosen_shader->bindUniformBlock("IFCRenderUBO", 1);
+		m_chosen_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_collision_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+
+		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
 		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
+		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+
 		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_select_bbx_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_skybox_shader->bindUniformBlock("TransformMVPUBO", 2);
 		m_grid_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_drawing_match_shader->bindUniformBlock("TransformMVPUBO", 2);		// ------------- drawing match shader test ------------
+		m_tile_view_drawing_shader->bindUniformBlock("TransformMVPUBO", 2);	// ------------- tile-view's drawing ------------
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -160,6 +184,7 @@ namespace ifcre {
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 		// ----- ----- ----- ----- ----- ----- -----
 
+		use_clip_box->glInit(ui_id_num);
 	}
 // ----- ----- ----- ----- ----- ----- ----- ----- 
 
@@ -186,6 +211,7 @@ namespace ifcre {
 		}
 	}
 
+	//this GLRender::render has been abandoned
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
 	{
 		auto& vb_map = m_vertex_buffer_map;
@@ -283,21 +309,46 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+			transformMVPUBO.update(256, 4, &m_TileView);
 			m_comp_id_program->use();
 			break;
 		}
 		case DEFAULT_SHADING: {
-			auto& color = m_bg_color;
-			glClearColor(color.r, color.g, color.b, color.a);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
+			ifcRenderUBO.update(0, 4, &m_alpha);
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+			ifcRenderUBO.update(32, 12, glm::value_ptr(m_camera_pos));
+
+			m_test_shader->use();
+			break;
+		}
+		case OFFLINE_SHADING: {
+			auto& color = m_bg_color_off;
+			glClearColor(color.r, color.g, color.b, color.a);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_init_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_init_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+
+			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
 			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
@@ -316,6 +367,8 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
@@ -330,26 +383,38 @@ namespace ifcre {
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformMVPUBO.update(240, 4, &m_TileView);
 			m_select_bbx_shader->use();
+			m_select_bbx_shader->setMat4("storeyOffset_mat", storeyOffset_mat);
 			//m_select_bbx_shader->setMat4("modelview", m_modelview);
 			//m_select_bbx_shader->setMat4("projection", m_projection);
 			break;
 		}
 		case EDGE_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
 			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
 			transformMVPUBO.update(144, 96, m_clip_box.data());
+			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+			transformMVPUBO.update(256, 4, &m_TileView);
 			m_edge_shader->use();
 			break;
 		}
 		case CHOSEN_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
 			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
 			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
 			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -368,6 +433,8 @@ namespace ifcre {
 			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
 			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
 			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
 
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
@@ -450,22 +517,22 @@ namespace ifcre {
 		glDisable(GL_BLEND);
 	}
 
-	void GLRender::renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id) {
+	void GLRender::renderClipBox(const bool hidden) {
 		if (!hidden) {
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_shader->use();
-			m_clip_plane_shader->setInt("ui_id", clp_face_id);
+			m_clip_plane_shader->setInt("ui_id", last_clp_face_key);
 			//std::cout << clp_face_id << std::endl;
 			m_clip_plane_shader->setVec3("this_color", glm::vec3(0.f, 1.f, 1.f));
-			clip_box.drawBox(true);
+			use_clip_box->drawBox(true);
 			_defaultConfig();
 		}
 	}
 
-	void GLRender::renderClipBox(const ClipBox& clip_box) {
+	void GLRender::renderClipBox() {
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 		m_clip_plane_shader->use();
 		m_clip_plane_shader->setInt("ui_id", -1);
 		m_clip_plane_shader->setVec3("this_color", glm::vec3(1.f, 0.f, 0.f));
@@ -473,19 +540,30 @@ namespace ifcre {
 		glDepthFunc(GL_ALWAYS);
 		glDepthMask(GL_FALSE);
 		glLineWidth(7.f);
-		clip_box.drawBox(false);
+		use_clip_box->drawBox(false);
 		glDepthMask(GL_TRUE);
 		glLineWidth(1.5f);
 		_defaultConfig();
 	}
 
-	void GLRender::renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box) {
+	void GLRender::renderClipBoxInUIlayer(const bool hidden) {
 		if (!hidden) {
 			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * clip_box.toMat()));
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_UI_shader->use();
-			clip_box.drawBoxInUILayer();
+			use_clip_box->drawBoxInUILayer();
 		}
+	}
+
+	void GLRender::renderSkyBox(const glm::mat4& porjmat) {
+		auto& color = m_bg_color;
+		glClearColor(color.r, color.g, color.b, color.a);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		m_skybox_shader->use();
+		m_skybox_shader->setMat4("view_matrix", porjmat * glm::mat4(glm::mat3(m_view)));
+		skyBox->drawSkyBox();
+		_defaultConfig();
 	}
 
 	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
@@ -500,10 +578,10 @@ namespace ifcre {
 		glDepthFunc(GL_ALWAYS); // always pass depth test
 		glDepthMask(GL_FALSE); // forbit import from depth test
 		//textdata.render_text(text, glm::vec3(position), scale);
-		texturefont.drawText(text, 1.f);
+		//texturefont.drawText(text, 1.f);
 
 		m_text_shader->setVec2("offset", glm::vec2(position) + glm::vec2(100.f, 100.f));
-		texturefont.drawText(text2, .5f);
+		//texturefont.drawText(text2, .5f);
 		/*static bool lockk = false;
 		if (!lockk) {
 			texturefont.init_bmp();
@@ -574,57 +652,70 @@ namespace ifcre {
 		_defaultConfig();
 	}
 
+	//void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
+	//{
+	//	static bool first = true;
+	//	static uint32_t axis_vao;
+	//	if (first) { // 初始化 (一般只运行一次。除非物体频繁改变)
+	//		float coord_axis[] = {	//float coord_axis[] = {
+	//			0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+	//			1.0, 0.0, 0.0,		//	100.0, 0.0, 0.0,	// x-axis
+	//			0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+	//			0.0, 1.0, 0.0,		//	0.0, 100.0, 0.0,	// y-axis
+	//			0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
+	//			0.0, 0.0, 1.0		//	0.0, 0.0, 100.0		// z-axis
+	//		};						//};
+	//		uint32_t axis_vbo;
+	//		glGenVertexArrays(1, &axis_vao);
+	//		glGenBuffers(1, &axis_vbo); // 创建一个缓冲
+	//		glBindVertexArray(axis_vao); // 绑定VAO
+	//		glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // 设置缓冲类型
+	//		glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // 把用户定义的数据复制到当前绑定缓冲(显存)
+	//		glEnableVertexAttribArray(0); // 以顶点属性位置值作为参数，启用顶点属性
+	//		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // 告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上） 从此时绑定到GL_ARRAY_BUFFER的VBO获取数据
+	//		first = false;
+	//	} 
+	//	glm::vec3 model_center = ifc_model.getModelCenter(); // 绘制物体（渲染循环）
+	//	glm::mat4 model = ifc_model.getModelMatrix();
+	//	float scale_factor = ifc_model.getScaleFactor();
+
+	//	//model[3][0] = model[3][1] = model[3][2] = 0;
+	//	glm::mat4 trans_center(1.0f);
+	//	glm::mat4 trans_click_center(1.0f);
+	//	trans_center = glm::translate(trans_center, model_center);
+	//	model = model * trans_center;
+	//	glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
+
+	//	float len_ref = glm::length(init_view_pos);
+	//	float len = glm::length(view_pos - pick_center);//float len = glm::length(view_pos - center); //glm::vec3 center = ifc_model.getModelCenter(); //glm::vec3 center = glm::vec3(0, 0, 0);
+	//	//printf("%f\n", scale_factor);
+	//	float scale = len / len_ref / scale_factor * 0.25f;
+	//	model = glm::scale(model, glm::vec3(scale, scale, scale));
+
+	//	trans_click_center = glm::translate(trans_click_center, pick_center - world_pos); //trans_click_center = glm::translate(trans_click_center, center - world_pos);
+	//	model = trans_click_center * model;
+
+	//	auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+	//	transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+	//	m_axis_shader->use();
+	//	glBindVertexArray(axis_vao); // 使用上面那一套VAO
+	//	glDisable(DEPTH_TEST);//glDisable(DEPTH_TEST); glDepthFunc(GL_LESS);
+	//	glDepthFunc(GL_ALWAYS);//glDepthFunc(GL_ALWAYS);
+	//	glDrawArrays(GL_LINES, 0, 6); // 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
+	//	_defaultConfig();
+	//}
 	void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
 	{
-		static bool first = true;
-		static uint32_t axis_vao;
-		if (first) { // 初始化 (一般只运行一次。除非物体频繁改变)
-			float coord_axis[] = {	//float coord_axis[] = {
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				1.0, 0.0, 0.0,		//	100.0, 0.0, 0.0,	// x-axis
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				0.0, 1.0, 0.0,		//	0.0, 100.0, 0.0,	// y-axis
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				0.0, 0.0, 1.0		//	0.0, 0.0, 100.0		// z-axis
-			};						//};
-			uint32_t axis_vbo;
-			glGenVertexArrays(1, &axis_vao);
-			glGenBuffers(1, &axis_vbo); // 创建一个缓冲
-			glBindVertexArray(axis_vao); // 绑定VAO
-			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // 设置缓冲类型
-			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // 把用户定义的数据复制到当前绑定缓冲(显存)
-			glEnableVertexAttribArray(0); // 以顶点属性位置值作为参数，启用顶点属性
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // 告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上） 从此时绑定到GL_ARRAY_BUFFER的VBO获取数据
-			first = false;
-		} 
-		glm::vec3 model_center = ifc_model.getModelCenter(); // 绘制物体（渲染循环）
-		glm::mat4 model = ifc_model.getModelMatrix();
-		float scale_factor = ifc_model.getScaleFactor();
-
-		//model[3][0] = model[3][1] = model[3][2] = 0;
-		glm::mat4 trans_center(1.0f);
-		glm::mat4 trans_click_center(1.0f);
-		trans_center = glm::translate(trans_center, model_center);
-		model = model * trans_center;
-		glm::vec3 world_pos(model[3][0], model[3][1], model[3][2]);
-
-		float len_ref = glm::length(init_view_pos);
-		float len = glm::length(view_pos - pick_center);//float len = glm::length(view_pos - center); //glm::vec3 center = ifc_model.getModelCenter(); //glm::vec3 center = glm::vec3(0, 0, 0);
-		//printf("%f\n", scale_factor);
-		float scale = len / len_ref / scale_factor * 0.25f;
-		model = glm::scale(model, glm::vec3(scale, scale, scale));
-
-		trans_click_center = glm::translate(trans_click_center, pick_center - world_pos); //trans_click_center = glm::translate(trans_click_center, center - world_pos);
-		model = trans_click_center * model;
-
+		//trans_click_center = glm::translate(trans_click_center, pick_center - world_pos);
+		//model = trans_click_center * model;
+		myaxis.update_model_mat_info(ifc_model.getModelMatrix(), ifc_model.curcenter, ifc_model.getScaleFactor(),
+			pick_center, view_pos, init_view_pos);
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
-		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * model));
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * myaxis.axis_model));
 		m_axis_shader->use();
-		glBindVertexArray(axis_vao); // 使用上面那一套VAO
-		glDisable(DEPTH_TEST);//glDisable(DEPTH_TEST); glDepthFunc(GL_LESS);
-		glDepthFunc(GL_ALWAYS);//glDepthFunc(GL_ALWAYS);
-		glDrawArrays(GL_LINES, 0, 6); // 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
+		myaxis.drawAxis();
 		_defaultConfig();
+
 	}
 
 	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)
@@ -672,7 +763,7 @@ namespace ifcre {
 
 	}
 
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key)
+	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
@@ -693,7 +784,7 @@ namespace ifcre {
 		m_gizmo_UI_shader->use();
 		gizmo.drawGizmoInUiLayer();
 	}
-
+	/*
 	void GLRender::renderSkybox(const glm::mat3& view_matrix, const glm::mat4& m_projection) {
 		static bool first = true;
 		static uint32_t skybox_vao;
@@ -781,7 +872,7 @@ namespace ifcre {
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindVertexArray(0);
 		glDepthFunc(GL_LESS); // set depth function back to default
-	}
+	}*/
 
 	unsigned int  GLRender::loadCubemap(vector<std::string> faces)
 	{
@@ -813,6 +904,166 @@ namespace ifcre {
 		return textureID;
 	}
 
+	// ------------- drawing match shading -------------
+	void GLRender::renderDrawing(IFCModel& ifc_model, float k) {
+		static bool first = true;
+		static uint32_t drawing_vao;
+		static uint32_t drawingTex;
+		static float drawing_width, drawing_height;
+		float ratio = 0.01;			// based on the ratio of drawing.  //e.g. 1:100
+		if (first)
+		{
+			float quadVertices[] = {
+				// positions		// texCoords
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				-1.0f, 0.0f,  1.0f,  0.0f, 0.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+				 1.0f, 0.0f, -1.0f,  1.0f, 1.0f
+			};
+			uint32_t drawing_vbo;
+			glGenVertexArrays(1, &drawing_vao);
+			glGenBuffers(1, &drawing_vbo);
+			glBindVertexArray(drawing_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, drawing_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glGenTextures(1, &drawingTex);
+			glBindTexture(GL_TEXTURE_2D, drawingTex);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+			int width, height, nrChannels;
+			unsigned char* data = stbi_load("resources\\textures\\scrpit.png", &width, &height, &nrChannels, 0);
+			if (data)
+			{
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				drawing_width = width * ratio;
+				drawing_height = height * ratio;
+			}
+			else
+			{
+				std::cout << "Failed to load texture" << std::endl;
+			}
+			stbi_image_free(data);
+
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+			first = false;
+		}
+		glm::mat4 scale(1.0f);
+		glm::mat4 y_translate(1.0f);
+		y_translate = glm::translate(y_translate, glm::vec3(m_drawing_match_plane));
+		scale = glm::scale(scale, glm::vec3(drawing_width * k, 1.0, drawing_height * k));
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * y_translate * scale));
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		m_drawing_match_shader->use();
+		m_drawing_match_shader->setInt("Drawing", 0);
+
+		glBindVertexArray(drawing_vao);
+		glBindTexture(GL_TEXTURE_2D, drawingTex);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
+	// ------------- tile-view's drawing -------------
+	void GLRender::renderTileViewDrawing(IFCModel& ifc_model) {
+		static uint32_t floorNum;		// the count of floor
+		static bool first = true;
+		static uint32_t tile_vao;
+		static uint32_t tileTex[100];
+		static float tex_width[100], tex_height[100];
+		float ratio = 0.01;			// based on the ratio of drawing.  //e.g. 1:100
+		if (first)
+		{
+			floorNum = ifc_model.tile_matrix.size();
+			float quadVertices[] = {
+				// positions		// texCoords
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				-1.0f, 0.0f,  1.0f,  0.0f, 0.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+
+				-1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
+				 1.0f, 0.0f,  1.0f,  1.0f, 0.0f,
+				 1.0f, 0.0f, -1.0f,  1.0f, 1.0f
+			};
+			uint32_t drawing_vbo;
+			glGenVertexArrays(1, &tile_vao);
+			glGenBuffers(1, &drawing_vbo);
+			glBindVertexArray(tile_vao);
+			glBindBuffer(GL_ARRAY_BUFFER, drawing_vbo);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+
+			glGenTextures(100, tileTex);
+			for (int i = 0; i < floorNum; i++) {
+				glBindTexture(GL_TEXTURE_2D, tileTex[i]);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+				int width, height, nrChannels;
+				unsigned char* data = stbi_load("resources\\textures\\scrpit.png", &width, &height, &nrChannels, 0);
+				if (data)
+				{
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+					glGenerateMipmap(GL_TEXTURE_2D);
+					tex_width[i] = width * ratio;
+					tex_height[i] = height * ratio;
+				}
+				else
+				{
+					std::cout << "Failed to load texture" << std::endl;
+				}
+				stbi_image_free(data);
+
+				glBindTexture(GL_TEXTURE_2D, 0);
+			}
+			first = false;
+		}
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBindVertexArray(tile_vao);
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		m_tile_view_drawing_shader->use();
+		m_tile_view_drawing_shader->setInt("Drawing", 0);
+
+		for (int i = 0; i < floorNum; i++) {
+			glm::mat4 scale(1.0f);
+			glm::mat4 y_translate(1.0f);
+			float k = 2.f;
+			float ratio = 1.f;
+			scale = glm::scale(scale, glm::vec3(tex_width[i] * k, 1.0, tex_height[i] * k * ratio));
+			y_translate = glm::translate(y_translate, glm::vec3(m_tile_view_lowest_y_plane[i]));	// translate to the current floor's minY
+			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * ifc_model.tile_matrix[i] * y_translate * scale));
+			glBindTexture(GL_TEXTURE_2D, tileTex[i]);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+		glBindVertexArray(0);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+
 	void GLRender::AerialViewRender(RenderWindow& w) {
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, w.getAerialColorTexId());
@@ -835,6 +1086,7 @@ namespace ifcre {
 		glBindVertexArray(off_vao);
 		//glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+
 		_defaultConfig();
 	}
 
@@ -964,6 +1216,10 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_no_trans_ebo, chosen_trans_ebo);
 	}
 
+	void GLRender::CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo) {
+		m_vertex_buffer_map[render_id]->uploadCollisionElementBuffer(collid_ebo);
+	}
+
 	void GLRender::setViewMatrix(const glm::mat4& view) {
 		m_view = view;
 	}
@@ -994,6 +1250,9 @@ namespace ifcre {
 	void GLRender::setCameraDirection(const glm::vec3& m_front) {
 		m_camera_front = m_front;
 	}
+	void GLRender::setCameraPos(const glm::vec3& m_pos) {
+		m_camera_pos = m_pos;
+	}
 	void GLRender::setCompId(const int& comp_id)
 	{
 		m_compId = comp_id;
@@ -1007,9 +1266,43 @@ namespace ifcre {
 		m_clip_plane = clip_plane;
 	}
 
-	void GLRender::setClippingBox(const Vector<glm::vec4>& clip_box) {
-		m_clip_box = clip_box;
+	void GLRender::setClippingBox(const bool hidden) {
+		m_clip_box = getClippingBoxVectors(hidden);
 	}
+
+	void GLRender::updateOpenDrawingMatch(bool _flag) {
+		// TODO open Drawing match
+		if (_flag)
+			m_drawing_match_plane = drawing_plane.to_vec4();
+		else
+			m_drawing_match_plane = hidden_drawing_plane;
+	}
+
+	void GLRender::TileView(bool show)
+	{
+		if (show) {
+			m_TileView = 1;
+		}
+		else {
+			m_TileView = 0;
+		}
+	}
+	void GLRender::TileViewMatrix(SharedPtr<IFCModel> ifcModel) {
+
+		for (int i = 0; i < ifcModel->bbxs_each_floor.size(); i++) {
+			glm::mat4 model(1.0f);
+			glm::vec3 bbx_center = ifcModel->get_bbx_center(ifcModel->bbxs_each_floor[i]);
+			model = glm::translate(model, bbx_center);
+			float delta_y = bbx_center[1] - ifcModel->bbxs_each_floor[i][1];
+			model = glm::translate(model, glm::vec3(0., -delta_y, 0.));
+			m_tile_view_lowest_y_plane.push_back(model * glm::vec4(0.f, 0.f, 0.f, 1.f));
+		}
+	}
+
+	void GLRender::setStoreyMat(glm::mat4 matrix) {
+		storeyOffset_mat = matrix;
+	}
+
 	glm::vec4 GLRender::get_test_matrix(const glm::vec4& a) const {
 		return m_projection * m_modelview * a;
 	}
@@ -1020,5 +1313,10 @@ namespace ifcre {
 		sxaswd1.x = (1. + sxaswd1.x) / 2 * window_width;
 		sxaswd1.y = (1. + sxaswd1.y) / 2 * window_height;
 		return glm::vec3(sxaswd1);
+	}
+	void GLRender::upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats)
+	{
+		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
+		//m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
 	}
 } 

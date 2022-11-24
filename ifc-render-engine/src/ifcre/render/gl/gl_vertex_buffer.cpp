@@ -338,7 +338,11 @@ namespace ifcre {
 		glBindVertexArray(m_vaoid);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_DYNAMIC_DRAW);
+		//glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), floors.size() * sizeof(uint32_t), floors.data());
+
+		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Real), 0);
 		glBindVertexArray(0);
+		//glVertexAttribPointer(1, 1, GL_UNSIGNED_INT, GL_FALSE, 1 * sizeof(uint32_t), (void*)(vertices.size() * sizeof(Real)));
 	}
 
 	void GLVertexBuffer::destroy()

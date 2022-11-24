@@ -302,6 +302,7 @@ namespace ifcre {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // 放大线性过滤
 			// 加载并生成纹理
 			int width, height, nrChannels;
+			//unsigned char* data = stbi_load("resources\\textures\\x1x.png", &width, &height, &nrChannels, 0);
 			unsigned char* data = stbi_load("resources\\textures\\scenegizmo3.png", &width, &height, &nrChannels, 0);
 			if (data)
 			{

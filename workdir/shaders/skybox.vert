@@ -1,14 +1,15 @@
-#version 430 core
-layout (location = 0) in vec3 aPos;
+#version 460
+layout(location = 0) in vec3 aPos;
+layout(location = 1) in float depth;
 
-out vec3 TexCoords;
+uniform mat4 view_matrix;
 
-uniform mat4 projection;
-uniform mat4 view;
+out float dep;
+out vec3 dir;
 
-void main()
-{
-    TexCoords = aPos;
-    vec4 pos = projection * view * vec4(aPos, 1.0);
+void main(){
+    dep = depth;
+    dir = aPos;
+    vec4 pos = view_matrix * vec4(aPos, 1.0);
     gl_Position = pos.xyww;
-}  
+}

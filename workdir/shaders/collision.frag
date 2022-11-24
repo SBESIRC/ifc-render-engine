@@ -45,5 +45,5 @@ void main()
 	fin=smoothstep(.04,.06,fin);
 	outColor=mix(outColor,one ,fin*.5);
 
-    FragColor = vec4(outColor, alpha);
+    FragColor = vec4(outColor, 0.5);
 }

@@ -1,4 +1,4 @@
-#version 430
+#version 460
 
 in vec3 lineColor;
 in float lineType;

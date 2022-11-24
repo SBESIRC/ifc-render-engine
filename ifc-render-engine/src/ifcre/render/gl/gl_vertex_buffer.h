@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_VERTEX_BUFFER_H_
 #define IFCRE_VERTEX_BUFFER_H_
 
@@ -124,7 +124,7 @@ namespace ifcre {
 		uint32_t collision_size;
 
 	public:
-		map<uint32_t, Fun_ptr> mFuncPtr;
+		Map<uint32_t, Fun_ptr> mFuncPtr;
 	};
 }
 

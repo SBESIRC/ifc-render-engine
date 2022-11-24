@@ -38,7 +38,7 @@ namespace ifcre {
 
 		virtual void SetSleepTime(int val) = 0;
 		virtual bool saveImage(const char* filePath) = 0;
-		virtual void SetClipBox() = 0;
+		//virtual void SetClipBox() = 0;
 		virtual void zoom2Home() = 0;
 
 		virtual void set_grid_data(int val) = 0;
@@ -90,7 +90,7 @@ namespace ifcre {
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
 		bool saveImage(const char* filePath);
-		void SetClipBox();
+		//void SetClipBox();
 		void zoom2Home();
 		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
@@ -100,6 +100,10 @@ namespace ifcre {
 		void dataIntegration();
 		void offscreenRending(const int index = 4);
 
+		void zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord);
+		bool flag_between_zoom_reset = false;
+		void reset_coord(glm::vec3& clicked_coord);
+
 	public:
 		IFCRenderEngine() : m_init(false) {}
 		// not thread safety
@@ -107,6 +111,8 @@ namespace ifcre {
 		int key;
 		int ui_key;
 		int clp_face_key;
+
+		SharedPtr<bool> mousemove;
 	private:
 		void drawFrame();
 		
@@ -137,7 +143,7 @@ namespace ifcre {
 
 		Vector<float> grid_lines;
 		Vector<float> grid_circles;
-		Vector<wstring> grid_text;
+		Vector<Wstring> grid_text;
 		Vector<float> grid_text_data;
 		bool grid_line_reset = true;
 		bool grid_text_reset = true;
@@ -155,6 +161,7 @@ namespace ifcre {
 	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 15); // 摄像机位置 // z轴正方向出屏幕
 		glm::vec3 m_last_hover_pos = glm::vec3(0);
+		glm::vec3 m_last_hover_pos_cmp = glm::vec3(0);
 		// right mouse click
 		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;
@@ -165,9 +172,19 @@ namespace ifcre {
 
 		bool trigger = false;
 
-		int last_clp_face_key = 0;
-		int last_hovered_face_key = 0;
+		float global_alpha = 1.f;
+		float trans_alpha = .3f;
 
+		bool clipboxButton = false;
+		bool drawingMatchButton = false;
+		bool tileViewButton = false;
+
+		bool collider_trans_flag = false;
+
+		float script_scale_fractor = 1.f;
+		bool showcolid = false;
+
+		std::vector<uint32_t> collision_list;
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
 
 		int width;
