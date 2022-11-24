@@ -295,6 +295,19 @@ namespace ifcre {
 							break;
 						}
 						m_window.pollEvents();
+
+						/*static int ticks = -1;
+						ticks++;
+						static double _lastTime = glfwGetTime();
+
+						if (ticks == 60)
+						{
+							double deltaTime = glfwGetTime() - _lastTime;
+							_lastTime = glfwGetTime();
+
+							std::cout << "帧数" << ticks / deltaTime << std::endl;
+							ticks = 0;
+						}*/
 					}
 					m_init = false;
 					break;

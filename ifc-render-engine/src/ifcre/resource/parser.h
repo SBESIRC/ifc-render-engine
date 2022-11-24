@@ -153,7 +153,6 @@ namespace ifcsaver {
 		ret.type = read_string_from_binary(is);
 		ret.propertySet.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.propertySet.size(); i++) {
-			ret.propertySet[i].propertySet.clear();
 			ret.propertySet[i].propertySet = read_properties_from_binary(is);
 		}
 
@@ -209,7 +208,6 @@ namespace ifcsaver {
 		ret.edge_indices = read_vector_from_binary<unsigned int>(is);//ret.search_m.clear();
 		ret.search_m.resize(read_meta_from_binary<size_t>(is));
 		for (size_t i = 0; i < ret.search_m.size(); i++) {
-			ret.search_m[i].clear();
 			ret.search_m[i] = read_vector_from_binary<unsigned int>(is);
 		}
 		ret.verts = read_vector_from_binary<real_t>(is);
