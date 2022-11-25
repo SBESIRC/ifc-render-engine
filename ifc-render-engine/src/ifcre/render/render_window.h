@@ -73,7 +73,7 @@ namespace ifcre {
 		void setIfcModel(SharedPtr<IFCModel> ifcModel);
 		int get_width() { return m_width; }
 		int get_height() { return m_height; }
-
+		double getDelta_time() { return m_delta_time; }
 		bool getShowDrawing() { return showDrawing; }	// drawing match shader
 		bool getShowTileView() { return showTileView; }	// tile view
 		bool getShowText() { return showText; }

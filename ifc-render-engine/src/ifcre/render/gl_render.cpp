@@ -590,7 +590,7 @@ namespace ifcre {
 
 		_defaultConfig();
 	}
-	void GLRender::renderText(const std::string& text, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	void GLRender::renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
 		m_text_shader->use();
 		m_text_shader->setVec3("textColor", color);

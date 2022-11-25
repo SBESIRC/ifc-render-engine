@@ -577,7 +577,7 @@ namespace ifcre {
 			m_render.simpleui->render();
 
 
-			fps();
+			fps(1.0);
 
 #pragma endregion
 
@@ -787,47 +787,20 @@ namespace ifcre {
 		return ifcre;
 	}
 
-	void IFCRenderEngine::fps() {
-		double timeThisFrame = glfwGetTime();
-		static double timeLastFrame = 0;
-		static double timeAccumulate = 0;
+	void IFCRenderEngine::fps(double interval) {
+		static double sumTime = 0;
 		static int countFrames = 0;
-		double timeInterval = timeThisFrame - timeLastFrame;
-		timeLastFrame = timeThisFrame;
+		double deltaTime = m_render_window->getDelta_time();
 		static std::string fram;
-		if (true)
-		{
-			if (timeAccumulate < 1.0)
-			{
-				countFrames++;
-				timeAccumulate += timeInterval;
-			}
-			else
-			{
-				fram = std::to_string(countFrames);
-				//std::cout << "FPS: " << countFrames << std::endl;
-				countFrames = 0;
-				timeAccumulate = 0;
-			}
+		if (sumTime < interval) {
+			++countFrames;
+			sumTime += deltaTime;
 		}
-		int w = m_render_window->get_width();
-		int h = m_render_window->get_height();
-		auto sxaswd = glm::vec3(0.93 * w, 0.03 * h, 0);
-		m_glrender->renderText("FPS:" + fram, sxaswd, 0.5f, glm::vec3(1., 0.7f, 0.9f), w, h);
-
-		//static int ticks = -1;
-		//++ticks;
-		//static double _lastTime = glfwGetTime();
-		//if (ticks == 60) {
-		//	double deltaTime = glfwGetTime() - _lastTime;
-		//	_lastTime = glfwGetTime();
-
-		//	int w = m_render_window->get_width();
-		//	int h = m_render_window->get_height();
-		//	auto sxaswd = glm::vec3(0.8 * w, 0.8 * h, 0);
-		//	std::cout << "帧数" << ticks / deltaTime << std::endl;
-		//	m_glrender->renderText(std::to_wstring(ticks / deltaTime), sxaswd, 1.f, glm::vec3(1.f, 0.f, 0.f), w, h);
-		//	ticks = 0;
-		//}
+		else {
+			fram = std::to_string(int(countFrames / interval));
+			countFrames = 0;
+			sumTime = 0;
+		}
+		m_glrender->renderText("FPS:" + fram, glm::vec3(0.94 * width, 0.01 * height, 0), 0.5f, glm::vec3(1., 0.7f, 0.9f), width, height);
 	}
 }

@@ -87,7 +87,7 @@ namespace ifcre {
 		//void renderSkybox1(const glm::mat3& view_matrix, const glm::mat4& projection);
 		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
-		void renderText(const std::string& text, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
+		void renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
