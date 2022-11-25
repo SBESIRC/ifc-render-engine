@@ -577,7 +577,7 @@ namespace ifcre {
 			m_render.simpleui->render();
 
 
-			fps(1.0);
+			fps(0.125);
 
 #pragma endregion
 
@@ -788,19 +788,19 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::fps(double interval) {
-		static double sumTime = 0;
-		static int countFrames = 0;
+		static double sumTime = 0.0;
+		static double countFrames = 0.0;
 		double deltaTime = m_render_window->getDelta_time();
 		static std::string fram;
-		if (sumTime < interval) {
+		if (sumTime <= interval) {
 			++countFrames;
 			sumTime += deltaTime;
 		}
 		else {
 			fram = std::to_string(int(countFrames / interval));
-			countFrames = 0;
-			sumTime = 0;
+			countFrames = 0.0;
+			sumTime = 0.0;
 		}
-		m_glrender->renderText("FPS:" + fram, glm::vec3(0.94 * width, 0.01 * height, 0), 0.5f, glm::vec3(1., 0.7f, 0.9f), width, height);
+		m_glrender->renderText("FPS:" + fram, glm::vec3(0.96 * width, 0.008 * height, 0), 0.3f, glm::vec3(0.f, 0.f, 0.f), width, height);
 	}
 }
