@@ -103,6 +103,7 @@ namespace ifcre {
 		SharedPtr<bool> mousemove;
 	private:
 		void drawFrame();
+		void fps();
 
 	private:
 		Map<String, String> m_cache_configs;

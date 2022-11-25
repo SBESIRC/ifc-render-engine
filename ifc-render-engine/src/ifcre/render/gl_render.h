@@ -87,6 +87,7 @@ namespace ifcre {
 		//void renderSkybox1(const glm::mat3& view_matrix, const glm::mat4& projection);
 		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
+		void renderText(const std::string& text, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
@@ -214,7 +215,7 @@ namespace ifcre {
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		glm::vec4 m_bg_color_off = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
-		//TextData textdata = TextData("resources/fonts/default.ttf");
+		TextData textdata = TextData("resources/fonts/default.ttf");
 		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);

@@ -590,6 +590,23 @@ namespace ifcre {
 
 		_defaultConfig();
 	}
+	void GLRender::renderText(const std::string& text, glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	{
+		m_text_shader->use();
+		m_text_shader->setVec3("textColor", color);
+		m_text_shader->setVec2("offset", glm::vec2(0));
+		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // ortho正交投影
+		glDisable(DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS); // always pass depth test
+		glDepthMask(GL_FALSE); // forbit import from depth test
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		textdata.render_text(text, glm::vec3(position), scale);
+		
+		glDepthMask(GL_TRUE);
+		_defaultConfig();
+	}
+
 
 	void GLRender::renderGridText(Vector<std::wstring>& texts, Vector<float>& text_data, bool& text_reset) {
 		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
