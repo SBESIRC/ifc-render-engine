@@ -801,6 +801,6 @@ namespace ifcre {
 			countFrames = 0.0;
 			sumTime = 0.0;
 		}
-		m_glrender->renderText("FPS:" + fram, glm::vec3(0.96 * width, 0.008 * height, 0), 0.3f, glm::vec3(0.f, 0.f, 0.f), width, height);
+		m_glrender->renderText("FPS:" + fram, glm::vec3(m_render_window->get_width() - 64, 6, 0), 0.3, glm::vec3(0.33f, 0.33f, 0.33f), m_render_window->get_width(), m_render_window->get_height());
 	}
 }
