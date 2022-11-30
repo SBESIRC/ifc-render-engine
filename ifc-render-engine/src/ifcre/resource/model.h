@@ -608,8 +608,11 @@ namespace ifcre {
 
 		}
 
-		Vector<glm::mat4> tile_offsets_mats() {
-			return tile_matrix_ordered;
+		/*Vector<glm::mat4>*/void tile_offsets_mats(Vector<glm::mat4>& uploaded_vec_mat) {
+			for (size_t i = 0; i < tile_matrix_ordered.size(); i++) {
+				uploaded_vec_mat[i] = tile_matrix_ordered[i];
+			}
+			//return tile_matrix_ordered;
 		}
 
 		Vector<int> floorIndex() {

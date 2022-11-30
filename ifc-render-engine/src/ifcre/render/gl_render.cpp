@@ -1199,6 +1199,10 @@ namespace ifcre {
 		glDisable(GL_MULTISAMPLE);
 	}
 
+	void GLRender::reset_render() {
+
+	}
+
 	void GLRender::depthFunc(GLFuncEnum func)
 	{
 		switch (func) {
@@ -1219,7 +1223,13 @@ namespace ifcre {
 		m_vertex_buffer_map.insert(make_pair(id, vertex_buffer));
 		return id;
 	}
-
+	void GLRender::deleteModel(uint32_t id) {
+		m_vertex_buffer_map.erase(id);
+	}
+	void GLRender::clear_model() {
+		m_vertex_buffer_map.clear();
+		std::cout << "Render clear.\n";
+	}
 	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
