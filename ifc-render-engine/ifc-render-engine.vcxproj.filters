@@ -31,6 +31,7 @@
     <ClCompile Include="src\ifcre\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="src\ifcre\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\ifcre\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\ifcre\common\logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="src\ifcre\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ifcre\Clips.h" />
     <ClInclude Include="src\ifcre\SkyBox.h" />
+    <ClInclude Include="src\ifcre\common\logger.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
