@@ -119,6 +119,7 @@ namespace ifcre {
 				m_ifcRender->initialize(width, height);
 			}
 		}
+		m_glrender->clear_model();
 		m_render_window->setDefaultStatus();
 		debug("start load data");
 		// 加载模型数据
