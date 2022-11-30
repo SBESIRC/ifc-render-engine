@@ -6,10 +6,9 @@
 #include <thread>
 #include <iostream>
 #include "Character.h"
-
+#include "common/logger.h"
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
-
 namespace ifcre {
 	extern IFCVulkanRender;
 	SharedPtr<IFCRenderEngine> ifcre;
@@ -95,7 +94,9 @@ namespace ifcre {
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
 		auto& configs = m_cache_configs;
-
+		if(!m_init)
+			Logger::instance()->open("./tmp.log");
+		debug("new init");
 		if (!m_init) { //初次打开窗口
 			// 获取config数据
 			width = atoi(configs["width"].c_str());
@@ -105,7 +106,7 @@ namespace ifcre {
 			if (graphics_api == "vulkan") {
 				m_render_api = VULKAN_RENDER_API;
 			}
-
+			debug("");
 			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
@@ -119,12 +120,13 @@ namespace ifcre {
 			}
 		}
 		m_render_window->setDefaultStatus();
-
+		debug("start load data");
 		// 加载模型数据
 		try_ifc = configs["model_type"] == "ifc";
-
 		String model_file = configs["file"];
 		if (model_file == "nil") {
+			info("g_indices: %d, g_vertices: %d, g_normals: %d, c_indices: %d, face_mat: %d, edge_indices: %d\n",
+				_g_indices.size(), _g_vertices.size(), _g_normals.size(), _c_indices.size(), _face_mat.size(), _edge_indices.size());
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
 		}
 		else {
@@ -135,7 +137,7 @@ namespace ifcre {
 				test_model = DefaultParser::load(model_file);
 			}
 		}
-
+		debug("after load");
 		mousemove = make_shared<bool>(true);///////////////////////////////////////////
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
@@ -239,6 +241,7 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
+		info("use zoom");
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
@@ -751,6 +754,7 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3) {
+		info("use zoom");
 		m_render_window->trigger = false;
 		glm::mat4 model_mat;
 		Real scaler = 0;
@@ -768,6 +772,7 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::zoom2Home() {
+		info("zoom hoom");
 		if (ifc_test_model == NULL) {
 			return;
 		}
