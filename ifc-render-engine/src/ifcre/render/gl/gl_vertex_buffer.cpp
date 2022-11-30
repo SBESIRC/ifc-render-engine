@@ -57,6 +57,8 @@ namespace ifcre {
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 	}
 
+#pragma region draws
+
 	void GLVertexBuffer::draw()
 	{
 		glBindVertexArray(m_vaoid);
@@ -172,10 +174,14 @@ namespace ifcre {
 		glEnable(GL_DEPTH_TEST);
 	}
 
+#pragma endregion
+
 	inline bool GLVertexBuffer::useIndex()
 	{
 		return m_eboid != -1;
 	}
+
+#pragma region updates
 
 	void GLVertexBuffer::uploadElementBufferOnly(Vector<uint32_t>& indices)
 	{
@@ -187,6 +193,8 @@ namespace ifcre {
 		m_size_list.emplace_back(indices.size());
 	}
 	void GLVertexBuffer::uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices) {
+		Vector<uint32_t>().swap(m_eboid_list);
+		Vector<uint32_t>().swap(m_size_list);
 		Vector<uint32_t>(c_indices.size()).swap(m_eboid_list);
 		Vector<uint32_t>(c_indices.size()).swap(m_size_list);
 		glBindVertexArray(m_vaoid);
@@ -212,7 +220,6 @@ namespace ifcre {
 			glBindVertexArray(0);
 			//edge_generated = true;
 	}
-
 
 	void GLVertexBuffer::uploadNoTransElements(Vector<uint32_t>& indices)
 	{
@@ -250,7 +257,6 @@ namespace ifcre {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		//no trans
-		glBindVertexArray(m_vaoid);
 		glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
 		glGenBuffers(1, &m_dynamic_eboid_for_no_trans);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_no_trans);
@@ -338,12 +344,11 @@ namespace ifcre {
 		glBindVertexArray(m_vaoid);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_DYNAMIC_DRAW);
-		//glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), floors.size() * sizeof(uint32_t), floors.data());
 
-		//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Real), 0);
 		glBindVertexArray(0);
-		//glVertexAttribPointer(1, 1, GL_UNSIGNED_INT, GL_FALSE, 1 * sizeof(uint32_t), (void*)(vertices.size() * sizeof(Real)));
 	}
+
+#pragma endregion
 
 	void GLVertexBuffer::destroy()
 	{
@@ -353,5 +358,22 @@ namespace ifcre {
 		if (m_eboid != -1) {
 			glDeleteBuffers(1, &m_eboid);
 		}
+
+		glDeleteBuffers(m_eboid_list.size(), m_eboid_list.data());
+		glDeleteBuffers(1, &m_eboid_for_no_trans);
+		glDeleteBuffers(1, &m_eboid_for_trans);
+		glDeleteBuffers(1, &m_eboid_for_edge);
+
+		glDeleteBuffers(1, &m_dynamic_eboid);
+		glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
+		glDeleteBuffers(1, &m_dynamic_eboid_for_trans);
+		glDeleteBuffers(1, &m_dynamic_eboid_for_edge);
+
+		glDeleteBuffers(1, &m_chosen_eboid_for_no_trans);
+		glDeleteBuffers(1, &m_chosen_eboid_for_trans);
+
+		glDeleteBuffers(1, &m_collision_eboid);
+		mFuncPtr.clear();
+		std::cout << "vertex buffer clear.\n";
 	}
 }

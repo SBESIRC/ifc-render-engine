@@ -44,10 +44,13 @@ namespace ifcre {
 		void disableBlend();
 		void enableMultiSample();
 		void disableMultiSample();
+		void clear_model();
+		void reset_render();
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+		void deleteModel(uint32_t id);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
@@ -137,7 +140,6 @@ namespace ifcre {
 
 				//auto temp = m_projection * m_view * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
 				auto temp = m_projection * m_view * m_model * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
-				//temp = temp / temp.w;
 				this_face_normal = glm::normalize(glm::vec2(temp.x, temp.y));
 				//std::cout << my_key << ": " << this_face_normal.x << " " << this_face_normal.y << "\n";
 				//std::cout << "drag: " << dragmove.x << " " << dragmove.y << "\n";
