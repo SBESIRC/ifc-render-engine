@@ -185,7 +185,7 @@ namespace ifcre {
 
 		use_clip_box->glInit(ui_id_num);
 	}
-// ----- ----- ----- ----- ----- ----- ----- ----- 
+	// ----- ----- ----- ----- ----- ----- ----- -----
 
 	void GLRender::clearFrameBuffer(GLClearEnum clear, GLColor* color, Real depth)
 	{
