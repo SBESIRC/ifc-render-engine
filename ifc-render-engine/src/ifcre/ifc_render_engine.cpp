@@ -95,9 +95,10 @@ namespace ifcre {
 	{
 		auto& configs = m_cache_configs;
 		if(!m_init)
-			Logger::instance()->open("./tmp.log");
-		debug("new init");
+			Logger::instance()->open(string(std::getenv("TEMP")) + "\\render_engine.log");
+		info("start init");
 		if (!m_init) { //初次打开窗口
+			info("first open window");
 			// 获取config数据
 			width = atoi(configs["width"].c_str());
 			height = atoi(configs["height"].c_str());
@@ -106,7 +107,6 @@ namespace ifcre {
 			if (graphics_api == "vulkan") {
 				m_render_api = VULKAN_RENDER_API;
 			}
-			debug("");
 			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
