@@ -41,10 +41,13 @@ namespace ifcre {
 		void disableBlend();
 		void enableMultiSample();
 		void disableMultiSample();
+		void clear_model();
+		void reset_render();
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+		void deleteModel(uint32_t id);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
@@ -74,6 +77,7 @@ namespace ifcre {
 		void renderClipBox(const bool hidden, const ClipBox& clip_box, int clp_face_id);
 		void renderClipBoxInUIlayer(const bool hidden, const ClipBox& clip_box);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
+		void renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size, int last_hovered_face_key);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderSkybox(const glm::mat3& view_matrix, const glm::mat4& projection);
@@ -130,7 +134,7 @@ namespace ifcre {
 		//glm::vec4 m_bg_color = glm::vec4(0.2f, 0.3f, 0.3f, 1.0f);
 		glm::vec4 m_bg_color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		const int m_default_com_id = -1;
-		//TextData textdata = TextData("resources/fonts/default.ttf");
+		TextData textdata = TextData("resources/fonts/default.ttf");
 		//TextureFont texturefont = TextureFont("resources/fonts/msyh.ttc", 32);
 		TextureFont texturefont = TextureFont("resources/fonts/Stfangso.ttf", 32);
 		SceneGizmo gizmo = SceneGizmo(0);

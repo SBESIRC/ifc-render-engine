@@ -472,7 +472,22 @@ namespace ifcre {
 
 		_defaultConfig();
 	}
+	void GLRender::renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
+	{
+		m_text_shader->use();
+		m_text_shader->setVec3("textColor", color);
+		m_text_shader->setVec2("offset", glm::vec2(0));
+		m_text_shader->setMat4("projection", glm::ortho(0.0f, static_cast<float>(window_width), 0.0f, static_cast <float>(window_height))); // ortho正交投影
+		glDisable(DEPTH_TEST);
+		glDepthFunc(GL_ALWAYS); // always pass depth test
+		glDepthMask(GL_FALSE); // forbit import from depth test
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		textdata.render_text(text, glm::vec3(position), scale);
 
+		glDepthMask(GL_TRUE);
+		_defaultConfig();
+	}
 	void GLRender::renderGridText(Vector<wstring>& texts, Vector<float>& text_data, bool& text_reset) {
 		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		texturefont.drawText3D(m_text3d_shader, texts, text_data, m_projection, m_modelview, text_reset);
@@ -487,7 +502,7 @@ namespace ifcre {
 		if (grid_line_reset) {
 			grid_line_reset = false;
 			grid_line_size = grid_line.size();
-			vector<float> tmp(grid_line_size * 14 / 12);
+			vector<float> tmp(grid_line_size * 7 / 6);
 			for (int i = 0, j = 0; i < grid_line_size; i += 12,j += 14) {
 				tmp[j] = grid_line[i];
 				tmp[j + 1] = grid_line[i + 1];
@@ -509,6 +524,15 @@ namespace ifcre {
 					 
 				tmp[j + 13] = grid_line[i + 11];
 			}
+			vector<float> ThreeAxis = {//pos color linetype
+				0.f, 0.f, 0.f, 	0.33f, 0.33f, 0.33f, 	1.f, 
+				-10.f, 0.f, 0.f, 0.33f, 0.33f, 0.33f, 	1.f, 
+				0.f, 0.f, 0.f, 	0.33f, 0.33f, 0.33f, 	1.f, 
+				0.f, 10.f, 0.f, 	0.33f, 0.33f, 0.33f, 	1.f, 
+				0.f, 0.f, 0.f, 	0.33f, 0.33f, 0.33f, 	1.f, 
+				0.f, 0.f, -10.f, 0.33f, 0.33f, 0.33f, 	1.f
+			};
+			tmp.insert(tmp.end(), ThreeAxis.begin(), ThreeAxis.end());
 			uint32_t grid_vbo;
 			glGenVertexArrays(1, &grid_vao);
 			glGenBuffers(1, &grid_vbo);
@@ -529,7 +553,7 @@ namespace ifcre {
 		m_grid_shader->use();
 		m_grid_shader->setVec2("u_resolution", vec2(width, height));
 		glBindVertexArray(grid_vao);
-		glDrawArrays(GL_LINES, 0, grid_line_size / 3);
+		glDrawArrays(GL_LINES, 0, grid_line_size / 3 + 6);
 		_defaultConfig();
 	}
 
@@ -539,12 +563,12 @@ namespace ifcre {
 		static uint32_t axis_vao;
 		if (first) { // 初始化 (一般只运行一次。除非物体频繁改变)
 			float coord_axis[] = {	//float coord_axis[] = {
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				1.0, 0.0, 0.0,		//	100.0, 0.0, 0.0,	// x-axis
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				0.0, 1.0, 0.0,		//	0.0, 100.0, 0.0,	// y-axis
-				0.0, 0.0, 0.0,		//	0.0, 0.0, 0.0,
-				0.0, 0.0, 1.0		//	0.0, 0.0, 100.0		// z-axis
+				0.0f,  0.0f,  0.0f, 		//	0.0, 0.0, 0.0,
+				-1.0f,  0.0f,  0.0f, 		//	100.0, 0.0, 0.0,	// x-axis
+				0.0f,  0.0f,  0.0f, 		//	0.0, 0.0, 0.0,
+				0.0f,  1.0f,  0.0f, 		//	0.0, 100.0, 0.0,	// y-axis
+				0.0f,  0.0f,  0.0f, 		//	0.0, 0.0, 0.0,
+				0.0f,  0.0f,  1.0f 		//	0.0, 0.0, 100.0		// z-axis
 			};						//};
 			uint32_t axis_vbo;
 			glGenVertexArrays(1, &axis_vao);
@@ -892,6 +916,10 @@ namespace ifcre {
 		glDisable(GL_MULTISAMPLE);
 	}
 
+	void GLRender::reset_render() {
+
+	}
+
 	void GLRender::depthFunc(GLFuncEnum func)
 	{
 		switch (func) {
@@ -912,7 +940,13 @@ namespace ifcre {
 		m_vertex_buffer_map.insert(make_pair(id, vertex_buffer));
 		return id;
 	}
-
+	void GLRender::deleteModel(uint32_t id) {
+		m_vertex_buffer_map.erase(id);
+	}
+	void GLRender::clear_model() {
+		m_vertex_buffer_map.clear();
+		std::cout << "Render clear.\n";
+	}
 	void GLRender::ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices) {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}

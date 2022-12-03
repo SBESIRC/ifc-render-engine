@@ -1,4 +1,5 @@
-﻿#include "ifc_render_engine.h"
+﻿#include <Windows.h>
+#include "ifc_render_engine.h"
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
@@ -6,8 +7,9 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <filesystem>
 #include "Character.h"
-
+#include "common/logger.h"
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
 
@@ -56,6 +58,7 @@ namespace ifcre {
 
 	void IFCRenderEngine::set_grid_data(int val) {
 		if (val == 0) { // 0代表清空轴网数据
+			be_ready = false;
 			vector<float>().swap(grid_lines);
 			vector<float>().swap(grid_circles);
 			grid_text.clear();
@@ -66,6 +69,7 @@ namespace ifcre {
 		else if (val == 1) { // 1代表结束传输
 			ifc_test_model->generate_circleLines(grid_lines, grid_circles);
 			//m_render_window->to_show_grid = true;
+			be_ready = true;
 		}
 		else if (val == 2) { // 2代表隐藏轴网显示
 			m_render_window->to_show_grid = false;
@@ -90,9 +94,13 @@ namespace ifcre {
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
+		be_ready = false;
 		auto& configs = m_cache_configs;
-
+		if (!m_init)
+			Logger::instance()->open(string(std::getenv("TEMP")) + "\\render_engine.log");
+		debug("new init");
 		if (!m_init) { //初次打开窗口
+			debug("first open window");
 			// 获取config数据
 			width = atoi(configs["width"].c_str());
 			height = atoi(configs["height"].c_str());
@@ -113,6 +121,7 @@ namespace ifcre {
 				m_ifcRender->initialize(width, height);
 			}
 		}
+		m_glrender->clear_model();
 		m_render_window->setDefaultStatus();
 
 		// 加载模型数据
@@ -120,6 +129,8 @@ namespace ifcre {
 
 		String model_file = configs["file"];
 		if (model_file == "nil") {
+			info("load new file: g_indices: %d, g_vertices: %d, g_normals: %d, c_indices: %d, face_mat: %d, edge_indices: %d",
+				_g_indices.size(), _g_vertices.size(), _g_normals.size(), _c_indices.size(), _face_mat.size(), _edge_indices.size());
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
 		}
 		else {
@@ -192,7 +203,8 @@ namespace ifcre {
 				test_model->render_id = m_glrender->addModel(model_vb);
 			}
 		}
-
+		info("end init, start loop");
+		be_ready = true;
 		sleep_time = 10;
 	}
 
@@ -205,6 +217,9 @@ namespace ifcre {
 				case OPENGL_RENDER_API: {
 					auto& m_window = *m_render_window;
 					while (!m_window.isClose()) {
+						if (!be_ready) {
+							continue;
+						}
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
@@ -264,7 +279,8 @@ namespace ifcre {
 
 		ifc_m_matrix = model_matrix;
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
+		//std::cout << "iddddd" << std::endl;
+		OutputDebugStringW(L"My output string.");
 		{
 			m_window.startRenderToWindow();  // 切换到当前frame buffer
 			glm::mat4 view = m_camera->getViewMatrix();
@@ -411,7 +427,8 @@ namespace ifcre {
 			// -------------- render clipping plane, not normal render procedure ---------------
 			m_render.renderClipBox(m_window.getHidden(), m_window.getClipBox(), last_clp_face_key);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-			
+
+			fps(0.125);
 
 			m_window.endRenderToWindow();
 		}
@@ -553,6 +570,7 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3) {
+		info("zoom by bbx");
 		m_render_window->trigger = false;
 		glm::mat4 model_mat;
 		Real scaler = 0;
@@ -580,5 +598,22 @@ namespace ifcre {
 			ifcre = make_shared<IFCRenderEngine>();
 		}
 		return ifcre;
+	}
+
+	void IFCRenderEngine::fps(double interval) {
+		static double sumTime = 0.0;
+		static double countFrames = 0.0;
+		double deltaTime = m_render_window->getDelta_time();
+		static std::string fram;
+		if (sumTime <= interval) {
+			++countFrames;
+			sumTime += deltaTime;
+		}
+		else {
+			fram = std::to_string(int(countFrames / interval));
+			countFrames = 0.0;
+			sumTime = 0.0;
+		}
+		m_glrender->renderText("FPS:" + fram, glm::vec3(m_render_window->get_width() - 64, 6, 0), 0.3, glm::vec3(0.33f, 0.33f, 0.33f), m_render_window->get_width(), m_render_window->get_height());
 	}
 }

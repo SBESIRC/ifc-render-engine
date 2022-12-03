@@ -92,10 +92,12 @@ namespace ifcre {
 		int clp_face_key;
 	private:
 		void drawFrame();
+		void fps(double interval = 1.0);
 		
 	private:
 		Map<String, String> m_cache_configs;
 		bool m_init;
+		bool be_ready = true;
 		bool try_ifc;
 		int to_show_states;
 		Real scale_factor = 0;
@@ -148,6 +150,6 @@ namespace ifcre {
 		int width;
 		int height;
 	};
-}
+};
 
 #endif

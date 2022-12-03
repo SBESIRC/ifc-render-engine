@@ -397,7 +397,7 @@ namespace ifcre {
 		void setCamera(SharedPtr<GLCamera> camera);
 		int get_width() { return m_width; }
 		int get_height() { return m_height; }
-
+		double getDelta_time() { return m_delta_time; }
 		// --------- mouse status -----------
 		glm::vec3 getClickedWorldCoord();
 		glm::vec3 getVirtualHoverWorldCoord();

@@ -24,6 +24,7 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
     <ClCompile Include="src\ifcre\collider.cpp" />
     <ClCompile Include="src\ifcre\stb_image.cpp" />
+    <ClCompile Include="src\ifcre\common\logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ifcre\common\std_types.h" />
@@ -69,6 +70,7 @@
     <ClInclude Include="src\ifcre\stb_image.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
     <ClInclude Include="src\ifcre\grid.h" />
+    <ClInclude Include="src\ifcre\common\logger.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
