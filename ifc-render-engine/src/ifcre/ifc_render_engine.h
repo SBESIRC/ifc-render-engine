@@ -108,6 +108,7 @@ namespace ifcre {
 	private:
 		Map<String, String> m_cache_configs;
 		bool m_init;
+		bool be_ready = true;
 		bool try_ifc;
 		int to_show_states;
 		Real scale_factor = 0;

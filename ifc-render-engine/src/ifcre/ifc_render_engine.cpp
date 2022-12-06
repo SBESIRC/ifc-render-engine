@@ -1,4 +1,5 @@
-﻿#include "ifc_render_engine.h"
+﻿#include <Windows.h>
+#include "ifc_render_engine.h"
 #include "resource/parser.h"
 #include "common/ifc_util.h"
 #include "ifcrender/render_ui.h"
@@ -59,6 +60,7 @@ namespace ifcre {
 
 	void IFCRenderEngine::set_grid_data(int val) {
 		if (val == 0) { // 0代表清空轴网数据
+			be_ready = false;
 			vector<float>().swap(grid_lines);
 			vector<float>().swap(grid_circles);
 			grid_text.clear();
@@ -93,9 +95,10 @@ namespace ifcre {
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
+		be_ready = false;
 		auto& configs = m_cache_configs;
 		if(!m_init)
-			Logger::instance()->open("./tmp.log");
+			Logger::instance()->open(string(std::getenv("TEMP")) + "\\render_engine.log");
 		debug("new init");
 		if (!m_init) { //初次打开窗口
 			// 获取config数据
@@ -218,7 +221,7 @@ namespace ifcre {
 				test_model->render_id = m_glrender->addModel(model_vb);
 			}
 		}
-
+		be_ready = true;
 		sleep_time = 10;
 	}
 
@@ -282,7 +285,11 @@ namespace ifcre {
 				case OPENGL_RENDER_API: {
 					auto& m_window = *m_render_window;
 					offscreenRending();
+					OutputDebugStringW(L"Debug start run.");
 					while (!m_window.isClose()) {
+						if (!be_ready) {
+							continue;
+						}
 						//sleep 1 ms to reduce cpu time
 						std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 

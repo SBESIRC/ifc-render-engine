@@ -193,8 +193,6 @@ namespace ifcre {
 		m_size_list.emplace_back(indices.size());
 	}
 	void GLVertexBuffer::uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices) {
-		Vector<uint32_t>().swap(m_eboid_list);
-		Vector<uint32_t>().swap(m_size_list);
 		Vector<uint32_t>(c_indices.size()).swap(m_eboid_list);
 		Vector<uint32_t>(c_indices.size()).swap(m_size_list);
 		glBindVertexArray(m_vaoid);
