@@ -195,7 +195,9 @@ namespace ifcre {
 				model_vb->vertexAttribDesc(4, 1, sizeof(Real) * 12, (void*)(11 * sizeof(Real)));
 
 				if (use_transparency) {
+#ifndef ALL_COMP_TRANS
 					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
+#endif
 					model_vb->uploadTransElements(ifc_test_model->trans_ind);
 				}
 				model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
@@ -490,11 +492,12 @@ namespace ifcre {
 
 			m_render.renderSkyBox(m_window.returnPerispectiveMat());
 
+#ifndef ALL_COMP_TRANS
 			m_render.render(ifc_test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
-
 			//2. render chosen scene, no transparency// 渲染选中的不透明构件
 			m_render.render(ifc_test_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
+#endif
 
 			//3. render transparency scene// 渲染透明的构件
 			m_render.setAlpha(trans_alpha);
@@ -599,7 +602,7 @@ namespace ifcre {
 	}
 	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
-
+#ifndef ALL_COMP_TRANS
 	void IFCRenderEngine::changeGeom() {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
@@ -638,6 +641,44 @@ namespace ifcre {
 			collider_trans_flag = false;
 		}
 	}
+#else
+	void IFCRenderEngine::changeGeom() {
+		auto& m_render = *m_glrender;
+		auto& m_window = *m_render_window;
+
+		if (m_window.chosen_changed_w) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_w = false;
+		}
+		else if (m_window.chosen_changed_x) {
+			ifc_test_model->update_chosen_list(m_window.chosen_list);
+			m_window.geom_changed = true;
+			m_window.chosen_changed_x = false;
+		}
+		if (m_window.geom_changed) {
+			ifc_test_model->update_chosen_and_vis_list();
+
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ ifc_test_model->cur_c_indices });
+			ifc_test_model->setpMax(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]));
+			ifc_test_model->setpMin(glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
+
+			m_render.DynamicUpdate(ifc_test_model->render_id,
+				ifc_test_model->generate_ebo_from_component_ids(ifc_test_model->cur_c_indices),
+				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
+
+			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_trans_ind);
+
+			m_window.geom_changed = false;
+		}
+		if (collider_trans_flag && !collision_list.empty()) {
+			ifc_test_model->generate_collision_list(collision_list);
+			m_render.CollisionGeomUpdate(ifc_test_model->render_id, ifc_test_model->collision_ebo);
+			collider_trans_flag = false;
+		}
+	}
+#endif // !ALL_COMP_TRANS
+
 
 	void IFCRenderEngine::dataIntegration() {
 		auto& m_render = *m_glrender;

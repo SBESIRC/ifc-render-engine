@@ -313,6 +313,7 @@ namespace ifcre {
 			m_comp_id_program->use();
 			break;
 		}
+#ifndef ALL_COMP_TRANS
 		case DEFAULT_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -335,6 +336,7 @@ namespace ifcre {
 			m_test_shader->use();
 			break;
 		}
+#endif
 		case OFFLINE_SHADING: {
 			auto& color = m_bg_color_off;
 			glClearColor(color.r, color.g, color.b, color.a);
@@ -356,6 +358,12 @@ namespace ifcre {
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
+#ifdef ALL_COMP_TRANS
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+#endif //  !ALL_COMP_TRANS
+
 			glEnable(GL_BLEND); //启用混合（可以使用透明物体）
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
 			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
@@ -402,6 +410,7 @@ namespace ifcre {
 			m_edge_shader->use();
 			break;
 		}
+#ifndef ALL_COMP_TRANS 
 		case CHOSEN_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -422,6 +431,7 @@ namespace ifcre {
 			m_chosen_shader->use();
 			break;
 		}
+#endif
 		case CHOSEN_TRANS_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -460,59 +470,6 @@ namespace ifcre {
 		SharedPtr<GLVertexBuffer> vb = it->second;
 
 		vb->run_draw_func(local_render_id);
-		//switch (local_render_id)
-		//{
-		//case ALL: {
-		//	vb->draw();
-		//	break;
-		//}
-		//case DYNAMIC_ALL: {
-		//	vb->drawByDynamicEbo();
-		//	break;
-		//}
-		//case NO_TRANS: {//draw no trans only
-		//	vb->drawNoTrans();
-		//	break;
-		//}
-		//case TRANS: {//draw trans only
-		//	vb->drawTrans();
-		//	break;
-		//}
-		//case BBX_LINE: {//draw bbx line
-		//	vb->drawBBXLines();
-		//	break;
-		//}
-		//case EDGE_LINE: {//draw edges
-		//	vb->drawEdges();
-		//	break;
-		//}
-		//case DYNAMIC_NO_TRANS: {//draw dynamic no trans
-		//	vb->drawByDynamicEbo_no_trans();
-		//	break;
-		//}
-		//case DYNAMIC_TRANS: {//draw dynamic trans
-		//	vb->drawByDynamicEbo_trans();
-		//	break;
-		//}
-		//case DYNAMIC_EDGE_LINE: {
-		//	vb->drawByDynamicEdge();
-		//	break;
-		//}
-		//case CHOSEN_NO_TRANS: {
-		//	
-		//	break;
-		//}
-		//case CHOSEN_TRANS: {
-		//	break;
-		//}
-		//case COLLISION: {
-		//	break;
-		//}
-		//default: {
-		//	vb->drawByAddedEbo(local_render_id);
-		//	break;
-		//}
-		//}
 		glDisable(GL_BLEND);
 	}
 
@@ -1234,13 +1191,21 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
+#ifndef ALL_COMP_TRANS
 	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
 		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, no_trans_indices, trans_indices, edge_indices);
 	}
-
 	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo) {
 		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_no_trans_ebo, chosen_trans_ebo);
 	}
+#else
+	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
+		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, trans_indices, edge_indices);
+	}
+	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_trans_ebo) {
+		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_trans_ebo);
+	}
+#endif
 
 	void GLRender::CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo) {
 		m_vertex_buffer_map[render_id]->uploadCollisionElementBuffer(collid_ebo);

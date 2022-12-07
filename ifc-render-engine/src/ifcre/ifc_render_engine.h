@@ -110,6 +110,7 @@ namespace ifcre {
 		bool m_init;
 		bool be_ready = true;
 		bool try_ifc;
+		bool first_update = true;
 		int to_show_states;
 		Real scale_factor = 0;
 		glm::mat4 ifc_m_matrix;

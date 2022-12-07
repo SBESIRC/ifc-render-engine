@@ -276,6 +276,14 @@ namespace ifcre {
 
 			return basis * ret;
 		}
+		const glm::mat4 toMat_use_for_ui_update() const {
+			glm::vec4 world_x = glm::vec4(-glm::cross(normal, front), 0.),
+				world_z = glm::vec4(-front, 0.),
+				world_y = glm::vec4(normal, 0.);
+			glm::vec4 add(0., 0., 0., 1.);
+			glm::mat4 basis(world_x, world_y, world_z, add);
+			return basis;
+		}
 #define upadte_rate (.5f * dis)
 		void updateBox(int direct, float dis = .05f) {
 			switch (direct)

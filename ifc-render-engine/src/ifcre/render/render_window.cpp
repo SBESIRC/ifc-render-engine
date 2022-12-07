@@ -97,17 +97,11 @@ namespace ifcre {
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        //if (comp_id == -1) {
-        //    m_mouse_status.click_comp_id = -1;
-        //    //std::cout << "NO!" << std::endl;
-        //    return;
-        //}
-
-        //std::cout << comp_id.x << "\n";
 
 
         if (is_comp) {
             int clicked_comp_id = comp_id.x;
+            //std::cout << comp_id.x << "\n";
             if (hover_mode && !m_mouse_status.lbtn_down)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else if(!hover_mode) {
@@ -120,7 +114,7 @@ namespace ifcre {
                             chosen_list.erase(temp_id);
                         }
                         else*/
-                            chosen_list.insert(temp_id);
+                        chosen_list.insert(temp_id);
                     }
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
@@ -535,7 +529,7 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             multichoose = true;
         }
-        else if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+        else if (multichoose && glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
             multichoose = false;
         }
     }

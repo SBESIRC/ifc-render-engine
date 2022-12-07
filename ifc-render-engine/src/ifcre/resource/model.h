@@ -14,8 +14,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-//#define _USE_MATH_DEFINES
 
+#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
 //#include <math.h>
@@ -56,7 +56,7 @@ namespace ifcre {
 			g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices),
 			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey),
 				storeys_comp_id(datas.storeys_component_id) {
-				clock_t start, end;
+			//clock_t start, end;
 			//start = clock();
 			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
 			
@@ -303,10 +303,11 @@ namespace ifcre {
 		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
-			Vector<uint32_t> no_transparency_ind;
-			Unordered_set<uint32_t>().swap(trans_c_indices_set);
-			Vector<uint32_t>().swap(cur_c_indices);
 			int v_count = 0;
+#ifndef ALL_COMP_TRANS
+			Vector<uint32_t>().swap(cur_c_indices);
+			Unordered_set<uint32_t>().swap(trans_c_indices_set);
+			Vector<uint32_t> no_transparency_ind;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[i].alpha < 1) {
 					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
@@ -322,6 +323,15 @@ namespace ifcre {
 			no_trans_ind = no_transparency_ind;
 			cur_vis_trans_ind = trans_ind;
 			cur_vis_no_trans_ind = no_trans_ind;
+#else
+			for (int i = 0; i < c_indices.size(); ++i) {
+				transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				v_count += c_indices[i].size();
+				cur_c_indices.emplace_back(i);
+			}
+			trans_ind = transparency_ind;
+			cur_vis_trans_ind = transparency_ind;
+#endif	// !ALL_COMP_TRANS
 		}
 
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
@@ -350,6 +360,7 @@ namespace ifcre {
 			collision_ebo = ret;
 		}
 
+#ifndef ALL_COMP_TRANS
 		void update_chosen_and_vis_list() {
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
 			Vector<uint32_t>().swap(cur_vis_no_trans_ind);
@@ -381,7 +392,25 @@ namespace ifcre {
 				}
 			}
 		}
-
+#else
+		void update_chosen_and_vis_list() {
+			Vector<uint32_t>().swap(cur_vis_trans_ind);
+			Vector<uint32_t>().swap(cur_edge_ind);
+			Vector<uint32_t>().swap(cur_chosen_trans_ind);
+			uint32_t edge_c_indices_size = c_edge_indices.size();
+			for (const int i : cur_c_indices) {
+				if (comp_states[i] == VIS) {
+					cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					if (i < edge_c_indices_size) {
+						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
+					}
+				}
+				else if (comp_states[i] == CHOSEN) {
+					cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				}
+			}
+		}
+#endif 
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
 			Vector<Real>(cindicessize * 6).swap(comps_bbx); // 每个物件对应6个float值
@@ -748,7 +777,7 @@ namespace ifcre {
 		Vector<Real> comps_bbx;					// pmin, pmax // 物件对应的bbx信息，数量为物件数量的6倍
 
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
-		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引
+		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引(保留一份原始数据)
 		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
@@ -765,11 +794,11 @@ namespace ifcre {
 
 		Vector<uint32_t> cur_c_indices;					// 当前要显示的物件的索引
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
-		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
-
+#ifndef ALL_COMP_TRANS
+		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
 		Unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
-
+#endif
 		Vector<uint32_t> collision_ebo;//ebo of collision meshes, this is ready for GlUpload()
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
@@ -800,7 +829,6 @@ namespace ifcre {
 		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
 		//Vector<uint32_t> comp_types;				// 存储构件所属类型，数量等同于构件数
 
-		Vector<bool> is_trans;
 		Vector<glm::vec3> m_cube_direction_transform;
 		Vector<int> comp_storey_ids;// length = num of components; Component no.xxx's storey id is comp_storey_ids[xxx]
 	};
