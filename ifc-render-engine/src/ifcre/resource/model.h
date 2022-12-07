@@ -304,8 +304,8 @@ namespace ifcre {
 		void divide_model_by_alpha() {
 			Vector<uint32_t> transparency_ind;
 			int v_count = 0;
-#ifndef ALL_COMP_TRANS
 			Vector<uint32_t>().swap(cur_c_indices);
+#ifndef ALL_COMP_TRANS
 			Unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t> no_transparency_ind;
 			for (int i = 0; i < c_indices.size(); ++i) {
