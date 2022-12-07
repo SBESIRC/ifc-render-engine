@@ -14,8 +14,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-
-#define ALL_COMP_TRANS
+//#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
 //#include <math.h>
@@ -309,7 +308,7 @@ namespace ifcre {
 			Unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t> no_transparency_ind;
 			for (int i = 0; i < c_indices.size(); ++i) {
-				if (material_data[i].alpha < 1) {
+				if (material_data[i].alpha < 2) {
 					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					trans_c_indices_set.insert(i);
 				}
@@ -399,15 +398,15 @@ namespace ifcre {
 			Vector<uint32_t>().swap(cur_chosen_trans_ind);
 			uint32_t edge_c_indices_size = c_edge_indices.size();
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] == VIS) {
-					cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					if (i < edge_c_indices_size) {
-						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
+					if (comp_states[i] == VIS) {
+						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+						if (i < edge_c_indices_size) {
+							cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
+						}
 					}
-				}
-				else if (comp_states[i] == CHOSEN) {
-					cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-				}
+					else if (comp_states[i] == CHOSEN) {
+						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
 			}
 		}
 #endif 
@@ -450,11 +449,13 @@ namespace ifcre {
 		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			for (auto& id : comp_indices) {
-				for (int i = 0; i < 3; i++) {
-					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-				}
-				for (int i = 3; i < 6; i++) {
-					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+				if (id < c_indices.size()) {
+					for (int i = 0; i < 3; i++) {
+						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+					}
+					for (int i = 3; i < 6; i++) {
+						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+					}
 				}
 			}
 			return ret;
@@ -463,11 +464,13 @@ namespace ifcre {
 		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			for (auto& id : comp_indices) {
-				for (int i = 0; i < 3; i++) {
-					ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-				}
-				for (int i = 3; i < 6; i++) {
-					ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+				if (id < c_indices.size()) {
+					for (int i = 0; i < 3; i++) {
+						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+					}
+					for (int i = 3; i < 6; i++) {
+						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+					}
 				}
 			}
 			return ret;
@@ -476,17 +479,19 @@ namespace ifcre {
 		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices, bool flag) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			for (auto& id : comp_indices) {
-				glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-				ret[0] = std::min(ret[0], pos.x);
-				ret[1] = std::min(ret[1], pos.y);
-				ret[2] = std::min(ret[2], pos.z);
+				if (id < c_indices.size()) {
+					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+					ret[0] = std::min(ret[0], pos.x);
+					ret[1] = std::min(ret[1], pos.y);
+					ret[2] = std::min(ret[2], pos.z);
 
-				pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-				ret[3] = std::max(ret[3], pos.x);
-				ret[4] = std::max(ret[4], pos.y);
-				ret[5] = std::max(ret[5], pos.z);
+					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+					ret[3] = std::max(ret[3], pos.x);
+					ret[4] = std::max(ret[4], pos.y);
+					ret[5] = std::max(ret[5], pos.z);
+				}
 			}
 			return ret;
 		}
@@ -494,17 +499,19 @@ namespace ifcre {
 		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices, bool flag) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
 			for (auto& id : comp_indices) {
-				glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-				ret[0] = std::min(ret[0], pos.x);
-				ret[1] = std::min(ret[1], pos.y);
-				ret[2] = std::min(ret[2], pos.z);
+				if (id < c_indices.size()) {
+					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+					ret[0] = std::min(ret[0], pos.x);
+					ret[1] = std::min(ret[1], pos.y);
+					ret[2] = std::min(ret[2], pos.z);
 
-				pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-				pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-				ret[3] = std::max(ret[3], pos.x);
-				ret[4] = std::max(ret[4], pos.y);
-				ret[5] = std::max(ret[5], pos.z);
+					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+					ret[3] = std::max(ret[3], pos.x);
+					ret[4] = std::max(ret[4], pos.y);
+					ret[5] = std::max(ret[5], pos.z);
+				}
 			}
 			return ret;
 		}
@@ -778,7 +785,9 @@ namespace ifcre {
 
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
 		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引(保留一份原始数据)
+#ifndef ALL_COMP_TRANS
 		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
+#endif
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
@@ -790,7 +799,9 @@ namespace ifcre {
 		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
+#ifndef ALL_COMP_TRANS
 		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
+#endif
 
 		Vector<uint32_t> cur_c_indices;					// 当前要显示的物件的索引
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	

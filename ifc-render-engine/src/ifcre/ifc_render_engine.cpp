@@ -536,11 +536,11 @@ namespace ifcre {
 				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton,
-				global_alpha, trans_alpha,
-				script_scale_fractor, m_window.getDragMouseMove(), m_window.getlbtndown()
-			);
-			m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_window.collidertrig);
+			//m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton,
+			//	global_alpha, trans_alpha,
+			//	script_scale_fractor, m_window.getDragMouseMove(), m_window.getlbtndown()
+			//);
+			//m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_window.collidertrig);
 
 			*mousemove = !clipboxButton;
 			//8. render sup things
@@ -588,7 +588,7 @@ namespace ifcre {
 			m_render.renderGizmo(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			m_render.simpleui->render();
+			//m_render.simpleui->render();
 
 
 			fps(0.125);
