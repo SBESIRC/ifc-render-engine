@@ -169,15 +169,15 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			if (edge_indices.size() > 0) {
+			//if (edge_indices.size() > 0) {
 				generate_edges_by_msMeshes(false);	// 生成边
-			}
+			//}
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
 
 		void generate_edges_by_msMeshes(bool edge_generated) {
-			if (!edge_generated) {
+			//if (!edge_generated) {
 				Vector<Vector<uint32_t>>().swap(c_edge_indices);
 				Vector<uint32_t>().swap(edge_indices);
 				mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
@@ -187,7 +187,7 @@ namespace ifcre {
 					c_edge_indices.emplace_back(mes.edge_indexp);
 				}
 				cur_edge_ind = edge_indices;
-			}
+			//}
 			//for (int i = 0; i < c_edge_indices.size(); i++)
 			//	ind_of_all_c_indices.emplace_back(i);
 		}
@@ -249,7 +249,7 @@ namespace ifcre {
 				ver_attrib[offset + i + 8] = g_kd_color[color_ind + 2];				// 颜色.b
 				ver_attrib[offset + i + 9] = g_kd_color[color_ind + 3];				// 颜色.a
 				ver_attrib[offset + i + 10] = util::int_as_float(comp_ids[i / 3]);//todo: transform by bit // 所在物件的索引
-				ver_attrib[offset + i + 11] = util::int_as_float(comp_storey_ids[i / 3]);// 楼层信息
+				ver_attrib[offset + i + 11] = 0;// util::int_as_float(comp_storey_ids[i / 3]);// 楼层信息
 				offset += 9;
 			}
 			return ver_attrib;

@@ -33,9 +33,9 @@ void main()
 		color = vGoColor / 4 * 3 + vec4(0.0, 0.25, 0.0, 0.0);
     }
 	vec3 norm = normalize(vNormal);
-	vec4 diffuse = max(dot(norm, -ubo.cameraDirection), 0.0) * color * 0.8;
+	vec4 diffuse = max(dot(norm, -ubo.cameraDirection), 0.0) * color * 0.3;
 
-	vec4 tcolor = color * 0.2 + diffuse;
+	vec4 tcolor = color * 0.7 + diffuse;
     FragColor = vec4(tcolor.xyz, color.a);
 	//float k = dot(normalize(vFragPos - ubo.cameraPosition),norm);
 	//if(k >.0 && color.w > 0.99) FragColor = vec4(1.0, 0.6, 0.0, 1.0);

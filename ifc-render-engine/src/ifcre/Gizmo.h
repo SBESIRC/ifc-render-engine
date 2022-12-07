@@ -237,13 +237,13 @@ namespace ifcre {
                            -k, -k2, k,     0.00f, 0.00f,      util::int_as_float(id_num + 24),
 
                            //point front right down 145
-                           k2, -k, k,        1.00f, 1.00f,    util::int_as_float(id_num + 25),
-                           k2,-k, k2,        0.75f, 1.00f,    util::int_as_float(id_num + 25),
-                           k, -k, k2,        0.75f, 1.00f,    util::int_as_float(id_num + 25),
-                           k,-k2, k2,        1.00f, 0.00f,    util::int_as_float(id_num + 25),
-                           k2, -k2, k2,    0.75f, 0.00f,    util::int_as_float(id_num + 25),
-                           k2,-k2, k,        1.00f, 0.00f,    util::int_as_float(id_num + 25),
-                           k, -k2, k,        1.00f, 1.00f,    util::int_as_float(id_num + 25)
+                           k2, -k, k,      0.00f, 0.00f,      util::int_as_float(id_num + 25),
+                           k2,-k, k2,       0.00f, 0.00f,     util::int_as_float(id_num + 25),
+                           k, -k, k2,      0.00f, 0.00f,      util::int_as_float(id_num + 25),
+                           k,-k2, k2,       0.00f, 0.00f,     util::int_as_float(id_num + 25),
+                           k2, -k2, k2,      0.00f, 0.00f,  util::int_as_float(id_num + 25),
+                           k2,-k2, k,       0.00f, 0.00f,     util::int_as_float(id_num + 25),
+                           k, -k2, k,      0.00f, 0.00f,      util::int_as_float(id_num + 25)
                            //// position     uv cordination    ids
                            ////back
                            // k, -k, -k,        .00f, .00f,        id_num + 0.f,
