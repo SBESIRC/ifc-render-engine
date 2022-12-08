@@ -14,7 +14,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-//#define ALL_COMP_TRANS
+#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
 //#include <math.h>
@@ -169,9 +169,7 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			//if (edge_indices.size() > 0) {
-				generate_edges_by_msMeshes(false);	// 生成边
-			//}
+			generate_edges_by_msMeshes(false);	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -301,9 +299,10 @@ namespace ifcre {
 		}
 		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {
-			Vector<uint32_t> transparency_ind;
 			int v_count = 0;
 			Vector<uint32_t>().swap(cur_c_indices);
+			Vector<uint32_t>().swap(trans_ind);
+			Vector<uint32_t>().swap(cur_vis_trans_ind);
 #ifndef ALL_COMP_TRANS
 			Unordered_set<uint32_t>().swap(trans_c_indices_set);
 			Vector<uint32_t> no_transparency_ind;
@@ -320,26 +319,25 @@ namespace ifcre {
 			}
 			trans_ind = transparency_ind;
 			no_trans_ind = no_transparency_ind;
-			cur_vis_trans_ind = trans_ind;
-			cur_vis_no_trans_ind = no_trans_ind;
+			cur_vis_trans_ind = transparency_ind;
+			cur_vis_no_trans_ind = no_transparency_ind;
 #else
 			for (int i = 0; i < c_indices.size(); ++i) {
-				transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				trans_ind.insert(trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				v_count += c_indices[i].size();
 				cur_c_indices.emplace_back(i);
 			}
-			trans_ind = transparency_ind;
-			cur_vis_trans_ind = transparency_ind;
 #endif	// !ALL_COMP_TRANS
 		}
 
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
+			uint32_t c_indices_size = c_indices.size();
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] != VIS) {
+				if (comp_states[i] != VIS && i < c_indices_size) {
 					comp_states[i] = VIS;
 				}
 			}
-			uint32_t c_indices_size = c_indices.size();
 			if (c_indices_size == 1 && chosen_list.size() > 0 && (*chosen_list.begin() >= c_indices_size)) {
 				chosen_list.clear();
 			}
@@ -392,21 +390,21 @@ namespace ifcre {
 			}
 		}
 #else
-		void update_chosen_and_vis_list() {
+		void update_chosen_and_vis_list() {//////////////////////////////////////////////////////////////////////////////
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
 			Vector<uint32_t>().swap(cur_edge_ind);
 			Vector<uint32_t>().swap(cur_chosen_trans_ind);
 			uint32_t edge_c_indices_size = c_edge_indices.size();
 			for (const int i : cur_c_indices) {
-					if (comp_states[i] == VIS) {
-						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-						if (i < edge_c_indices_size) {
-							cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
-						}
+				if (comp_states[i] == VIS) {
+					cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					if (i < edge_c_indices_size) {
+						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
 					}
-					else if (comp_states[i] == CHOSEN) {
-						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					}
+				}
+				else if (comp_states[i] == CHOSEN) {
+					cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				}
 			}
 		}
 #endif 
@@ -607,7 +605,8 @@ namespace ifcre {
 		Vector<uint32_t> generate_ebo_from_component_ids(Vector<uint32_t>& input_comp_ids) {
 			Vector<uint32_t> ret;
 			for (auto i : input_comp_ids) {
-				ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
+				if(i < c_indices.size())
+					ret.insert(ret.end(), c_indices[i].begin(), c_indices[i].end());
 			}
 			return ret;
 		}

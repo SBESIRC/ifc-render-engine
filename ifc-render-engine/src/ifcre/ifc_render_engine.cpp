@@ -63,7 +63,7 @@ namespace ifcre {
 			be_ready = false;
 			vector<float>().swap(grid_lines);
 			vector<float>().swap(grid_circles);
-			grid_text.clear();
+			Vector<Wstring>().swap(grid_text);
 			grid_line_reset = true;
 			grid_text_reset = true;
 			vector<float>().swap(grid_text_data);
@@ -707,7 +707,7 @@ namespace ifcre {
 		m_render.setHoverCompId(m_window.getHoverCompId());
 	}
 
-	void IFCRenderEngine::setSelectCompIds(int val = 0) {
+	void IFCRenderEngine::setSelectCompIds(int val = 0) {////////////////////////////////////////////////////////////////////////////////
 		switch (val) {
 		case -1: // start
 			if (m_render_window == nullptr) {
@@ -734,7 +734,7 @@ namespace ifcre {
 			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
 			m_render_window->geom_changed = true;
 			Vector<CompState>(ifc_test_model->c_indices.size(), VIS).swap(ifc_test_model->comp_states);
-			ifc_test_model->cur_c_indices.clear();
+			Vector<uint32_t>().swap(ifc_test_model->cur_c_indices);
 			for (int i = 0; i < ifc_test_model->c_indices.size(); ++i) {
 				ifc_test_model->cur_c_indices.emplace_back(i);
 			}

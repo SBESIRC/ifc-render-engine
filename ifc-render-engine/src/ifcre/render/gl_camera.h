@@ -128,10 +128,10 @@ namespace ifcre {
 
             //view_pos *= 1.5f;
 
-            m_precomputing_pos.clear();
-            m_precomputing_front.clear();
-            m_precomputing_up.clear();
-            m_precomputing_right.clear();
+            Vector<glm::vec3>().swap(m_precomputing_pos);
+            Vector<glm::vec3>().swap(m_precomputing_front);
+            Vector<glm::vec3>().swap(m_precomputing_up);
+            Vector<glm::vec3>().swap(m_precomputing_right);
 
             m_precomputing_pos.push_back(glm::vec3(-view_pos.x, view_pos.y, -view_pos.z));//back
             m_precomputing_pos.push_back(glm::vec3(-view_pos.z, view_pos.y, view_pos.x));//left
