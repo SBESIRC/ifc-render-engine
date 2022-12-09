@@ -210,71 +210,6 @@ namespace ifcre {
 		}
 	}
 
-	//this GLRender::render has been abandoned
-	void GLRender::render(uint32_t render_id, RenderTypeEnum type)
-	{
-		auto& vb_map = m_vertex_buffer_map;
-		auto it = vb_map.find(render_id);
-		if (it == vb_map.end()) {
-			printf("The render_id[%u] is not existed.\n", render_id);
-			return;
-		}
-		switch (type) {
-		case NORMAL_DEPTH_WRITE: {
-			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w); // 设置背景颜色
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
-			glClearDepthf(1.0);
-			m_normal_depth_program->use();
-			m_normal_depth_program->setMat4("mvp", m_projection * m_modelview);
-			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
-			break;
-		}
-		case COMP_ID_WRITE: {
-			auto& color = m_depnor_value;
-			glClearColor(color.x, color.y, color.z, color.w);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
-			glClearDepthf(1.0);
-			m_comp_id_program->use();
-			m_comp_id_program->setMat4("mvp", m_projection * m_modelview);
-			break;
-		}
-		case DEFAULT_SHADING: {
-			auto& color = m_bg_color;
-			glClearColor(color.r, color.g, color.b, color.a);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// 清除颜色、深度缓冲
-			m_test_shader->use();
-
-			m_test_shader->setMat4("modelview", m_modelview);
-			m_test_shader->setMat4("model", m_model);
-			m_test_shader->setMat4("view", m_view);
-			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraDirection", m_camera_front);
-			//m_test_shader->setMat4("view", m_camera->getViewMatrix());
-			break;
-		}
-		case TRANSPARENCY_SHADING: {
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);// 清除颜色、深度缓冲
-			glBlendEquation(GL_FUNC_ADD);
-
-			m_test_shader->use();
-
-			m_test_shader->setMat4("modelview", m_modelview);
-			m_test_shader->setMat4("model", m_model);
-			m_test_shader->setMat4("view", m_view);
-			m_test_shader->setMat4("projection", m_projection);
-			m_test_shader->setVec3("cameraDirection", m_camera_front);
-			m_test_shader->setFloat("alpha", m_alpha);
-			break;
-		}
-		default:break;
-
-		}
-		SharedPtr<GLVertexBuffer> vb = it->second;
-		vb->draw();
-		glDisable(GL_BLEND);
-	}
 
 	void GLRender::render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id = 1)
 	{
@@ -377,7 +312,7 @@ namespace ifcre {
 			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
 			transformUBO.update(368, 4, &m_TileView);
 
-			ifcRenderUBO.update(0, 4, &m_alpha);
+			//ifcRenderUBO.update(0, 4, &m_alpha);
 			ifcRenderUBO.update(4, 4, &m_compId);
 			ifcRenderUBO.update(8, 4, &m_hoverCompId);
 			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
@@ -1174,9 +1109,10 @@ namespace ifcre {
 		}
 	}
 
-	uint32_t GLRender::addModel(SharedPtr<GLVertexBuffer> vertex_buffer)
+	uint32_t GLRender::addModel(SharedPtr<GLVertexBuffer> vertex_buffer, int id)
 	{
-		uint32_t id = util::get_next_globalid();
+		//uint32_t id = 1;// util::get_next_globalid();
+		//m_vertex_buffer_map.clear();
 		m_vertex_buffer_map.insert(make_pair(id, vertex_buffer));
 		return id;
 	}

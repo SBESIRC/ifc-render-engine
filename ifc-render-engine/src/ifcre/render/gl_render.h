@@ -49,7 +49,7 @@ namespace ifcre {
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 
-		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer, int id);
 		void deleteModel(uint32_t id);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 #ifndef ALL_COMP_TRANS
@@ -81,7 +81,7 @@ namespace ifcre {
 
 		void upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats);
 		// --------------- render ----------------------
-		void render(uint32_t render_id, RenderTypeEnum type);
+
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		//void renderGrid(IFCModel& ifc_model);

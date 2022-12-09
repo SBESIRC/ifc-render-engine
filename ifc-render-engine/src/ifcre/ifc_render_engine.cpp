@@ -54,13 +54,9 @@ namespace ifcre {
 		_edge_indices.emplace_back(val);
 	}
 
-	//void IFCRenderEngine::set_comp_types(int val) {
-	//	_comp_types.emplace_back(val);
-	//}
-
 	void IFCRenderEngine::set_grid_data(int val) {
 		if (val == 0) { // 0代表清空轴网数据
-			be_ready = false;
+			m_DataIsReady = false;
 			vector<float>().swap(grid_lines);
 			vector<float>().swap(grid_circles);
 			Vector<Wstring>().swap(grid_text);
@@ -71,6 +67,7 @@ namespace ifcre {
 		else if (val == 1) { // 1代表结束传输
 			//ifc_test_model->generate_circleLines(grid_lines, grid_circles);
 			//m_render_window->to_show_grid = true;
+			m_DataIsReady = true;
 		}
 		else if (val == 2) { // 2代表隐藏轴网显示
 			m_render_window->to_show_grid = false;
@@ -95,12 +92,13 @@ namespace ifcre {
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
-		be_ready = false;
+		//m_DataIsReady = false;
 		auto& configs = m_cache_configs;
-		if(!m_init)
+
+		if (!m_DoesRenderAlreadyRunning) { //初次打开窗口
 			Logger::instance()->open(string(std::getenv("TEMP")) + "\\render_engine.log");
-		debug("new init");
-		if (!m_init) { //初次打开窗口
+			WriteDebugInfoToFile("new init");
+
 			// 获取config数据
 			width = atoi(configs["width"].c_str());
 			height = atoi(configs["height"].c_str());
@@ -109,7 +107,7 @@ namespace ifcre {
 			if (graphics_api == "vulkan") {
 				m_render_api = VULKAN_RENDER_API;
 			}
-			debug("");
+			WriteDebugInfoToFile("");
 			//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
 			if (m_render_api == OPENGL_RENDER_API) {
 				m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
@@ -124,9 +122,8 @@ namespace ifcre {
 		}
 		m_glrender->clear_model();
 		m_render_window->setDefaultStatus();
-		debug("start load data");
+		WriteDebugInfoToFile("start load data");
 		// 加载模型数据
-		try_ifc = configs["model_type"] == "ifc";
 		String model_file = configs["file"];
 		if (model_file == "nil") {
 			info("g_indices: %d, g_vertices: %d, g_normals: %d, c_indices: %d, face_mat: %d, edge_indices: %d\n",
@@ -134,14 +131,9 @@ namespace ifcre {
 			ifc_test_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
 		}
 		else {
-			if (try_ifc) {
-				ifc_test_model = IFCParser::load(model_file);
-			}
-			else {
-				test_model = DefaultParser::load(model_file);
-			}
+			ifc_test_model = IFCParser::load(model_file);
 		}
-		debug("after load");
+		WriteDebugInfoToFile("after load");
 		mousemove = make_shared<bool>(true);///////////////////////////////////////////
 		if (configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
 			//获得整个模型的模型矩阵、以及缩放系数
@@ -181,50 +173,40 @@ namespace ifcre {
 			// add a rendered model
 			SharedPtr<GLVertexBuffer> model_vb = make_shared<GLVertexBuffer>();
 			SharedPtr<GLVertexBuffer> select_bbx_vb = make_shared<GLVertexBuffer>();
-			if (try_ifc) {
-				model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//上传数据vbo & ebo
-				// position 3
-				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 12, (void*)0);//位置
-				// normal 3
-				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 12, (void*)(3 * sizeof(Real)));//法向量
-				// color 4
-				model_vb->vertexAttribDesc(2, 4, sizeof(Real) * 12, (void*)(6 * sizeof(Real)));//颜色
-				// comp id 1
-				model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 12, (void*)(10 * sizeof(Real)));//所在物件的索引
-				// storey id 1
-				model_vb->vertexAttribDesc(4, 1, sizeof(Real) * 12, (void*)(11 * sizeof(Real)));
+			model_vb->upload(ifc_test_model->ver_attrib, ifc_test_model->g_indices);			//上传数据vbo & ebo
+			// position 3
+			model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 12, (void*)0);//位置
+			// normal 3
+			model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 12, (void*)(3 * sizeof(Real)));//法向量
+			// color 4
+			model_vb->vertexAttribDesc(2, 4, sizeof(Real) * 12, (void*)(6 * sizeof(Real)));//颜色
+			// comp id 1
+			model_vb->vertexAttribDesc(3, 1, sizeof(Real) * 12, (void*)(10 * sizeof(Real)));//所在物件的索引
+			// storey id 1
+			model_vb->vertexAttribDesc(4, 1, sizeof(Real) * 12, (void*)(11 * sizeof(Real)));
 
-				if (use_transparency) {
+
 #ifndef ALL_COMP_TRANS
-					model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
+			model_vb->uploadNoTransElements(ifc_test_model->no_trans_ind);
 #endif
-					model_vb->uploadTransElements(ifc_test_model->trans_ind);
-				}
-				model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
-				model_vb->UploadElementEdge(ifc_test_model->edge_indices);
+			//model_vb->uploadTransElements(ifc_test_model->trans_ind);
 
-				//hey bro 8 look here, its where your job should be!
-				//collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
-				//ifc_test_model->collider_ind_count = (ifc_test_model->collider_ind_count + 1) % (ifc_test_model->collider_inde_hard.size() / 2);
-				//model_vb->uploadCollisionElementBuffer(ifc_test_model->generate_ebo_from_component_ids(collision_list));
+			//model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
+			//model_vb->UploadElementEdge(ifc_test_model->edge_indices);
 
-				ifc_test_model->render_id = m_glrender->addModel(model_vb);
+			//hey bro 8 look here, its where your job should be!
+			//collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
+			//ifc_test_model->collider_ind_count = (ifc_test_model->collider_ind_count + 1) % (ifc_test_model->collider_inde_hard.size() / 2);
+			//model_vb->uploadCollisionElementBuffer(ifc_test_model->generate_ebo_from_component_ids(collision_list));
+			m_glrender->clear_model();
+			ifc_test_model->render_id = m_glrender->addModel(model_vb, 1);
 
-				//bounding box needs a vertexBuffer as well
-				select_bbx_vb->uploadBBXData(ifc_test_model->generate_bbxs_by_vec({ 0 }), ifc_test_model->bbx_drawing_order);
-				select_bbx_vb->vertexAttribDesc(0, 3, sizeof(Real) * 3, (void*)0);
-				select_bbx_id = m_glrender->addModel(select_bbx_vb);
-			}
-			else
-			{
-				model_vb->upload(test_model->vertices, test_model->indices);
-				model_vb->vertexAttribDesc(0, 3, sizeof(Real) * 6, (void*)0);
-				model_vb->vertexAttribDesc(1, 3, sizeof(Real) * 6, (void*)(3 * sizeof(Real)));
-				test_model->render_id = m_glrender->addModel(model_vb);
-			}
+			//bounding box needs a vertexBuffer as well
+			select_bbx_vb->uploadBBXData(ifc_test_model->generate_bbxs_by_vec({ 0 }), ifc_test_model->bbx_drawing_order);
+			select_bbx_vb->vertexAttribDesc(0, 3, sizeof(Real) * 3, (void*)0);
+			select_bbx_id = m_glrender->addModel(select_bbx_vb, 2);
 		}
-		be_ready = true;
-		sleep_time = 10;
+		//m_DataIsReady = true;
 	}
 
 	void IFCRenderEngine::offscreenRending(const int index) {
@@ -280,66 +262,59 @@ namespace ifcre {
 
 	void IFCRenderEngine::run()
 	{
-		if (!m_init) {
-			//std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
-			m_init = true;
-			switch (m_render_api) {
-				case OPENGL_RENDER_API: {
-					auto& m_window = *m_render_window;
-					offscreenRending();
-					OutputDebugStringW(L"Debug start run.");
-					while (!m_window.isClose()) {
-						if (!be_ready) {
-							continue;
-						}
-						//sleep 1 ms to reduce cpu time
-						std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
 
-						m_window.processInput();
-						offscreenRending();
-						//test dynamic ebo of components
-						changeGeom();
+		if (m_DoesRenderAlreadyRunning)
+			return;
 
-						drawFrame();
-						if (/*!m_window.getHidden()*/clipboxButton) {
-							m_glrender->AerialViewRender(m_window);
-						}
-						if (!m_window.swapBuffer()) {
-							break;
-						}
-						m_window.pollEvents();
+		//std::cout << "IFC Engine has to 'initialize' !!!" << std::endl;
+		m_DoesRenderAlreadyRunning = true;
+		switch (m_render_api) {
+		case OPENGL_RENDER_API: {
+			auto& m_window = *m_render_window;
+			offscreenRending();
+			OutputDebugStringW(L"Debug start run.");
+			while (!m_window.isClose()) {
 
-						/*static int ticks = -1;
-						ticks++;
-						static double _lastTime = glfwGetTime();
+				//sleep 1 ms to reduce cpu time
+				std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
 
-						if (ticks == 60)
-						{
-							double deltaTime = glfwGetTime() - _lastTime;
-							_lastTime = glfwGetTime();
+				m_window.processInput();
 
-							std::cout << "帧数" << ticks / deltaTime << std::endl;
-							ticks = 0;
-						}*/
-					}
-					m_init = false;
+				if (!m_DataIsReady) {
+					m_window.pollEvents();
+					continue;
+				}
+				
+				offscreenRending();
+				//test dynamic ebo of components
+				uploadDynamicData();
+
+				drawFrame();
+				if (/*!m_window.getHidden()*/clipboxButton) {
+					m_glrender->AerialViewRender(m_window);
+				}
+				if (!m_window.swapBuffer()) {
 					break;
 				}
-				case VULKAN_RENDER_API: {
-					while (true) {
-						// TODO tick
+				m_window.pollEvents();
+			}
+			m_DoesRenderAlreadyRunning = false;
+			break;
+		}
+		case VULKAN_RENDER_API: {
+			while (true) {
+				// TODO tick
 
-						if (!m_ifcRender->render(m_scene)) {
-							break;
-						}
-					}
+				if (!m_ifcRender->render(m_scene)) {
 					break;
 				}
 			}
+			break;
 		}
+		}
+
 	}
 
-	// private:
 	void IFCRenderEngine::drawFrame()
 	{
 		auto& m_render = *m_glrender;
@@ -395,9 +370,7 @@ namespace ifcre {
 #pragma region mouse work
 
 		if (*mousemove && !m_window.rotatelock) {
-			/*if (m_window.getHidden()) {
 
-			}*/
 			if (m_window.isMouseHorizontalRot()) {
 				m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
 			}
@@ -416,7 +389,7 @@ namespace ifcre {
 #else
 			glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
 #endif // test_cmr
-			//printvec3(hover, "           hover");
+			
 			if (m_window.isMouseMove() && m_last_rmclick) {
 				glm::vec3 step = hover - m_last_hover_pos;
 #ifdef test_cmr
@@ -427,7 +400,6 @@ namespace ifcre {
 #endif // test_cmr
 			}
 
-			//printvec3(m_last_hover_pos, "m_last_hover_pos");
 			m_last_rmclick = true;
 		}
 		else {
@@ -453,7 +425,7 @@ namespace ifcre {
 #pragma region COMP THINGS
 
 			m_window.switchRenderCompId();
-			m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
+			m_render.render(ifc_test_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
 			key = m_window.getClickCompId();
 			m_render.setCompId(key);//m_render.setCompId(m_window.getClickCompId());
 
@@ -500,7 +472,7 @@ namespace ifcre {
 #endif
 
 			//3. render transparency scene// 渲染透明的构件
-			m_render.setAlpha(trans_alpha);
+			m_render.setAlpha(m_trans_alpha);
 			m_render.render(ifc_test_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
 			//4. render chosen scene, transparency// 渲染选中的透明构件
@@ -516,15 +488,10 @@ namespace ifcre {
 			}
 
 			//7. render bounding box
-			if (m_window.getClickCompId() >= 0) {
+			if (m_window.getClickCompId() >= -1) {
 				auto bound_vecs = !/*m_window.getShowTileView()*/tileViewButton ? ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list })
 					: ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list }, true);
 				auto chosenbbx = ifc_test_model->generate_bbxs_by_vec2(bound_vecs);
-
-				/*for (auto it : m_window.chosen_list) {
-					std::cout << it << " ";
-				}
-				std::cout << std::endl;*/
 
 				/*if (!m_window.chosen_list.empty()) {
 					uint32_t floor_id = ifc_test_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()];
@@ -642,7 +609,7 @@ namespace ifcre {
 		}
 	}
 #else
-	void IFCRenderEngine::changeGeom() {
+	void IFCRenderEngine::uploadDynamicData() {
 		auto& m_render = *m_glrender;
 		auto& m_window = *m_render_window;
 
@@ -657,6 +624,7 @@ namespace ifcre {
 			m_window.chosen_changed_x = false;
 		}
 		if (m_window.geom_changed) {
+			m_window.geom_changed = false;
 			ifc_test_model->update_chosen_and_vis_list();
 
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ ifc_test_model->cur_c_indices });
@@ -668,8 +636,6 @@ namespace ifcre {
 				ifc_test_model->cur_vis_trans_ind, ifc_test_model->cur_edge_ind);
 
 			m_render.ChosenGeomUpdate(ifc_test_model->render_id, ifc_test_model->cur_chosen_trans_ind);
-
-			m_window.geom_changed = false;
 		}
 		if (collider_trans_flag && !collision_list.empty()) {
 			ifc_test_model->generate_collision_list(collision_list);
@@ -754,37 +720,12 @@ namespace ifcre {
 		}
 	}
 
-	//void IFCRenderEngine::SetClipBox() {
-	//	if (m_render_window == nullptr) {
-	//		return;
-	//	}
-	//	Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-	//	uint32_t c_indices_size = ifc_test_model->c_indices.size();
-	//	for (auto& id : m_render_window->chosen_list) {
-	//		if (id > c_indices_size) {
-	//			continue;
-	//		}
-	//		for (int i = 0; i < 3; i++) {
-	//			ret[i] = std::min(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-	//		}
-	//		for (int i = 3; i < 6; i++) {
-	//			ret[i] = std::max(ret[i], ifc_test_model->comps_bbx[6 * id + i]);
-	//		}
-	//	}
-	//	Vector<Real> ret2(24); // 一个bbx有8个顶点，每个顶点要3个float存储位置
-	//	for (int i = 0; i < 8; i++) {
-	//		ret2[i * 3] = i & 1 ? ret[3] : ret[0];
-	//		ret2[i * 3 + 1] = i & 2 ? ret[4] : ret[1];
-	//		ret2[i * 3 + 2] = i & 4 ? ret[5] : ret[2];
-	//	}
-	//	//glm::vec3 center;
-	//	m_glrender->use_clip_box = ClipBox(glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f, 1.f, 0.f), glm::vec3(1.f, 0.f, 0.f), abs(ret[3] - ret[0]), abs(ret[4] - ret[1]), abs(ret[5] - ret[2]));
-	//}
-
 	void IFCRenderEngine::SetSleepTime(int sleepTime = 10) {
-		sleep_time = sleepTime;
+		m_sleepTime = sleepTime;
 	}
-
+	void IFCRenderEngine::SetDataReadyStatus(bool dataIsReady) {
+		m_DataIsReady = dataIsReady;
+	}
 	int IFCRenderEngine::getSelectedCompId()
 	{
 		return m_render_window == nullptr ? -1 : m_render_window->getClickCompId();

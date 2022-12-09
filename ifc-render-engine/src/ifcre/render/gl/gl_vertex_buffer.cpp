@@ -2,7 +2,6 @@
 #include <glad/glad.h>
 namespace ifcre {
 	void GLVertexBuffer::init_fun_ptr_map() {
-		mFuncPtr.insert({ ALL,&GLVertexBuffer::draw });
 		mFuncPtr.insert({ DYNAMIC_ALL,&GLVertexBuffer::drawByDynamicEbo });
 #ifndef ALL_COMP_TRANS
 		mFuncPtr.insert({ NO_TRANS,&GLVertexBuffer::drawNoTrans });
@@ -36,16 +35,6 @@ namespace ifcre {
 		m_size = indices.size();
 	}
 
-	void GLVertexBuffer::upload(Vector<Real>& vertices)
-	{
-		glGenVertexArrays(1, &m_vaoid);
-		glGenBuffers(1, &m_vboid);
-		glBindVertexArray(m_vaoid);
-		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
-		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_STATIC_DRAW);
-		glBindVertexArray(0);
-	}
-
 	void GLVertexBuffer::vertexAttribDesc(uint32_t index, int32_t size, int32_t stride, const void* pointer)
 	{
 		// GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void* pointer
@@ -65,14 +54,6 @@ namespace ifcre {
 
 #pragma region draws
 
-	void GLVertexBuffer::draw()
-	{
-		glBindVertexArray(m_vaoid);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_eboid);
-		glDrawElements(GL_TRIANGLES, m_size, GL_UNSIGNED_INT, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		glBindVertexArray(0);
-	}
 #ifndef ALL_COMP_TRANS
 	void GLVertexBuffer::drawNoTrans()
 	{
@@ -324,21 +305,27 @@ namespace ifcre {
 		glDeleteBuffers(1, &m_dynamic_eboid);
 		glGenBuffers(1, &m_dynamic_eboid);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid);
-		glNamedBufferData(m_dynamic_eboid, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
+		//glNamedBufferData(m_dynamic_eboid, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		//trans
 		glDeleteBuffers(1, &m_dynamic_eboid_for_trans);
 		glGenBuffers(1, &m_dynamic_eboid_for_trans);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_trans);
-		glNamedBufferData(m_dynamic_eboid_for_trans, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
+		//glNamedBufferData(m_dynamic_eboid_for_trans, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		//edges
 		glDeleteBuffers(1, &m_dynamic_eboid_for_edge);
 		glGenBuffers(1, &m_dynamic_eboid_for_edge);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_edge);
-		glNamedBufferData(m_dynamic_eboid_for_edge, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
+		//glNamedBufferData(m_dynamic_eboid_for_edge, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		glBindVertexArray(0);

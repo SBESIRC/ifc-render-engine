@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Documents;
 using OpenTK.Graphics.OpenGL;
-//using OpenTK.Mathematics;
-//using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace Example {
     /// Example class handling the rendering for OpenGL.
     public static class ExampleScene {
@@ -30,8 +28,6 @@ namespace Example {
         public static extern void ifcre_set_face_mat(float val);
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_set_edge_indices(int val);
-        //[DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
-        //public static extern void ifcre_set_comp_types(int val);
 
         [DllImport("ifc-render-engine.dll")]//, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
 #pragma warning disable CS3001 // 参数类型不符合 CLS
@@ -61,13 +57,13 @@ namespace Example {
         public static extern void ifcre_set_sleep_time(int val);
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
+        public static extern void ifcre_set_data_ready_status(bool val);
+
+        [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern bool ifcre_save_image(string value);
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         public static extern void ifcre_home();
-
-
-
 
         //[DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         //public static extern void ifcre_set_collide_command(int val);
@@ -84,29 +80,22 @@ namespace Example {
         //[DllImport("ifc-render-engine.dll", EntryPoint = "ifcre_set_collide_ids")]
         //internal extern unsafe static void ifcre_get_collide_ids(int* val);
 
-
-
-
         public static unsafe void Init(IntPtr wndPtr, int width, int height, string fileName)
         {
             ifcre_set_config("width", width.ToString());
             ifcre_set_config("height", height.ToString());
             ifcre_set_config("model_type", "ifc");
             ifcre_set_config("use_transparency", "true");
-            if(fileName == null)
-			{
-                fileName = ".\\ff.ifc";
-#if DEBUG
-                fileName = ".\\temp3.midfile";
-#endif
-            }
+
             ifcre_set_config("file", fileName);
             ifcre_set_config("render_api", "opengl");
             //ifcre_set_config("render_api", "vulkan");
             ifcre_set_config("reset_view_pos", ""); // 设置为空则不改变视口，不为空则改变当前视口
             Window* ptrToWnd = (Window*)wndPtr.ToPointer();
 
-			ifcre_init(ptrToWnd);
+            ifcre_set_data_ready_status(false);
+            ifcre_init(ptrToWnd);
+            ifcre_set_data_ready_status(true);
         }
         public static void Ready() {
             Console.WriteLine("GlWpfControl is now ready");
@@ -143,33 +132,6 @@ namespace Example {
                 Marshal.FreeHGlobal(arr);
             }
             return list;
-
-            //ifcre_set_collide_command(0);
-            //for (int id = 2000;id < 5000; ++id)
-            //{
-            //    ifcre_set_collide_idsA(id);
-            //}
-            //for (int id = 2000; id < 5000; ++id)
-            //{
-            //    ifcre_set_collide_idsB(id);
-            //}
-            //ifcre_set_collide_command(1);
-
-            //List<int> list = new List<int>();
-            //unsafe
-            //{
-            //    int size = ifcre_get_collide_ids_size();
-            //    var arr = Marshal.AllocHGlobal(size * sizeof(int));
-            //    var p = (int*)arr.ToPointer();
-            //    ifcre_get_collide_ids(p);
-
-            //    for (int j = 0; j < size; j++)
-            //    {
-            //        list.Add(p[j]);
-            //    }
-            //    Marshal.FreeHGlobal(arr);
-            //}
-            //return list;
         }
 
         public static void SetSelectCompIDs(string to_show_states, int val)

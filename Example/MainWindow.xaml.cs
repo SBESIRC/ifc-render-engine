@@ -7,6 +7,9 @@ using OpenTK.WinForms;
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Example {
     /// <summary>
@@ -19,18 +22,22 @@ namespace Example {
 
         GLControl glControl = null;
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private  void   Button_Click(object sender, RoutedEventArgs e)
         {
-            //var childConrol = formHost.Child as GLControl;
             OpenFileDialog fileDialog = new OpenFileDialog();
             var filter = "ifc files | *.ifc;*.midfile;";
             fileDialog.Filter = filter;
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
+
+            Example.ExampleScene.ifcre_set_data_ready_status(false);
+    
             var fileName = fileDialog.FileName;
             var glControl = formHost.Child as GLControl;
             Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
+            Example.ExampleScene.ifcre_set_data_ready_status(true);
             Example.ExampleScene.Render();
+
         }
 
         private void formHost_Initialized(object sender, EventArgs e)

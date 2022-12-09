@@ -643,11 +643,11 @@ namespace ifcre {
 			"vec2 thetaphi = cube2sphere();\r\n"
 			"if(thetaphi.y >= Eclipse){\r\n"
 			"//outColor = damp(scaleOut(thetaphi.y), vec3(0.8789, 0.9062, 0.9570), vec3(0.6015, 0.7070, 0.8906));\r\n"
-			"outColor = damp(scaleOut(thetaphi.y), vec3(0.8789, 0.9062, 0.9570), vec3(0.8789, 0.9062, 0.9570));\r\n"
+			"outColor = damp(scaleOut(thetaphi.y), vec3(1., 1., 1.), vec3(1., 1., 1.));\r\n"
 			"}\r\n"
 			"else{\r\n"
 			"//outColor = damp(scaleOut(thetaphi.y), vec3(0.5976, 0.3984, 0.1992), vec3(0.7890, 0.5781, 0.3671));\r\n"
-			"outColor = damp(scaleOut(thetaphi.y), vec3(0.8789, 0.9062, 0.9570), vec3(0.8789, 0.9062, 0.9570));\r\n"
+			"outColor = damp(scaleOut(thetaphi.y), vec3(1., 1., 1.), vec3(1., 1., 1.));\r\n"
 			"}\r\n"
 			"FragColor = vec4(outColor, 1.0);\r\n"
 			"}\r\n";

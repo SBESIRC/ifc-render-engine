@@ -5,7 +5,7 @@
 
 namespace ifcre {
 
-#define debug(format, ...) \
+#define WriteDebugInfoToFile(format, ...) \
     Logger::instance()->log(Logger::DEBUG, __FILE__, __LINE__, format, ##__VA_ARGS__)
 
 #define info(format, ...) \

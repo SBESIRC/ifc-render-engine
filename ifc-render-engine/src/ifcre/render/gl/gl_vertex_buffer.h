@@ -21,7 +21,6 @@ namespace ifcre {
 
 
 		//draw calls
-		void draw();
 #ifndef ALL_COMP_TRANS
 		void drawNoTrans();
 #endif

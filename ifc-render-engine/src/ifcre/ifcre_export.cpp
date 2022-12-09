@@ -114,6 +114,12 @@ void ifcre_set_sleep_time(int val) {
 	re.SetSleepTime(val);
 }
 
+void ifcre_set_data_ready_status(bool val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.SetDataReadyStatus(val);
+}
+
 bool ifcre_save_image(const char* filePath) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;

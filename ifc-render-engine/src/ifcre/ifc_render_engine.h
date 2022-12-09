@@ -37,6 +37,7 @@ namespace ifcre {
 		virtual void setSelectCompIds(int val) = 0;
 
 		virtual void SetSleepTime(int val) = 0;
+		virtual void SetDataReadyStatus(bool dataIsReady) = 0;
 		virtual bool saveImage(const char* filePath) = 0;
 		//virtual void SetClipBox() = 0;
 		virtual void zoom2Home() = 0;
@@ -77,13 +78,14 @@ namespace ifcre {
 		void getSelectedCompIds(int* arr);
 		void setSelectCompIds(int val);
 		void SetSleepTime(int val);
+		void SetDataReadyStatus(bool dataIsReady);
 		bool saveImage(const char* filePath);
 		//void SetClipBox();
 		void zoom2Home();
 		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
 		//test dynamic ebo of components, using keyboard input
-		void changeGeom();
+		void uploadDynamicData();
 		//get data ready before draw
 		void dataIntegration();
 		void offscreenRending(const int index = 4);
@@ -93,7 +95,7 @@ namespace ifcre {
 		void reset_coord(glm::vec3& clicked_coord);
 
 	public:
-		IFCRenderEngine() : m_init(false) {}
+		IFCRenderEngine(){}
 		// not thread safety
 		static SharedPtr<RenderEngine> getSingleton();
 		int key;
@@ -107,15 +109,12 @@ namespace ifcre {
 
 	private:
 		Map<String, String> m_cache_configs;
-		bool m_init;
-		bool be_ready = true;
-		bool try_ifc;
-		bool first_update = true;
+		bool m_DoesRenderAlreadyRunning = false;
+		volatile bool m_DataIsReady = true;
 		int to_show_states;
 		Real scale_factor = 0;
 		glm::mat4 ifc_m_matrix;
-		uint32_t sleep_time;
-		const bool use_transparency = true;
+		uint32_t m_sleepTime = 10;
 		SharedPtr<GLRender> m_glrender;
 		SharedPtr<RenderWindow> m_render_window;
 		SharedPtr<GLCamera> m_camera;
@@ -130,7 +129,6 @@ namespace ifcre {
 		Vector<Vector<uint32_t>> _c_indices;
 		Vector<float> _face_mat;
 		Vector<uint32_t> _edge_indices;
-		//Vector<uint32_t> _comp_types;
 
 		Vector<float> grid_lines;
 		Vector<float> grid_circles;
@@ -156,7 +154,7 @@ namespace ifcre {
 		bool trigger = false;
 
 		float global_alpha = 1.f;
-		float trans_alpha = .3f;
+		float m_trans_alpha = .3f;
 
 		bool clipboxButton = false;
 		bool drawingMatchButton = false;
