@@ -72,6 +72,7 @@ namespace ifcre {
 
 		//void init2(GLFWwindow* wndPtr);
 		void init(GLFWwindow*);
+		void UploadOriginalData();
 		void run();
 		int getSelectedCompId();
 		int getSelectedCompIdsSize();
@@ -85,7 +86,7 @@ namespace ifcre {
 		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
 		//test dynamic ebo of components, using keyboard input
-		void uploadDynamicData();
+		void updateDynamicEboData();
 		//get data ready before draw
 		void dataIntegration();
 		void offscreenRending(const int index = 4);
@@ -98,7 +99,6 @@ namespace ifcre {
 		IFCRenderEngine(){}
 		// not thread safety
 		static SharedPtr<RenderEngine> getSingleton();
-		int key;
 		int ui_key;
 		int clp_face_key;
 
@@ -109,7 +109,7 @@ namespace ifcre {
 
 	private:
 		Map<String, String> m_cache_configs;
-		bool m_DoesRenderAlreadyRunning = false;
+		//bool m_DoesRenderAlreadyRunning = false;
 		volatile bool m_DataIsReady = true;
 		int to_show_states;
 		Real scale_factor = 0;
@@ -119,8 +119,7 @@ namespace ifcre {
 		SharedPtr<RenderWindow> m_render_window;
 		SharedPtr<GLCamera> m_camera;
 
-		SharedPtr<DefaultModel> test_model;
-		SharedPtr<IFCModel> ifc_test_model;
+		SharedPtr<IFCModel> ifc_model;
 
 		Vector<uint32_t> _g_indices;
 		Vector<Real> _g_vertices;
@@ -138,7 +137,7 @@ namespace ifcre {
 		bool grid_text_reset = true;
 	private:
 		SharedPtr<IFCRender> m_ifcRender;
-		Scene m_scene;
+		Scene m_vulkanScene;
 
 	private:
 		const glm::vec3 m_view_pos = glm::vec3(0, 0, 15); // 摄像机位置 // z轴正方向出屏幕
@@ -147,7 +146,7 @@ namespace ifcre {
 		bool m_last_rmclick = false;
 		uint32_t select_bbx_id;
 
-		// gizmo sets
+		// view cube (gizmo) sets
 		int cube_num = 0;
 		bool cube_change_log = false;
 
@@ -167,9 +166,6 @@ namespace ifcre {
 
 		std::vector<uint32_t> collision_list;
 		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
-
-		int width;
-		int height;
 	};
 }
 

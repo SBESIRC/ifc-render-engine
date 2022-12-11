@@ -19,7 +19,7 @@ namespace ifcre {
 	
 	class RenderWindow {
 	public:
-		RenderWindow(const char* title, int32_t w, int32_t h, bool aa = true, bool vsync = false , GLFWwindow* wndPtr = NULL);
+		RenderWindow(const char* title, int32_t w, int32_t h, bool enbableAntialiasing = true, bool enableVsync = false , GLFWwindow* wndPtr = NULL);
 		~RenderWindow();
 
 		void processInput();
@@ -98,13 +98,13 @@ namespace ifcre {
 			return m_window;
 		}
 
+		void setDefaultStatus();
 
 		// ---------- 
 		//int geomframe = 0;
 		bool geom_changed = true;
 		bool chosen_changed_w = false;
 		bool chosen_changed_x = false;
-		void setDefaultStatus();
 		bool rotatelock = false;
 		bool trigger = false;
 		bool collidertrig = false;
@@ -245,8 +245,6 @@ namespace ifcre {
 		void _setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp);
 		void update_ortho(float yoffset);
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
-
 	};
-
 }
 #endif

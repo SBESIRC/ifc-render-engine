@@ -10,17 +10,28 @@ using System.Collections.Generic;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Windows.Threading;
 
 namespace Example {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public sealed partial class MainWindow {
+    public sealed partial class MainWindow{
         public MainWindow() {
             InitializeComponent();
+
+            this.BtnStart.Click += Button_Click;
+            rendingTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimerTick);
         }
 
         GLControl glControl = null;
+        int threadIndex = 0;
+
+        private readonly System.Timers.Timer rendingTimer = new System.Timers.Timer(15);
+        private void OnTimerTick(object source, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(() => Example.ExampleScene.Render());
+        }
 
         private  void   Button_Click(object sender, RoutedEventArgs e)
         {
@@ -30,14 +41,18 @@ namespace Example {
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
 
-            Example.ExampleScene.ifcre_set_data_ready_status(false);
-    
-            var fileName = fileDialog.FileName;
-            var glControl = formHost.Child as GLControl;
-            Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
-            Example.ExampleScene.ifcre_set_data_ready_status(true);
-            Example.ExampleScene.Render();
+            if (threadIndex >= 1)
+            {
+                rendingTimer.Stop();
+                //Example.ExampleScene.ifcre_clear_model_data();
+            }
 
+            var fileName = fileDialog.FileName;
+
+            Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
+
+            threadIndex++;
+            rendingTimer.Start();
         }
 
         private void formHost_Initialized(object sender, EventArgs e)
@@ -98,6 +113,10 @@ namespace Example {
         {
             int time = int.Parse(tbIdsToShow.Text);
             Example.ExampleScene.SetSleepTime(time);
+
+            //for memory testing
+            //rendingTimer.Stop();
+            //Example.ExampleScene.ifcre_clear_model_data();
         }
 
         private void Button_Click_multichose(object sender, RoutedEventArgs e)

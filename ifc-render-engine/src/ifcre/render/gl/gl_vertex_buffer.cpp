@@ -305,8 +305,8 @@ namespace ifcre {
 		glDeleteBuffers(1, &m_dynamic_eboid);
 		glGenBuffers(1, &m_dynamic_eboid);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid);
-		//glNamedBufferData(m_dynamic_eboid, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
+		glNamedBufferData(m_dynamic_eboid, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -314,8 +314,7 @@ namespace ifcre {
 		glDeleteBuffers(1, &m_dynamic_eboid_for_trans);
 		glGenBuffers(1, &m_dynamic_eboid_for_trans);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_trans);
-		//glNamedBufferData(m_dynamic_eboid_for_trans, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
+		glNamedBufferData(m_dynamic_eboid_for_trans, dynamic_indices_trans.size() * sizeof(uint32_t), dynamic_indices_trans.data(), GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
@@ -323,8 +322,7 @@ namespace ifcre {
 		glDeleteBuffers(1, &m_dynamic_eboid_for_edge);
 		glGenBuffers(1, &m_dynamic_eboid_for_edge);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_edge);
-		//glNamedBufferData(m_dynamic_eboid_for_edge, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
+		glNamedBufferData(m_dynamic_eboid_for_edge, dynamic_indices_edge.size() * sizeof(uint32_t), dynamic_indices_edge.data(), GL_DYNAMIC_DRAW);
 		glEnableVertexAttribArray(0);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 

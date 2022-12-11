@@ -3,12 +3,6 @@
 
 using namespace ifcre;
 
-//union MtlMetaData {
-//	Real f;
-//	int i;
-//};
-
-
 void ifcre_set_config(const char* key, const char* value)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();

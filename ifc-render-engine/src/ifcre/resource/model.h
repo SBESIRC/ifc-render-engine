@@ -25,7 +25,7 @@ namespace ifcre {
 
 	enum CompState {
 		DUMP = 0x00,
-		VIS = 0x01,
+		VISIABLE = 0x01,
 		CHOSEN = 0x02
 	};
 
@@ -57,7 +57,7 @@ namespace ifcre {
 				storeys_comp_id(datas.storeys_component_id) {
 			//clock_t start, end;
 			//start = clock();
-			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
+			Vector<CompState>(c_indices.size(), VISIABLE).swap(comp_states);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
 			Vector<MaterialData>(facs).swap(material_data);
@@ -153,7 +153,7 @@ namespace ifcre {
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) { //, comp_types(_comp_types) {
 			clock_t start, end;
 			start = clock();
-			Vector<CompState>(c_indices.size(), VIS).swap(comp_states);
+			Vector<CompState>(c_indices.size(), VISIABLE).swap(comp_states);
 
 			size_t faces = _face_mat.size() / 8;// 获取面的数量
 			Vector<MaterialData>(faces).swap(material_data);
@@ -172,6 +172,14 @@ namespace ifcre {
 			generate_edges_by_msMeshes(false);	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
+		}
+
+		~IFCModel()
+		{
+			ver_attrib.clear();
+			Vector<Real>().swap(ver_attrib);
+			g_vertices.clear();
+			Vector<Real>().swap(g_vertices);
 		}
 
 		void generate_edges_by_msMeshes(bool edge_generated) {
@@ -232,7 +240,7 @@ namespace ifcre {
 		// organize the datas of IfcModel into glVertexAttributes, for sending to GPU
 		Vector<Real> getVerAttrib() {
 			size_t s = g_vertices.size(); //xyzxyzxyz...
-			Vector<Real>(s / 3 * 12).swap(ver_attrib);//no!
+			Vector<Real>((s / 3) * 12).swap(ver_attrib);//no!
 			int offset = 0;
 			for (int i = 0; i < s; i += 3) {
 				ver_attrib[offset + i] = g_vertices[i];								// 位置.x
@@ -241,7 +249,7 @@ namespace ifcre {
 				ver_attrib[offset + i + 3] = g_normals[i];							// 法向量.x
 				ver_attrib[offset + i + 4] = g_normals[i + 1];						// 法向量.y
 				ver_attrib[offset + i + 5] = g_normals[i + 2];						// 法向量.z
-				uint32_t color_ind = i / 3 * 4;
+				uint32_t color_ind = (i / 3) * 4;
 				ver_attrib[offset + i + 6] = g_kd_color[color_ind];					// 颜色.r
 				ver_attrib[offset + i + 7] = g_kd_color[color_ind + 1];				// 颜色.g
 				ver_attrib[offset + i + 8] = g_kd_color[color_ind + 2];				// 颜色.b
@@ -334,20 +342,22 @@ namespace ifcre {
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
 			uint32_t c_indices_size = c_indices.size();
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] != VIS && i < c_indices_size) {
-					comp_states[i] = VIS;
+				if (comp_states[i] != VISIABLE && i < c_indices_size) {
+					comp_states[i] = VISIABLE;
 				}
 			}
-			if (c_indices_size == 1 && chosen_list.size() > 0 && (*chosen_list.begin() >= c_indices_size)) {
+			/*if (c_indices_size == 1 && chosen_list.size() > 0 && (*chosen_list.begin() >= c_indices_size)) {
 				chosen_list.clear();
 			}
-			else {
+			else {*/
 				for (auto cur_index : chosen_list) {
 					if (cur_index < c_indices_size) {
 						comp_states[cur_index] = CHOSEN;
 					}
 				}
-			}
+
+				//chosen_list.clear();
+			//}
 		}
 		void generate_collision_list(std::vector<uint32_t>& collision_list) {
 			Vector<uint32_t> ret;
@@ -396,7 +406,7 @@ namespace ifcre {
 			Vector<uint32_t>().swap(cur_chosen_trans_ind);
 			uint32_t edge_c_indices_size = c_edge_indices.size();
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] == VIS) {
+				if (comp_states[i] == VISIABLE) {
 					cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					if (i < edge_c_indices_size) {
 						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());

@@ -156,7 +156,7 @@ namespace ifcre {
 
 		// -------------- render init --------------
 		glLineWidth(1.5f);
-		_defaultConfig();
+		setToDefaultConfig();
 
 		//quad for post processing
 		//vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
@@ -417,7 +417,7 @@ namespace ifcre {
 			//std::cout << clp_face_id << std::endl;
 			m_clip_plane_shader->setVec3("this_color", glm::vec3(0.f, 1.f, 1.f));
 			use_clip_box->drawBox(true);
-			_defaultConfig();
+			setToDefaultConfig();
 		}
 	}
 
@@ -434,7 +434,7 @@ namespace ifcre {
 		use_clip_box->drawBox(false);
 		glDepthMask(GL_TRUE);
 		glLineWidth(1.5f);
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	void GLRender::renderClipBoxInUIlayer(const bool hidden) {
@@ -454,7 +454,7 @@ namespace ifcre {
 		m_skybox_shader->use();
 		m_skybox_shader->setMat4("view_matrix", porjmat * glm::mat4(glm::mat3(m_view)));
 		skyBox->drawSkyBox();
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	void GLRender::renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
@@ -480,7 +480,7 @@ namespace ifcre {
 		}*/
 		glDepthMask(GL_TRUE);
 
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 	void GLRender::renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height)
 	{
@@ -496,14 +496,14 @@ namespace ifcre {
 		textdata.render_text(text, glm::vec3(position), scale);
 		
 		glDepthMask(GL_TRUE);
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 
 	void GLRender::renderGridText(Vector<std::wstring>& texts, Vector<float>& text_data, bool& text_reset) {
 		//texturefont.drawText3Ds(m_text3d_shader, texts, text_data, m_projection, m_modelview);
 		texturefont.drawText3D(m_text3d_shader, texts, text_data, m_projection, m_modelview, text_reset);
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	void GLRender::renderGridLine(Vector<float>& grid_line , int width, int height, bool& grid_line_reset)
@@ -557,7 +557,7 @@ namespace ifcre {
 		m_grid_shader->setVec2("u_resolution", glm::vec2(width, height));
 		glBindVertexArray(grid_vao);
 		glDrawArrays(GL_LINES, 0, grid_line_size / 3);
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	//void GLRender::renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos)
@@ -622,56 +622,10 @@ namespace ifcre {
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * myaxis.axis_model));
 		m_axis_shader->use();
 		myaxis.drawAxis();
-		_defaultConfig();
+		setToDefaultConfig();
 
 	}
-
-	void GLRender::postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id)
-	{
-		static bool first = true;
-		static uint32_t off_vao;
-		if (first) {
-			float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
-			// positions   // texCoords	// 位置 纹理坐标
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			-1.0f, -1.0f,  0.0f, 0.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-
-			-1.0f,  1.0f,  0.0f, 1.0f,
-			 1.0f, -1.0f,  1.0f, 0.0f,
-			 1.0f,  1.0f,  1.0f, 1.0f
-			};
-			uint32_t off_vbo;
-			glGenVertexArrays(1, &off_vao);
-			glGenBuffers(1, &off_vbo);
-			glBindVertexArray(off_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, off_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-
-			first = false;
-		}
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, col_tex_id);
-		if (depth_normal_tex_id != -1) {
-			glActiveTexture(GL_TEXTURE1);
-			glBindTexture(GL_TEXTURE_2D, depth_normal_tex_id);
-		}
-		m_offscreen_program->use();
-		m_offscreen_program->setInt("screenTexture", 0);
-		m_offscreen_program->setInt("depthNormalTexture", 1);
-
-		glBindVertexArray(off_vao);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		_defaultConfig();
-
-	}
-
-	void GLRender::renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
+	void GLRender::renderViewCube(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
 	{
 		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
@@ -679,7 +633,7 @@ namespace ifcre {
 		m_gizmo_shader->use();
 		m_gizmo_shader->setInt("hover_id", last_hovered_face_key);
 		gizmo.drawGizmo();
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	void GLRender::renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size) {
@@ -995,7 +949,7 @@ namespace ifcre {
 		//glClear(GL_COLOR_BUFFER_BIT);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
 	void GLRender::postRender(RenderWindow& w)
@@ -1021,10 +975,10 @@ namespace ifcre {
 		glBindVertexArray(off_vao);
 		glClear(GL_COLOR_BUFFER_BIT); // 清空颜色缓冲
 		glDrawArrays(GL_TRIANGLES, 0, 6); // 渲染两个三角形
-		_defaultConfig();
+		setToDefaultConfig();
 	}
 
-	void GLRender::_defaultConfig()
+	void GLRender::setToDefaultConfig()
 	{
 		glBindVertexArray(0);		// 当我们打算绘制物体的时候就拿出相应的VAO，绑定它，绘制完物体后，再解绑VAO
 		glEnable(GL_DEPTH_TEST);	// 启用深度测试

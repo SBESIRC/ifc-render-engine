@@ -283,13 +283,15 @@ namespace ifcre {
 			}
 
 			auto ret = make_shared<IFCModel>(ge);
-			Collider collider;
-			collider.bufferData(&ge);
-			collider.addFilter([](const Datas4Component& hcg) {return true; });
-			collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {
-				return(hcg1.type == "IfcWall" && hcg2.type == "IfcWall");
-				});
-			ret->collision_pairs = collider.getIndexArr();
+
+			//Collider collider;
+			//collider.bufferData(&ge);
+			//collider.addFilter([](const Datas4Component& hcg) {return true; });
+			//collider.addCondition([](const Datas4Component& hcg1, const Datas4Component& hcg2) {
+			//	return(hcg1.type == "IfcWall" && hcg2.type == "IfcWall");
+			//	});
+			//ret->collision_pairs = collider.getIndexArr();
+
 			return ret;
 		}
 

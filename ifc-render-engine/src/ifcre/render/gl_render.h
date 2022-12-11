@@ -95,7 +95,7 @@ namespace ifcre {
 		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
-		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
+		void renderViewCube(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
 		void renderDrawing(IFCModel& ifc_model, float k);			// ------------- drawing match shading -------------
@@ -103,7 +103,6 @@ namespace ifcre {
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
 
-		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
 		// ----- ----- ----- ----- ----- ----- ----- -----
 		// ------------- clips -------------------------
@@ -215,7 +214,7 @@ namespace ifcre {
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
-		void _defaultConfig();
+		void setToDefaultConfig();
 
 		// render option
 	private:

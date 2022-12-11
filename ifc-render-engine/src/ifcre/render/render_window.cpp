@@ -52,29 +52,6 @@ namespace ifcre {
     // parameter: the index of the position in a frame
     // get the comp id /ui id from different framebuffers
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp) {
-
-        //glm::vec3 getColor;
-        //Real w = m_width, h = m_height;
-        ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
-        //m_cur_rt = m_comp_fb.m_comp_id_rt.get();
-        ////glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-        //glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        //glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        //if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
-        //    m_mouse_status.click_comp_id = -1;
-        //    std::cout << "NO!" << std::endl;
-        //    return;
-        //}
-        //int clicked_comp_id = 0;
-        //clicked_comp_id += (int)round(getColor.x * 256) << 16;
-        //clicked_comp_id += (int)round(getColor.y * 256) << 8;
-        //clicked_comp_id += (int)round(getColor.z * 256);
-        //if (hover_mode)
-        //    m_mouse_status.hover_comp_id = clicked_comp_id;
-        //else
-        //    m_mouse_status.click_comp_id = clicked_comp_id;
-
         glm::ivec4 comp_id;
         glm::ivec4 ui_id;
         Real w = m_width, h = m_height;
@@ -86,9 +63,8 @@ namespace ifcre {
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-            if (comp_id.x >= ifc_model->comp_ids.size()) {
-                return;
-            }
+            if (comp_id.x < 0 || ifc_model->cur_c_indices.size() < comp_id.x) return;
+
         }
         else {
             m_cur_rt = m_ui_fb.m_ui_id_rt.get();
@@ -97,7 +73,6 @@ namespace ifcre {
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-
 
         if (is_comp) {
             int clicked_comp_id = comp_id.x;
@@ -288,8 +263,8 @@ namespace ifcre {
                     that->_setClickedWorldColors(pre_click_x, pre_click_y, false, true);
                 }
                 else if (!that->multichoose) {   // 点击空白区域取消选中
-                    that->chosen_changed_w = true;
-                    that->chosen_list.clear();
+              /*      that->chosen_changed_w = true;
+                    that->chosen_list.clear();*/
                 }
                 status.lbtn_down = true;
                 that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
@@ -381,7 +356,7 @@ namespace ifcre {
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ---------------------- 
-    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
+    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool enableAntialiasing, bool enableVsync, GLFWwindow* wndPtr)
     {
         if (NULL == wndPtr)
         {
@@ -390,8 +365,8 @@ namespace ifcre {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            m_option.anti_aliasing = aa;
-            if (aa) {
+            m_option.anti_aliasing = enableAntialiasing;
+            if (enableAntialiasing) {
                 glfwWindowHint(GLFW_SAMPLES, 4);
             }
             // glfw window creation
@@ -408,8 +383,8 @@ namespace ifcre {
         }
         else
         {
-            m_option.anti_aliasing = aa;
-            if (aa) {
+            m_option.anti_aliasing = enableAntialiasing;
+            if (enableAntialiasing) {
                 glfwWindowHint(GLFW_SAMPLES, 4);
             }
             //use existing
@@ -435,7 +410,7 @@ namespace ifcre {
             return;
         }
 
-        if (vsync) {
+        if (enableVsync) {
             glfwSwapInterval(1);
         }
         else {
@@ -450,10 +425,10 @@ namespace ifcre {
     RenderWindow::~RenderWindow()
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
-        auto handle = glfwGetWin32Window(m_window);
-        if (IsWindow(handle))
-            glfwDestroyWindow(m_window);
-        glfwTerminate();
+        //auto handle = glfwGetWin32Window(m_window);
+        //if (IsWindow(handle))
+        //    glfwDestroyWindow(m_window);
+        //glfwTerminate();
     }
 
     void RenderWindow::processInput()
@@ -541,11 +516,6 @@ namespace ifcre {
 
     bool RenderWindow::swapBuffer()
     {
-        auto handle = glfwGetWin32Window(m_window);
-        if (!IsWindow(handle)) {
-            return false;
-        }
-
         glfwSwapBuffers(m_window);
         double now_time = glfwGetTime();
         m_delta_time = now_time - m_last_time;
