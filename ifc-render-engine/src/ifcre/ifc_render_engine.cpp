@@ -104,9 +104,11 @@ namespace ifcre {
 		int height = atoi(m_cache_configs["height"].c_str());
 
 		//glfw初始化、创建窗口、提示多重采样、监控用户事件、垂直同步、创建帧缓冲
-		m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
+		if (m_render_window == nullptr)
+		{
+			m_render_window = make_shared<RenderWindow>("IFC Render", width, height, true, false, wndPtr);
+		}
 		m_glrender = make_shared<GLRender>();
-
 		m_glrender->clear_model();
 		m_render_window->setDefaultStatus();
 

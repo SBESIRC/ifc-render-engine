@@ -954,7 +954,6 @@ namespace ifcre {
 
 	void GLRender::postRender(RenderWindow& w)
 	{
-
 		glActiveTexture(GL_TEXTURE0); // texture 0 // 在绑定之前激活相应的纹理单元
 		glBindTexture(GL_TEXTURE_2D, w.getColorTexId());// 获取颜色纹理序号 并绑定
 		if (w.getDepthNormalTexId() != -1) {

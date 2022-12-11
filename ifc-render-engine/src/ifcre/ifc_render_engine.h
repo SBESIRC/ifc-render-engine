@@ -115,8 +115,8 @@ namespace ifcre {
 		Real scale_factor = 0;
 		glm::mat4 ifc_m_matrix;
 		uint32_t m_sleepTime = 10;
-		SharedPtr<GLRender> m_glrender;
-		SharedPtr<RenderWindow> m_render_window;
+		SharedPtr<GLRender> m_glrender = nullptr;
+		SharedPtr<RenderWindow> m_render_window = nullptr;
 		SharedPtr<GLCamera> m_camera;
 
 		SharedPtr<IFCModel> ifc_model;
