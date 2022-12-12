@@ -113,7 +113,13 @@ namespace ifcre {
 		m_render_window->setDefaultStatus();
 
 		// 加载模型数据
-		ifc_model = IFCParser::load(m_cache_configs["file"]);
+		String model_file = m_cache_configs["file"];
+		if (model_file == "nil") {
+			ifc_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
+		}
+		else {
+			ifc_model = IFCParser::load(m_cache_configs["file"]);
+		}
 		
 		mousemove = make_shared<bool>(true);///////////////////////////////////////////
 		if (m_cache_configs["reset_view_pos"].size() > 0 || m_camera == nullptr) {
@@ -191,43 +197,37 @@ namespace ifcre {
 	}
 
 	void IFCRenderEngine::offscreenRending(const int index) {
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-
-		m_window.offScreenRender();
+		m_render_window->offScreenRender();
 		dataIntegration();
-		m_render.setViewMatrix(m_camera->getPrecomputedViewMatrix(index));
-		m_render.setModelMatrix(ifc_model->bbx_model_mat);
-		m_render.setInitModelMatrix(ifc_model->bbx_model_mat);
-		m_render.setMirrorModelMatrix(glm::mat4(1.f));
-		m_render.setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_model->bbx_model_mat);
-		m_render.setProjectionMatrix(m_window.getOrthoProjMatrix());
-		m_render.setClippingBox(true);
-		m_render.render(ifc_model->render_id, OFFLINE_SHADING, ALL);
-		m_render.renderClipBox();
+		m_glrender->setViewMatrix(m_camera->getPrecomputedViewMatrix(index));
+		m_glrender->setModelMatrix(ifc_model->bbx_model_mat);
+		m_glrender->setInitModelMatrix(ifc_model->bbx_model_mat);
+		m_glrender->setMirrorModelMatrix(glm::mat4(1.f));
+		m_glrender->setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_model->bbx_model_mat);
+		m_glrender->setProjectionMatrix(m_render_window->getOrthoProjMatrix());
+		m_glrender->setClippingBox(true);
+		m_glrender->render(ifc_model->render_id, OFFLINE_SHADING, ALL);
+		m_glrender->renderClipBox();
 
-		m_window.endOffScreenRender();
+		m_render_window->endOffScreenRender();
 	}
 
 	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
 		//info("use zoom");
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-
 		glm::mat4 model_mat;
 		Real scaler = 0;
 		glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
 		glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
 		util::get_model_matrix_byBBX(pmin, pmax, model_mat, scaler);
-		if (/*m_window.getShowTileView()*/tileViewButton) {
-			glm::mat4 trans = ifc_model->tile_matrix[ifc_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()]];
+		if (/*m_render_window->getShowTileView()*/tileViewButton) {
+			glm::mat4 trans = ifc_model->tile_matrix[ifc_model->this_comp_belongs_to_which_storey[*m_render_window->chosen_list.begin()]];
 			ifc_model->setModelMatrix(model_mat * util::inverse_mat4(trans));
 		}
 		else
 			ifc_model->setModelMatrix(model_mat);
 		ifc_model->setScaleFactor(scaler);
 		ifc_model->curcenter = (pmin + pmax) / 2.f;
-		m_camera->set_pos((m_window._isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
+		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
 
 		//flag_between_zoom_reset = true;
 
@@ -235,8 +235,7 @@ namespace ifcre {
 
 	void IFCRenderEngine::reset_coord(glm::vec3& clicked_coord) {
 		if (flag_between_zoom_reset) {
-			auto& m_window = *m_render_window;
-			clicked_coord = m_window.getClickedWorldCoord();
+			clicked_coord = m_render_window->getClickedWorldCoord();
 			flag_between_zoom_reset = false;
 		}
 	}
@@ -246,22 +245,21 @@ namespace ifcre {
 		switch (m_render_api)
 		{
 			case OPENGL_RENDER_API: {
-				auto& m_window = *m_render_window;
-				//while (!m_window.isClose())
+				//while (!m_render_window->isClose())
 				{
-					m_window.processInput();
+					m_render_window->processInput();
 
 					//update dynamic data
 					updateDynamicEboData();
 
 					drawFrame();
 
-					//if (/*!m_window.getHidden()*/clipboxButton) {
+					//if (/*!m_render_window->getHidden()*/clipboxButton) {
 					//	m_glrender->AerialViewRender(m_window);
 					//}
 
-					m_window.swapBuffer();
-					m_window.pollEvents();
+					m_render_window->swapBuffer();
+					m_render_window->pollEvents();
 				}
 				break;
 			}
@@ -280,38 +278,36 @@ namespace ifcre {
 
 	void IFCRenderEngine::drawFrame()
 	{
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-		//m_render.enableTest(DEPTH_TEST);
-		//m_render.depthFunc(LESS_FUNC);
+		//m_glrender->enableTest(DEPTH_TEST);
+		//m_glrender->depthFunc(LESS_FUNC);
 
 		glm::fvec2 mouse_move_vec(0.f);
 
 #pragma region transform by mouse
 		// -------------- ifc model transform by mouse ---------------
 
-		glm::vec3 clicked_coord = m_window.getClickedWorldCoord();
+		glm::vec3 clicked_coord = m_render_window->getClickedWorldCoord();
 		//reset_coord(clicked_coord);
 		if (cube_change_log) {
 			ifc_model->TranslateToCubeDirection(cube_num); // 设置模型位置
 			m_camera->RotateToCubeDirection(cube_num); // 设置相机数据
 			cube_change_log = false;
 		}
-		/*if (m_window.getClickCompId() >= 0 && m_window.trigger) {
-			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+		/*if (m_render_window->getClickCompId() >= 0 && m_render_window->trigger) {
+			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list });
 			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 		}*/
-		if (m_window.getClickCompId() >= 0 && m_window.trigger) {
-			m_window.trigger = false;
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ m_window.chosen_list });
+		if (m_render_window->getClickCompId() >= 0 && m_render_window->trigger) {
+			m_render_window->trigger = false;
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list });
 			zoom_into(bound_vecs, clicked_coord);
 		}
-		if (m_window.collidertrig) {
-			m_window.collidertrig = !m_window.collidertrig;
+		if (m_render_window->collidertrig) {
+			m_render_window->collidertrig = !m_render_window->collidertrig;
 			//showcolid = true;
 			collision_list = { ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2],ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2 + 1] };
 			ifc_model->collider_ind_count = (ifc_model->collider_ind_count + 1) % (ifc_model->collider_inde_hard.size() / 2);
-			//m_window.chosen_changed = true;
+			//m_render_window->chosen_changed = true;
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(collision_list);
 			zoom_into(bound_vecs, clicked_coord);
 
@@ -326,33 +322,33 @@ namespace ifcre {
 			pmax = tempp;*/
 			clipboxButton = true;
 			collider_trans_flag = true;
-			m_render.getClipBox()->setBox(pmin, pmax);
+			m_glrender->getClipBox()->setBox(pmin, pmax);
 		}
 
 #pragma region mouse work
 
-		if (*mousemove && !m_window.rotatelock) {
+		if (*mousemove && !m_render_window->rotatelock) {
 
-			if (m_window.isMouseHorizontalRot()) {
-				m_camera->rotateByScreenX(clicked_coord, m_window.getMouseHorizontalVel());
+			if (m_render_window->isMouseHorizontalRot()) {
+				m_camera->rotateByScreenX(clicked_coord, m_render_window->getMouseHorizontalVel());
 			}
-			if (m_window.isMouseVerticalRot()) {
+			if (m_render_window->isMouseVerticalRot()) {
 
-				m_camera->rotateByScreenY(clicked_coord, m_window.getMouseVerticalVel());
+				m_camera->rotateByScreenY(clicked_coord, m_render_window->getMouseVerticalVel());
 			}
 		}
 		else {
-			mouse_move_vec.x = m_window.getMouseHorizontalVel();
-			mouse_move_vec.y = m_window.getMouseVerticalVel();
+			mouse_move_vec.x = m_render_window->getMouseHorizontalVel();
+			mouse_move_vec.y = m_render_window->getMouseVerticalVel();
 		}
-		if (m_window.isRightMouseClicked()) {
+		if (m_render_window->isRightMouseClicked()) {
 #ifdef test_cmr
-			glm::vec3 hover = m_window.getVirtualHoverViewCordCoord();
+			glm::vec3 hover = m_render_window->getVirtualHoverViewCordCoord();
 #else
-			glm::vec3 hover = m_window.getVirtualHoverWorldCoord();
+			glm::vec3 hover = m_render_window->getVirtualHoverWorldCoord();
 #endif // test_cmr
 
-			if (m_window.isMouseMove() && m_last_rmclick) {
+			if (m_render_window->isMouseMove() && m_last_rmclick) {
 				glm::vec3 step = hover - m_last_hover_pos;
 #ifdef test_cmr
 				//wrong way here
@@ -368,13 +364,13 @@ namespace ifcre {
 			m_last_rmclick = false;
 		}
 #ifdef test_cmr
-		m_last_hover_pos = m_window.getClickedViewCordCoord();
+		m_last_hover_pos = m_render_window->getClickedViewCordCoord();
 #else
-		m_last_hover_pos = m_window.getClickedWorldCoord();
+		m_last_hover_pos = m_render_window->getClickedWorldCoord();
 #endif // test_cmr
-		/*if (m_window.scrolltrigger) {
-			m_camera->zoom( clicked_coord, m_window.scrollyoffset > 0 ? 1.0f : -1.0f);
-			m_window.scrolltrigger = false;
+		/*if (m_render_window->scrolltrigger) {
+			m_camera->zoom( clicked_coord, m_render_window->scrollyoffset > 0 ? 1.0f : -1.0f);
+			m_render_window->scrolltrigger = false;
 		}*/
 
 #pragma endregion
@@ -382,19 +378,19 @@ namespace ifcre {
 		// ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 #pragma endregion
 		{
-			m_window.startRenderToWindow();  // 切换到当前frame buffer
+			m_render_window->startRenderToWindow();  // 切换到当前frame buffer
 			dataIntegration();
 #pragma region COMP THINGS
 
-			m_window.switchRenderCompId();
-			m_render.render(ifc_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
-			int selectedId = m_window.getClickCompId();
-			m_render.setCompId(selectedId);
+			m_render_window->switchRenderCompId();
+			m_glrender->render(ifc_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
+			int selectedId = m_render_window->getClickCompId();
+			m_glrender->setCompId(selectedId);
 
-			m_window.switchRenderUI();
-			m_render.renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
-			m_render.renderClipBoxInUIlayer(/*m_window.getHidden()*/!clipboxButton);
-			ui_key = m_window.getClickedUIId();
+			m_render_window->switchRenderUI();
+			m_glrender->renderGizmoInUIlayer(m_camera->getCubeRotateMatrix(), m_render_window->getWindowSize());
+			m_glrender->renderClipBoxInUIlayer(/*m_render_window->getHidden()*/!clipboxButton);
+			ui_key = m_render_window->getClickedUIId();
 			if (ui_key > -1 && ui_key < 26 && m_render_window->m_mouse_status.single_click) {
 				cube_change_log = true;
 				cube_num = ui_key;
@@ -409,175 +405,169 @@ namespace ifcre {
 				//	//std::cout << clp_face_key * 2 + (finalsig > 0 ? 1 : 0) << std::endl;
 				//	m_glrender->getClipBox()->updateBox(clp_face_key * 2 + (finalsig > 0 ? 1 : 0), mouse_move_vec.length());
 				//}
-				m_render.last_clp_face_key = ui_key + 26;
+				m_glrender->last_clp_face_key = ui_key + 26;
 			}
 
 			m_glrender->getClipBox()->bind_the_world_coordination(ifc_model->getModelMatrix());
 
-			m_render.last_hovered_face_key = m_window.getClpBoxFaceId();
+			m_glrender->last_hovered_face_key = m_render_window->getClpBoxFaceId();
 
 #pragma endregion
 
 #pragma region main render
 
 			// 1. render scene
-			m_window.switchRenderColor();
+			m_render_window->switchRenderColor();
 
-			m_render.renderSkyBox(m_window.returnPerispectiveMat());
+			m_glrender->renderSkyBox(m_render_window->returnPerispectiveMat());
 
 			//3. render transparency scene// 渲染透明的构件
-			m_render.setAlpha(m_trans_alpha);
-			m_render.render(ifc_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
+			m_glrender->setAlpha(m_trans_alpha);
+			m_glrender->render(ifc_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
 			//4. render chosen scene, transparency// 渲染选中的透明构件
-			m_render.render(ifc_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
+			m_glrender->render(ifc_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
 
 			//5. render edges (maybe
-			m_render.render(ifc_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
+			m_glrender->render(ifc_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
 			//6. render collision geometry
 			if (showcolid)
 			{
-				m_render.render(ifc_model->render_id, COLLISION_RENDER, COLLISION);
+				m_glrender->render(ifc_model->render_id, COLLISION_RENDER, COLLISION);
 			}
 
 			//7. render bounding box
-			if (m_window.getClickCompId() >= 0) {
-				auto bound_vecs = !/*m_window.getShowTileView()*/tileViewButton ? ifc_model->generate_bbxs_bound_by_vec({ m_window.chosen_list })
-					: ifc_model->generate_bbxs_bound_by_vec({ m_window.chosen_list }, true);
+			if (m_render_window->getClickCompId() >= 0) {
+				auto bound_vecs = !/*m_render_window->getShowTileView()*/tileViewButton ? ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list })
+					: ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true);
 				auto chosenbbx = ifc_model->generate_bbxs_by_vec2(bound_vecs);
 
-				/*if (!m_window.chosen_list.empty()) {
-					uint32_t floor_id = ifc_test_model->this_comp_belongs_to_which_storey[*m_window.chosen_list.begin()];
-					m_render.setStoreyMat(ifc_test_model->tile_matrix[floor_id]);
+				/*if (!m_render_window->chosen_list.empty()) {
+					uint32_t floor_id = ifc_test_model->this_comp_belongs_to_which_storey[*m_render_window->chosen_list.begin()];
+					m_glrender->setStoreyMat(ifc_test_model->tile_matrix[floor_id]);
 				}*/
 
-				m_render.ModelVertexUpdate(select_bbx_id, chosenbbx);
+				m_glrender->ModelVertexUpdate(select_bbx_id, chosenbbx);
 
-				m_render.render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
+				m_glrender->render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
 			}
 
-			//m_render.ui_update(mousemove, /*m_window.getHidden()*/!clipboxButton && /*!m_window.getShowDrawing()*/ !drawingMatchButton,
+			//m_glrender->ui_update(mousemove, /*m_render_window->getHidden()*/!clipboxButton && /*!m_render_window->getShowDrawing()*/ !drawingMatchButton,
 			//	global_alpha, trans_alpha,
-			//	script_scale_fractor, m_window.getDragMouseMove(), m_window.getlbtndown()
+			//	script_scale_fractor, m_render_window->getDragMouseMove(), m_render_window->getlbtndown()
 			//);
-			//m_render.simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_window.collidertrig);
+			//m_glrender->simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_render_window->collidertrig);
 
 			*mousemove = !clipboxButton;
 			//8. render sup things
 			// render sky box
-			//m_render.renderSkybox(m_camera->getViewMatrix(), m_window.getProjMatrix());
+			//m_glrender->renderSkybox(m_camera->getViewMatrix(), m_render_window->getProjMatrix());
 
 			// -------------- render grid ---------------
 			if (m_render_window->to_show_grid) {
-				m_render.renderGridLine(grid_lines, m_render_window->get_width(), m_render_window->get_height(), grid_line_reset);
-				m_render.renderGridText(grid_text, grid_text_data, grid_text_reset);
+				m_glrender->renderGridLine(grid_lines, m_render_window->get_width(), m_render_window->get_height(), grid_line_reset);
+				m_glrender->renderGridText(grid_text, grid_text_data, grid_text_reset);
 			}
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 
 			// -------------- render axis, not normal render procedure ---------------
-			m_render.renderAxis(*ifc_model
+			m_glrender->renderAxis(*ifc_model
 				, clicked_coord
 				, m_camera->getViewPos()
 				, m_view_pos);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			// ----------------------------- render text -----------------------------
-			if (m_window.getShowText()) {
-				auto sxaswd = m_render.get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_window.get_width(), m_window.get_height());
-				m_render.renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_window.get_width(), m_window.get_height());
+			if (m_render_window->getShowText()) {
+				auto sxaswd = m_glrender->get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_render_window->get_width(), m_render_window->get_height());
+				m_glrender->renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_render_window->get_width(), m_render_window->get_height());
 			}
 
 			// -------------- render clipping plane, not normal render procedure ---------------
-			m_render.renderClipBox(/*m_window.getHidden()*/!clipboxButton);
+			m_glrender->renderClipBox(/*m_render_window->getHidden()*/!clipboxButton);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 
 			// ------------- drawing match shading ----------------------------------
-			if (/*m_window.getShowDrawing()*/drawingMatchButton)
-				m_render.renderDrawing(*ifc_model, script_scale_fractor);
+			if (/*m_render_window->getShowDrawing()*/drawingMatchButton)
+				m_glrender->renderDrawing(*ifc_model, script_scale_fractor);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			// ------------- tile view drawing shading ---------------------------------- // don't use this, there are a few errors!!!
-			if (/*m_window.getShowTileView()*/tileViewButton)
+			if (/*m_render_window->getShowTileView()*/tileViewButton)
 				;
-			//m_render.renderTileViewDrawing(*ifc_test_model);
+			//m_glrender->renderTileViewDrawing(*ifc_test_model);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			//---------------View Cube( gizmo ) rendering ----------------------------------------
-			m_render.renderViewCube(m_camera->getCubeRotateMatrix(), m_window.getWindowSize());
+			m_glrender->renderViewCube(m_camera->getCubeRotateMatrix(), m_render_window->getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//m_render.simpleui->render();
+			//m_glrender->simpleui->render();
 
 			fps(0.125);
 
 #pragma endregion
 
-			m_window.endRenderToWindow();
+			m_render_window->endRenderToWindow();
 		}
 		// post render
-		m_render.postRender(m_window); // 后处理，清空缓冲
+		m_glrender->postRender(*m_render_window); // 后处理，清空缓冲
 	}
 	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 	void IFCRenderEngine::updateDynamicEboData() {
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-
-		if (m_window.chosen_changed_w || m_window.chosen_changed_x) {
-			ifc_model->update_chosen_list(m_window.chosen_list);
-			m_window.geom_changed = true;
-			m_window.chosen_changed_w = false;
+		if (m_render_window->chosen_changed_w || m_render_window->chosen_changed_x) {
+			ifc_model->update_chosen_list(m_render_window->chosen_list);
+			m_render_window->geom_changed = true;
+			m_render_window->chosen_changed_w = false;
 		}
 
-		if (m_window.geom_changed) {
-			m_window.geom_changed = false;
+		if (m_render_window->geom_changed) {
+			m_render_window->geom_changed = false;
 			ifc_model->update_chosen_and_vis_list();
 
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices });
 			ifc_model->setpMax(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]));
 			ifc_model->setpMin(glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 
-			m_render.DynamicUpdate(ifc_model->render_id,
+			m_glrender->DynamicUpdate(ifc_model->render_id,
 				ifc_model->generate_ebo_from_component_ids(ifc_model->cur_c_indices),
 				ifc_model->cur_vis_trans_ind, ifc_model->cur_edge_ind);
 
-			m_render.ChosenGeomUpdate(ifc_model->render_id, ifc_model->cur_chosen_trans_ind);
+			m_glrender->ChosenGeomUpdate(ifc_model->render_id, ifc_model->cur_chosen_trans_ind);
 		}
 		if (collider_trans_flag && !collision_list.empty()) {
 			ifc_model->generate_collision_list(collision_list);
-			m_render.CollisionGeomUpdate(ifc_model->render_id, ifc_model->collision_ebo);
+			m_glrender->CollisionGeomUpdate(ifc_model->render_id, ifc_model->collision_ebo);
 			collider_trans_flag = false;
 		}
 	}
 
 	void IFCRenderEngine::dataIntegration() {
-		auto& m_render = *m_glrender;
-		auto& m_window = *m_render_window;
-
 		auto model_matrix = ifc_model->getModelMatrix();
 		ifc_m_matrix = model_matrix;
 
 		glm::mat4 view = m_camera->getViewMatrix();
 		glm::vec3 camera_forwad = m_camera->getViewForward();
 		glm::vec3 camera_pos = m_camera->getViewPos();
-		m_render.setViewMatrix(view);
-		m_render.setModelMatrix(model_matrix);
-		m_render.setInitModelMatrix(model_matrix);
-		m_render.setMirrorModelMatrix(ifc_model->getMirrorModelMatrix());
-		m_render.setModelViewMatrix(view * model_matrix);
-		m_render.setProjectionMatrix(m_window.getProjMatrix());
-		m_render.setAlpha(global_alpha);
-		m_render.setCameraDirection(camera_forwad);
-		m_render.setCameraPos(camera_pos);
-		m_render.setClippingPlane(m_render.getClippingPlane().out_as_vec4());
-		m_render.setClippingBox(/*m_window.getHidden()*/!clipboxButton);
-		m_render.updateOpenDrawingMatch(/*m_window.getShowDrawing()*/drawingMatchButton);
-		m_render.TileView(/*m_window.getShowTileView()*/tileViewButton);
+		m_glrender->setViewMatrix(view);
+		m_glrender->setModelMatrix(model_matrix);
+		m_glrender->setInitModelMatrix(model_matrix);
+		m_glrender->setMirrorModelMatrix(ifc_model->getMirrorModelMatrix());
+		m_glrender->setModelViewMatrix(view * model_matrix);
+		m_glrender->setProjectionMatrix(m_render_window->getProjMatrix());
+		m_glrender->setAlpha(global_alpha);
+		m_glrender->setCameraDirection(camera_forwad);
+		m_glrender->setCameraPos(camera_pos);
+		m_glrender->setClippingPlane(m_glrender->getClippingPlane().out_as_vec4());
+		m_glrender->setClippingBox(/*m_render_window->getHidden()*/!clipboxButton);
+		m_glrender->updateOpenDrawingMatch(/*m_render_window->getShowDrawing()*/drawingMatchButton);
+		m_glrender->TileView(/*m_render_window->getShowTileView()*/tileViewButton);
 
-		m_render.setHoverCompId(m_window.getHoverCompId());
+		m_glrender->setHoverCompId(m_render_window->getHoverCompId());
 	}
 
 	void IFCRenderEngine::setSelectCompIds(int val = 0) {
@@ -663,7 +653,7 @@ namespace ifcre {
 		Real scaler = 0;
 		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
 		//ifc_test_model->setModelMatrix(model_mat);
-		if (/*m_window.getShowTileView()*/tileViewButton) {
+		if (/*m_render_window->getShowTileView()*/tileViewButton) {
 
 			if (m_render_window->chosen_list.size() > 0)
 			{
