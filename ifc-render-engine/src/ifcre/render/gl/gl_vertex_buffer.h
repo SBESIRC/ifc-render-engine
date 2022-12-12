@@ -21,22 +21,14 @@ namespace ifcre {
 
 
 		//draw calls
-#ifndef ALL_COMP_TRANS
-		void drawNoTrans();
-#endif
+		void draw();
 		void drawTrans();
 		void drawEdges();
 		void drawByAddedEbo(uint32_t ebo_id);
 		void drawBBXLines();
-#ifndef ALL_COMP_TRANS
-		void drawByDynamicEbo_no_trans();
-#endif
 		void drawByDynamicEbo_trans();
 		void drawByDynamicEbo();
 		void drawByDynamicEdge();
-#ifndef ALL_COMP_TRANS
-		void drawByChosen_no_trans();
-#endif
 		void drawByChosen_trans();
 		void drawByCollision();
 
@@ -56,21 +48,8 @@ namespace ifcre {
 		void uploadElementBufferOnly(Vector<Vector<uint32_t>>& c_indices);
 		//sending ebos of all edges of components to GPU
 		void UploadElementEdge(Vector<uint32_t>& edge_indices);
-#ifndef ALL_COMP_TRANS
-		// sending ebos of all transparency components' geometry to GPU
-		void uploadNoTransElements(Vector<uint32_t>& indices);
-#endif
 		// sending ebos of all no-transparency components' geometry to GPU
 		void uploadTransElements(Vector<uint32_t>& indices);
-#ifndef ALL_COMP_TRANS
-		// sending ebos of filtered components' geometry to GPU
-		// the first parameter is vector of all filtered components' geometry, no matter it's transparency or not
-		// the second & third parameters are components' ebo divided by their transparency
-		void uploadDynamicElementBuffer(const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& dynamic_indices_no_trans, const Vector<uint32_t>& dynamic_indices_trans, const Vector<uint32_t>& dynamic_indices_edge);
-		// sending ebos of chosen components' geometry to GPU
-		// the input parameters are components' ebo divided by their transparency
-		void uploadChosenElementBuffer(const Vector<uint32_t>& chosen_indices_no_trans, const Vector<uint32_t>& chosen_indices_trans);
-#else
 		// sending ebos of filtered components' geometry to GPU
 		// the first parameter is vector of all filtered components' geometry, no matter it's transparency or not
 		// the second & third parameters are components' ebo divided by their transparency
@@ -78,7 +57,6 @@ namespace ifcre {
 		// sending ebos of chosen components' geometry to GPU
 		// the input parameters are components' ebo divided by their transparency
 		void uploadChosenElementBuffer(const Vector<uint32_t>& chosen_indices_trans);
-#endif
 		// sending ebos of collision components' geometry to GPU
 		void uploadCollisionElementBuffer(const Vector<uint32_t>& collision_ebo);
 
@@ -99,11 +77,6 @@ namespace ifcre {
 		uint32_t m_eboid;
 		uint32_t m_ssboid; // deprecated
 		uint32_t ebo_id_trip = 0;
-#ifndef ALL_COMP_TRANS
-		//bool no_trans_generated = false;
-		uint32_t m_eboid_for_no_trans;
-		uint32_t no_trans_size;
-#endif
 		//bool trans_generated = false;
 		uint32_t m_eboid_for_trans;
 		uint32_t trans_size;
@@ -119,24 +92,14 @@ namespace ifcre {
 		//dynamic ebo for isolation
 		//bool dyn_generated = false;
 		uint32_t m_dynamic_eboid;
-#ifndef ALL_COMP_TRANS
-		uint32_t m_dynamic_eboid_for_no_trans;
-#endif
 		uint32_t m_dynamic_eboid_for_trans;
 		uint32_t m_dynamic_eboid_for_edge;
 
 		uint32_t dynamic_size;
-#ifndef ALL_COMP_TRANS
-		uint32_t no_tran_dynamic_size;
-#endif
 		uint32_t tran_dynamic_size;
 		uint32_t edge_dynamic_size;
 
 		//ebo for chosen
-#ifndef ALL_COMP_TRANS
-		uint32_t m_chosen_eboid_for_no_trans;
-		uint32_t no_trans_chosen_size;
-#endif
 		uint32_t m_chosen_eboid_for_trans;
 		uint32_t trans_chosen_size;
 

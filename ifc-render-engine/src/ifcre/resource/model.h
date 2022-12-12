@@ -311,32 +311,12 @@ namespace ifcre {
 			Vector<uint32_t>().swap(cur_c_indices);
 			Vector<uint32_t>().swap(trans_ind);
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
-#ifndef ALL_COMP_TRANS
-			Unordered_set<uint32_t>().swap(trans_c_indices_set);
-			Vector<uint32_t> no_transparency_ind;
-			for (int i = 0; i < c_indices.size(); ++i) {
-				if (material_data[i].alpha < 2) {
-					transparency_ind.insert(transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					trans_c_indices_set.insert(i);
-				}
-				else {
-					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
-				}
-				v_count += c_indices[i].size();
-				cur_c_indices.emplace_back(i);
-			}
-			trans_ind = transparency_ind;
-			no_trans_ind = no_transparency_ind;
-			cur_vis_trans_ind = transparency_ind;
-			cur_vis_no_trans_ind = no_transparency_ind;
-#else
 			for (int i = 0; i < c_indices.size(); ++i) {
 				trans_ind.insert(trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				v_count += c_indices[i].size();
 				cur_c_indices.emplace_back(i);
 			}
-#endif	// !ALL_COMP_TRANS
 		}
 
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
@@ -367,39 +347,6 @@ namespace ifcre {
 			collision_ebo = ret;
 		}
 
-#ifndef ALL_COMP_TRANS
-		void update_chosen_and_vis_list() {
-			Vector<uint32_t>().swap(cur_vis_trans_ind);
-			Vector<uint32_t>().swap(cur_vis_no_trans_ind);
-			Vector<uint32_t>().swap(cur_edge_ind);
-			Vector<uint32_t>().swap(cur_chosen_trans_ind);
-			Vector<uint32_t>().swap(cur_chosen_no_trans_ind);
-
-			uint32_t edge_c_indices_size = c_edge_indices.size();
-
-			for (const int i : cur_c_indices) {
-				if (comp_states[i] == VIS) {
-					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
-						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					}
-					else {
-						cur_vis_no_trans_ind.insert(cur_vis_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					}
-					if (i < edge_c_indices_size) {
-						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
-					}
-				}
-				else if (comp_states[i] == CHOSEN) {
-					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
-						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					}
-					else {
-						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-					}
-				}
-			}
-		}
-#else
 		void update_chosen_and_vis_list() {//////////////////////////////////////////////////////////////////////////////
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
 			Vector<uint32_t>().swap(cur_edge_ind);
@@ -417,7 +364,7 @@ namespace ifcre {
 				}
 			}
 		}
-#endif 
+
 		void generate_bbxs_by_comps() {
 			size_t cindicessize = c_indices.size(); // 获取物件数量
 			Vector<Real>(cindicessize * 6).swap(comps_bbx); // 每个物件对应6个float值
@@ -794,9 +741,6 @@ namespace ifcre {
 
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
 		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引(保留一份原始数据)
-#ifndef ALL_COMP_TRANS
-		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
-#endif
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
@@ -808,17 +752,11 @@ namespace ifcre {
 		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
-#ifndef ALL_COMP_TRANS
-		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
-#endif
 
 		Vector<uint32_t> cur_c_indices;					// 当前要显示的物件的索引
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
-#ifndef ALL_COMP_TRANS
-		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
-		Unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
-#endif
+
 		Vector<uint32_t> collision_ebo;//ebo of collision meshes, this is ready for GlUpload()
 
 		Vector<uint32_t> bbx_drawing_order = { 0,1,5,4,0,2,6,4,5,7,3,1,3,2,6,7 }; // 按此定点顺序绘制bbx长方体框
