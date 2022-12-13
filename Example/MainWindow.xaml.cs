@@ -113,10 +113,6 @@ namespace Example {
         {
             int time = int.Parse(tbIdsToShow.Text);
             Example.ExampleScene.SetSleepTime(time);
-
-            //for memory testing
-            //rendingTimer.Stop();
-            //Example.ExampleScene.ifcre_clear_model_data();
         }
 
         private void Button_Click_multichose(object sender, RoutedEventArgs e)

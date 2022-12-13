@@ -60,12 +60,6 @@ void ifcre_set_edge_indices(const int a) {
 	re.set_edge_indices(a);
 }
 
-//void ifcre_set_comp_types(const int a) {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_comp_types(a);
-//}
-
 void ifcre_run()
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();

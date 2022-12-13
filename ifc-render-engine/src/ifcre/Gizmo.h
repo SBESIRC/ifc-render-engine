@@ -244,68 +244,6 @@ namespace ifcre {
                            k2, -k2, k2,      0.00f, 0.00f,  util::int_as_float(id_num + 25),
                            k2,-k2, k,       0.00f, 0.00f,     util::int_as_float(id_num + 25),
                            k, -k2, k,      0.00f, 0.00f,      util::int_as_float(id_num + 25)
-                           //// position     uv cordination    ids
-                           ////back
-                           // k, -k, -k,        .00f, .00f,        id_num + 0.f,
-                           //-k, -k, -k,        .33f, .00f,        id_num + 0.f,
-                           //-k,  k, -k,        .33f, .50f,        id_num + 0.f,
-                           // k,  k, -k,        .00f, .50f,        id_num + 0.f,
-                           ////left
-                           //-k, -k,  k,        1.0f, .50f,        id_num + 1.f,
-                           //-k,  k,  k,        1.0f, 1.0f,        id_num + 1.f,
-                           //-k,  k, -k,        .67f, 1.0f,        id_num + 1.f,
-                           //-k, -k, -k,        .67f, .50f,        id_num + 1.f,
-                           ////front
-                           //-k, -k,  k,        .00f, .50f,        id_num + 2.f,
-                           // k, -k,  k,        .33f, .50f,        id_num + 2.f,
-                           // k,  k,  k,        .33f, 1.0f,        id_num + 2.f,
-                           //-k,  k,  k,        .00f, 1.0f,        id_num + 2.f,
-                           ////right
-                           // k, -k,  k,        .67f, .00f,        id_num + 3.f,
-                           // k, -k, -k,        1.0f, .00f,        id_num + 3.f,
-                           // k,  k, -k,        1.0f, .50f,        id_num + 3.f,
-                           // k,  k,  k,        .67f, .50f,        id_num + 3.f,
-                           ////up
-                           //-k,  k,  k,        .33f, .50f,        id_num + 4.f,
-                           // k,  k,  k,        .67f, .50f,        id_num + 4.f,
-                           // k,  k, -k,        .67f, 1.0f,        id_num + 4.f,
-                           //-k,  k, -k,        .33f, 1.0f,        id_num + 4.f,
-                           ////down
-                           // k, -k, -k,        .67f, .00f,        id_num + 5.f,
-                           //-k, -k, -k,        .33f, .00f,        id_num + 5.f,
-                           //-k, -k,  k,        .33f, .50f,        id_num + 5.f,
-                           // k, -k,  k,        .67f, .50f,        id_num + 5.f
-				//// position     uv cordination	ids
-				////back
-				// k, -k, -k,		.00f, .00f,		id_num + 0.f,
-				//-k, -k, -k,		.33f, .00f,		id_num + 0.f,
-				//-k,  k, -k,		.33f, .50f,		id_num + 0.f,
-				// k,  k, -k,		.00f, .50f,		id_num + 0.f,
-				////left
-				//-k, -k,  k,		1.0f, .50f,		id_num + 1.f,
-				//-k,  k,  k,		1.0f, 1.0f,		id_num + 1.f,
-				//-k,  k, -k,		.67f, 1.0f,		id_num + 1.f,
-				//-k, -k, -k,		.67f, .50f,		id_num + 1.f,
-				////front
-				//-k, -k,  k,		.00f, .50f,		id_num + 2.f,
-				// k, -k,  k,		.33f, .50f,		id_num + 2.f,
-				// k,  k,  k,		.33f, 1.0f,		id_num + 2.f,
-				//-k,  k,  k,		.00f, 1.0f,		id_num + 2.f,
-				////right
-				// k, -k,  k,		.67f, .00f,		id_num + 3.f,
-				// k, -k, -k,		1.0f, .00f,		id_num + 3.f,
-				// k,  k, -k,		1.0f, .50f,		id_num + 3.f,
-				// k,  k,  k,		.67f, .50f,		id_num + 3.f,
-				////up
-				//-k,  k,  k,		.33f, .50f,		id_num + 4.f,
-				// k,  k,  k,		.67f, .50f,		id_num + 4.f,
-				// k,  k, -k,		.67f, 1.0f,		id_num + 4.f,
-				//-k,  k, -k,		.33f, 1.0f,		id_num + 4.f,
-				////down
-				// k, -k, -k,		.67f, .00f,		id_num + 5.f,
-				//-k, -k, -k,		.33f, .00f,		id_num + 5.f,
-				//-k, -k,  k,		.33f, .50f,		id_num + 5.f,
-				// k, -k,  k,		.67f, .50f,		id_num + 5.f
 			};
 
 			glGenVertexArrays(1, &gizmoVAO);

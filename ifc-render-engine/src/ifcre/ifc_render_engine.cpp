@@ -24,14 +24,6 @@ namespace ifcre {
 		Vector<Vector<uint32_t>>().swap(_c_indices);
 		Vector<Real>().swap(_face_mat);
 		Vector<uint32_t>().swap(_edge_indices);
-
-		/*ifc_model.reset();
-		ifcre.reset();
-		ifcre = nullptr;
-		glFlush();
-		glFinish();*/
-
-		//Vector<uint32_t>().swap(_comp_types);
 	}
 	void IFCRenderEngine::set_g_indices(int val) {
 		_g_indices.emplace_back(val);
@@ -115,7 +107,7 @@ namespace ifcre {
 		// 加载模型数据
 		String model_file = m_cache_configs["file"];
 		if (model_file == "nil") {
-			ifc_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);//, _comp_types);
+			ifc_model = make_shared<IFCModel>(_g_indices, _g_vertices, _g_normals, _c_indices, _face_mat, _edge_indices);
 		}
 		else {
 			ifc_model = IFCParser::load(m_cache_configs["file"]);
@@ -633,12 +625,6 @@ namespace ifcre {
 		return m_render_window->chosen_list.size();
 	}
 	void IFCRenderEngine::getSelectedCompIds(int* arr) {
-		/*std::vector <int> v(m_render_window->chosen_list.begin(), m_render_window->chosen_list.end());
-		for (size_t i = 0; i < v.size(); i++)
-		{
-			arr[i] = v[i];
-		}*/
-
 		auto it = m_render_window->chosen_list.begin();
 		int i = 0;
 		for (it, i; it != m_render_window->chosen_list.end(); ++it,++i) {

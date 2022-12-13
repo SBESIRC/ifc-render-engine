@@ -1,4 +1,4 @@
-#include "gl_render_texture.h"
+﻿#include "gl_render_texture.h"
 #include <glad/glad.h>
 #include<glm/glm.hpp>
 
@@ -19,11 +19,6 @@ namespace ifcre {
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_tex_id);
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_RGBA, w, h, GL_TRUE);
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
-
-			//glTextureStorage2DMultisample(m_tex_id, 4, GL_RGBA8, w, h, false);
-
-			//glTextureParameteri(m_tex_id, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			//glTextureParameteri(m_tex_id, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		}
 		else {
 			glCreateTextures(GL_TEXTURE_2D, 1, &m_tex_id);
@@ -39,33 +34,27 @@ namespace ifcre {
 		}
 
 		if (depth != DEPTH0) {
-			//glCreateTextures(open_aa ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 1, &m_depth_id);
 			switch (depth) {
 			case DEPTH_WRITE_ONLY:
 				glCreateRenderbuffers(1, &m_depth_id);
 				if (open_aa) {
-					//glNamedRenderbufferStorage(m_depth_id, GL_DEPTH24_STENCIL8, w, h);
 					glNamedRenderbufferStorageMultisample(m_depth_id, 4, GL_DEPTH24_STENCIL8, w, h);
 				}
 				else {
 					glNamedRenderbufferStorage(m_depth_id, GL_DEPTH24_STENCIL8, w, h);
 				}
-				//glNamedRenderbufferStorage(m_depth_id, GL_DEPTH_COMPONENT, w, h);
 				break;
 			case DEPTH16:
 				glCreateTextures(GL_TEXTURE_2D, 1, &m_depth_id);
 				glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT16, w, h);
-				//glTextureSubImage2D(mfb.depth_id, 0, 0, 0, w, h, GL_DEPTH_COMPONENT16, GL_UNSIGNED_INT, NULL);
 				break;
 			case DEPTH24:
 				glCreateTextures(GL_TEXTURE_2D, 1, &m_depth_id);
 				glTextureStorage2D(m_depth_id, 1, GL_DEPTH24_STENCIL8, w, h);
-				//glTextureSubImage2D(m_depth_id, 0, 0, 0, w, h, GL_RG, GL_UNSIGNED_INT_24_8, NULL);
 				break;
 			case DEPTH32:
 				glCreateTextures(GL_TEXTURE_2D, 1, &m_depth_id);
 				if (open_aa) {
-					//glTextureStorage2DMultisample(m_depth_id, 4, GL_DEPTH_COMPONENT32, w, h, true);
 					glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, m_depth_id);
 					glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 4, GL_DEPTH_COMPONENT32, w, h, GL_TRUE);
 					glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
@@ -73,8 +62,6 @@ namespace ifcre {
 				else {
 					glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT32, w, h);
 				}
-				//glTextureStorage2D(m_depth_id, 1, GL_DEPTH_COMPONENT, w, h);
-				//glTextureSubImage2D(m_depth_id, 0, 0, 0, w, h, GL_RED, GL_FLOAT, NULL);
 				break;
 			default:break;
 			}
@@ -136,12 +123,9 @@ namespace ifcre {
 			}
 		}
 		else {
-			//glBindFramebuffer(GL_FRAMEBUFFER, fbo_id);
-			//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_tex_id, 0);
 			glNamedFramebufferTexture(fbo_id, GL_COLOR_ATTACHMENT0, m_tex_id, 0);
 			if (m_rt_depth_format == DEPTH_WRITE_ONLY) {
 				glNamedFramebufferRenderbuffer(fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depth_id);
-				//glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_depth_id);
 			}
 			else if (m_rt_depth_format != DEPTH0) {
 				if (m_rt_depth_format == DEPTH24) {
@@ -151,7 +135,6 @@ namespace ifcre {
 					glNamedFramebufferTexture(fbo_id, GL_DEPTH_ATTACHMENT, m_depth_id, 0);
 				}
 			}
-			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 	}
 

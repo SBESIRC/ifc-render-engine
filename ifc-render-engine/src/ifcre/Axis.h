@@ -16,7 +16,7 @@ namespace ifcre {
 	struct EngineAxis {
 		GLuint axis_vao, axis_vbo;
 		glm::mat4 axis_model;
-		EngineAxis() {
+		EngineAxis() { // 初始化 (一般只运行一次。除非物体频繁改变)
 			float coord_axis[] = {
 				0.0, 0.0, 0.0,
 				-1.0, 0.0, 0.0,	// x-axis
@@ -26,12 +26,12 @@ namespace ifcre {
 				0.0, 0.0, 1.0	// z-axis
 			};
 			glGenVertexArrays(1, &axis_vao);
-			glGenBuffers(1, &axis_vbo);
-			glBindVertexArray(axis_vao);
-			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+			glGenBuffers(1, &axis_vbo); // 创建一个缓冲
+			glBindVertexArray(axis_vao); // 绑定VAO
+			glBindBuffer(GL_ARRAY_BUFFER, axis_vbo); // 设置缓冲类型
+			glBufferData(GL_ARRAY_BUFFER, sizeof(coord_axis), &coord_axis, GL_STATIC_DRAW); // 把用户定义的数据复制到当前绑定缓冲(显存)
+			glEnableVertexAttribArray(0); // 以顶点属性位置值作为参数，启用顶点属性
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // 告诉OpenGL该如何解析顶点数据（应用到逐个顶点属性上） 从此时绑定到GL_ARRAY_BUFFER的VBO获取数据
 		}
 
 		void update_model_mat_info(glm::mat4 init_model, glm::vec3 model_center, float scale_factor,
@@ -53,10 +53,10 @@ namespace ifcre {
 		}
 
 		void drawAxis() {
-			glBindVertexArray(axis_vao);
+			glBindVertexArray(axis_vao);// 使用上面那一套VAO
 			glDisable(GL_DEPTH_TEST);
 			glDepthFunc(GL_ALWAYS);
-			glDrawArrays(GL_LINES, 0, 6);
+			glDrawArrays(GL_LINES, 0, 6);// 使用当前激活的着色器，之前定义的顶点属性配置，和VBO的顶点数据（通过VAO间接绑定）来绘制图元
 		}
 	};
 }

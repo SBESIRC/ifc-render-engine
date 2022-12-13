@@ -149,8 +149,8 @@ namespace ifcre {
 		}
 
 		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices,
-			Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) : //, Vector<uint32_t>& _comp_types) :
-			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) { //, comp_types(_comp_types) {
+			Vector<float>& _face_mat, Vector<uint32_t>& _edge_indices) :
+			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
 			clock_t start, end;
 			start = clock();
 			Vector<CompState>(c_indices.size(), VISIABLE).swap(comp_states);
@@ -785,7 +785,6 @@ namespace ifcre {
 		Vector<Real> g_kd_color;				// 依次存储各个顶点(漫反射项)颜色的x、y、z信息，数量为顶点数量的三倍
 		Vector<Real> g_normals;					// 依次存储各个顶点法向量的x、y、z信息，数量为顶点数量的三倍
 		Vector<uint> comp_ids;					// 可通过顶点索引找到对应的物件索引，数量为顶点的个数
-		//Vector<uint32_t> comp_types;				// 存储构件所属类型，数量等同于构件数
 
 		Vector<glm::vec3> m_cube_direction_transform;
 		Vector<int> comp_storey_ids;// length = num of components; Component no.xxx's storey id is comp_storey_ids[xxx]
