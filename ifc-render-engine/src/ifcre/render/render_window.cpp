@@ -518,6 +518,7 @@ namespace ifcre {
     void RenderWindow::pollEvents()
     {
         glfwPollEvents();
+        //glfwWaitEvents();
     }
 
     void RenderWindow::offScreenRender() {

@@ -40,18 +40,18 @@ namespace Example {
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
 
-            if (threadIndex >= 1)
-            {
-                rendingTimer.Stop();
-                //Example.ExampleScene.ifcre_clear_model_data();
-            }
+            //if (threadIndex >= 1)
+            //{
+            //    rendingTimer.Stop();
+            //    //Example.ExampleScene.ifcre_clear_model_data();
+            //}
 
             var fileName = fileDialog.FileName;
 
             Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
-
+            Example.ExampleScene.Render();
             threadIndex++;
-            rendingTimer.Start();
+            //rendingTimer.Start();
         }
 
         private void formHost_Initialized(object sender, EventArgs e)

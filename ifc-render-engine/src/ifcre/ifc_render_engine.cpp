@@ -233,8 +233,9 @@ namespace ifcre {
 		switch (m_render_api)
 		{
 			case OPENGL_RENDER_API: {
-				//while (!m_render_window->isClose())
+				while (!m_render_window->isClose())
 				{
+					std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
 					m_render_window->processInput();
 
 					//update dynamic data
