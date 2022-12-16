@@ -75,6 +75,10 @@ namespace ifcre {
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 
 		void upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats);
+
+		void ubo_datasa_updates();
+
+		void transformUBO_refresh();
 		// --------------- render ----------------------
 
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);

@@ -26,8 +26,7 @@ layout(location = 1) out vec3 vNormal;
 out vec3 vFragPos;
 layout(location = 3) flat out int vComp;
 layout(location = 4) out float vDistance;
-layout(location = 5) out float vDistanceM[6];
-out float dis_drawing_plane;
+layout(location = 5) out float vDistanceM[7];
 
 void main()
 {
@@ -43,14 +42,8 @@ void main()
 	vDistance = dot(vFragPos, ubo.uUserClipPlane.xyz) - ubo.uUserClipPlane.w;
 	for(int i=0;i<6;i++){
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
-		//if(dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w<0.0){
-		//	vDistanceM= -1.0;
-		//	break;
-		//}
 	}
-	dis_drawing_plane = eyePos.y - (ubo.model * ubo.drawing_plane).y;
-	vComp = aComp;
-	//vNormal = ubo.transpose_inv_model * aNormal;
+	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
 	vNormal = aNormal;
 	if(ubo.showTileView > 0)
 		gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[alou] * vec4(aPos, 1.0);

@@ -13,14 +13,14 @@ namespace ifcre {
 	GLRender::GLRender()
 	{
 		// mvp, trans_inv_model
-		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 4 + sizeof(glm::vec4) * 7 + 4);
+		m_uniform_buffer_map.transformsUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 3 + sizeof(glm::vec4) * 8 + 4);
 		m_uniform_buffer_map.ifcRenderUBO = make_shared<GLUniformBuffer>(48);
-		m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + 4);
+		//m_uniform_buffer_map.transformMVPUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 2 + sizeof(glm::vec4) * 8 + 4);
 		m_uniform_buffer_map.StoreyOffsetTransformUBO = make_shared<GLUniformBuffer>(sizeof(glm::mat4) * 100 + sizeof(int) * 100);
 
 		m_uniform_buffer_map.transformsUBO->bindRange(0);
 		m_uniform_buffer_map.ifcRenderUBO->bindRange(1);
-		m_uniform_buffer_map.transformMVPUBO->bindRange(2);
+		//m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->bindRange(3);
 
 #ifdef _DEBUG
@@ -132,26 +132,31 @@ namespace ifcre {
 		m_chosen_shader->bindUniformBlock("IFCRenderUBO", 1);
 		m_chosen_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
-		m_collision_shader->bindUniformBlock("TransformMVPUBO", 2);
+		m_collision_shader->bindUniformBlock("TransformsUBO", 0);
+		m_collision_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+
+		m_edge_shader->bindUniformBlock("TransformsUBO", 0);
 		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
-		m_edge_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+		m_comp_id_program->bindUniformBlock("TransformsUBO", 0);
+		m_comp_id_program->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
-		m_comp_id_program->bindUniformBlock("TransformMVPUBO", 2);
-		m_edge_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
+		m_select_bbx_shader->bindUniformBlock("TransformsUBO", 0);
+		//m_select_bbx_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
 
-		m_axis_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_select_bbx_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_select_bbx_shader->bindUniformBlock("StoreyOffsetTransformUBO", 3);
-		m_clip_plane_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_clip_plane_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_gizmo_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_gizmo_UI_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_skybox_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_grid_shader->bindUniformBlock("TransformMVPUBO", 2);
-		m_drawing_match_shader->bindUniformBlock("TransformMVPUBO", 2);		// ------------- drawing match shader test ------------
-		m_tile_view_drawing_shader->bindUniformBlock("TransformMVPUBO", 2);	// ------------- tile-view's drawing ------------
+		m_axis_shader->bindUniformBlock("TransformsUBO", 0);
+
+		m_clip_plane_shader->bindUniformBlock("TransformsUBO", 0);
+		m_clip_plane_UI_shader->bindUniformBlock("TransformsUBO", 0);
+
+		m_gizmo_shader->bindUniformBlock("TransformsUBO", 0);
+		m_gizmo_UI_shader->bindUniformBlock("TransformsUBO", 0);
+
+		//m_skybox_shader->bindUniformBlock("TransformsUBO", 2);
+		m_grid_shader->bindUniformBlock("TransformsUBO", 2);
+
+		m_drawing_match_shader->bindUniformBlock("TransformsUBO", 0);		// ------------- drawing match shader test ------------
+		m_tile_view_drawing_shader->bindUniformBlock("TransformsUBO", 0);	// ------------- tile-view's drawing ------------
 		// ----- ----- ----- ----- ----- -----
 
 		// -------------- render init --------------
@@ -239,12 +244,6 @@ namespace ifcre {
 			glClearColor(-2, 0, 0, 0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glClearDepthf(1.0);
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
-			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
-			transformMVPUBO.update(144, 96, m_clip_box.data());
-			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
-			transformMVPUBO.update(256, 4, &m_TileView);
 			m_comp_id_program->use();
 			break;
 		}
@@ -252,22 +251,8 @@ namespace ifcre {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
-			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			transformUBO.update(256, 96, m_clip_box.data());
-			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
-			transformUBO.update(368, 4, &m_TileView);
-
-			ifcRenderUBO.update(0, 4, &m_alpha);
-			ifcRenderUBO.update(4, 4, &m_compId);
-			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
-			ifcRenderUBO.update(32, 12, glm::value_ptr(m_camera_pos));
-
 			m_test_shader->use();
+			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
 		case OFFLINE_SHADING: {
@@ -275,19 +260,8 @@ namespace ifcre {
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_init_model));
-			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_init_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			transformUBO.update(256, 96, m_clip_box.data());
-
-			ifcRenderUBO.update(0, 4, &m_alpha);
-			ifcRenderUBO.update(4, 4, &m_compId);
-			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
-
 			m_test_shader->use();
+			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
@@ -295,64 +269,41 @@ namespace ifcre {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
 			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
 
-			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			transformUBO.update(256, 96, m_clip_box.data());
-			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
-			transformUBO.update(368, 4, &m_TileView);
+			//transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			//transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			//transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			//transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			//transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			//transformUBO.update(256, 96, m_clip_box.data());
+			//transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			//transformUBO.update(368, 4, &m_TileView);
 
-			//ifcRenderUBO.update(0, 4, &m_alpha);
-			ifcRenderUBO.update(4, 4, &m_compId);
-			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+			////ifcRenderUBO.update(0, 4, &m_alpha);
+			//ifcRenderUBO.update(4, 4, &m_compId);
+			//ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			//ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
 
 			m_test_shader->use();
+			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
 		case BOUNDINGBOX_SHADING: {
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
-			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
-			transformMVPUBO.update(144, 96, m_clip_box.data());
-			transformMVPUBO.update(240, 4, &m_TileView);
 			m_select_bbx_shader->use();
 			m_select_bbx_shader->setMat4("storeyOffset_mat", storeyOffset_mat);
-			//m_select_bbx_shader->setMat4("modelview", m_modelview);
-			//m_select_bbx_shader->setMat4("projection", m_projection);
 			break;
 		}
 		case EDGE_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
-			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
-			transformMVPUBO.update(144, 96, m_clip_box.data());
-			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
-			transformMVPUBO.update(256, 4, &m_TileView);
-			m_edge_shader->use();
+			m_test_shader->use();
+			m_test_shader->setFloat("shading_factor", .7f);
 			break;
 		}
 		case CHOSEN_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
-			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			transformUBO.update(256, 96, m_clip_box.data());
-			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
-			transformUBO.update(368, 4, &m_TileView);
-
-			ifcRenderUBO.update(4, 4, &m_compId);
-			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
 
 			m_chosen_shader->use();
 			break;
@@ -361,18 +312,6 @@ namespace ifcre {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
-			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			transformUBO.update(256, 96, m_clip_box.data());
-			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
-			transformUBO.update(368, 4, &m_TileView);
-
-			ifcRenderUBO.update(4, 4, &m_compId);
-			ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
 
 			m_chosen_shader->use();
 			break;
@@ -381,10 +320,6 @@ namespace ifcre {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
-			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
-			transformMVPUBO.update(64, 64, glm::value_ptr(m_init_model));
-			transformMVPUBO.update(128, 16, glm::value_ptr(m_clip_plane));
-			transformMVPUBO.update(144, 96, m_clip_box.data());
 			m_collision_shader->use();
 			m_collision_shader->setVec2("u_resolution", glm::vec2(1600.f, 900.f));
 			m_collision_shader->setFloat("alpha", 0.02f);
@@ -400,7 +335,7 @@ namespace ifcre {
 
 	void GLRender::renderClipBox(const bool hidden) {
 		if (!hidden) {
-			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+			auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_shader->use();
 			m_clip_plane_shader->setInt("ui_id", last_clp_face_key);
@@ -412,7 +347,7 @@ namespace ifcre {
 	}
 
 	void GLRender::renderClipBox() {
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 		m_clip_plane_shader->use();
 		m_clip_plane_shader->setInt("ui_id", -1);
@@ -429,7 +364,7 @@ namespace ifcre {
 
 	void GLRender::renderClipBoxInUIlayer(const bool hidden) {
 		if (!hidden) {
-			auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+			auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 			transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * use_clip_box->toMat()));
 			m_clip_plane_UI_shader->use();
 			use_clip_box->drawBoxInUILayer();
@@ -541,7 +476,7 @@ namespace ifcre {
 
 			Vector<float>().swap(grid_line);
 		}
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 		m_grid_shader->use();
 		m_grid_shader->setVec2("u_resolution", glm::vec2(width, height));
@@ -556,7 +491,7 @@ namespace ifcre {
 		//model = trans_click_center * model;
 		myaxis.update_model_mat_info(ifc_model.getModelMatrix(), ifc_model.curcenter, ifc_model.getScaleFactor(),
 			pick_center, view_pos, init_view_pos);
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * myaxis.axis_model));
 		m_axis_shader->use();
 		myaxis.drawAxis();
@@ -564,7 +499,7 @@ namespace ifcre {
 	}
 	void GLRender::renderViewCube(const glm::mat4& rotate_matrix, const glm::vec2 window_size)
 	{
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_shader->use();
@@ -577,7 +512,7 @@ namespace ifcre {
 		glClearColor(-1, 0, 0, 0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepthf(1.0);
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		glm::mat4 tempmatrix = gizmo.private_transform(window_size) * rotate_matrix;
 		transformMVPUBO.update(0, 64, glm::value_ptr(tempmatrix));
 		m_gizmo_UI_shader->use();
@@ -674,7 +609,7 @@ namespace ifcre {
 		glm::mat4 y_translate(1.0f);
 		y_translate = glm::translate(y_translate, glm::vec3(m_drawing_match_plane));
 		scale = glm::scale(scale, glm::vec3(drawing_width * k, 1.0, drawing_height * k));
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		transformMVPUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model * y_translate * scale));
 
 		glEnable(GL_DEPTH_TEST);
@@ -755,7 +690,7 @@ namespace ifcre {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBindVertexArray(tile_vao);
-		auto& transformMVPUBO = *m_uniform_buffer_map.transformMVPUBO;
+		auto& transformMVPUBO = *m_uniform_buffer_map.transformsUBO;
 		m_tile_view_drawing_shader->use();
 		m_tile_view_drawing_shader->setInt("Drawing", 0);
 
@@ -1037,5 +972,27 @@ namespace ifcre {
 	{
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->update(0, 6400, offsets_mats.data());			// matrix
 		//m_uniform_buffer_map.StoreyOffsetTransformUBO->update(6400, 400, floorIndex.data());			// real floor index to sort floor
+	}
+
+	void GLRender::ubo_datasa_updates() {
+
+		auto& transformUBO = *m_uniform_buffer_map.transformsUBO;
+		auto& ifcRenderUBO = *m_uniform_buffer_map.ifcRenderUBO;
+
+		transformUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
+		transformUBO.update(64, 64, glm::value_ptr(m_init_model));
+		transformUBO.update(128, 16, glm::value_ptr(m_clip_plane));
+		transformUBO.update(144, 96, m_clip_box.data());
+		transformUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
+		transformUBO.update(256, 4, &m_TileView);
+
+		ifcRenderUBO.update(0, 4, &m_hoverCompId);
+		ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+		ifcRenderUBO.update(32, 12, glm::value_ptr(m_camera_pos));
+	}
+
+	void GLRender::transformUBO_refresh() {
+		auto& transformUBO = *m_uniform_buffer_map.transformsUBO;
+		transformUBO.update(0, 64, glm::value_ptr(m_projection * m_view * m_model));
 	}
 } 

@@ -191,6 +191,7 @@ namespace ifcre {
 
 	void IFCRenderEngine::offscreenRending(const int index) {
 		m_render_window->offScreenRender();
+
 		dataIntegration();
 		m_glrender->setViewMatrix(m_camera->getPrecomputedViewMatrix(index));
 		m_glrender->setModelMatrix(ifc_model->bbx_model_mat);
@@ -199,6 +200,9 @@ namespace ifcre {
 		m_glrender->setModelViewMatrix(m_camera->getPrecomputedViewMatrix(index) * ifc_model->bbx_model_mat);
 		m_glrender->setProjectionMatrix(m_render_window->getOrthoProjMatrix());
 		m_glrender->setClippingBox(true);
+
+		m_glrender->ubo_datasa_updates();
+
 		m_glrender->render(ifc_model->render_id, OFFLINE_SHADING, ALL);
 		m_glrender->renderClipBox();
 
@@ -221,16 +225,7 @@ namespace ifcre {
 		ifc_model->setScaleFactor(scaler);
 		ifc_model->curcenter = (pmin + pmax) / 2.f;
 		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
-
 		//flag_between_zoom_reset = true;
-
-	}
-
-	void IFCRenderEngine::reset_coord(glm::vec3& clicked_coord) {
-		if (flag_between_zoom_reset) {
-			clicked_coord = m_render_window->getClickedWorldCoord();
-			flag_between_zoom_reset = false;
-		}
 	}
 
 	void IFCRenderEngine::run()
@@ -373,6 +368,8 @@ namespace ifcre {
 		{
 			m_render_window->startRenderToWindow();  // 切换到当前frame buffer
 			dataIntegration();
+			m_glrender->ubo_datasa_updates();
+
 #pragma region COMP THINGS
 
 			m_render_window->switchRenderCompId();
@@ -414,22 +411,25 @@ namespace ifcre {
 
 			m_glrender->renderSkyBox(m_render_window->returnPerispectiveMat());
 
+			m_glrender->transformUBO_refresh();
+
 			m_glrender->render(ifc_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
-			//2. render chosen scene, no transparency// 渲染选中的不透明构件
-			m_glrender->render(ifc_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
 
-			//3. render transparency scene// 渲染透明的构件
+			//render transparency scene// 渲染透明的构件
 			m_glrender->setAlpha(m_trans_alpha);
 			m_glrender->render(ifc_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
 
-			//4. render chosen scene, transparency// 渲染选中的透明构件
+			//render chosen scene, no transparency// 渲染选中的不透明构件
+			m_glrender->render(ifc_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
+
+			//render chosen scene, transparency// 渲染选中的透明构件
 			m_glrender->render(ifc_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
 
-			//5. render edges (maybe
+			//render edges (maybe
 			m_glrender->render(ifc_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
 
-			//6. render collision geometry
+			//render collision geometry
 			if (showcolid)
 			{
 				m_glrender->render(ifc_model->render_id, COLLISION_RENDER, COLLISION);
