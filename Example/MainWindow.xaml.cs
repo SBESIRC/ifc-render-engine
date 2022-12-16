@@ -32,8 +32,7 @@ namespace Example {
         {
             Dispatcher.BeginInvoke(() => Example.ExampleScene.Render());
         }
-
-        private  void   Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
             var filter = "ifc files | *.ifc;*.midfile;";

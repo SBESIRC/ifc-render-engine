@@ -52,10 +52,9 @@ namespace ifcre {
 		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer, int id);
 		void deleteModel(uint32_t id);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
-		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
-		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_trans_ebo);
+		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
+		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
 		void CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo);
-
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
 		void setInitModelMatrix(const glm::mat4& init_model);

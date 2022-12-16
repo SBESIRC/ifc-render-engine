@@ -14,7 +14,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-#define ALL_COMP_TRANS
+//#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
 //#include <math.h>
@@ -311,12 +311,23 @@ namespace ifcre {
 			Vector<uint32_t>().swap(cur_c_indices);
 			Vector<uint32_t>().swap(trans_ind);
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
+			Unordered_set<uint32_t>().swap(trans_c_indices_set);
+			Vector<uint32_t> no_transparency_ind;
 			for (int i = 0; i < c_indices.size(); ++i) {
-				trans_ind.insert(trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
-				cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				if (material_data[i].alpha < 1.) {
+					trans_ind.insert(trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					trans_c_indices_set.insert(i);
+				}
+				else {
+					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+				}
 				v_count += c_indices[i].size();
 				cur_c_indices.emplace_back(i);
 			}
+			//trans_ind = transparency_ind;
+			no_trans_ind = no_transparency_ind;
+			cur_vis_trans_ind = trans_ind;
+			cur_vis_no_trans_ind = no_transparency_ind;
 		}
 
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
@@ -326,18 +337,12 @@ namespace ifcre {
 					comp_states[i] = VISIABLE;
 				}
 			}
-			/*if (c_indices_size == 1 && chosen_list.size() > 0 && (*chosen_list.begin() >= c_indices_size)) {
-				chosen_list.clear();
-			}
-			else {*/
-				for (auto cur_index : chosen_list) {
-					if (cur_index < c_indices_size) {
-						comp_states[cur_index] = CHOSEN;
-					}
+			for (auto cur_index : chosen_list) {
+				if (cur_index < c_indices_size) {
+					comp_states[cur_index] = CHOSEN;
 				}
-
-				//chosen_list.clear();
-			//}
+			}
+			//chosen_list.clear();
 		}
 		void generate_collision_list(std::vector<uint32_t>& collision_list) {
 			Vector<uint32_t> ret;
@@ -347,20 +352,34 @@ namespace ifcre {
 			collision_ebo = ret;
 		}
 
-		void update_chosen_and_vis_list() {//////////////////////////////////////////////////////////////////////////////
+		void update_chosen_and_vis_list() {
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
+			Vector<uint32_t>().swap(cur_vis_no_trans_ind);
 			Vector<uint32_t>().swap(cur_edge_ind);
 			Vector<uint32_t>().swap(cur_chosen_trans_ind);
+			Vector<uint32_t>().swap(cur_chosen_no_trans_ind);
+
 			uint32_t edge_c_indices_size = c_edge_indices.size();
+
 			for (const int i : cur_c_indices) {
 				if (comp_states[i] == VISIABLE) {
-					cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_vis_no_trans_ind.insert(cur_vis_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
 					if (i < edge_c_indices_size) {
 						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
 					}
 				}
 				else if (comp_states[i] == CHOSEN) {
-					cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
+						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
+					else {
+						cur_chosen_no_trans_ind.insert(cur_chosen_no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					}
 				}
 			}
 		}
@@ -741,6 +760,7 @@ namespace ifcre {
 
 		Vector<uint32_t> g_indices;				// 顶点的索引，数量为面个数的三倍，每3个顶点一个面
 		Vector<uint32_t> trans_ind;				// 原始透明顶点的索引(保留一份原始数据)
+		Vector<uint32_t> no_trans_ind;			// 原始不透明顶点的索引
 		Vector<uint32_t> edge_indices;			// ebo of edge
 
 		Vector<Vector<uint32_t>> c_indices;		// 物件->顶点的索引，1级数量为物件的个数，2级为物件拥有顶点数
@@ -752,10 +772,13 @@ namespace ifcre {
 		Vector<CompState> comp_states;					// 记录每个comp的状态：隐藏、显示、高亮
 
 		Vector<uint32_t> cur_chosen_trans_ind;			// 当前要高亮(多选)的透明顶点的索引
+		Vector<uint32_t> cur_chosen_no_trans_ind;		// 当前要高亮(多选)的不透明顶点的索引
 
 		Vector<uint32_t> cur_c_indices;					// 当前要显示的物件的索引
 		Vector<uint32_t> cur_vis_trans_ind;				// 当前要显示的透明顶点的索引	
 		Vector<uint32_t> cur_edge_ind;					// 当前要显示的物件包含的边的索引
+		Vector<uint32_t> cur_vis_no_trans_ind;			// 当前要显示的不透明顶点的索引	
+		Unordered_set<uint32_t> trans_c_indices_set;	// 透明物体的索引, 用来快速分类，一次建立，多次查询
 
 		Vector<uint32_t> collision_ebo;//ebo of collision meshes, this is ready for GlUpload()
 

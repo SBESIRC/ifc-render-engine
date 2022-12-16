@@ -170,10 +170,11 @@ namespace ifcre {
 																						// storey id 1
 		model_vb->vertexAttribDesc(4, 1, sizeof(Real) * 12, (void*)(11 * sizeof(Real)));
 
-		//model_vb->uploadTransElements(ifc_test_model->trans_ind);
+		//model_vb->uploadNoTransElements(ifc_model->no_trans_ind);
+		//model_vb->uploadTransElements(ifc_model->trans_ind);
 
-		//model_vb->uploadElementBufferOnly(ifc_test_model->c_indices);
-		//model_vb->UploadElementEdge(ifc_test_model->edge_indices);
+		//model_vb->uploadElementBufferOnly(ifc_model->c_indices);
+		//model_vb->UploadElementEdge(ifc_model->edge_indices);
 
 		//hey bro 8 look here, its where your job should be!
 		//collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
@@ -413,6 +414,11 @@ namespace ifcre {
 
 			m_glrender->renderSkyBox(m_render_window->returnPerispectiveMat());
 
+			m_glrender->render(ifc_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
+			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
+			//2. render chosen scene, no transparency// 渲染选中的不透明构件
+			m_glrender->render(ifc_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
+
 			//3. render transparency scene// 渲染透明的构件
 			m_glrender->setAlpha(m_trans_alpha);
 			m_glrender->render(ifc_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
@@ -516,9 +522,7 @@ namespace ifcre {
 			m_render_window->geom_changed = true;
 			m_render_window->chosen_changed_w = false;
 		}
-
 		if (m_render_window->geom_changed) {
-			m_render_window->geom_changed = false;
 			ifc_model->update_chosen_and_vis_list();
 
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices });
@@ -527,9 +531,14 @@ namespace ifcre {
 
 			m_glrender->DynamicUpdate(ifc_model->render_id,
 				ifc_model->generate_ebo_from_component_ids(ifc_model->cur_c_indices),
+				ifc_model->cur_vis_no_trans_ind,
 				ifc_model->cur_vis_trans_ind, ifc_model->cur_edge_ind);
 
-			m_glrender->ChosenGeomUpdate(ifc_model->render_id, ifc_model->cur_chosen_trans_ind);
+			m_glrender->ChosenGeomUpdate(ifc_model->render_id,
+				ifc_model->cur_chosen_no_trans_ind,
+				ifc_model->cur_chosen_trans_ind);
+
+			m_render_window->geom_changed = false;
 		}
 		if (collider_trans_flag && !collision_list.empty()) {
 			ifc_model->generate_collision_list(collision_list);

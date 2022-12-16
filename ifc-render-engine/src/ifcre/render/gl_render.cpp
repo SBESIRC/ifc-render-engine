@@ -248,6 +248,28 @@ namespace ifcre {
 			m_comp_id_program->use();
 			break;
 		}
+		case DEFAULT_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
+
+			ifcRenderUBO.update(0, 4, &m_alpha);
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+			ifcRenderUBO.update(32, 12, glm::value_ptr(m_camera_pos));
+
+			m_test_shader->use();
+			break;
+		}
 		case OFFLINE_SHADING: {
 			auto& color = m_bg_color_off;
 			glClearColor(color.r, color.g, color.b, color.a);
@@ -269,7 +291,6 @@ namespace ifcre {
 			break;
 		}
 		case TRANSPARENCY_SHADING: {
-
 			glEnable(GL_BLEND); //启用混合（可以使用透明物体）
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
 			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
@@ -314,6 +335,26 @@ namespace ifcre {
 			transformMVPUBO.update(240, 16, glm::value_ptr(m_drawing_match_plane));
 			transformMVPUBO.update(256, 4, &m_TileView);
 			m_edge_shader->use();
+			break;
+		}
+		case CHOSEN_SHADING: {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendEquation(GL_FUNC_ADD);
+			transformUBO.update(0, 64, glm::value_ptr(m_modelview));
+			transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
+			transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
+			transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
+			transformUBO.update(192, 64, glm::value_ptr(m_init_model));
+			transformUBO.update(256, 96, m_clip_box.data());
+			transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
+			transformUBO.update(368, 4, &m_TileView);
+
+			ifcRenderUBO.update(4, 4, &m_compId);
+			ifcRenderUBO.update(8, 4, &m_hoverCompId);
+			ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
+
+			m_chosen_shader->use();
 			break;
 		}
 		case CHOSEN_TRANS_SHADING: {
@@ -887,11 +928,11 @@ namespace ifcre {
 		m_vertex_buffer_map[render_id]->updateVertexAttributes(vertices);
 	}
 
-	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
-		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, trans_indices, edge_indices);
+	void GLRender::DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices) {
+		m_vertex_buffer_map[render_id]->uploadDynamicElementBuffer(dynamic_all_ebo, no_trans_indices, trans_indices, edge_indices);
 	}
-	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_trans_ebo) {
-		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_trans_ebo);
+	void GLRender::ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo) {
+		m_vertex_buffer_map[render_id]->uploadChosenElementBuffer(chosen_no_trans_ebo, chosen_trans_ebo);
 	}
 
 	void GLRender::CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo) {
