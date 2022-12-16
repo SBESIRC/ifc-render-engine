@@ -503,6 +503,10 @@ namespace ifcre {
 
     bool RenderWindow::swapBuffer()
     {
+        auto handle = glfwGetWin32Window(m_window);
+        if (!IsWindow(handle))
+            return false;
+
         glfwSwapBuffers(m_window);
         double now_time = glfwGetTime();
         m_delta_time = now_time - m_last_time;

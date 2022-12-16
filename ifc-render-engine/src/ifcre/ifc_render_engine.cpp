@@ -247,7 +247,9 @@ namespace ifcre {
 					//	m_glrender->AerialViewRender(m_window);
 					//}
 
-					m_render_window->swapBuffer();
+					if (!m_render_window->swapBuffer())
+						break;
+
 					m_render_window->pollEvents();
 				}
 				break;
