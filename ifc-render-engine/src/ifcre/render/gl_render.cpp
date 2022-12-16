@@ -268,21 +268,6 @@ namespace ifcre {
 			glEnable(GL_BLEND); //启用混合（可以使用透明物体）
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
 			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
-
-			//transformUBO.update(0, 64, glm::value_ptr(m_modelview));
-			//transformUBO.update(64, 64, glm::value_ptr(m_projection * m_view * m_model));
-			//transformUBO.update(128, 48, glm::value_ptr(glm::mat3(glm::transpose(glm::inverse(m_model)))));
-			//transformUBO.update(176, 16, glm::value_ptr(m_clip_plane));
-			//transformUBO.update(192, 64, glm::value_ptr(m_init_model));
-			//transformUBO.update(256, 96, m_clip_box.data());
-			//transformUBO.update(352, 16, glm::value_ptr(m_drawing_match_plane));
-			//transformUBO.update(368, 4, &m_TileView);
-
-			////ifcRenderUBO.update(0, 4, &m_alpha);
-			//ifcRenderUBO.update(4, 4, &m_compId);
-			//ifcRenderUBO.update(8, 4, &m_hoverCompId);
-			//ifcRenderUBO.update(16, 12, glm::value_ptr(m_camera_front));
-
 			m_test_shader->use();
 			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
