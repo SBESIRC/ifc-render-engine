@@ -31,8 +31,8 @@ void main()
     }
 	
 	vec3 norm = normalize(vNormal);
-	vec4 diffuse = max(dot(norm, -ubo.cameraDirection), 0.0) * color * 0.8;
+	vec4 diffuse = max(dot(norm, -ubo.cameraDirection), 0.0) * color * 0.3;
 
-	vec4 tcolor = color * 0.2 + diffuse;
+	vec4 tcolor = color * 0.7 + diffuse;
     FragColor = vec4(tcolor.xyz, vGoColor.a);
 }
