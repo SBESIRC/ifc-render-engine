@@ -226,12 +226,12 @@ namespace ifcre {
 		glNamedBufferData(m_dynamic_eboid, dynamic_all_ebo.size() * sizeof(uint32_t), dynamic_all_ebo.data(), GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-		////no trans
-		//glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
-		//glGenBuffers(1, &m_dynamic_eboid_for_no_trans);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_no_trans);
-		//glNamedBufferData(m_dynamic_eboid_for_no_trans, dynamic_indices_no_trans.size() * sizeof(uint32_t), dynamic_indices_no_trans.data(), GL_DYNAMIC_DRAW);
-		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		//no trans
+		glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
+		glGenBuffers(1, &m_dynamic_eboid_for_no_trans);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_dynamic_eboid_for_no_trans);
+		glNamedBufferData(m_dynamic_eboid_for_no_trans, dynamic_indices_no_trans.size() * sizeof(uint32_t), dynamic_indices_no_trans.data(), GL_DYNAMIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		//trans
 		glDeleteBuffers(1, &m_dynamic_eboid_for_trans);
@@ -330,7 +330,7 @@ namespace ifcre {
 		glDeleteBuffers(m_eboid_list.size(), m_eboid_list.data());
 
 		glDeleteBuffers(1, &m_eboid_for_no_trans);
-		//glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
+		glDeleteBuffers(1, &m_dynamic_eboid_for_no_trans);
 		glDeleteBuffers(1, &m_chosen_eboid_for_no_trans);
 
 		glDeleteBuffers(1, &m_eboid_for_trans);

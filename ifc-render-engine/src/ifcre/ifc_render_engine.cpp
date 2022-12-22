@@ -379,7 +379,7 @@ namespace ifcre {
 #pragma region COMP THINGS
 
 			m_render_window->switchRenderCompId();
-			m_glrender->render(ifc_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 高光显示鼠标掠过的物件
+			m_glrender->render(ifc_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 将构件id写入framebuffer
 			int selectedId = m_render_window->getClickCompId();
 			m_glrender->setCompId(selectedId);
 

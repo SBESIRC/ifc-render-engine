@@ -48,6 +48,10 @@ namespace Example {
 
             var fileName = fileDialog.FileName;
 
+            //// record open file times
+            //threadIndex++;
+            //this.tbIdsToShow.Text = threadIndex.ToString();
+
             Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
             Example.ExampleScene.Render();
             threadIndex++;

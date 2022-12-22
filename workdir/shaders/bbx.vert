@@ -9,9 +9,6 @@ layout(std140, binding = 0)uniform TransformsUBO{
 	int showTileView;				// 256 ~ 260
 } ubo;
 
-
-uniform mat4 storeyOffset_mat;
-
 void main()
 {
 	gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);

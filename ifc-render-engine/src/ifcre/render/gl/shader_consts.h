@@ -60,7 +60,6 @@ namespace ifcre {
 			"vec4 drawing_plane;				// 240 ~ 256\r\n"
 			"int showTileView;				// 256 ~ 260\r\n"
 			"} ubo;\r\n"
-			"uniform mat4 storeyOffset_mat;\r\n"
 			"void main()\r\n"
 			"{\r\n"
 			"gl_Position = ubo.proj_view_model * vec4(aPos, 1.0);\r\n"
