@@ -3,17 +3,17 @@
 namespace ifcre {
 	void GLVertexBuffer::init_fun_ptr_map() {
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::ALL), &GLVertexBuffer::draw });
-		mFuncPtr.insert({ DYNAMIC_ALL,&GLVertexBuffer::drawByDynamicEbo });
-		mFuncPtr.insert({ NO_TRANS,&GLVertexBuffer::drawNoTrans });
-		mFuncPtr.insert({ TRANS,&GLVertexBuffer::drawTrans });
-		mFuncPtr.insert({ BBX_LINE,&GLVertexBuffer::drawBBXLines });
-		mFuncPtr.insert({ EDGE_LINE,&GLVertexBuffer::drawEdges });
-		mFuncPtr.insert({ DYNAMIC_NO_TRANS,&GLVertexBuffer::drawByDynamicEbo_no_trans });
-		mFuncPtr.insert({ DYNAMIC_TRANS,&GLVertexBuffer::drawByDynamicEbo_trans });
-		mFuncPtr.insert({ DYNAMIC_EDGE_LINE,&GLVertexBuffer::drawByDynamicEdge });
-		mFuncPtr.insert({ CHOSEN_NO_TRANS,&GLVertexBuffer::drawByChosen_no_trans });
-		mFuncPtr.insert({ CHOSEN_TRANS,&GLVertexBuffer::drawByChosen_trans });
-		mFuncPtr.insert({ COLLISION,&GLVertexBuffer::drawByCollision });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_ALL),&GLVertexBuffer::drawByDynamicEbo });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::NO_TRANS),&GLVertexBuffer::drawNoTrans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::TRANS),&GLVertexBuffer::drawTrans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::BBX_LINE),&GLVertexBuffer::drawBBXLines });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::EDGE_LINE),&GLVertexBuffer::drawEdges });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_NO_TRANS),&GLVertexBuffer::drawByDynamicEbo_no_trans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_TRANS),&GLVertexBuffer::drawByDynamicEbo_trans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_EDGE_LINE),&GLVertexBuffer::drawByDynamicEdge });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::CHOSEN_NO_TRANS),&GLVertexBuffer::drawByChosen_no_trans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::CHOSEN_TRANS),&GLVertexBuffer::drawByChosen_trans });
+		mFuncPtr.insert({ uint32_t(RenderPartEnum::COLLISION),&GLVertexBuffer::drawByCollision });
 	}
 
 	void GLVertexBuffer::upload(Vector<Real>& vertices, Vector<uint32_t>& indices)

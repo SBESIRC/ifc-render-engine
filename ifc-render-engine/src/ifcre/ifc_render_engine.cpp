@@ -419,7 +419,7 @@ namespace ifcre {
 
 			m_glrender->transformUBO_refresh();
 
-			m_glrender->render(ifc_model->render_id, DEFAULT_SHADING, DYNAMIC_ALL);
+			m_glrender->render(ifc_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
 
 			//render transparency scene// 渲染透明的构件
