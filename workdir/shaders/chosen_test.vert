@@ -30,6 +30,9 @@ void main()
 {
 
 	vGoColor = aColor;
+	vComp = aComp;
+	vNormal=aNormal;
+	
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos;
 	if(ubo.showTileView > 0)
@@ -42,7 +45,6 @@ void main()
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
 	}
 	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
-	vNormal = aNormal;
 	if(ubo.showTileView > 0)
 		gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[alou] * vec4(aPos, 1.0);
 	else
