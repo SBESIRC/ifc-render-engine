@@ -310,24 +310,22 @@ namespace ifcre {
 			int v_count = 0;
 			Vector<uint32_t>().swap(cur_c_indices);
 			Vector<uint32_t>().swap(trans_ind);
+			Vector<uint32_t>().swap(no_trans_ind);
 			Vector<uint32_t>().swap(cur_vis_trans_ind);
 			Unordered_set<uint32_t>().swap(trans_c_indices_set);
-			Vector<uint32_t> no_transparency_ind;
 			for (int i = 0; i < c_indices.size(); ++i) {
 				if (material_data[i].alpha < 1.) {
 					trans_ind.insert(trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					trans_c_indices_set.insert(i);
 				}
 				else {
-					no_transparency_ind.insert(no_transparency_ind.end(), c_indices[i].begin(), c_indices[i].end());
+					no_trans_ind.insert(no_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 				}
 				v_count += c_indices[i].size();
 				cur_c_indices.emplace_back(i);
 			}
-			//trans_ind = transparency_ind;
-			no_trans_ind = no_transparency_ind;
 			cur_vis_trans_ind = trans_ind;
-			cur_vis_no_trans_ind = no_transparency_ind;
+			cur_vis_no_trans_ind = no_trans_ind;
 		}
 
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {

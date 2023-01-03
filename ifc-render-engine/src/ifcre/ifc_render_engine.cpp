@@ -170,12 +170,6 @@ namespace ifcre {
 																						// storey id 1
 		model_vb->vertexAttribDesc(4, 1, sizeof(Real) * 12, (void*)(11 * sizeof(Real)));
 
-		//model_vb->uploadNoTransElements(ifc_model->no_trans_ind);
-		//model_vb->uploadTransElements(ifc_model->trans_ind);
-
-		//model_vb->uploadElementBufferOnly(ifc_model->c_indices);
-		//model_vb->UploadElementEdge(ifc_model->edge_indices);
-
 		//hey bro 8 look here, its where your job should be!
 		//collision_list = { ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2],ifc_test_model->collider_inde_hard[ifc_test_model->collider_ind_count * 2 + 1] };
 		//ifc_test_model->collider_ind_count = (ifc_test_model->collider_ind_count + 1) % (ifc_test_model->collider_inde_hard.size() / 2);
@@ -203,14 +197,13 @@ namespace ifcre {
 
 		m_glrender->ubo_datasa_updates();
 
-		m_glrender->render(ifc_model->render_id, OFFLINE_SHADING, ALL);
+		m_glrender->render(ifc_model->render_id, RenderTypeEnum::OFFLINE_SHADING, RenderPartEnum::ALL);
 		m_glrender->renderClipBox();
 
 		m_render_window->endOffScreenRender();
 	}
 
 	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
-		//info("use zoom");
 		glm::mat4 model_mat;
 		Real scaler = 0;
 		glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
@@ -419,29 +412,35 @@ namespace ifcre {
 
 			m_glrender->transformUBO_refresh();
 
-			m_glrender->render(ifc_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
-			//m_render.render(try_ifc ? ifc_test_model->render_id : test_model->render_id, DEFAULT_SHADING, DYNAMIC_NO_TRANS);
+			//render opaque scene// 渲染不透明构件
+			//m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_NO_TRANS);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_ALL);
 
 			//render transparency scene// 渲染透明的构件
 			m_glrender->setAlpha(m_trans_alpha);
-			m_glrender->render(ifc_model->render_id, TRANSPARENCY_SHADING, DYNAMIC_TRANS);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::TRANSPARENCY_SHADING, RenderPartEnum::DYNAMIC_TRANS);
 
 			//render chosen scene, no transparency// 渲染选中的不透明构件
-			m_glrender->render(ifc_model->render_id, CHOSEN_SHADING, CHOSEN_NO_TRANS);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::CHOSEN_SHADING, RenderPartEnum::CHOSEN_NO_TRANS);
 
 			//render chosen scene, transparency// 渲染选中的透明构件
-			m_glrender->render(ifc_model->render_id, CHOSEN_TRANS_SHADING, CHOSEN_TRANS);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::CHOSEN_TRANS_SHADING, RenderPartEnum::CHOSEN_TRANS);
 
 			//render edges (maybe
-			m_glrender->render(ifc_model->render_id, EDGE_SHADING, /*EDGE_LINE*/DYNAMIC_EDGE_LINE);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::EDGE_SHADING, RenderPartEnum::DYNAMIC_EDGE_LINE);
 
 			//render collision geometry
 			if (showcolid)
 			{
-				m_glrender->render(ifc_model->render_id, COLLISION_RENDER, COLLISION);
+				m_glrender->render(ifc_model->render_id, RenderTypeEnum::COLLISION_RENDER, RenderPartEnum::COLLISION);
 			}
 
-			//7. render bounding box
+			//// ------------- edge length shading ---------------------------------- // don't use this, there are a few errors!!!
+			//if (m_window.edgeIdTrigger)
+			//	m_render.renderEdgeLength(*ifc_test_model, m_window.get_width(), m_window.get_height());
+			//// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
+
+			// render bounding box
 			if (m_render_window->getClickCompId() >= 0) {
 				auto bound_vecs = !/*m_render_window->getShowTileView()*/tileViewButton ? ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list })
 					: ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true);
