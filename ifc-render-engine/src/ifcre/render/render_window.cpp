@@ -85,6 +85,10 @@ namespace ifcre {
             glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+            if (comp_id.x >= ifc_model->comp_ids.size()) {
+                return;
+            }
         }
         else {
             m_cur_rt = m_ui_fb.m_ui_id_rt.get();
