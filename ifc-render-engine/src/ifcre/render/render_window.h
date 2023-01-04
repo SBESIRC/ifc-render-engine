@@ -103,8 +103,6 @@ namespace ifcre {
 		// ---------- 
 		//int geomframe = 0;
 		bool geom_changed = true;
-		bool chosen_changed_w = false;
-		bool chosen_changed_x = false;
 		bool rotatelock = false;
 		bool trigger = false;
 		bool collidertrig = false;

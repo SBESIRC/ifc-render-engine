@@ -23,85 +23,6 @@ namespace ifcre {
 		//m_uniform_buffer_map.transformMVPUBO->bindRange(2);
 		m_uniform_buffer_map.StoreyOffsetTransformUBO->bindRange(3);
 
-//#ifdef _DEBUG
-//		// program init
-//		String v_image_effect = util::read_file("shaders/image_effect.vert");
-//		String f_image_effect = util::read_file("shaders/image_effect.frag");
-//		m_offscreen_program = make_unique<GLSLProgram>(v_image_effect.c_str(), f_image_effect.c_str());
-//
-//		String v_normal_depth_write = util::read_file("shaders/normal_depth_write.vert");
-//		String f_normal_depth_write = util::read_file("shaders/normal_depth_write.frag");
-//		m_normal_depth_program = make_unique<GLSLProgram>(v_normal_depth_write.c_str(), f_normal_depth_write.c_str());
-//
-//		String v_comp_id_write = util::read_file("shaders/comp_id_write.vert");
-//		String f_comp_id_write = util::read_file("shaders/comp_id_write.frag");
-//		m_comp_id_program = make_unique<GLSLProgram>(v_comp_id_write.c_str(), f_comp_id_write.c_str());
-//
-//		String v_axis = util::read_file("shaders/axis.vert");
-//		String f_axis = util::read_file("shaders/axis.frag");
-//		m_axis_shader = make_unique<GLSLProgram>(v_axis.c_str(), f_axis.c_str());
-//
-//		String v_clp_plane = util::read_file("shaders/clp_plane.vert");
-//		String f_clp_plane = util::read_file("shaders/clp_plane.frag");
-//		m_clip_plane_shader = make_unique<GLSLProgram>(v_clp_plane.c_str(), f_clp_plane.c_str());
-//
-//		String v_clp_ui_plane = util::read_file("shaders/clp_ui_plane.vert");
-//		String f_clp_ui_plane = util::read_file("shaders/clp_ui_plane.frag");
-//		m_clip_plane_UI_shader = make_unique<GLSLProgram>(v_clp_ui_plane.c_str(), f_clp_ui_plane.c_str());
-//
-//		String v_test = util::read_file("shaders/test.vert");
-//		String f_test = util::read_file("shaders/test.frag");
-//		m_test_shader = make_unique<GLSLProgram>(v_test.c_str(), f_test.c_str());
-//
-//		String v_chosen_test = util::read_file("shaders/chosen_test.vert");
-//		String f_chosen_test = util::read_file("shaders/chosen_test.frag");
-//		m_chosen_shader = make_unique<GLSLProgram>(v_chosen_test.c_str(), f_chosen_test.c_str());
-//
-//		String v_bbx = util::read_file("shaders/bbx.vert");
-//		String f_bbx = util::read_file("shaders/bbx.frag");
-//		m_select_bbx_shader = make_unique<GLSLProgram>(v_bbx.c_str(), f_bbx.c_str());
-//
-//		String v_edge = util::read_file("shaders/edge.vert");
-//		String f_edge = util::read_file("shaders/edge.frag");
-//		m_edge_shader = make_unique<GLSLProgram>(v_edge.c_str(), f_edge.c_str());
-//
-//		String v_collision = util::read_file("shaders/collision.vert");
-//		String f_collision = util::read_file("shaders/collision.frag");
-//		m_collision_shader = make_unique<GLSLProgram>(v_collision.c_str(), f_collision.c_str());
-//
-//		String v_gizmo = util::read_file("shaders/gizmo.vert");
-//		String f_gizmo = util::read_file("shaders/gizmo.frag");
-//		m_gizmo_shader = make_unique<GLSLProgram>(v_gizmo.c_str(), f_gizmo.c_str());
-//
-//		String v_gizmo_ui = util::read_file("shaders/gizmo_ui.vert");
-//		String f_gizmo_ui = util::read_file("shaders/gizmo_ui.frag");
-//		m_gizmo_UI_shader = make_unique<GLSLProgram>(v_gizmo_ui.c_str(), f_gizmo_ui.c_str());
-//
-//		String v_text = util::read_file("shaders/text.vert");
-//		String f_text = util::read_file("shaders/text.frag");
-//		m_text_shader = make_unique<GLSLProgram>(v_text.c_str(), f_text.c_str());
-//
-//		String v_grid = util::read_file("shaders/grid.vert");
-//		String f_grid = util::read_file("shaders/grid.frag");
-//		m_grid_shader = make_unique<GLSLProgram>(v_grid.c_str(), f_grid.c_str());
-//
-//		String v_text3d = util::read_file("shaders/text3d.vert");
-//		m_text3d_shader = make_unique<GLSLProgram>(v_text3d.c_str(), f_text.c_str());
-//
-//		// ------------- drawing match shader test ------------
-//		String v_drawing = util::read_file("shaders/drawing_match.vert");
-//		String f_drawing = util::read_file("shaders/drawing_match.frag");
-//		m_drawing_match_shader = make_unique<GLSLProgram>(v_drawing.c_str(), f_drawing.c_str());
-//
-//		// ------------- tile-view's drawing ------------
-//		String v_tile_drawing = util::read_file("shaders/tile_view_drawing.vert");
-//		String f_tile_drawing = util::read_file("shaders/tile_view_drawing.frag");
-//		m_tile_view_drawing_shader = make_unique<GLSLProgram>(v_tile_drawing.c_str(), f_tile_drawing.c_str());
-//
-//		String v_skybox = util::read_file("shaders/skybox.vert");
-//		String f_skybox = util::read_file("shaders/skybox.frag");
-//		m_skybox_shader = make_unique<GLSLProgram>(v_skybox.c_str(), f_skybox.c_str());
-//#else 
 		// program init
 		m_offscreen_program = make_unique<GLSLProgram>(sc::v_image_effect, sc::f_image_effect);
 		m_normal_depth_program = make_unique<GLSLProgram>(sc::v_normal_depth_write, sc::f_normal_depth_write);
@@ -122,7 +43,6 @@ namespace ifcre {
 		m_drawing_match_shader = make_unique<GLSLProgram>(sc::v_drawing_match, sc::f_drawing_match);
 		m_skybox_shader = make_unique<GLSLProgram>(sc::v_skybox, sc::f_skybox);
 		m_tile_view_drawing_shader = make_unique<GLSLProgram>(sc::v_tile_view_drawing, sc::f_tile_view_drawing);
-//#endif
 
 		m_test_shader->bindUniformBlock("TransformsUBO", 0);
 		m_test_shader->bindUniformBlock("IFCRenderUBO", 1);

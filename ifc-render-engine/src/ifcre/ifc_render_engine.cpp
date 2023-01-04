@@ -413,15 +413,15 @@ namespace ifcre {
 			m_glrender->transformUBO_refresh();
 
 			//render opaque scene// 渲染不透明构件
-			//m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_NO_TRANS);
-			m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_ALL);
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_NO_TRANS);
+			//m_glrender->render(ifc_model->render_id, RenderTypeEnum::DEFAULT_SHADING, RenderPartEnum::DYNAMIC_ALL);
+
+			//render chosen scene, no transparency// 渲染选中的不透明构件
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::CHOSEN_SHADING, RenderPartEnum::CHOSEN_NO_TRANS);
 
 			//render transparency scene// 渲染透明的构件
 			m_glrender->setAlpha(m_trans_alpha);
 			m_glrender->render(ifc_model->render_id, RenderTypeEnum::TRANSPARENCY_SHADING, RenderPartEnum::DYNAMIC_TRANS);
-
-			//render chosen scene, no transparency// 渲染选中的不透明构件
-			m_glrender->render(ifc_model->render_id, RenderTypeEnum::CHOSEN_SHADING, RenderPartEnum::CHOSEN_NO_TRANS);
 
 			//render chosen scene, transparency// 渲染选中的透明构件
 			m_glrender->render(ifc_model->render_id, RenderTypeEnum::CHOSEN_TRANS_SHADING, RenderPartEnum::CHOSEN_TRANS);
@@ -522,12 +522,8 @@ namespace ifcre {
 	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 	void IFCRenderEngine::updateDynamicEboData() {
-		if (m_render_window->chosen_changed_w || m_render_window->chosen_changed_x) {
-			ifc_model->update_chosen_list(m_render_window->chosen_list);
-			m_render_window->geom_changed = true;
-			m_render_window->chosen_changed_w = false;
-		}
 		if (m_render_window->geom_changed) {
+			ifc_model->update_chosen_list(m_render_window->chosen_list);
 			ifc_model->update_chosen_and_vis_list();
 
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices });
@@ -584,11 +580,8 @@ namespace ifcre {
 			}
 			to_show_states = stoi(m_cache_configs["to_show_states"]);
 			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
-			if (to_show_states == 0) {
+			if (to_show_states == 0 || to_show_states == 1) {
 				m_render_window->geom_changed = true;
-			}
-			else if (to_show_states == 1) {
-				m_render_window->chosen_changed_x = true;
 			}
 			if (to_show_states == 0) {
 				Vector<CompState>(ifc_model->c_indices.size(), DUMP).swap(ifc_model->comp_states);

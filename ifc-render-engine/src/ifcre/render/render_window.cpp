@@ -82,7 +82,7 @@ namespace ifcre {
             else if(!hover_mode) {
                 m_mouse_status.click_comp_id = clicked_comp_id;
                 if (clicked_comp_id >= 0) {
-                    chosen_changed_w = true;
+                    geom_changed = true;
                     if (multichoose) {
                         auto temp_id = static_cast<uint32_t>(clicked_comp_id);
                         /*if (chosen_list.count(temp_id)) {
@@ -422,7 +422,7 @@ namespace ifcre {
     {
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             //glfwSetWindowShouldClose(m_window, true);
-            chosen_changed_w = true;
+            geom_changed = true;
             chosen_list.clear();
         }
         /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -755,8 +755,6 @@ namespace ifcre {
         hidden = true;
         
         geom_changed = true;
-        chosen_changed_w = false;
-        chosen_changed_x = false;
         chosen_list.clear();
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
