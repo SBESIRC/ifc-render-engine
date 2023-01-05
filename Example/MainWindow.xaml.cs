@@ -54,7 +54,7 @@ namespace Example {
 
             Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
             Example.ExampleScene.Render();
-            threadIndex++;
+            //threadIndex++;
             //rendingTimer.Start();
         }
 

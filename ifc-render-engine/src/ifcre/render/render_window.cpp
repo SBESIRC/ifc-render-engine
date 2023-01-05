@@ -412,10 +412,10 @@ namespace ifcre {
     RenderWindow::~RenderWindow()
     {
         glDeleteFramebuffers(1, &m_framebuffer.fbo_id);
-        //auto handle = glfwGetWin32Window(m_window);
-        //if (IsWindow(handle))
-        //    glfwDestroyWindow(m_window);
-        //glfwTerminate();
+        auto handle = glfwGetWin32Window(m_window);
+        if (IsWindow(handle))
+            glfwDestroyWindow(m_window);
+        glfwTerminate();
     }
 
     void RenderWindow::processInput()

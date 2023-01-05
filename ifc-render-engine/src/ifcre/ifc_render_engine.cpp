@@ -91,6 +91,8 @@ namespace ifcre {
 
 	void IFCRenderEngine::init(GLFWwindow* wndPtr)
 	{
+		m_DataIsReady = false;
+
 		// 获取config数据
 		int width = atoi(m_cache_configs["width"].c_str());
 		int height = atoi(m_cache_configs["height"].c_str());
@@ -135,6 +137,8 @@ namespace ifcre {
 		m_render_window->setIfcModel(ifc_model);/////////////////
 
 		UploadOriginalData();
+
+		m_DataIsReady = true;
 		
 	}
 
@@ -223,6 +227,11 @@ namespace ifcre {
 
 	void IFCRenderEngine::run()
 	{
+		if (m_DoesRenderAlreadyRunning)
+			return;
+
+		m_DoesRenderAlreadyRunning = true;
+
 		switch (m_render_api)
 		{
 			case OPENGL_RENDER_API: {
@@ -232,6 +241,12 @@ namespace ifcre {
 				{
 					std::this_thread::sleep_for(std::chrono::milliseconds(m_sleepTime));
 					m_render_window->processInput();
+
+					if (!m_DataIsReady)
+					{
+						m_render_window->pollEvents();
+						continue;
+					}
 
 					offscreenRending();
 					//update dynamic data

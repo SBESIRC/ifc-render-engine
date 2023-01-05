@@ -109,7 +109,7 @@ namespace ifcre {
 
 	private:
 		Map<String, String> m_cache_configs;
-		//bool m_DoesRenderAlreadyRunning = false;
+		bool m_DoesRenderAlreadyRunning = false;
 		volatile bool m_DataIsReady = true;
 		int to_show_states;
 		Real scale_factor = 0;
