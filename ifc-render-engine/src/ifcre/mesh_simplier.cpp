@@ -371,10 +371,10 @@ namespace mesh_simplier {
         int s_end = c_indices.size(); // 获取构件数量
         vector<Mesh> ret(s_end);
         cout << "ret size:" << s_end << endl;
-        vector<thread> threads;
-        int threadnum_t = thread::hardware_concurrency(); // 获取并发线程数
+        //vector<thread> threads;
+        //int threadnum_t = thread::hardware_concurrency(); // 获取并发线程数
         //threadnum_t = threadnum_t >= 2 ? threadnum_t - 1 : threadnum_t;
-        cout << "Spawning " << threadnum_t << " threads.\n";
+        //cout << "Spawning " << threadnum_t << " threads.\n";
         clock_t start, end;
         start = clock();
         for (int i = 0; i < s_end; i++) { // 对每一个构件分别进行操作
@@ -385,12 +385,15 @@ namespace mesh_simplier {
 
         //thread initialize
         //start = clock();
-        for (int i = 0; i < threadnum_t; ++i) {
-            threads.emplace_back(thread(thread_task, i, s_end, threadnum_t, ref(ret)));
+        for (int i = 0; i < s_end; ++i) {
+            ret[i].merge_faces();
         }
-        for (int i = 0; i < threads.size(); ++i) {
+        //for (int i = 0; i < threadnum_t; ++i) {
+        //    threads.emplace_back(thread(thread_task, i, s_end, threadnum_t, ref(ret)));
+        //}
+        /*for (int i = 0; i < threads.size(); ++i) {
             threads[i].join();
-        }
+        }*/
         //end = clock();
         //cout << (double)(end - start) / CLOCKS_PER_SEC << "s to generate edges by " << threadnum_t << " threads\n";
         return ret;
