@@ -145,8 +145,7 @@ namespace mesh_simplier {
                 }
                 else {
                     istringstream ins(buffer);
-                    // ins>>s0>>vertices[vn].pos.x>>vertices[vn].normal.y>>vertices[vn].pos.z;
-                    ins >> s0;// v
+                    ins >> s0;
                     ins >> s0;
 
                     vertices[vn].pos.x = stof(s0);
@@ -261,7 +260,6 @@ namespace mesh_simplier {
     void update_new_index_list(Face & a, Face & b) { // 填充same_vertex_map：将面b可能相同的点用面a代替
         int asize = a.indexpair.size();
         int bsize = b.indexpair.size();
-        //unordered_map<uint32_t, uint32_t> copymap;
         for (int i = 0; i < asize; i++) { // 遍历面a每一条边i
             for (int j = 0; j < bsize; j++) { // 遍历面b每一条边j
                 if (a.indexpair[i].first == b.indexpair[j].first)
@@ -296,23 +294,14 @@ namespace mesh_simplier {
 
         std::lock_guard<std::mutex> lk(mtx);
         vector<int> vis(faces.size(), -1);
-        //vis[k]=-1 means faces[k] is not merged into other face
 
         for (int i = 0; i < faces.size() - 1; ++i) { // 对于构件中的某个三角面片i
-            if (/*vis[i] != -1 ||*/ faces[i].index.size() < 1) //if this mesh has only one face, pass
+            if (faces[i].index.size() < 1) //if this mesh has only one face, pass
                 continue;
             for (int j = i + 1; j < faces.size(); ++j) { // 对于构件中的另一个三角面片j
                 if (vis[j] != -1 || faces[j].index.size() < 1)
                     //face_j has been merged, so just pass
                     continue;
-                //double xx = dot(faces[i].normal, faces[j].normal); // may be should use this but epsilon 0.1
-                //if (!isSameVec3(faces[i].normal, faces[j].normal, global_nor_epsilon)) {
-                //    continue; // 只对法向量相同的进行处理
-                //}
-                //if (dot(faces[i].normal, faces[j].normal) < 1.f - global_nor_epsilon) {
-                /*if (dot(faces[i].normal, faces[j].normal) < 0.1f) {
-                    continue;
-                }*/
                 if (vis[i] != -1) { // i 面已经处理过了
                     //face_i has been merged before
                     vis[j] = vis[i];
@@ -358,23 +347,10 @@ namespace mesh_simplier {
         return ret;
     }
 
-    void thread_task(int n, int end, int threadnum_t, vector<Mesh>&ret) {
-        if (n >= end) {
-            return;
-        }
-        ret[n].merge_faces();
-
-        thread_task(n + threadnum_t, end, threadnum_t, ret);
-    }
-
     vector<Mesh> generateMeshes(const vector<vector<uint32_t>>&c_indices) { // 二、
         int s_end = c_indices.size(); // 获取构件数量
         vector<Mesh> ret(s_end);
         cout << "ret size:" << s_end << endl;
-        //vector<thread> threads;
-        //int threadnum_t = thread::hardware_concurrency(); // 获取并发线程数
-        //threadnum_t = threadnum_t >= 2 ? threadnum_t - 1 : threadnum_t;
-        //cout << "Spawning " << threadnum_t << " threads.\n";
         clock_t start, end;
         start = clock();
         for (int i = 0; i < s_end; i++) { // 对每一个构件分别进行操作
@@ -383,19 +359,9 @@ namespace mesh_simplier {
         end = clock();
         cout << (double)(end - start) / CLOCKS_PER_SEC << "s to generate face\n";
 
-        //thread initialize
-        //start = clock();
         for (int i = 0; i < s_end; ++i) {
             ret[i].merge_faces();
         }
-        //for (int i = 0; i < threadnum_t; ++i) {
-        //    threads.emplace_back(thread(thread_task, i, s_end, threadnum_t, ref(ret)));
-        //}
-        /*for (int i = 0; i < threads.size(); ++i) {
-            threads[i].join();
-        }*/
-        //end = clock();
-        //cout << (double)(end - start) / CLOCKS_PER_SEC << "s to generate edges by " << threadnum_t << " threads\n";
         return ret;
     }
 }
