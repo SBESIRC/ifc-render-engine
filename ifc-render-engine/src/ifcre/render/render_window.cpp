@@ -52,29 +52,6 @@ namespace ifcre {
     // parameter: the index of the position in a frame
     // get the comp id /ui id from different framebuffers
     void RenderWindow::_setClickedWorldColors(double click_x, double click_y, bool hover_mode, bool is_comp) {
-
-        //glm::vec3 getColor;
-        //Real w = m_width, h = m_height;
-        ////m_cur_rt = m_framebuffer.m_comp_id_rt.get();
-        //m_cur_rt = m_comp_fb.m_comp_id_rt.get();
-        ////glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-        //glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-        //glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGB, GL_FLOAT, &getColor);
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        //if (glm::distance(getColor, glm::vec3(1.f, 1.f, 1.f)) < 0.001) {
-        //    m_mouse_status.click_comp_id = -1;
-        //    std::cout << "NO!" << std::endl;
-        //    return;
-        //}
-        //int clicked_comp_id = 0;
-        //clicked_comp_id += (int)round(getColor.x * 256) << 16;
-        //clicked_comp_id += (int)round(getColor.y * 256) << 8;
-        //clicked_comp_id += (int)round(getColor.z * 256);
-        //if (hover_mode)
-        //    m_mouse_status.hover_comp_id = clicked_comp_id;
-        //else
-        //    m_mouse_status.click_comp_id = clicked_comp_id;
-
         glm::ivec4 comp_id;
         glm::ivec4 ui_id;
         Real w = m_width, h = m_height;
@@ -86,9 +63,8 @@ namespace ifcre {
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &comp_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-            if (comp_id.x >= ifc_model->comp_ids.size()) {
-                return;
-            }
+            if (comp_id.x < 0 || ifc_model->cur_c_indices.size() < comp_id.x) return;
+
         }
         else {
             m_cur_rt = m_ui_fb.m_ui_id_rt.get();
@@ -97,30 +73,23 @@ namespace ifcre {
             glReadPixels(click_x, h - click_y - 1, 1, 1, GL_RGBA_INTEGER, GL_INT, &ui_id);
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
         }
-        //if (comp_id == -1) {
-        //    m_mouse_status.click_comp_id = -1;
-        //    //std::cout << "NO!" << std::endl;
-        //    return;
-        //}
-
-        //std::cout << comp_id.x << "\n";
-
 
         if (is_comp) {
             int clicked_comp_id = comp_id.x;
+            //std::cout << comp_id.x << "\n";
             if (hover_mode && !m_mouse_status.lbtn_down)
                 m_mouse_status.hover_comp_id = clicked_comp_id;
             else if(!hover_mode) {
                 m_mouse_status.click_comp_id = clicked_comp_id;
                 if (clicked_comp_id >= 0) {
-                    chosen_changed_w = true;
+                    geom_changed = true;
                     if (multichoose) {
                         auto temp_id = static_cast<uint32_t>(clicked_comp_id);
                         /*if (chosen_list.count(temp_id)) {
                             chosen_list.erase(temp_id);
                         }
                         else*/
-                            chosen_list.insert(temp_id);
+                        chosen_list.insert(temp_id);
                     }
                     else {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
@@ -294,8 +263,8 @@ namespace ifcre {
                     that->_setClickedWorldColors(pre_click_x, pre_click_y, false, true);
                 }
                 else if (!that->multichoose) {   // 点击空白区域取消选中
-                    that->chosen_changed_w = true;
-                    that->chosen_list.clear();
+              /*      that->chosen_changed_w = true;
+                    that->chosen_list.clear();*/
                 }
                 status.lbtn_down = true;
                 that->_setClickedWorldColors(pre_click_x, pre_click_y, false, false);
@@ -361,19 +330,6 @@ namespace ifcre {
         if (button == GLFW_MOUSE_BUTTON_RIGHT) {
             switch (action) {
             case GLFW_PRESS: {
-                //double click_x, click_y;
-                //glfwGetCursorPos(window, &click_x, &click_y);
-                //float click_z = that->_getClickedDepthValue(click_x, click_y);
-                //if (click_z != 1.0) {
-                //    that->_setClickedWorldCoords(click_x, click_y, click_z);
-#ifdef TEST_COMP_ID
-                    //that->_setClickedWorldColors(click_x, click_y, false);
-#endif // TEST_COMP_ID
-                //    that->m_mouse_status.click_init_mask = 1;
-                //}
-                //else {
-                //    that->m_mouse_status.click_init_mask = -1;
-                //}
                 status.rbtn_down = true;
                 break;
             }
@@ -387,7 +343,7 @@ namespace ifcre {
     // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
     // --------------------- construction ---------------------- 
-    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool aa, bool vsync, GLFWwindow* wndPtr)
+    RenderWindow::RenderWindow(const char* title, int32_t w, int32_t h, bool enableAntialiasing, bool enableVsync, GLFWwindow* wndPtr)
     {
         if (NULL == wndPtr)
         {
@@ -396,8 +352,8 @@ namespace ifcre {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-            m_option.anti_aliasing = aa;
-            if (aa) {
+            m_option.anti_aliasing = enableAntialiasing;
+            if (enableAntialiasing) {
                 glfwWindowHint(GLFW_SAMPLES, 4);
             }
             // glfw window creation
@@ -414,8 +370,8 @@ namespace ifcre {
         }
         else
         {
-            m_option.anti_aliasing = aa;
-            if (aa) {
+            m_option.anti_aliasing = enableAntialiasing;
+            if (enableAntialiasing) {
                 glfwWindowHint(GLFW_SAMPLES, 4);
             }
             //use existing
@@ -441,7 +397,7 @@ namespace ifcre {
             return;
         }
 
-        if (vsync) {
+        if (enableVsync) {
             glfwSwapInterval(1);
         }
         else {
@@ -466,7 +422,7 @@ namespace ifcre {
     {
         if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             //glfwSetWindowShouldClose(m_window, true);
-            chosen_changed_w = true;
+            geom_changed = true;
             chosen_list.clear();
         }
         /*if (glfwGetKey(m_window, GLFW_KEY_SPACE) == GLFW_PRESS) {
@@ -535,7 +491,7 @@ namespace ifcre {
         if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             multichoose = true;
         }
-        else if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
+        else if (multichoose && glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_RELEASE) {
             multichoose = false;
         }
     }
@@ -548,9 +504,8 @@ namespace ifcre {
     bool RenderWindow::swapBuffer()
     {
         auto handle = glfwGetWin32Window(m_window);
-        if (!IsWindow(handle)) {
+        if (!IsWindow(handle))
             return false;
-        }
 
         glfwSwapBuffers(m_window);
         double now_time = glfwGetTime();
@@ -567,6 +522,7 @@ namespace ifcre {
     void RenderWindow::pollEvents()
     {
         glfwPollEvents();
+        //glfwWaitEvents();
     }
 
     void RenderWindow::offScreenRender() {
@@ -611,22 +567,6 @@ namespace ifcre {
     }
 
     void RenderWindow::switchRenderCompId() {
-        /*if (m_cur_fbo != m_framebuffer.fbo_id) {
-            printf("Current FBO ID is %d, not %d.\n", m_cur_fbo, m_framebuffer.fbo_id);
-            return;
-        }
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_COLOR_ATTACHMENT0, m_framebuffer.m_comp_id_rt->getTexId(), 0);
-        glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, m_framebuffer.m_comp_id_rt->getDepthId(), 0);
-        m_cur_rt = m_framebuffer.m_comp_id_rt.get();
-        m_cur_rt->attach(m_framebuffer.fbo_id);
-        */
-        /*
-           m_cur_fbo = m_comp_fb.fbo_id;
-           glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
-           glNamedFramebufferTexture(m_comp_fb.fbo_id, GL_COLOR_ATTACHMENT0, m_comp_fb.m_comp_id_rt->getTexId(), 0);
-           glNamedFramebufferTexture(m_comp_fb.fbo_id, GL_DEPTH_ATTACHMENT, m_comp_fb.m_comp_id_rt->getDepthId(), 0);
-           glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
-
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         m_cur_rt->attach(m_comp_fb.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);
@@ -647,11 +587,6 @@ namespace ifcre {
         m_cur_rt = m_framebuffer.m_depth_normal_rt.get();
         m_cur_rt->attach(m_framebuffer.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-
-        //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
-        
-        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
-        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_depth_normal_rt->getDepthId());
     }
 
     void RenderWindow::switchRenderBack() {
@@ -665,12 +600,6 @@ namespace ifcre {
             return;
         }
         
-        //bool open_aa = m_cur_rt->isOpenAA();
-        //glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, m_framebuffer.m_default_rt->getTexId(), 0);
-        ////glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, m_cur_rt->getDepthId(), 0);
-        //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_framebuffer.m_default_rt->getDepthId(), 0);
-        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         if (m_option.anti_aliasing) {
             m_cur_rt = m_msaa_fb.m_msaa_rt.get();
             m_cur_rt->attach(m_msaa_fb.fbo_id);
@@ -681,11 +610,6 @@ namespace ifcre {
             m_cur_rt->attach(m_framebuffer.fbo_id);
             glBindFramebuffer(GL_FRAMEBUFFER, m_framebuffer.fbo_id);
         }
-
-        //glNamedFramebufferTexture(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, m_framebuffer.m_default_rt->getDepthId(), 0);
-        
-        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
-        //glNamedFramebufferRenderbuffer(m_framebuffer.fbo_id, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_framebuffer.m_default_rt->getDepthId());
     }
 
     void RenderWindow::recreateFramebuffer(int w, int h)
@@ -831,8 +755,6 @@ namespace ifcre {
         hidden = true;
         
         geom_changed = true;
-        chosen_changed_w = false;
-        chosen_changed_x = false;
         chosen_list.clear();
     }
 // ----- ----- ----- ----- ----- ----- ----- ----- ----- -----

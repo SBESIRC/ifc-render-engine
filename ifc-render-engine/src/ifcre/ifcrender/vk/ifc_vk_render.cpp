@@ -1,4 +1,4 @@
-#include "../ifc_render.h"
+﻿#include "../ifc_render.h"
 #include "../render_ui.h"
 namespace ifcre {
 // interface:
@@ -22,7 +22,7 @@ namespace ifcre {
 			auto& m = *(scene.m_ifcObject);
 			payload.vertices = &m.ver_attrib;
 			payload.g_indices = &m.g_indices;
-			payload.opaque_indices = &m.no_trans_ind;
+			//payload.opaque_indices = &m.no_trans_ind;
 			payload.transparency_indices = &m.trans_ind;
 			payload.edge_indices = &m.edge_indices;
 			m.render_id = m_vkManager.addIFCMesh(payload);

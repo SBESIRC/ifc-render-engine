@@ -49,13 +49,12 @@ namespace ifcre {
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 
-		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer);
+		uint32_t addModel(SharedPtr<GLVertexBuffer> vertex_buffer, int id);
 		void deleteModel(uint32_t id);
 		void ModelVertexUpdate(uint32_t render_id, const Vector<Real>& vertices);
 		void DynamicUpdate(uint32_t render_id, const Vector<uint32_t>& dynamic_all_ebo, const Vector<uint32_t>& no_trans_indices, const Vector<uint32_t>& trans_indices, const Vector<uint32_t>& edge_indices);
 		void ChosenGeomUpdate(uint32_t render_id, const Vector<uint32_t>& chosen_no_trans_ebo, const Vector<uint32_t>& chosen_trans_ebo);
 		void CollisionGeomUpdate(uint32_t render_id, const Vector<uint32_t>& collid_ebo);
-
 		void setModelViewMatrix(const glm::mat4& mv);
 		void setModelMatrix(const glm::mat4& model);
 		void setInitModelMatrix(const glm::mat4& init_model);
@@ -76,8 +75,12 @@ namespace ifcre {
 		glm::vec3 get_pixel_pos_in_screen(const glm::vec4& model_pos, const int& window_width, const int& window_height) const;
 
 		void upload_mat4s_to_gpu(const Vector<glm::mat4>& offsets_mats);
+
+		void ubo_datasa_updates();
+
+		void transformUBO_refresh();
 		// --------------- render ----------------------
-		void render(uint32_t render_id, RenderTypeEnum type);
+
 		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		//void renderGrid(IFCModel& ifc_model);
@@ -91,7 +94,7 @@ namespace ifcre {
 		void renderClipBoxInUIlayer(const bool hidden);
 		void renderText(glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
 		void renderText(const std::string& text, const glm::vec3& position, Real scale, const glm::vec3& color, const int& window_width, const int& window_height);
-		void renderGizmo(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
+		void renderViewCube(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		void renderGizmoInUIlayer(const glm::mat4& rotate_matrix, const glm::vec2 window_size);
 		unsigned int  loadCubemap(Vector<String> faces);
 		void renderDrawing(IFCModel& ifc_model, float k);			// ------------- drawing match shading -------------
@@ -99,7 +102,6 @@ namespace ifcre {
 		// for offscreen
 		void AerialViewRender(RenderWindow& w);
 
-		void postRender(uint32_t col_tex_id, uint32_t depth_normal_tex_id = -1);
 		void postRender(RenderWindow& w);
 		// ----- ----- ----- ----- ----- ----- ----- -----
 		// ------------- clips -------------------------
@@ -139,15 +141,18 @@ namespace ifcre {
 			if (lbtn && my_key >= 0 && !hidden) {
 
 				//auto temp = m_projection * m_view * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
-				auto temp = m_projection * m_view * m_model * use_clip_box->toMat() * use_clip_box->face_normal[my_key];
-				this_face_normal = glm::normalize(glm::vec2(temp.x, temp.y));
+				auto temp = m_view * use_clip_box->toMat_use_for_ui_update() * use_clip_box->face_normal[my_key];
+				this_face_normal = glm::vec2(temp.x, temp.y);
+				auto adjust_parameter = glm::length(temp) * 15;
+				//std::cout << "adjust_parameter: " << adjust_parameter << std::endl;
+				this_face_normal = glm::normalize(this_face_normal);
 				//std::cout << my_key << ": " << this_face_normal.x << " " << this_face_normal.y << "\n";
 				//std::cout << "drag: " << dragmove.x << " " << dragmove.y << "\n";
-				float times = glm::dot(this_face_normal, dragmove);
+				float times = glm::dot(this_face_normal, dragmove) / adjust_parameter;
 				if (times > 0)
-					use_clip_box->updateBox(my_key * 2, times * 0.1f);
+					use_clip_box->updateBox(my_key * 2, times);
 				else if (/*mddl < lddl*/times < 0)
-					use_clip_box->updateBox(my_key * 2 + 1, -times * 0.1f);
+					use_clip_box->updateBox(my_key * 2 + 1, -times);
 			}
 			simpleui->updateFrame(mousemove, hidden, my_key, this_face_normal, m_bg_color, use_clip_box->base_pos, drawing_plane.normal, global_alpha, trans_alpha, script_scale_fractor);
 		}
@@ -208,7 +213,7 @@ namespace ifcre {
 
 		// ----- ----- ----- ----- ----- ----- ----- -----
 	private:
-		void _defaultConfig();
+		void setToDefaultConfig();
 
 		// render option
 	private:

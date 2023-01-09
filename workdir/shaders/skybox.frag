@@ -29,10 +29,12 @@ void main(){
     vec3 outColor;
     vec2 thetaphi = cube2sphere();
     if(thetaphi.y >= Eclipse){
-        outColor = damp(scaleOut(thetaphi.y), vec3(0.8789, 0.9062, 0.9570), vec3(0.6015, 0.7070, 0.8906));
+        //outColor = damp(scaleOut(thetaphi.y), vec3(0.8789, 0.9062, 0.9570), vec3(0.6015, 0.7070, 0.8906));
+        outColor = damp(scaleOut(thetaphi.y), vec3(1., 1., 1.), vec3(1., 1., 1.));
     }
     else{
-        outColor = damp(scaleOut(thetaphi.y), vec3(0.5976, 0.3984, 0.1992), vec3(0.7890, 0.5781, 0.3671));
+        //outColor = damp(scaleOut(thetaphi.y), vec3(0.5976, 0.3984, 0.1992), vec3(0.7890, 0.5781, 0.3671));
+        outColor = damp(scaleOut(thetaphi.y), vec3(1., 1., 1.), vec3(1., 1., 1.));
     }
     FragColor = vec4(outColor, 1.0);
 }

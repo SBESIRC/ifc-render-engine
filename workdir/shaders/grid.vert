@@ -11,7 +11,7 @@ out vec3 vertPos;
 
 out vec3 lineColor;
 
-layout(std140, binding = 0)uniform TransformMVPUBO{
+layout(std140, binding = 0)uniform TransformsUBO{
 	mat4 proj_view_model;       // 0 ~ 64
 } ubo;
 

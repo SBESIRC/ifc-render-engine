@@ -269,42 +269,11 @@ namespace ifcre {
 				FT_Glyph glyph;
 				error = FT_Get_Glyph(_face->glyph, &glyph);
 
-				///**
-				//*   根据字体的大小决定是否使用反锯齿绘制模式
-				//*   当字体比较小的是说建议使用ft_render_mode_mono
-				//*   当字体比较大的情况下12以上，建议使用ft_render_mode_normal模式
-				//**/
-				//if (!(word >= L'0' && word <= L'9'))
-				//{
-				//	FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
-				//}
-				//else
-				//{
-					FT_Glyph_To_Bitmap(&glyph, ft_render_mode_mono, 0, 1);
-				//}
-				//FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);// Convert the glyph to a bitmap.
+				FT_Glyph_To_Bitmap(&glyph, ft_render_mode_mono, 0, 1);
+				
 				FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
 				FT_Bitmap& bitmap = bitmap_glyph->bitmap;//This reference will make accessing the bitmap easier
 
-				/*if (FT_Load_Char(_face, ch, FT_LOAD_RENDER)) {
-					std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
-				}*/
-				//FT_Bitmap ftBitmap;
-				//FT_Bitmap_New(&ftBitmap);
-				//if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
-				//{
-				//	if (FT_Bitmap_Convert((FT_Library)_library, &bitmap, &ftBitmap, 1) == 0)
-				//	{
-				//		/**
-				//		*   Go through the bitmap and convert all of the nonzero values to 0xFF (white).
-				//		*/
-				//		for (unsigned char* p = ftBitmap.buffer, *endP = p + ftBitmap.width * ftBitmap.rows; p != endP; ++p)
-				//			*p ^= -*p ^ *p;
-				//		bitmap = ftBitmap;
-				//	}
-				//}
-
-				//if no data, write a cube with _fontSize / 4 width & place _fontSize / 2 width in texture
 				if (_face->glyph->bitmap.width == 0 || _face->glyph->bitmap.rows == 0) {
 					//no data of this character
 					_xStart += _fontSize / 2;
@@ -339,16 +308,10 @@ namespace ifcre {
 						GL_RED,				   // 像素数据格式
 						GL_UNSIGNED_BYTE,	   // 像素数据类型
 						bitmap.buffer		   // 指向内存中图像数据的指针
-					);/*
-					int s = sizeof(bitmap.buffer) / sizeof(unsigned char);
-					for (int k = 0; k < s; k++) {
-						std::cout << bitmap.buffer[k] << " ";
-					}*/
+					);
 					_xStart += bitmap.width + 1;
 				}
 			}
-			//std::wcout << ch << L" has been generated.\n";
-			//std::cout << _character[ch].x0 << " " << _character[ch].y0 << " " << _character[ch].x1 << " " << _character[ch].y1 << "\n";
 			return &_character[word];
 		}
 
@@ -364,21 +327,17 @@ namespace ifcre {
 				float fHeight = 0;
 				//WORD word;
 				for (unsigned i = 0; i < nSize; i++) {
-					//memcpy(&word, text + i, 2);
 					Character2* ch = getCharacter(text[i]); // 获得纹理中存的“字”
 
 					float h = (ch->y1 - ch->y0) * text_scale;
-					//int h = 30;
 					float w = (ch->x1 - ch->x0) * text_scale;
 					float offsety = float(ch->offsetY * text_scale);
 					float offset2 = offsety - float(h);
-					//float offsety = 0;
 					float offsetx = float(ch->offsetX * text_scale);
 
 					/*point 1*/
 					vert[vertsize + 0][0] = xStart;
 					vert[vertsize + 0][1] = yStart + offsety;
-					//vert[index + 0][2] = zStart;
 					vert[vertsize + 0][2] = ch->x0 / texWidth;
 					vert[vertsize + 0][3] = ch->y0 / texHeight;
 
@@ -386,35 +345,30 @@ namespace ifcre {
 					/*point 2*/
 					vert[vertsize + 1][0] = xStart + w;
 					vert[vertsize + 1][1] = yStart + offsety;
-					//vert[index + 1][2] = zStart;
 					vert[vertsize + 1][2] = ch->x1 / texWidth;
 					vert[vertsize + 1][3] = ch->y0 / texHeight;
 
 					/*point 3*/
 					vert[vertsize + 2][0] = xStart + w;
 					vert[vertsize + 2][1] = yStart + offset2;
-					//vert[index + 2][2] = zStart;
 					vert[vertsize + 2][2] = ch->x1 / texWidth;
 					vert[vertsize + 2][3] = ch->y1 / texHeight;
 
 					/*point 4*/
 					vert[vertsize + 3][0] = xStart;
 					vert[vertsize + 3][1] = yStart + offset2;
-					//vert[index + 3][2] = zStart;
 					vert[vertsize + 3][2] = ch->x0 / texWidth;
 					vert[vertsize + 3][3] = ch->y1 / texHeight;
 
 					/*point 5*/
 					vert[vertsize + 4][0] = xStart;
 					vert[vertsize + 4][1] = yStart + offsety;
-					//vert[index + 0][2] = zStart;
 					vert[vertsize + 4][2] = ch->x0 / texWidth;
 					vert[vertsize + 4][3] = ch->y0 / texHeight;
 
 					/*point 6*/
 					vert[vertsize + 5][0] = xStart + w;
 					vert[vertsize + 5][1] = yStart + offset2;
-					//vert[index + 5][2] = zStart;
 					vert[vertsize + 5][2] = ch->x1 / texWidth;
 					vert[vertsize + 5][3] = ch->y1 / texHeight;
 
@@ -437,7 +391,6 @@ namespace ifcre {
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				glBindVertexArray(0);
 				glBindTexture(GL_TEXTURE_2D, 0);
-				//std::cout << index << std::endl;
 			}
 
 			auto the_value = text_handle[wstringtemp];
@@ -465,7 +418,7 @@ namespace ifcre {
 
 		Vector<float> vert3d;
 
-		// 方案A: 一次性计算出所有字符串的位置，并使用一个VAO 优点：最低的draw call 实现简单 缺点：重复字符串多的情况下内存占用较大
+		// 一次性计算出所有字符串的位置，并使用一个VAO 优点：最低的draw call 实现简单 缺点：重复字符串多的情况下内存占用较大
 		void drawText3D(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<Wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview, bool& text_first) {
 			m_text3d_shader->use();
 			m_text3d_shader->setMat4("projection", m_projection);
@@ -590,11 +543,6 @@ namespace ifcre {
 			glBindVertexArray(0);
 			glBindTexture(GL_TEXTURE_2D, 0);
 			glDisable(GL_BLEND);
-		}
-
-		// 方案B：使用unordered_map记录多个字符串对应的VAO，调用shader的时候传入对应的移动矩阵（最后乘MVP） 优点：省内存，数据变化灵活，缺点：增加draw call，较难实现
-		void drawText3DProB(UniquePtr<GLSLProgram>& m_text3d_shader, Vector<Wstring>& texts, Vector<float>& text_data, glm::mat4 m_projection, glm::mat4 m_modelview) {
-			
 		}
 	};
 

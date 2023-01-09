@@ -3,7 +3,7 @@ layout(location = 0) in vec3 aPos;
 
 layout(location = 0) flat out vec3 color;
 
-layout(std140, binding = 0)uniform TransformMVPUBO{
+layout(std140, binding = 0)uniform TransformsUBO{
 	mat4 proj_view_model;       // 0 ~ 64
 } ubo;
 

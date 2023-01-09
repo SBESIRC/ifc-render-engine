@@ -5,7 +5,7 @@
 
 namespace ifcre {
 
-#define debug(format, ...) \
+#define WriteDebugInfoToFile(format, ...) \
     Logger::instance()->log(Logger::DEBUG, __FILE__, __LINE__, format, ##__VA_ARGS__)
 
 #define info(format, ...) \
@@ -15,7 +15,7 @@ namespace ifcre {
     Logger::instance()->log(Logger::WARN, __FILE__, __LINE__, format, ##__VA_ARGS__)
 
 #define error(format, ...) \
-    Logger::instance()->log(Logger::ERROR, __FILE__, __LINE__, format, ##__VA_ARGS__)
+    Logger::instance()->log(Logger::EERROR, __FILE__, __LINE__, format, ##__VA_ARGS__)
 
 #define fatal(format, ...) \
     Logger::instance()->log(Logger::FATAL, __FILE__, __LINE__, format, ##__VA_ARGS__)
@@ -29,7 +29,7 @@ namespace ifcre {
             DEBUG = 0,
             INFO,
             WARN,
-            ERROR,
+            EERROR,
             FATAL,
             LEVEL_COUNT
         };

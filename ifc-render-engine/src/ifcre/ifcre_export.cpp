@@ -3,12 +3,6 @@
 
 using namespace ifcre;
 
-//union MtlMetaData {
-//	Real f;
-//	int i;
-//};
-
-
 void ifcre_set_config(const char* key, const char* value)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
@@ -66,12 +60,6 @@ void ifcre_set_edge_indices(const int a) {
 	re.set_edge_indices(a);
 }
 
-//void ifcre_set_comp_types(const int a) {
-//	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
-//	auto& re = *render_engine;
-//	re.set_comp_types(a);
-//}
-
 void ifcre_run()
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
@@ -112,6 +100,12 @@ void ifcre_set_sleep_time(int val) {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
 	re.SetSleepTime(val);
+}
+
+void ifcre_set_data_ready_status(bool val) {
+	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
+	auto& re = *render_engine;
+	re.SetDataReadyStatus(val);
 }
 
 bool ifcre_save_image(const char* filePath) {
