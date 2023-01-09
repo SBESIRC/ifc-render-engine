@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_GL_CAMERA_H_
 #define IFCRE_GL_CAMERA_H_
 
@@ -7,6 +7,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include "../common/std_types.h"
+
+//#define test_cmr
 
 namespace ifcre {
 
@@ -34,9 +36,17 @@ namespace ifcre {
             _updateCameraVectors();
         }
 
+        glm::vec3 getViewUp() {
+            return m_up;
+        }
+
         glm::mat4 getViewMatrix() {
             //glm::mat4 ret(1.0f);
             return glm::lookAt(m_pos, m_pos + m_front, m_up); //lookAt(camera position, target, camera up) to careate a view matrix
+        }
+
+        glm::mat4 getPrecomputedViewMatrix(int i) {
+            return glm::lookAt(m_precomputing_pos[i], m_precomputing_front[i], m_precomputing_up[i]);
         }
 
         glm::mat4 getCubeRotateMatrix(float dis = 0.f) {
@@ -98,8 +108,13 @@ namespace ifcre {
         // based on IfcModel->translate(glm::vec3& step)
         void translateByHoverDiv(glm::vec3& step) {
             //translating -= step;
-            m_pos -= step;
-            //std::cout << "m_pos:" << m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
+#ifdef test_cmr
+            m_pos -= step.x * m_right + step.y * m_up + step.z * m_front;
+#else
+            step = glm::inverse(getViewMatrix()) * glm::vec4(step, 0.0);
+            m_pos -= step.x * m_right + step.y * m_up + step.z * m_front;
+#endif // test_cmr
+            //std::cout <<"m_pos:"<< m_pos.x << " " << m_pos.y << " " << m_pos.z << "\n";
         }
 
         void RotateToCubeDirection(int num) {
@@ -113,10 +128,10 @@ namespace ifcre {
 
             //view_pos *= 1.5f;
 
-            m_precomputing_pos.clear();
-            m_precomputing_front.clear();
-            m_precomputing_up.clear();
-            m_precomputing_right.clear();
+            Vector<glm::vec3>().swap(m_precomputing_pos);
+            Vector<glm::vec3>().swap(m_precomputing_front);
+            Vector<glm::vec3>().swap(m_precomputing_up);
+            Vector<glm::vec3>().swap(m_precomputing_right);
 
             m_precomputing_pos.push_back(glm::vec3(-view_pos.x, view_pos.y, -view_pos.z));//back
             m_precomputing_pos.push_back(glm::vec3(-view_pos.z, view_pos.y, view_pos.x));//left
@@ -134,9 +149,9 @@ namespace ifcre {
             glm::vec4 up_4 = glm::vec4(0.f, 1.f, 0.f, 1.f);
             glm::vec4 right_4 = glm::vec4(1.f, 0.f, 0.f, 1.f);
             m_precomputing_pos.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * view_pos_4);//back up
-            m_precomputing_pos.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * view_pos_4);//back left
-            m_precomputing_pos.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * view_pos_4);//back down
             m_precomputing_pos.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * view_pos_4);//back right
+            m_precomputing_pos.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * view_pos_4);//back down
+            m_precomputing_pos.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * view_pos_4);//back left
             m_precomputing_pos.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(-1, -1, 0)) * view_pos_4);//left up
             m_precomputing_pos.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(1, -1, 0)) * view_pos_4);//left down
             m_precomputing_pos.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(-1, 1, 0)) * view_pos_4);//right up
@@ -164,9 +179,9 @@ namespace ifcre {
             m_precomputing_front.push_back(glm::vec3(0.f, 1.f, 0.f));//bottom
 
             m_precomputing_front.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * front_4);//back up
-            m_precomputing_front.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * front_4);//back left
-            m_precomputing_front.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * front_4);//back down
             m_precomputing_front.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * front_4);//back right
+            m_precomputing_front.push_back(glm::rotate(orim, 225.f * my_pi / 180.f, glm::vec3(-1, 0, 0)) * front_4);//back down
+            m_precomputing_front.push_back(glm::rotate(orim, 135.f * my_pi / 180.f, glm::vec3(0, 1, 0)) * front_4);//back left
             m_precomputing_front.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(-1, -1, 0)) * front_4);//left up
             m_precomputing_front.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(1, -1, 0)) * front_4);//left down
             m_precomputing_front.push_back(glm::rotate(orim, 90.f * my_pi / 180.f, glm::vec3(-1, 1, 0)) * front_4);//right up

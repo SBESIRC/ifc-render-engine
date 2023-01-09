@@ -1,4 +1,4 @@
-#version 430
+#version 460
 #define PI 3.14159265358979323846
 
 layout(location = 0)in float vDistance;
@@ -45,5 +45,5 @@ void main()
 	fin=smoothstep(.04,.06,fin);
 	outColor=mix(outColor,one ,fin*.5);
 
-    FragColor = vec4(outColor, alpha);
+    FragColor = vec4(outColor, 0.5);
 }

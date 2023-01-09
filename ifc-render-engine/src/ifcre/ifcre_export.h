@@ -28,6 +28,7 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_c_indices(int val);
 	__declspec(dllexport) void ifcre_set_face_mat(float val);
 	__declspec(dllexport) void ifcre_set_edge_indices(int val);
+	//__declspec(dllexport) void ifcre_set_comp_types(int val);
 
 	__declspec(dllexport) void ifcre_run();
 
@@ -37,6 +38,7 @@ extern "C" {
 
 	__declspec(dllexport) void ifcre_set_comp_ids(int val);
 	__declspec(dllexport) void ifcre_set_sleep_time(int val);
+	__declspec(dllexport) void ifcre_set_data_ready_status(bool val);
 	__declspec(dllexport) bool ifcre_save_image(const char* filePath);
 	__declspec(dllexport) void ifcre_home();
 
@@ -46,6 +48,11 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_grid_text(const char* val);
 	__declspec(dllexport) void ifcre_set_grid_text_data(float val);
 
+	//__declspec(dllexport) void ifcre_set_collide_command(int val);
+	//__declspec(dllexport) void ifcre_set_collide_idsA(int val);
+	//__declspec(dllexport) void ifcre_set_collide_idsB(int val);
+	//__declspec(dllexport) int ifcre_get_collide_ids_size();
+	//__declspec(dllexport) void ifcre_get_collide_ids(int* arr);
 #ifdef __cplusplus
 }
 #endif

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef IFCRE_VERTEX_BUFFER_H_
 #define IFCRE_VERTEX_BUFFER_H_
 
@@ -37,12 +37,9 @@ namespace ifcre {
 
 		//data update functions
 		void upload(Vector<Real>& vertices, Vector<uint32_t>& indices);
-		void upload(Vector<Real>& vertices);
 		void uploadBBXData(const Vector<Real>& vertices, const Vector<uint32_t>& indices);
 		void updateVertexAttributes(const Vector<Real>& vertices);
 		void vertexAttribDesc(uint32_t index, int32_t size, int32_t stride, const void* pointer);
-		[[deprecated("No use in this project.")]]
-		void ssboAttribUpload(Vector<MaterialData>& mtlData);
 
 		// sending ebos of all components' geometry to GPU
 		void uploadElementBufferOnly(Vector<uint32_t>& indices);
@@ -80,13 +77,10 @@ namespace ifcre {
 		uint32_t m_vaoid;
 		uint32_t m_vboid;
 		uint32_t m_eboid;
-		uint32_t m_ssboid; // deprecated
 		uint32_t ebo_id_trip = 0;
-
 		//bool no_trans_generated = false;
 		uint32_t m_eboid_for_no_trans;
 		uint32_t no_trans_size;
-
 		//bool trans_generated = false;
 		uint32_t m_eboid_for_trans;
 		uint32_t trans_size;
@@ -113,9 +107,8 @@ namespace ifcre {
 
 		//ebo for chosen
 		uint32_t m_chosen_eboid_for_no_trans;
-		uint32_t m_chosen_eboid_for_trans;
-
 		uint32_t no_trans_chosen_size;
+		uint32_t m_chosen_eboid_for_trans;
 		uint32_t trans_chosen_size;
 
 		//ebo for collision
@@ -124,7 +117,7 @@ namespace ifcre {
 		uint32_t collision_size;
 
 	public:
-		map<uint32_t, Fun_ptr> mFuncPtr;
+		Map<uint32_t, Fun_ptr> mFuncPtr;
 	};
 }
 

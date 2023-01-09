@@ -7,30 +7,55 @@ using OpenTK.WinForms;
 using System;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.TaskbarClock;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Windows.Threading;
 
 namespace Example {
     /// <summary>
     ///     Interaction logic for MainWindow.xaml
     /// </summary>
-    public sealed partial class MainWindow {
+    public sealed partial class MainWindow{
         public MainWindow() {
             InitializeComponent();
+
+            this.BtnStart.Click += Button_Click;
+            rendingTimer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimerTick);
         }
 
         GLControl glControl = null;
+        int threadIndex = 0;
 
+        private readonly System.Timers.Timer rendingTimer = new System.Timers.Timer(15);
+        private void OnTimerTick(object source, System.Timers.ElapsedEventArgs e)
+        {
+            Dispatcher.BeginInvoke(() => Example.ExampleScene.Render());
+        }
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            //var childConrol = formHost.Child as GLControl;
             OpenFileDialog fileDialog = new OpenFileDialog();
             var filter = "ifc files | *.ifc;*.midfile;";
             fileDialog.Filter = filter;
             var dialogRst = fileDialog.ShowDialog();
             if (dialogRst != System.Windows.Forms.DialogResult.OK) return;
+
+            //if (threadIndex >= 1)
+            //{
+            //    rendingTimer.Stop();
+            //    //Example.ExampleScene.ifcre_clear_model_data();
+            //}
+
             var fileName = fileDialog.FileName;
-            var glControl = formHost.Child as GLControl;
+
+            //// record open file times
+            threadIndex++;
+            this.tbIdsToShow.Text = threadIndex.ToString();
+
             Example.ExampleScene.Init(glControl.Handle, glControl.Width, glControl.Height, fileName);
             Example.ExampleScene.Render();
+            //threadIndex++;
+            //rendingTimer.Start();
         }
 
         private void formHost_Initialized(object sender, EventArgs e)
@@ -83,7 +108,8 @@ namespace Example {
 
 		private void Button_Click_2(object sender, RoutedEventArgs e)
 		{
-			Example.ExampleScene.SetSelectCompIDs("0", Convert.ToInt32(tbIdsToShow.Text));
+            string text = tbIdsToShow.Text == "" ? "1" : tbIdsToShow.Text;
+            Example.ExampleScene.SetSelectCompIDs("0", Convert.ToInt32(text));
 		}
 
 		private void Button_Click_onelooptime(object sender, RoutedEventArgs e)
@@ -94,7 +120,8 @@ namespace Example {
 
         private void Button_Click_multichose(object sender, RoutedEventArgs e)
 		{
-            Example.ExampleScene.SetSelectCompIDs("1", Convert.ToInt32(tbIdsToShow.Text));
+            string text = tbIdsToShow.Text == "" ? "1" : tbIdsToShow.Text;
+            Example.ExampleScene.SetSelectCompIDs("1", Convert.ToInt32(text));
         }
 
         private void Button_Click_SaveImage(object sender, RoutedEventArgs e)

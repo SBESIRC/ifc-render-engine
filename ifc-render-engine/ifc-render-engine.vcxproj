@@ -42,13 +42,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -158,10 +158,11 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -178,6 +179,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\ifcre\collider.cpp" />
+    <ClCompile Include="src\ifcre\common\logger.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\gl\ifc_gl_render.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\render_ui.cpp" />
     <ClCompile Include="src\ifcre\ifcrender\vk\ifc_vk_render.cpp" />
@@ -186,6 +188,13 @@
     <ClCompile Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.cpp" />
     <ClCompile Include="src\ifcre\ifcre_export.cpp" />
     <ClCompile Include="src\ifcre\ifc_render_engine.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\ifcre\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\ifcre\mesh_simplier.cpp" />
     <ClCompile Include="src\ifcre\render\gl\glad.c" />
     <ClCompile Include="src\ifcre\render\gl\glsl_program.cpp" />
@@ -202,13 +211,15 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ifcre\Axis.h" />
     <ClInclude Include="src\ifcre\bmp.h" />
     <ClInclude Include="src\ifcre\Character.h" />
+    <ClInclude Include="src\ifcre\Clips.h" />
     <ClInclude Include="src\ifcre\collider.h" />
     <ClInclude Include="src\ifcre\common\ifc_enum.h" />
     <ClInclude Include="src\ifcre\common\ifc_util.h" />
+    <ClInclude Include="src\ifcre\common\logger.h" />
     <ClInclude Include="src\ifcre\Gizmo.h" />
-    <ClInclude Include="src\ifcre\grid.h" />
     <ClInclude Include="src\ifcre\ifcrender\ifc_camera.h" />
     <ClInclude Include="src\ifcre\ifcrender\render_ui.h" />
     <ClInclude Include="src\ifcre\ifcrender\shader_consts.h" />
@@ -218,6 +229,15 @@
     <ClInclude Include="src\ifcre\ifcrender\vk\pass\ifc_pick_pass.h" />
     <ClInclude Include="src\ifcre\ifcrender\vk\vulkan_resources.h" />
     <ClInclude Include="src\ifcre\ifcre_export.h" />
+    <ClInclude Include="src\ifcre\imgui\imconfig.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\ifcre\imgui\imgui_internal.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\ifcre\imgui\imstb_truetype.h" />
     <ClInclude Include="src\ifcre\mesh_simplier.h" />
     <ClInclude Include="src\ifcre\render\gl\gl_uniform_buffer.h" />
     <ClInclude Include="src\ifcre\render\gl_camera.h" />
@@ -244,6 +264,8 @@
     <ClInclude Include="src\ifcre\resource\parser.h" />
     <ClInclude Include="src\ifcre\resource\plugin.h" />
     <ClInclude Include="src\ifcre\ifcrender\scene.h" />
+    <ClInclude Include="src\ifcre\SimpleUI.h" />
+    <ClInclude Include="src\ifcre\SkyBox.h" />
     <ClInclude Include="src\ifcre\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
@@ -261,6 +283,8 @@
     <None Include="..\workdir\shaders\collision.vert" />
     <None Include="..\workdir\shaders\comp_id_write.frag" />
     <None Include="..\workdir\shaders\comp_id_write.vert" />
+    <None Include="..\workdir\shaders\drawing_match.frag" />
+    <None Include="..\workdir\shaders\drawing_match.vert" />
     <None Include="..\workdir\shaders\edge.frag" />
     <None Include="..\workdir\shaders\edge.vert" />
     <None Include="..\workdir\shaders\gizmo.frag" />
@@ -280,6 +304,8 @@
     <None Include="..\workdir\shaders\text.frag" />
     <None Include="..\workdir\shaders\text.vert" />
     <None Include="..\workdir\shaders\text3d.vert" />
+    <None Include="..\workdir\shaders\tile_view_drawing.frag" />
+    <None Include="..\workdir\shaders\tile_view_drawing.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
