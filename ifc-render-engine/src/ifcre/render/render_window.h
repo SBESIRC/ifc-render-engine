@@ -89,6 +89,8 @@ namespace ifcre {
 		bool isMouseMove();
 		bool isRightMouseClicked();
 
+		void trans_mouse_status_from_2_mats(glm::mat4 orimat, glm::mat4 newmat);
+
 		// ----- ----- ----- ----- ----- -----
 
 		String get_glsl_verison() const {

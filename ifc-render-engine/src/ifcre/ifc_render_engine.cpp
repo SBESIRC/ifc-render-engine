@@ -210,6 +210,7 @@ namespace ifcre {
 
 	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
 		glm::mat4 model_mat;
+		glm::mat4 ori_model_mat = ifc_model->getModelMatrix();
 		Real scaler = 0;
 		glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
 		glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
@@ -223,6 +224,8 @@ namespace ifcre {
 		ifc_model->setScaleFactor(scaler);
 		ifc_model->curcenter = (pmin + pmax) / 2.f;
 		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
+
+		m_render_window->trans_mouse_status_from_2_mats(ori_model_mat, model_mat);
 		//flag_between_zoom_reset = true;
 	}
 
@@ -281,9 +284,6 @@ namespace ifcre {
 
 	void IFCRenderEngine::drawFrame()
 	{
-		//m_glrender->enableTest(DEPTH_TEST);
-		//m_glrender->depthFunc(LESS_FUNC);
-
 		glm::fvec2 mouse_move_vec(0.f);
 
 #pragma region transform by mouse
@@ -541,6 +541,7 @@ namespace ifcre {
 		if (m_render_window->geom_changed) {
 			ifc_model->update_chosen_list(m_render_window->chosen_list);
 			ifc_model->update_chosen_and_vis_list();
+			//ifc_model->init_dynamic_ebo();
 
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices });
 			ifc_model->setpMax(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]));

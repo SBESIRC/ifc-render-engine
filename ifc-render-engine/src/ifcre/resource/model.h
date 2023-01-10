@@ -51,7 +51,7 @@ namespace ifcre {
 	class IFCModel {
 	public:
 		// generate IFCModel through datas2OpenGL, basically used currently
-		IFCModel(const struct Datas2OpenGL& datas, bool edge_generated = false) :g_indices(datas.vert_indices), g_vertices(datas.verts),
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts),
 			g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices),
 			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey),
 				storeys_comp_id(datas.storeys_component_id) {
@@ -75,7 +75,7 @@ namespace ifcre {
 			cal_tile_matrix();
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes(edge_generated);	// 生成边
+			generate_edges_by_msMeshes();	// 生成边
 			//end = clock();
 			//std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -169,7 +169,7 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes(false);	// 生成边
+			generate_edges_by_msMeshes();	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -182,20 +182,16 @@ namespace ifcre {
 			Vector<Real>().swap(g_vertices);
 		}
 
-		void generate_edges_by_msMeshes(bool edge_generated) {
-			//if (!edge_generated) {
-				Vector<Vector<uint32_t>>().swap(c_edge_indices);
-				Vector<uint32_t>().swap(edge_indices);
-				mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
-				Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
-				for (mesh_simplier::Mesh mes : meshes) {
-					edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
-					c_edge_indices.emplace_back(mes.edge_indexp);
-				}
-				cur_edge_ind = edge_indices;
-			//}
-			//for (int i = 0; i < c_edge_indices.size(); i++)
-			//	ind_of_all_c_indices.emplace_back(i);
+		void generate_edges_by_msMeshes() {
+			Vector<Vector<uint32_t>>().swap(c_edge_indices);
+			Vector<uint32_t>().swap(edge_indices);
+			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
+			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
+			for (mesh_simplier::Mesh mes : meshes) {
+				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+				c_edge_indices.emplace_back(mes.edge_indexp);
+			}
+			cur_edge_ind = edge_indices;
 		}
 
 		Vector<uint32_t> getgIndices() {

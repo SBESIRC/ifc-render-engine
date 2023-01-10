@@ -748,6 +748,15 @@ namespace ifcre {
         return m_mouse_status.rbtn_down;
     }
 
+    void RenderWindow::trans_mouse_status_from_2_mats(glm::mat4 orimat, glm::mat4 newmat) {
+        glm::mat4 inv_ori = glm::inverse(orimat);
+        glm::vec3 new_click_world = newmat * inv_ori * glm::vec4(m_mouse_status.click_world_center, 1.0);
+        glm::vec3 new_hover_world = newmat * inv_ori * glm::vec4(m_mouse_status.hover_world_center, 1.0);
+        m_mouse_status.click_world_center = new_click_world;
+        m_mouse_status.hover_world_center = new_hover_world;
+        m_mouse_status.click_z = 1.0;
+    }
+
     void RenderWindow::setDefaultStatus() {
         m_mouse_status.click_init_mask = 0;
         m_mouse_status.click_comp_id = -1;
