@@ -13,7 +13,7 @@ namespace ifcre {
 		float x = click_x / w * 2 - 1;
 		float y = click_y / h * 2 - 1;
 		// from [0, 1]
-		float z = ((m_renderAPIEnum == VULKAN_RENDER_API) ? click_z : click_z * 2 - 1);
+		float z = ((m_renderAPIEnum == RenderAPIEnum::VULKAN_RENDER_API) ? click_z : click_z * 2 - 1);
 		m_mouseStatus.click_depth = z;
 		glm::vec4 ndc(x, y, z, 1.0f);
 		glm::mat4 vp_inv = glm::inverse(camera.getProjMatrix() * camera.getViewMatrix());
@@ -110,20 +110,20 @@ namespace ifcre {
 				status.click_depth = pos.z;
 				// from [-1, 1] to [0, width], [0, height]
 				status.click_x = (pos.x + 1) * 0.5 * w;
-				float t = ((m_renderAPIEnum == VULKAN_RENDER_API) ? pos.y : -pos.y) + 1;
+				float t = ((m_renderAPIEnum == RenderAPIEnum::VULKAN_RENDER_API) ? pos.y : -pos.y) + 1;
 				status.click_y = t * 0.5 * h;
 			}
 			Real x, y;
 			if (click_depth != 1.0
 				&& (ypos >= 0 && ypos < h && xpos >= 0 && xpos < w)
 				&& status.click_init_mask == 1) {
-				float t = ((m_renderAPIEnum == VULKAN_RENDER_API) ? ypos : (h - ypos - 1));
+				float t = ((m_renderAPIEnum == RenderAPIEnum::VULKAN_RENDER_API) ? ypos : (h - ypos - 1));
 				y = t / h * 2 - 1;
 				x = xpos / w * 2 - 1;
 			}
 			else {
 				float t = (status.click_y + (ypos - status.last_mouse_y));
-				t = ((m_renderAPIEnum == VULKAN_RENDER_API) ? t : (h - t - 1));
+				t = ((m_renderAPIEnum == RenderAPIEnum::VULKAN_RENDER_API) ? t : (h - t - 1));
 				y = t / h * 2 - 1;
 				x = (status.click_x + (xpos - status.last_mouse_x)) / w * 2 - 1;
 			}
@@ -165,7 +165,7 @@ namespace ifcre {
 		status.click_depth = pos.z;
 		// from [-1, 1] to [0, width], [0, height]
 		status.click_x = (pos.x + 1) * 0.5 * w;
-		float t = ((m_renderAPIEnum == VULKAN_RENDER_API) ? pos.y : -pos.y) + 1;
+		float t = ((m_renderAPIEnum == RenderAPIEnum::VULKAN_RENDER_API) ? pos.y : -pos.y) + 1;
 		status.click_y = t * 0.5 * h;
 	}
 

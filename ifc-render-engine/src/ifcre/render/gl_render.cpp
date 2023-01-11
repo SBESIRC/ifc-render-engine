@@ -136,7 +136,7 @@ namespace ifcre {
 	}
 
 
-	void GLRender::render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id = 1)
+	void GLRender::render(uint32_t render_id, RenderTypeEnum type, const RenderPartEnum local_render_id)
 	{
 		auto& vb_map = m_vertex_buffer_map;
 		auto it = vb_map.find(render_id);
@@ -145,7 +145,7 @@ namespace ifcre {
 			return;
 		}
 		switch (type) {
-		case NORMAL_DEPTH_WRITE: {
+		case RenderTypeEnum::NORMAL_DEPTH_WRITE: {
 			auto& color = m_depnor_value;
 			glClearColor(color.x, color.y, color.z, color.w);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -155,7 +155,7 @@ namespace ifcre {
 			m_normal_depth_program->setMat3("t_inv_model", glm::transpose(glm::inverse(m_modelview)));
 			break;
 		}
-		case COMP_ID_WRITE: {
+		case RenderTypeEnum::COMP_ID_WRITE: {
 			auto& color = m_depnor_value;
 			//glClearColor(color.x, color.y, color.z, color.w);
 			glClearColor(-2, 0, 0, 0);
@@ -164,7 +164,7 @@ namespace ifcre {
 			m_comp_id_program->use();
 			break;
 		}
-		case DEFAULT_SHADING: {
+		case RenderTypeEnum::DEFAULT_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -172,7 +172,7 @@ namespace ifcre {
 			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
-		case OFFLINE_SHADING: {
+		case RenderTypeEnum::OFFLINE_SHADING: {
 			auto& color = m_bg_color_off;
 			glClearColor(color.r, color.g, color.b, color.a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -181,7 +181,7 @@ namespace ifcre {
 			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
-		case TRANSPARENCY_SHADING: {
+		case RenderTypeEnum::TRANSPARENCY_SHADING: {
 			glEnable(GL_BLEND); //启用混合（可以使用透明物体）
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 按比例颜色混合
 			glBlendEquation(GL_FUNC_ADD);//设置运算符 默认 源 和 target数值相加
@@ -189,12 +189,12 @@ namespace ifcre {
 			m_test_shader->setFloat("shading_factor", 1.f);
 			break;
 		}
-		case BOUNDINGBOX_SHADING: {
+		case RenderTypeEnum::BOUNDINGBOX_SHADING: {
 			m_select_bbx_shader->use();
 			m_select_bbx_shader->setMat4("storeyOffset_mat", storeyOffset_mat);
 			break;
 		}
-		case EDGE_SHADING: {
+		case RenderTypeEnum::EDGE_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -202,7 +202,7 @@ namespace ifcre {
 			m_test_shader->setFloat("shading_factor", .7f);
 			break;
 		}
-		case CHOSEN_SHADING: {
+		case RenderTypeEnum::CHOSEN_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -210,7 +210,7 @@ namespace ifcre {
 			m_chosen_shader->use();
 			break;
 		}
-		case CHOSEN_TRANS_SHADING: {
+		case RenderTypeEnum::CHOSEN_TRANS_SHADING: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);
@@ -218,7 +218,7 @@ namespace ifcre {
 			m_chosen_shader->use();
 			break;
 		}
-		case COLLISION_RENDER: {
+		case RenderTypeEnum::COLLISION_RENDER: {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 			glBlendEquation(GL_FUNC_ADD);

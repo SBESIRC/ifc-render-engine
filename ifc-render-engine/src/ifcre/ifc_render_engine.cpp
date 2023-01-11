@@ -208,7 +208,7 @@ namespace ifcre {
 		m_render_window->endOffScreenRender();
 	}
 
-	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord) {
+	void IFCRenderEngine::zoom_into(Vector<Real> bound_vecs) {
 		glm::mat4 model_mat;
 		glm::mat4 ori_model_mat = ifc_model->getModelMatrix();
 		Real scaler = 0;
@@ -238,7 +238,7 @@ namespace ifcre {
 
 		switch (m_render_api)
 		{
-			case OPENGL_RENDER_API: {
+			case RenderAPIEnum::OPENGL_RENDER_API: {
 
 				offscreenRending();
 				while (!m_render_window->isClose())
@@ -269,7 +269,7 @@ namespace ifcre {
 				}
 				break;
 			}
-			case VULKAN_RENDER_API: {
+			case RenderAPIEnum::VULKAN_RENDER_API: {
 				while (true) {
 					// TODO tick
 
@@ -302,8 +302,8 @@ namespace ifcre {
 		}*/
 		if (m_render_window->getClickCompId() >= 0 && m_render_window->trigger) {
 			m_render_window->trigger = false;
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list });
-			zoom_into(bound_vecs, clicked_coord);
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true);
+			zoom_into(bound_vecs);
 		}
 		if (m_render_window->collidertrig) {
 			m_render_window->collidertrig = !m_render_window->collidertrig;
@@ -311,8 +311,8 @@ namespace ifcre {
 			collision_list = { ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2],ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2 + 1] };
 			ifc_model->collider_ind_count = (ifc_model->collider_ind_count + 1) % (ifc_model->collider_inde_hard.size() / 2);
 			//m_render_window->chosen_changed = true;
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(collision_list);
-			zoom_into(bound_vecs, clicked_coord);
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(collision_list, true);
+			zoom_into(bound_vecs);
 
 			glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
 			glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
@@ -388,7 +388,7 @@ namespace ifcre {
 #pragma region COMP THINGS
 
 			m_render_window->switchRenderCompId();
-			m_glrender->render(ifc_model->render_id, COMP_ID_WRITE, DYNAMIC_ALL); // 将构件id写入framebuffer
+			m_glrender->render(ifc_model->render_id, RenderTypeEnum::COMP_ID_WRITE, RenderPartEnum::DYNAMIC_ALL); // 将构件id写入framebuffer
 			int selectedId = m_render_window->getClickCompId();
 			m_glrender->setCompId(selectedId);
 
@@ -421,7 +421,7 @@ namespace ifcre {
 
 #pragma region main render
 
-			// 1. render scene
+			// render scene
 			m_render_window->switchRenderColor();
 
 			m_glrender->renderSkyBox(m_render_window->returnPerispectiveMat());
@@ -451,15 +451,15 @@ namespace ifcre {
 				m_glrender->render(ifc_model->render_id, RenderTypeEnum::COLLISION_RENDER, RenderPartEnum::COLLISION);
 			}
 
-			//// ------------- edge length shading ---------------------------------- // don't use this, there are a few errors!!!
+			//// edge length shading // don't use this, there are a few errors!!!
 			//if (m_window.edgeIdTrigger)
 			//	m_render.renderEdgeLength(*ifc_test_model, m_window.get_width(), m_window.get_height());
 			//// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 			// render bounding box
 			if (m_render_window->getClickCompId() >= 0) {
-				auto bound_vecs = !/*m_render_window->getShowTileView()*/tileViewButton ? ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list })
-					: ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true);
+				auto bound_vecs = !/*m_render_window->getShowTileView()*/tileViewButton ? ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true)
+					: ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, false);
 				auto chosenbbx = ifc_model->generate_bbxs_by_vec2(bound_vecs);
 
 				/*if (!m_render_window->chosen_list.empty()) {
@@ -469,7 +469,7 @@ namespace ifcre {
 
 				m_glrender->ModelVertexUpdate(select_bbx_id, chosenbbx);
 
-				m_glrender->render(select_bbx_id, BOUNDINGBOX_SHADING, BBX_LINE);
+				m_glrender->render(select_bbx_id, RenderTypeEnum::BOUNDINGBOX_SHADING, RenderPartEnum::BBX_LINE);
 			}
 
 			//m_glrender->ui_update(mousemove, /*m_render_window->getHidden()*/!clipboxButton && /*!m_render_window->getShowDrawing()*/ !drawingMatchButton,
@@ -479,48 +479,44 @@ namespace ifcre {
 			//m_glrender->simpleui->updateBool(clipboxButton, drawingMatchButton, tileViewButton, showcolid, m_render_window->collidertrig);
 
 			*mousemove = !clipboxButton;
-			//8. render sup things
+			// render sup things
+			
 			// render sky box
 			//m_glrender->renderSkybox(m_camera->getViewMatrix(), m_render_window->getProjMatrix());
 
-			// -------------- render grid ---------------
+			// render grid
 			if (m_render_window->to_show_grid) {
 				m_glrender->renderGridLine(grid_lines, m_render_window->get_width(), m_render_window->get_height(), grid_line_reset);
 				m_glrender->renderGridText(grid_text, grid_text_data, grid_text_reset);
 			}
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-
-			// -------------- render axis, not normal render procedure ---------------
+			// axis
 			m_glrender->renderAxis(*ifc_model
 				, clicked_coord
 				, m_camera->getViewPos()
 				, m_view_pos);
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			// ----------------------------- render text -----------------------------
+			// text
 			if (m_render_window->getShowText()) {
 				auto sxaswd = m_glrender->get_pixel_pos_in_screen(glm::vec4(158.f, 0.7f, 20.f, 1.f), m_render_window->get_width(), m_render_window->get_height());
 				m_glrender->renderText(sxaswd, 1.f, glm::vec3(1.f, 0.5f, 0.f), m_render_window->get_width(), m_render_window->get_height());
 			}
 
-			// -------------- render clipping plane, not normal render procedure ---------------
+			// clipping box
 			m_glrender->renderClipBox(/*m_render_window->getHidden()*/!clipboxButton);
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
 
-			// ------------- drawing match shading ----------------------------------
+			// drawing match shading
 			if (/*m_render_window->getShowDrawing()*/drawingMatchButton)
 				m_glrender->renderDrawing(*ifc_model, script_scale_fractor);
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			// ------------- tile view drawing shading ---------------------------------- // don't use this, there are a few errors!!!
+			// tile view drawing shading // don't use this, there are a few errors!!!
 			if (/*m_render_window->getShowTileView()*/tileViewButton)
 				;
 			//m_glrender->renderTileViewDrawing(*ifc_test_model);
-			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
-			//---------------View Cube( gizmo ) rendering ----------------------------------------
+			// View Cube( gizmo )
 			m_glrender->renderViewCube(m_camera->getCubeRotateMatrix(), m_render_window->getWindowSize());
 			// ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- ----- -----
 
@@ -535,7 +531,6 @@ namespace ifcre {
 		// post render
 		m_glrender->postRender(*m_render_window); // 后处理，清空缓冲
 	}
-	// ----- ----- ----- ----- ----- ----- ----- ----- 
 
 	void IFCRenderEngine::updateDynamicEboData() {
 		if (m_render_window->geom_changed) {
@@ -543,9 +538,10 @@ namespace ifcre {
 			ifc_model->update_chosen_and_vis_list();
 			//ifc_model->init_dynamic_ebo();
 
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices });
-			ifc_model->setpMax(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]));
-			ifc_model->setpMin(glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices }, true);
+			glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
+			glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
+			m_glrender->getClipBox()->setBox(pmin, pmax);
 
 			m_glrender->DynamicUpdate(ifc_model->render_id,
 				ifc_model->generate_ebo_from_component_ids(ifc_model->cur_c_indices),
@@ -601,7 +597,7 @@ namespace ifcre {
 				m_render_window->geom_changed = true;
 			}
 			if (to_show_states == 0) {
-				Vector<CompState>(ifc_model->c_indices.size(), DUMP).swap(ifc_model->comp_states);
+				Vector<CompState>(ifc_model->c_indices.size(), CompState::DUMP).swap(ifc_model->comp_states);
 				Vector<uint32_t>().swap(ifc_model->cur_c_indices);
 			}
 			m_render_window->chosen_list.clear();
@@ -612,7 +608,7 @@ namespace ifcre {
 			}
 			// to_show_states 0、设置显示一些物件；1、高亮选中一些物件
 			m_render_window->geom_changed = true;
-			Vector<CompState>(ifc_model->c_indices.size(), VISIABLE).swap(ifc_model->comp_states);
+			Vector<CompState>(ifc_model->c_indices.size(), CompState::VISIABLE).swap(ifc_model->comp_states);
 			Vector<uint32_t>().swap(ifc_model->cur_c_indices);
 			for (int i = 0; i < ifc_model->c_indices.size(); ++i) {
 				ifc_model->cur_c_indices.emplace_back(i);
@@ -621,11 +617,11 @@ namespace ifcre {
 		default:
 			if (val < ifc_model->c_indices.size()) {
 				if (0 == to_show_states) {
-					ifc_model->comp_states[val] = VISIABLE;
+					ifc_model->comp_states[val] = CompState::VISIABLE;
 					ifc_model->cur_c_indices.emplace_back(val);
 				}
 				else if (1 == to_show_states) {
-					ifc_model->comp_states[val] = CHOSEN;
+					ifc_model->comp_states[val] = CompState::CHOSEN;
 					m_render_window->chosen_list.insert(val);
 				}
 			}
