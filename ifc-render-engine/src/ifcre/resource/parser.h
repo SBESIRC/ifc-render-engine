@@ -275,13 +275,26 @@ namespace ifcre {
 				ge = ifcsaver::read_datas2OpenGL_from_binary(is, the_c_edge_indices);
 				is.close();
 			}
+#ifndef _DEBUG
 			else {
-				auto getmp = generateIFCMidfile(file);
+				typedef Datas2OpenGL(*FuncPtr)(const std::string, const float);
+				static FuncPtr f_ptr = nullptr;
+				if (f_ptr == nullptr) {
+					HMODULE moudul = LoadLibrary(L"myOwnFile.dll");
+					if (moudul == nullptr) {
+						std::cout << "wroooooooooooooong modul load lirary" << std::endl;
+						return nullptr;
+					}
+					f_ptr = (FuncPtr)GetProcAddress(moudul, "generateIFCMidfile");
+				}
+				auto getmp = f_ptr(file, 0.01);
+
+				//auto getmp = generateIFCMidfile(file);
 				ifcsaver::save_data2OpenGL_into_binary(getmp, the_c_edge_indices, file + ".midfile");
 				ifstream is((file + ".midfile").c_str(), std::ios::binary);
 				ge = ifcsaver::read_datas2OpenGL_from_binary(is, the_c_edge_indices);
 			}
-
+#endif
 			auto ret = make_shared<IFCModel>(ge);
 
 			//Collider collider;

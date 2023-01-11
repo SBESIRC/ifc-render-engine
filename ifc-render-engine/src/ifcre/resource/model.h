@@ -19,7 +19,7 @@
 
 //#include <math.h>
 
-extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
+//extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
@@ -347,27 +347,31 @@ namespace ifcre {
 			if (flag)
 			{
 				for (auto& id : comp_indices) {
-					for (int i = 0; i < 3; i++) {
-						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-					}
-					for (int i = 3; i < 6; i++) {
-						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+					if (id < c_indices.size()) {
+						for (int i = 0; i < 3; i++) {
+							ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+						}
+						for (int i = 3; i < 6; i++) {
+							ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+						}
 					}
 				}
 			}
 			else {
 				for (auto& id : comp_indices) {
-					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[0] = std::min(ret[0], pos.x);
-					ret[1] = std::min(ret[1], pos.y);
-					ret[2] = std::min(ret[2], pos.z);
+					if (id < c_indices.size()) {
+						glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[0] = std::min(ret[0], pos.x);
+						ret[1] = std::min(ret[1], pos.y);
+						ret[2] = std::min(ret[2], pos.z);
 
-					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[3] = std::max(ret[3], pos.x);
-					ret[4] = std::max(ret[4], pos.y);
-					ret[5] = std::max(ret[5], pos.z);
+						pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[3] = std::max(ret[3], pos.x);
+						ret[4] = std::max(ret[4], pos.y);
+						ret[5] = std::max(ret[5], pos.z);
+					}
 				}
 			}
 			return ret;
@@ -378,27 +382,31 @@ namespace ifcre {
 			if (flag)
 			{
 				for (auto& id : comp_indices) {
-					for (int i = 0; i < 3; i++) {
-						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-					}
-					for (int i = 3; i < 6; i++) {
-						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+					if (id < c_indices.size()) {
+						for (int i = 0; i < 3; i++) {
+							ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+						}
+						for (int i = 3; i < 6; i++) {
+							ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+						}
 					}
 				}
 			}
 			else {
 				for (auto& id : comp_indices) {
-					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[0] = std::min(ret[0], pos.x);
-					ret[1] = std::min(ret[1], pos.y);
-					ret[2] = std::min(ret[2], pos.z);
+					if (id < c_indices.size()) {
+						glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[0] = std::min(ret[0], pos.x);
+						ret[1] = std::min(ret[1], pos.y);
+						ret[2] = std::min(ret[2], pos.z);
 
-					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[3] = std::max(ret[3], pos.x);
-					ret[4] = std::max(ret[4], pos.y);
-					ret[5] = std::max(ret[5], pos.z);
+						pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[3] = std::max(ret[3], pos.x);
+						ret[4] = std::max(ret[4], pos.y);
+						ret[5] = std::max(ret[5], pos.z);
+					}
 				}
 			}
 			return ret;
