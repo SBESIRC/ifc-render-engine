@@ -26,7 +26,7 @@ layout (location = 2) out float vDistanceM[7];
 void main()
 {   
     vCompId = aCompId;
-
+	
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos;
 	if(ubo.showTileView > 0)
@@ -38,7 +38,6 @@ void main()
 		vDistanceM[i]=dot(eyePos.xyz, ubo.uUserClipBox[i].xyz) - ubo.uUserClipBox[i].w;
 	}
 	vDistanceM[6] = eyePos.y - (ubo.model * ubo.drawing_plane).y;
-	// gl_Position = mvp * vec4(pos, 1.0);
 	if(ubo.showTileView > 0)
 		gl_Position = ubo.proj_view_model * sotubo.storeyOffset_mat[alou] * vec4(aPos, 1.0);
 	else

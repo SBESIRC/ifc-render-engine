@@ -95,7 +95,7 @@ namespace ifcre {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
                     if (m_mouse_status.double_click) {// && clicked_comp_id == m_mouse_status.click_comp_id) {
-                        trigger = true;//do zoom
+                        zoom_trigger = true;//do zoom
                         m_mouse_status.double_click = false;
                     }
                 }
@@ -287,7 +287,7 @@ namespace ifcre {
                 //        that->_setClickedWorldColors(click_x, click_y, false, true);
                 //    }
                 //}
-                if (status.single_click && double_diff_ms > 10 && double_diff_ms < 500) {
+                if (status.single_click && double_diff_ms > 10 && double_diff_ms < 300) {
                     status.single_click = false;
                     status.double_click = true;
                     double click_x, click_y;
@@ -485,8 +485,8 @@ namespace ifcre {
             openTileView = false;
         }
 
-        if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
-            trigger = true;
+        if (!zoom_trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
+            zoom_trigger = true;
         }
         if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             multichoose = true;

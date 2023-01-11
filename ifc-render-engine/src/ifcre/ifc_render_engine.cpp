@@ -290,18 +290,17 @@ namespace ifcre {
 		// -------------- ifc model transform by mouse ---------------
 
 		glm::vec3 clicked_coord = m_render_window->getClickedWorldCoord();
-		//reset_coord(clicked_coord);
 		if (cube_change_log) {
 			ifc_model->TranslateToCubeDirection(cube_num); // 设置模型位置
 			m_camera->RotateToCubeDirection(cube_num); // 设置相机数据
 			cube_change_log = false;
 		}
-		/*if (m_render_window->getClickCompId() >= 0 && m_render_window->trigger) {
+		/*if (m_render_window->getClickCompId() >= 0 && m_render_window->zoom_trigger) {
 			auto bound_vecs = ifc_test_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list });
 			zoombyBBX(glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]), glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]));
 		}*/
-		if (m_render_window->getClickCompId() >= 0 && m_render_window->trigger) {
-			m_render_window->trigger = false;
+		if (m_render_window->getClickCompId() >= 0 && m_render_window->zoom_trigger) {
+			m_render_window->zoom_trigger = false;
 			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ m_render_window->chosen_list }, true);
 			zoom_into(bound_vecs);
 		}
@@ -311,7 +310,7 @@ namespace ifcre {
 			collision_list = { ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2],ifc_model->collider_inde_hard[ifc_model->collider_ind_count * 2 + 1] };
 			ifc_model->collider_ind_count = (ifc_model->collider_ind_count + 1) % (ifc_model->collider_inde_hard.size() / 2);
 			//m_render_window->chosen_changed = true;
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(collision_list, true);
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(collision_list, false);
 			zoom_into(bound_vecs);
 
 			glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
@@ -538,7 +537,7 @@ namespace ifcre {
 			ifc_model->update_chosen_and_vis_list();
 			//ifc_model->init_dynamic_ebo();
 
-			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec({ ifc_model->cur_c_indices }, true);
+			auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(ifc_model->cur_c_indices, true);
 			glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
 			glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
 			m_glrender->getClipBox()->setBox(pmin, pmax);
@@ -652,35 +651,13 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3) {
-		//info("use zoom");
-		m_render_window->trigger = false;
-		glm::mat4 model_mat;
-		Real scaler = 0;
-		util::get_model_matrix_byBBX(minvec3, maxvec3, model_mat, scaler);
-		//ifc_test_model->setModelMatrix(model_mat);
-		if (/*m_render_window->getShowTileView()*/tileViewButton) {
-
-			if (m_render_window->chosen_list.size() > 0)
-			{
-				glm::mat4 trans = ifc_model->tile_matrix[ifc_model->this_comp_belongs_to_which_storey[*m_render_window->chosen_list.begin()]];
-				ifc_model->setModelMatrix(model_mat * util::inverse_mat4(trans));
-			}
-		}
-		else {
-			ifc_model->setModelMatrix(model_mat);
-		}
-		ifc_model->setScaleFactor(scaler);
-		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
-	}
-
 	void IFCRenderEngine::zoom2Home() {
 		//info("zoom hoom");
 		if (ifc_model == NULL) {
 			return;
 		}
-
-		zoombyBBX(ifc_model->getpMax(), ifc_model->getpMin());
+		auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(ifc_model->cur_c_indices, true);
+		zoom_into(bound_vecs);
 	}
 
 	bool IFCRenderEngine::saveImage(const char* filePath) {

@@ -106,7 +106,7 @@ namespace ifcre {
 		//int geomframe = 0;
 		bool geom_changed = true;
 		bool rotatelock = false;
-		bool trigger = false;
+		bool zoom_trigger = false;
 		bool collidertrig = false;
 		bool scrolltrigger = false;
 		double scrollyoffset = 0.0;

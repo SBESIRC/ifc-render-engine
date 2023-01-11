@@ -32,7 +32,7 @@ void main()
 	vGoColor = aColor;
 	vComp = aComp;
 	vNormal=aNormal;
-
+	
 	vec4 p = vec4(aPos, 1.0);
 	vec4 eyePos;
 	if(ubo.showTileView > 0)
