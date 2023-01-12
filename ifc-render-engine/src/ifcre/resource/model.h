@@ -14,12 +14,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-//#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
-//#include <math.h>
-
-//extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
