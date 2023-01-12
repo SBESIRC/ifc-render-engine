@@ -62,7 +62,7 @@ namespace ifcre {
 		// sending ebos of collision components' geometry to GPU
 		void uploadCollisionElementBuffer(const Vector<uint32_t>& collision_ebo);
 
-		void run_draw_func(uint32_t draw_id);
+		void run_draw_func(RenderPartEnum draw_id);
 
 		bool useIndex();
 		void destroy();

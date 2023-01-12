@@ -81,7 +81,7 @@ namespace ifcre {
 		void transformUBO_refresh();
 		// --------------- render ----------------------
 
-		void render(uint32_t render_id, RenderTypeEnum type, const uint32_t local_render_id);
+		void render(uint32_t render_id, RenderTypeEnum type, const RenderPartEnum local_render_id);
 		void renderAxis(IFCModel& ifc_model, const glm::vec3& pick_center, const glm::vec3& view_pos, const glm::vec3& init_view_pos);
 		//void renderGrid(IFCModel& ifc_model);
 		void renderGridText(Vector<Wstring>& texts, Vector<float>& text_data, bool& grid_text_reset);

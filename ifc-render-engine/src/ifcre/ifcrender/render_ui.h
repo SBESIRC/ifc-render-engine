@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef _IFCRE_SURFACE_UI_H_
 #define _IFCRE_SURFACE_UI_H_
 
@@ -22,7 +22,7 @@ namespace ifcre {
 				, (float)m_io.m_surfaceIO->getWidth() / (float)m_io.m_surfaceIO->getHeight()
 				, 0.1f, 1000.0f
 				, vk_render != nullptr);
-			m_renderAPIEnum = vk_render != nullptr ? VULKAN_RENDER_API : OPENGL_RENDER_API;
+			m_renderAPIEnum = vk_render != nullptr ? RenderAPIEnum::VULKAN_RENDER_API : RenderAPIEnum::OPENGL_RENDER_API;
 		}
 		std::shared_ptr <IFCCamera> getEditCamera() { return m_editCamera; }
 	public:

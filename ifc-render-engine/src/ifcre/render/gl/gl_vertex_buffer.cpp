@@ -4,8 +4,8 @@ namespace ifcre {
 	void GLVertexBuffer::init_fun_ptr_map() {
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::ALL), &GLVertexBuffer::draw });
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_ALL),&GLVertexBuffer::drawByDynamicEbo });
-		mFuncPtr.insert({ uint32_t(RenderPartEnum::NO_TRANS),&GLVertexBuffer::drawNoTrans });
-		mFuncPtr.insert({ uint32_t(RenderPartEnum::TRANS),&GLVertexBuffer::drawTrans });
+		//mFuncPtr.insert({ uint32_t(RenderPartEnum::NO_TRANS),&GLVertexBuffer::drawNoTrans });
+		//mFuncPtr.insert({ uint32_t(RenderPartEnum::TRANS),&GLVertexBuffer::drawTrans });
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::BBX_LINE),&GLVertexBuffer::drawBBXLines });
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::EDGE_LINE),&GLVertexBuffer::drawEdges });
 		mFuncPtr.insert({ uint32_t(RenderPartEnum::DYNAMIC_NO_TRANS),&GLVertexBuffer::drawByDynamicEbo_no_trans });
@@ -252,7 +252,6 @@ namespace ifcre {
 		no_tran_dynamic_size = dynamic_indices_no_trans.size();
 		tran_dynamic_size = dynamic_indices_trans.size();
 		edge_dynamic_size = dynamic_indices_edge.size();
-		//dyn_generated = true;
 	}
 
 	void GLVertexBuffer::uploadChosenElementBuffer(const Vector<uint32_t>& chosen_indices_no_trans, const Vector<uint32_t>& chosen_indices_trans)
@@ -289,9 +288,9 @@ namespace ifcre {
 
 	}
 
-	void GLVertexBuffer::run_draw_func(uint32_t draw_id) {
-		if (mFuncPtr.count(draw_id)) {
-			(this->*mFuncPtr[draw_id])();
+	void GLVertexBuffer::run_draw_func(RenderPartEnum draw_id) {
+		if (mFuncPtr.count(uint32_t(draw_id))) {
+			(this->*mFuncPtr[uint32_t(draw_id)])();
 		}
 	}
 
@@ -312,7 +311,6 @@ namespace ifcre {
 		glBindVertexArray(m_vaoid);
 		glBindBuffer(GL_ARRAY_BUFFER, m_vboid);
 		glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Real), vertices.data(), GL_DYNAMIC_DRAW);
-
 		glBindVertexArray(0);
 	}
 

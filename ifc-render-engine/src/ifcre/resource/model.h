@@ -14,16 +14,12 @@
 #include <glm/gtc/quaternion.hpp>
 #include <Ifc2OpenGLDatas.h>
 #include <random>// just used for test dynamic geom
-//#define ALL_COMP_TRANS
 #define M_PI       3.14159265358979323846   // pi
 
-//#include <math.h>
-
-extern"C" Datas2OpenGL generateIFCMidfile(const std::string filename, const float tolerance = 0.01);
 
 namespace ifcre {
 
-	enum CompState {
+	enum class CompState {
 		DUMP = 0x00,
 		VISIABLE = 0x01,
 		CHOSEN = 0x02
@@ -40,10 +36,10 @@ namespace ifcre {
 		// 1 for alpha(float), and 1 for ns(int)
 	};
 	struct MaterialData {
-		glm::vec3 kd;		// 漫反射rgb
-		glm::vec3 ks;		// 高光项rgb(specular)
-		float alpha;		// 透明度
-		int ns;				// cos的指数(specularity)32/18
+		glm::vec3 kd = glm::vec3(0.f);		// 漫反射rgb
+		glm::vec3 ks = glm::vec3(0.f);		// 高光项rgb(specular)
+		float alpha = 0.f;		// 透明度
+		int ns = 0;				// cos的指数(specularity)32/18
 		MaterialData() {}
 		MaterialData(glm::vec4 a, glm::vec4 b, float c, int d) :kd(a), ks(b), alpha(c), ns(d) {}
 	};
@@ -51,13 +47,13 @@ namespace ifcre {
 	class IFCModel {
 	public:
 		// generate IFCModel through datas2OpenGL, basically used currently
-		IFCModel(const struct Datas2OpenGL& datas, bool edge_generated = false) :g_indices(datas.vert_indices), g_vertices(datas.verts),
+		IFCModel(const struct Datas2OpenGL& datas) :g_indices(datas.vert_indices), g_vertices(datas.verts),
 			g_normals(datas.vert_normals2), c_indices(datas.search_m), edge_indices(datas.edge_indices),
 			this_comp_belongs_to_which_storey(datas.this_comp_belongs_to_which_storey),
 				storeys_comp_id(datas.storeys_component_id) {
 			//clock_t start, end;
 			//start = clock();
-			Vector<CompState>(c_indices.size(), VISIABLE).swap(comp_states);
+			Vector<CompState>(c_indices.size(), CompState::VISIABLE).swap(comp_states);
 			
 			size_t facs = datas.face_mat.size(); // 获取面的数量
 			Vector<MaterialData>(facs).swap(material_data);
@@ -75,77 +71,9 @@ namespace ifcre {
 			cal_tile_matrix();
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes(edge_generated);	// 生成边
+			generate_edges_by_msMeshes();	// 生成边
 			//end = clock();
 			//std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
-		}
-		// generate IFCModel using myownfile.dll directly, not used anymore
-		IFCModel(const String ifc_file_name) {
-			const String filename = ifc_file_name;
-
-			std::ifstream is(filename.c_str(), std::ios::binary);
-			if (!is.is_open()) {
-				std::cout << filename << " opened failed.\n";
-				exit(-1);
-			}
-
-			//vertices
-			size_t s;
-			is.read((char*)&s, sizeof(size_t));
-			this->g_vertices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_vertices[i], sizeof(Real));
-			}
-			//normals
-			is.read((char*)&s, sizeof(size_t));
-			this->g_normals.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_normals[i], sizeof(Real));
-			}
-
-			//global_indices
-			is.read((char*)&s, sizeof(size_t));
-			this->g_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&this->g_indices[i], sizeof(unsigned int));
-				this->g_indices[i]--;
-			}
-			//components' indices
-			is.read((char*)&s, sizeof(size_t));
-			size_t tmps;
-			c_indices.resize(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&tmps, sizeof(size_t));
-				Vector<uint32_t> tmpvc(tmps);
-				for (int j = 0; j < tmps; j++) {
-					is.read((char*)&tmpvc[j], sizeof(unsigned int));
-					tmpvc[j]--;
-				}
-				c_indices[i] = tmpvc;
-			}
-
-			//material datas
-			is.read((char*)&s, sizeof(size_t));
-			material_data.resize(s);
-			Vector<MtlData> mat_vec(s);
-			for (int i = 0; i < s; i++) {
-				is.read((char*)&mat_vec[i].data[0], sizeof(float) * 7);
-				is.read((char*)&mat_vec[i].data[7], sizeof(int));
-			}
-			for (int i = 0; i < s; i++) {
-				material_data[i] = MaterialData(
-					glm::vec4(mat_vec[i].data[0].f, mat_vec[i].data[1].f, mat_vec[i].data[2].f, 0),
-					glm::vec4(mat_vec[i].data[3].f, mat_vec[i].data[4].f, mat_vec[i].data[5].f, 0),
-					mat_vec[i].data[6].f, mat_vec[i].data[7].i);
-			}
-			getVerColor();
-			generateStoreyIds();
-			generateCompIds();
-			generate_bbxs_by_comps();
-			generate_bbxs_each_floor();
-			cal_tile_matrix();
-			getVerAttrib();
-			divide_model_by_alpha();
 		}
 
 		IFCModel(Vector<uint32_t>& _g_indices, Vector<Real>& _g_vertices, Vector<Real>& _g_normals, Vector<Vector<uint32_t>>& _c_indices,
@@ -153,7 +81,7 @@ namespace ifcre {
 			g_indices(_g_indices), g_vertices(_g_vertices), g_normals(_g_normals), c_indices(_c_indices) {
 			clock_t start, end;
 			start = clock();
-			Vector<CompState>(c_indices.size(), VISIABLE).swap(comp_states);
+			Vector<CompState>(c_indices.size(), CompState::VISIABLE).swap(comp_states);
 
 			size_t faces = _face_mat.size() / 8;// 获取面的数量
 			Vector<MaterialData>(faces).swap(material_data);
@@ -169,7 +97,7 @@ namespace ifcre {
 			generate_bbxs_by_comps();		// 生成各个物件的bbx
 			getVerAttrib();					// 生成顶点属性数组
 			divide_model_by_alpha();		// 根据透明度将顶点分为两组
-			generate_edges_by_msMeshes(false);	// 生成边
+			generate_edges_by_msMeshes();	// 生成边
 			end = clock();
 			std::cout << (double)(end - start) / CLOCKS_PER_SEC << "s used for oepnGL data generating\n";
 		}
@@ -182,20 +110,16 @@ namespace ifcre {
 			Vector<Real>().swap(g_vertices);
 		}
 
-		void generate_edges_by_msMeshes(bool edge_generated) {
-			//if (!edge_generated) {
-				Vector<Vector<uint32_t>>().swap(c_edge_indices);
-				Vector<uint32_t>().swap(edge_indices);
-				mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
-				Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
-				for (mesh_simplier::Mesh mes : meshes) {
-					edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
-					c_edge_indices.emplace_back(mes.edge_indexp);
-				}
-				cur_edge_ind = edge_indices;
-			//}
-			//for (int i = 0; i < c_edge_indices.size(); i++)
-			//	ind_of_all_c_indices.emplace_back(i);
+		void generate_edges_by_msMeshes() {
+			Vector<Vector<uint32_t>>().swap(c_edge_indices);
+			Vector<uint32_t>().swap(edge_indices);
+			mesh_simplier::build_ms_vertices(g_vertices, g_normals); // 存储顶点的位置和法向量
+			Vector<mesh_simplier::Mesh> meshes = mesh_simplier::generateMeshes(c_indices); // 根据c_indices 生成对应的 构件到对应要显示的edges的映射
+			for (mesh_simplier::Mesh mes : meshes) {
+				edge_indices.insert(edge_indices.end(), mes.edge_indexp.begin(), mes.edge_indexp.end());
+				c_edge_indices.emplace_back(mes.edge_indexp);
+			}
+			cur_edge_ind = edge_indices;
 		}
 
 		Vector<uint32_t> getgIndices() {
@@ -301,10 +225,6 @@ namespace ifcre {
 			return g_kd_color;
 		}
 
-		// not used
-		bool is_this_comp_transparency(uint32_t index) {
-			return material_data[index].alpha < .99;
-		}
 		//divide components into 2 vectors by their transparence
 		void divide_model_by_alpha() {
 			int v_count = 0;
@@ -331,13 +251,13 @@ namespace ifcre {
 		void update_chosen_list(std::set<uint32_t>& chosen_list) {
 			uint32_t c_indices_size = c_indices.size();
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] != VISIABLE && i < c_indices_size) {
-					comp_states[i] = VISIABLE;
+				if (comp_states[i] != CompState::VISIABLE && i < c_indices_size) {
+					comp_states[i] = CompState::VISIABLE;
 				}
 			}
 			for (auto cur_index : chosen_list) {
 				if (cur_index < c_indices_size) {
-					comp_states[cur_index] = CHOSEN;
+					comp_states[cur_index] = CompState::CHOSEN;
 				}
 			}
 			//chosen_list.clear();
@@ -360,7 +280,7 @@ namespace ifcre {
 			uint32_t edge_c_indices_size = c_edge_indices.size();
 
 			for (const int i : cur_c_indices) {
-				if (comp_states[i] == VISIABLE) {
+				if (comp_states[i] == CompState::VISIABLE) {
 					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
 						cur_vis_trans_ind.insert(cur_vis_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					}
@@ -371,7 +291,7 @@ namespace ifcre {
 						cur_edge_ind.insert(cur_edge_ind.end(), c_edge_indices[i].begin(), c_edge_indices[i].end());
 					}
 				}
-				else if (comp_states[i] == CHOSEN) {
+				else if (comp_states[i] == CompState::CHOSEN) {
 					if (trans_c_indices_set.find(i) != trans_c_indices_set.end()) {
 						cur_chosen_trans_ind.insert(cur_chosen_trans_ind.end(), c_indices[i].begin(), c_indices[i].end());
 					}
@@ -418,51 +338,36 @@ namespace ifcre {
 			m_center = (pMin + pMax) * 0.5f;
 		}
 
-		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices) {
-			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			for (auto& id : comp_indices) {
-				if (id < c_indices.size()) {
-					for (int i = 0; i < 3; i++) {
-						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-					}
-					for (int i = 3; i < 6; i++) {
-						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
-					}
-				}
-			}
-			return ret;
-		}
-
-		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices) {
-			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			for (auto& id : comp_indices) {
-				if (id < c_indices.size()) {
-					for (int i = 0; i < 3; i++) {
-						ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
-					}
-					for (int i = 3; i < 6; i++) {
-						ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
-					}
-				}
-			}
-			return ret;
-		}
-
 		Vector<Real> generate_bbxs_bound_by_vec(const std::set<uint32_t>& comp_indices, bool flag) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			for (auto& id : comp_indices) {
-				if (id < c_indices.size()) {
-					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[0] = std::min(ret[0], pos.x);
-					ret[1] = std::min(ret[1], pos.y);
-					ret[2] = std::min(ret[2], pos.z);
+			if (flag)
+			{
+				for (auto& id : comp_indices) {
+					if (id < c_indices.size()) {
+						for (int i = 0; i < 3; i++) {
+							ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+						}
+						for (int i = 3; i < 6; i++) {
+							ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+						}
+					}
+				}
+			}
+			else {
+				for (auto& id : comp_indices) {
+					if (id < c_indices.size()) {
+						glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[0] = std::min(ret[0], pos.x);
+						ret[1] = std::min(ret[1], pos.y);
+						ret[2] = std::min(ret[2], pos.z);
 
-					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[3] = std::max(ret[3], pos.x);
-					ret[4] = std::max(ret[4], pos.y);
-					ret[5] = std::max(ret[5], pos.z);
+						pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[3] = std::max(ret[3], pos.x);
+						ret[4] = std::max(ret[4], pos.y);
+						ret[5] = std::max(ret[5], pos.z);
+					}
 				}
 			}
 			return ret;
@@ -470,26 +375,42 @@ namespace ifcre {
 
 		Vector<Real> generate_bbxs_bound_by_vec(const std::vector<uint32_t>& comp_indices, bool flag) {
 			Vector<Real> ret = { FLT_MAX, FLT_MAX, FLT_MAX, -FLT_MAX, -FLT_MAX, -FLT_MAX };
-			for (auto& id : comp_indices) {
-				if (id < c_indices.size()) {
-					glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[0] = std::min(ret[0], pos.x);
-					ret[1] = std::min(ret[1], pos.y);
-					ret[2] = std::min(ret[2], pos.z);
-
-					pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
-					pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
-					ret[3] = std::max(ret[3], pos.x);
-					ret[4] = std::max(ret[4], pos.y);
-					ret[5] = std::max(ret[5], pos.z);
+			if (flag)
+			{
+				for (auto& id : comp_indices) {
+					if (id < c_indices.size()) {
+						for (int i = 0; i < 3; i++) {
+							ret[i] = std::min(ret[i], comps_bbx[6 * id + i]);
+						}
+						for (int i = 3; i < 6; i++) {
+							ret[i] = std::max(ret[i], comps_bbx[6 * id + i]);
+						}
+					}
 				}
 			}
+			else {
+				for (auto& id : comp_indices) {
+					if (id < c_indices.size()) {
+						glm::vec3 pos(comps_bbx[6 * id], comps_bbx[6 * id + 1], comps_bbx[6 * id + 2]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[0] = std::min(ret[0], pos.x);
+						ret[1] = std::min(ret[1], pos.y);
+						ret[2] = std::min(ret[2], pos.z);
+
+						pos = glm::vec3(comps_bbx[6 * id + 3], comps_bbx[6 * id + 4], comps_bbx[6 * id + 5]);
+						pos = tile_matrix[this_comp_belongs_to_which_storey[id]] * glm::vec4(pos, 1.0);
+						ret[3] = std::max(ret[3], pos.x);
+						ret[4] = std::max(ret[4], pos.y);
+						ret[5] = std::max(ret[5], pos.z);
+					}
+				}
+			}
+			return ret;
 			return ret;
 		}
 
 		Vector<Real> generate_bbxs_by_vec(const std::set<uint32_t>& comp_indices) {
-			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices);
+			Vector<Real> ret = generate_bbxs_bound_by_vec(comp_indices, true);
 			Vector<Real> ret2(24);
 			for (int i = 0; i < 8; i++) {
 				ret2[i * 3] = i & 1 ? ret[3] : ret[0];
@@ -531,7 +452,7 @@ namespace ifcre {
 				for (int j = 0; j < storeys_comp_id[i].size(); j++) {
 					temp_comp_indices.insert(storeys_comp_id[i][j]);
 				}
-				Vector<Real> bbx_floor = generate_bbxs_bound_by_vec(temp_comp_indices);		// floor's component's bbx
+				Vector<Real> bbx_floor = generate_bbxs_bound_by_vec(temp_comp_indices, true);		// floor's component's bbx
 				bbx_floor.push_back(util::int_as_float(this_comp_belongs_to_which_storey[storeys_comp_id[i][0]]));		// add the current floor number
 				bbxs_each_floor.push_back(bbx_floor);
 			}
@@ -613,9 +534,6 @@ namespace ifcre {
 		glm::vec3 getModelCenter() {
 			return m_center;
 		}
-		glm::vec3 getCurModelCenter() {
-
-		}
 
 		/*Vector<glm::mat4>*/void tile_offsets_mats(Vector<glm::mat4>& uploaded_vec_mat) {
 			for (size_t i = 0; i < tile_matrix_ordered.size(); i++) {
@@ -678,30 +596,6 @@ namespace ifcre {
 
 		glm::mat4 getPreComputeModelMatrix(int i) {
 			return glm::translate(glm::mat4(1.f), m_cube_direction_transform[i]);
-		}
-
-		void enlarge_scale(float div, glm::vec3 targpos) {
-			glm::mat4 trans_center(1.0f);
-			glm::vec3 world_pos = m_model * glm::vec4(m_center, 1.f);
-			trans_center = glm::translate(trans_center, world_pos);
-			m_model = m_model * trans_center;
-
-			glm::vec3 dis = targpos - world_pos;
-			float len_of_dis = glm::length(dis);
-
-			//std::cout << "targpos: " << targpos.x << " " << targpos.y << " " << targpos.z << std::endl;
-			//std::cout << "world_pos: " << world_pos.x << " " << world_pos.y << " " << world_pos.z << std::endl;
-
-			float changed = div > 0.f ? 1.25f : 0.8f;
-			m_scale_factor *= changed;
-			m_model = glm::scale(m_model, glm::vec3(changed, changed, changed));
-			for (int i = 0; i < 3; i++)
-				m_model[3][i] *= changed;
-
-			glm::mat4 trans_click_center(1.0f);/*
-			trans_click_center = glm::translate(trans_click_center, world_pos + dis * len_of_dis / 20.f);*/
-			trans_click_center = glm::translate(trans_click_center, -world_pos * changed);
-			m_model = trans_click_center * m_model;
 		}
 
 		void generate_circleLines(Vector<float>& grid_lines, Vector<float>& grid_circles, int per_degree = 30) {
