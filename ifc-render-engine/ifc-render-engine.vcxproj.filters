@@ -90,6 +90,7 @@
     <ClInclude Include="src\ifcre\Clips.h" />
     <ClInclude Include="src\ifcre\SkyBox.h" />
     <ClInclude Include="src\ifcre\common\logger.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\workdir\shaders\normal_depth_write.frag">
@@ -158,5 +159,8 @@
     <Filter Include="shaders">
       <UniqueIdentifier>{789911ef-e823-4d96-aeeb-0bfa026c9449}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ifc-render-engine.rc" />
   </ItemGroup>
 </Project>
