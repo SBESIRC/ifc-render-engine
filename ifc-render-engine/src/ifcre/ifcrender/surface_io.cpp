@@ -1,4 +1,4 @@
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include "surface_io.h"
 #include <iostream>
 namespace ifcre {
@@ -30,11 +30,11 @@ namespace ifcre {
 		:m_title(title), m_width(w), m_height(h), m_render_api(api)
 	{
 		glfwInit();
-		if (api == VULKAN_RENDER_API) {
+		if (api == RenderAPIEnum::VULKAN_RENDER_API) {
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			m_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		}
-		else if(api == OPENGL_RENDER_API){
+		else if(api == RenderAPIEnum::OPENGL_RENDER_API){
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -45,7 +45,7 @@ namespace ifcre {
 			glfwTerminate();
 			return; 
 		}
-		if (api == OPENGL_RENDER_API) {
+		if (api == RenderAPIEnum::OPENGL_RENDER_API) {
 			glfwMakeContextCurrent(m_window);
 			// load gl functions by glad
 			static bool load_gl = false;

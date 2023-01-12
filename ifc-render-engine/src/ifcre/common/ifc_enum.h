@@ -3,7 +3,7 @@
 #define IFCRE_ENUM_H_
 
 namespace ifcre {
-	enum RenderTypeEnum {
+	enum class RenderTypeEnum {
 		NORMAL_DEPTH_WRITE = 0x00,
 		DEFAULT_SHADING = 0x01,
 		OFFLINE_SHADING = 0x02,
@@ -16,11 +16,11 @@ namespace ifcre {
 		COLLISION_RENDER = 0x09,
 		TEXT_RENDER = 0x0a
 	};
-	enum RenderPartEnum {
+	enum class RenderPartEnum {
 		ALL = 0x01,
 		DYNAMIC_ALL = 0x02,
-		NO_TRANS = 0x03,
-		TRANS = 0x04,
+		//NO_TRANS = 0x03,
+		//TRANS = 0x04,
 		BBX_LINE = 0x05,
 		EDGE_LINE = 0x06,
 		DYNAMIC_NO_TRANS = 0x07,
@@ -31,7 +31,7 @@ namespace ifcre {
 		COLLISION = 0x0c
 	};
 
-	enum RenderAPIEnum {
+	enum class RenderAPIEnum {
 		OPENGL_RENDER_API = 0x01,
 		VULKAN_RENDER_API = 0x02
 	};

@@ -83,7 +83,6 @@ namespace ifcre {
 		bool saveImage(const char* filePath);
 		//void SetClipBox();
 		void zoom2Home();
-		void zoombyBBX(glm::vec3 minvec3, glm::vec3 maxvec3);
 
 		//test dynamic ebo of components, using keyboard input
 		void updateDynamicEboData();
@@ -91,7 +90,7 @@ namespace ifcre {
 		void dataIntegration();
 		void offscreenRending(const int index = 4);
 
-		void zoom_into(Vector<Real> bound_vecs, glm::vec3& clicked_coord);
+		void zoom_into(Vector<Real> bound_vecs);
 		bool flag_between_zoom_reset = false;
 		void reset_coord(glm::vec3& clicked_coord);
 
@@ -165,7 +164,7 @@ namespace ifcre {
 		bool showcolid = false;
 
 		std::vector<uint32_t> collision_list;
-		RenderAPIEnum m_render_api = OPENGL_RENDER_API;
+		RenderAPIEnum m_render_api = RenderAPIEnum::OPENGL_RENDER_API;
 	};
 }
 

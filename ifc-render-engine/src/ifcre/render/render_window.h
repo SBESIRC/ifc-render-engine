@@ -89,6 +89,8 @@ namespace ifcre {
 		bool isMouseMove();
 		bool isRightMouseClicked();
 
+		void trans_mouse_status_from_2_mats(glm::mat4 orimat, glm::mat4 newmat);
+
 		// ----- ----- ----- ----- ----- -----
 
 		String get_glsl_verison() const {
@@ -104,7 +106,7 @@ namespace ifcre {
 		//int geomframe = 0;
 		bool geom_changed = true;
 		bool rotatelock = false;
-		bool trigger = false;
+		bool zoom_trigger = false;
 		bool collidertrig = false;
 		bool scrolltrigger = false;
 		double scrollyoffset = 0.0;

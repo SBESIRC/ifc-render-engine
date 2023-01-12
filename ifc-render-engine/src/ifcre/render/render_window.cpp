@@ -95,7 +95,7 @@ namespace ifcre {
                         chosen_list = { static_cast<uint32_t>(clicked_comp_id) };
                     }
                     if (m_mouse_status.double_click) {// && clicked_comp_id == m_mouse_status.click_comp_id) {
-                        trigger = true;//do zoom
+                        zoom_trigger = true;//do zoom
                         m_mouse_status.double_click = false;
                     }
                 }
@@ -287,7 +287,7 @@ namespace ifcre {
                 //        that->_setClickedWorldColors(click_x, click_y, false, true);
                 //    }
                 //}
-                if (status.single_click && double_diff_ms > 10 && double_diff_ms < 500) {
+                if (status.single_click && double_diff_ms > 10 && double_diff_ms < 300) {
                     status.single_click = false;
                     status.double_click = true;
                     double click_x, click_y;
@@ -485,8 +485,8 @@ namespace ifcre {
             openTileView = false;
         }
 
-        if (!trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
-            trigger = true;
+        if (!zoom_trigger && glfwGetKey(m_window, GLFW_KEY_D) == GLFW_PRESS) {
+            zoom_trigger = true;
         }
         if (glfwGetKey(m_window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
             multichoose = true;
@@ -746,6 +746,15 @@ namespace ifcre {
     bool RenderWindow::isRightMouseClicked()
     {
         return m_mouse_status.rbtn_down;
+    }
+
+    void RenderWindow::trans_mouse_status_from_2_mats(glm::mat4 orimat, glm::mat4 newmat) {
+        glm::mat4 inv_ori = glm::inverse(orimat);
+        glm::vec3 new_click_world = newmat * inv_ori * glm::vec4(m_mouse_status.click_world_center, 1.0);
+        glm::vec3 new_hover_world = newmat * inv_ori * glm::vec4(m_mouse_status.hover_world_center, 1.0);
+        m_mouse_status.click_world_center = new_click_world;
+        m_mouse_status.hover_world_center = new_hover_world;
+        m_mouse_status.click_z = 1.0;
     }
 
     void RenderWindow::setDefaultStatus() {
