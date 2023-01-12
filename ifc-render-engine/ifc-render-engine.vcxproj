@@ -212,6 +212,7 @@
     <ClCompile Include="src\ifcre\tri_tri_intersect.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="resource.h" />
     <ClInclude Include="src\ifcre\Axis.h" />
     <ClInclude Include="src\ifcre\bmp.h" />
     <ClInclude Include="src\ifcre\Character.h" />
@@ -307,6 +308,9 @@
     <None Include="..\workdir\shaders\text3d.vert" />
     <None Include="..\workdir\shaders\tile_view_drawing.frag" />
     <None Include="..\workdir\shaders\tile_view_drawing.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ifc-render-engine.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
