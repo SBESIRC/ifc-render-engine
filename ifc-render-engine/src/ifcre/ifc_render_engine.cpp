@@ -10,6 +10,7 @@
 #include "common/logger.h"
 //#define ONLY_DEPTH_NROMAL_RES
 #define TEST_COMP_ID_RES
+
 namespace ifcre {
 	extern IFCVulkanRender;
 	SharedPtr<IFCRenderEngine> ifcre;

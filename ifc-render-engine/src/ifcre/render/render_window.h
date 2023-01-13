@@ -171,7 +171,7 @@ namespace ifcre {
 		struct {
 			int32_t horizontal_move = 0, vertical_move = 0;
 			int32_t last_mouse_x, last_mouse_y;
-			bool lbtn_down = false, rbtn_down = false, single_click = false, double_click = false;
+			bool lbtn_down = false, mbtn_down = false, single_click = false, double_click = false;
 			glm::vec3 click_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 hover_world_center = glm::vec3(0, 0, 0);
 			glm::vec3 click_world_color = glm::vec3(0, 0, 0);
