@@ -140,7 +140,7 @@ namespace ifcre {
         auto& status = that->m_mouse_status;
         that->_setClickedWorldColors(xpos, ypos, true, true);
         that->_setClickedWorldColors(xpos, ypos, true, false);
-        if (status.lbtn_down || status.rbtn_down) {
+        if (status.lbtn_down || status.mbtn_down) {
             if (status.last_mouse_x != xpos) {
                 //camera.rotateByScreenX(status.click_world_center, glm::radians((status.last_mouse_x - xpos) > 0 ? 2.0f : -2.0f));
                 status.horizontal_move = status.last_mouse_x - xpos;
@@ -156,7 +156,7 @@ namespace ifcre {
         }
 
 
-        if (status.rbtn_down) {
+        if (status.mbtn_down) {
             //glfwGetCursorPos(window, &curX, &curY);
             //camera.translate(lastX - curX, curY - lastY);
             //lastX = curX, lastY = curY;
@@ -327,14 +327,14 @@ namespace ifcre {
             }
             }
         }
-        if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
             switch (action) {
             case GLFW_PRESS: {
-                status.rbtn_down = true;
+                status.mbtn_down = true;
                 break;
             }
             case GLFW_RELEASE: {
-                status.rbtn_down = false;
+                status.mbtn_down = false;
                 break;
             }
             }
@@ -729,13 +729,13 @@ namespace ifcre {
     bool RenderWindow::isMouseHorizontalRot()
     {
         return m_mouse_status.lbtn_down 
-            && !m_mouse_status.rbtn_down 
+            && !m_mouse_status.mbtn_down 
             && m_mouse_status.horizontal_move != 0;
     }
     bool RenderWindow::isMouseVerticalRot()
     {
         return m_mouse_status.lbtn_down 
-            && !m_mouse_status.rbtn_down 
+            && !m_mouse_status.mbtn_down 
             && m_mouse_status.vertical_move != 0;
     }
     bool RenderWindow::isMouseMove()
@@ -745,7 +745,7 @@ namespace ifcre {
     }
     bool RenderWindow::isRightMouseClicked()
     {
-        return m_mouse_status.rbtn_down;
+        return m_mouse_status.mbtn_down;
     }
 
     void RenderWindow::trans_mouse_status_from_2_mats(glm::mat4 orimat, glm::mat4 newmat) {
