@@ -15,7 +15,7 @@ void Collider::addCondition(Condition condition) {
 }
 
 std::vector<Collider::indexPair> Collider::getCollisionPair() {
-	clock_t fir, sec;
+	clock_t fir = 0, sec = 0;
 	TIME_(
 	this->filterData();
 	,fir, sec, "filter : ");
@@ -77,12 +77,12 @@ void Collider::broadPhaseProcess_BVH() {
 	auto [bboxes, centers] = bvh::compute_bounding_boxes_and_centers(static_cast<const Componment *>(
 		mBuildDat.data()
 	), this->mComponmentSize);
-	auto globalBox = bvh::compute_bounding_boxes_union(bboxes.get(), this->mComponmentSize);
+	auto globalBox = bvh::compute_bounding_boxes_union(bboxes.get(), this->mComponmentSize); // 生成最大的bbx
     bvh::SweepSahBuilder<Bvh> bvhBuilder(mBvh);
-	bvhBuilder.build(globalBox, bboxes.get(), centers.get(), this->mComponmentSize);
+	bvhBuilder.build(globalBox, bboxes.get(), centers.get(), this->mComponmentSize); // 构造树（此步并未进行进行碰撞判断）
 #endif
 	// find Self-Intersection 
-	this->processBVH(mBvh);
+	this->processBVH(mBvh);  // 遍历树来生成碰撞对结果（此步才进行碰撞判断）
 #if defined(COLLIDER_DEBUG) && defined(COLLIDER_PRINT_RUNTIME)
 	std::cout << "after broad " << this->mIndexArr.size() << std::endl;
 #endif
@@ -362,7 +362,7 @@ void Collider::conditionFilter() {
 }
 
 void Collider::narrowPhaseProcess(){
-	decltype(this->mIndexArr) tempArr;
+	decltype(this->mIndexArr) tempArr; // mIndexArr 存当前相撞的索引对
 	tempArr.reserve(this->mIndexArr.size());
 	std::unique_ptr<bool[]> legalDummys = std::make_unique<bool[]>(this->mIndexArr.size());
 	auto siz = this->mIndexArr.size();
@@ -400,12 +400,12 @@ void Collider::narrowPhaseProcess(){
 	auto procCnt = 8;
 	auto chuckSiz = siz / std::size_t(procCnt);
 	auto coreProgram = [this, mLegalDummys = legalDummys.get()](std::size_t rangeLhs, std::size_t rangeRhs) -> void {
-		for (std::size_t p = rangeLhs; p < rangeRhs; ++p) {
+		for (std::size_t p = rangeLhs; p < rangeRhs; ++p) { // 遍历每一个碰撞对
 			const auto [lhs, rhs] = this->mIndexArr[p];
-			const auto& crefL = this->mRawData->search_m[lhs];
-			const auto& crefR = this->mRawData->search_m[rhs]; 
+			const auto& crefL = this->mRawData->search_m[lhs]; // 三角形面片组（一个构件）
+			const auto& crefR = this->mRawData->search_m[rhs]; // 三角形面片组（一个构件）
 			const auto& crefDat = this->mRawData->verts;
-			mLegalDummys[p] = false;
+			mLegalDummys[p] = false; // 存储某个碰撞对是否碰撞
 			for (std::size_t lPtr = 0; lPtr < crefL.size() && !mLegalDummys[p]; lPtr += 3) {
 				for (std::size_t rPtr = 0; rPtr < crefR.size(); rPtr += 3) {
 					if (this->fastTriangleIntersect(
@@ -430,7 +430,7 @@ void Collider::narrowPhaseProcess(){
 	std::list<std::thread> threadList;
 	for (std::size_t begin = 0; begin < siz; begin += chuckSiz) {
 		threadList.emplace_back(
-			coreProgram,
+			coreProgram,	
 			begin,
 			std::min(begin + chuckSiz, siz)
 		);
@@ -442,26 +442,26 @@ void Collider::narrowPhaseProcess(){
 		if (legalDummys[p]) 
 			tempArr.emplace_back(this->mIndexArr[p]);
 		
-	this->mIndexArr = std::move(tempArr);
+	this->mIndexArr = std::move(tempArr); // 转换成结果碰撞对
 }
 
 #if defined(COLLIDER_USE_BVH)
-void Collider::processBVH(const Bvh & mBvh){
+void Collider::processBVH(const Bvh & mBvh){ // BVH存储为一个完全二叉树、此处使用前序遍历+状态机
 	std::vector<indexPair>().swap(this->mIndexArr);
 	// auto nodeCnt = mBvh.node_count;
 	struct alignas(16) RecursiveInfo{
 		int phaseDummy;
 		int args[3]; 
 		/*
-		* Recursivly Process Self Intersection
-		* Phase 0 , args: [NodeIndex]
-		* Build Intersection Among subTrees
-		* Phase 1 , args: [NodeIndex]
-		* Process Pair
-		* Phase 2 , args: [NodeIndex, NodeIndex, IsLeaf]
+		* Recursivly Process Self Intersection			 // 状态0：回溯处理自相交
+		* Phase 0 , args: [NodeIndex]					 // 存储： 节点id
+		* Build Intersection Among subTrees				 // 状态1：子树中的相交
+		* Phase 1 , args: [NodeIndex]					 //	存储： 节点id
+		* Process Pair									 // 状态2：处理成对数据
+		* Phase 2 , args: [NodeIndex, NodeIndex, IsLeaf] // 存储： 左节点id，右节点id，是否为叶子
 		*/
 	};
-	std::stack<RecursiveInfo> recurStack;
+	std::stack<RecursiveInfo> recurStack; // 栈回溯
 	recurStack.push(RecursiveInfo{0, 0});
 	while (!recurStack.empty()) {
 		// while (!recurStack.empty()){
@@ -471,87 +471,94 @@ void Collider::processBVH(const Bvh & mBvh){
 		// }
 		auto recurInfo = recurStack.top();
 		recurStack.pop();
-		if (recurInfo.phaseDummy == 0) {
+		// 状态0：回溯处理自相交
+		// 存储： 节点id
+		if (recurInfo.phaseDummy == 0) { // Recursivly Process Self Intersection
 			const auto nodeIndex = recurInfo.args[0];
 			const auto isLeaf = mBvh.nodes[nodeIndex].is_leaf();
-			if (!isLeaf) {
-				recurStack.push(RecursiveInfo{ 1, nodeIndex });
-				auto mIndex = mBvh.nodes[nodeIndex].first_child_or_primitive;
-				recurStack.push(RecursiveInfo{ 0, (int)mIndex });
-				recurStack.push(RecursiveInfo{ 0, (int)Bvh::sibling(mIndex) });
+			if (!isLeaf) { // 非叶子节点，树中普通节点
+				recurStack.push(RecursiveInfo{ 1, nodeIndex }); // 进行状态1处理
+				auto mIndex = mBvh.nodes[nodeIndex].first_child_or_primitive;// 获得当前父节点较小的孩子，没有孩子就是自己
+				recurStack.push(RecursiveInfo{ 0, (int)mIndex }); // 处理左孩子
+				recurStack.push(RecursiveInfo{ 0, (int)Bvh::sibling(mIndex) }); // 处理右孩子
 			}
-			else {
+			else { // 是叶子节点，直接进行第二状态处理
 				recurStack.push(RecursiveInfo{ 2, nodeIndex, nodeIndex, 1 }); // directly jump to phase 2
 			}
 		}
-		else if (recurInfo.phaseDummy == 1) {
+		// 状态1：如果当前节点的两个孩子相交，则进行第二状态处理
+		// 存储： 节点id
+		else if (recurInfo.phaseDummy == 1) { // Build Intersection Among subTrees
 			const auto nodeIndex = recurInfo.args[0];
-			const auto isLeaf = recurInfo.args[1];
-			auto mIndex = mBvh.nodes[nodeIndex].first_child_or_primitive;
-			auto anotherIndex = Bvh::sibling(mIndex);
+			//const auto isLeaf = recurInfo.args[1];
+			auto mIndex = mBvh.nodes[nodeIndex].first_child_or_primitive; // 获得当前父节点较小的孩子（没有孩子就是自己）
+			auto anotherIndex = Bvh::sibling(mIndex); // 兄弟节点
 			auto fir = mBvh.nodes[mIndex].bounding_box_proxy().to_bounding_box();
 			auto sec = mBvh.nodes[anotherIndex].bounding_box_proxy().to_bounding_box();
-			if (this->isIntersect(fir, sec))
-				recurStack.push(RecursiveInfo{ 2, (int)mIndex, (int)Bvh::sibling(mIndex), 0 });
+			if (this->isIntersect(fir, sec))// 判断两个盒子是否碰撞
+				recurStack.push(RecursiveInfo{ 2, (int)mIndex, (int)anotherIndex, 0 });
 
 		}
-		else if (recurInfo.phaseDummy == 2) {
-			if (recurInfo.args[2] != 0) {
+		// 状态2：处理成对数据
+		// 存储： 左节点id，右节点id，是否为叶子
+		else if (recurInfo.phaseDummy == 2) { // Process Pair 处理某对数据，可能是叶子节点，也可能是碰撞的一对盒子
+			if (recurInfo.args[2] != 0) {  // 是叶子（某个叶子中的俩个id）// 粗略认为两两都相交了（因为是叶子节点了，不能再进行细分了，所以认为都相交）
 				const auto primitiveCount = mBvh.nodes[recurInfo.args[0]].primitive_count;
 				const auto primitiveBeginIndex = mBvh.nodes[recurInfo.args[1]].first_child_or_primitive;
 				const auto* const primitivePtr = mBvh.primitive_indices.get();
-				for (std::size_t p1 = 0; p1 < primitiveCount; ++p1) {
-					for (std::size_t p2 = p1 + 1; p2 < primitiveCount; ++p2) {
+				for (std::size_t p1 = 0; p1 < primitiveCount; ++p1) { // n^2 / 2 的数量
+					for (std::size_t p2 = p1 + 1; p2 < primitiveCount; ++p2) { // 遍历这个叶子节点下所有的对
 						auto [mMin, mMax] = std::minmax({ primitivePtr[primitiveBeginIndex + p1], primitivePtr[primitiveBeginIndex + p2] });
 						this->mIndexArr.emplace_back((IndexType)mMin, (IndexType)mMax);
 					}
 				}
 			}
-			else {
-				int firCnt = 2, secCnt = 2;
+			else { // 不是叶子
+				int firCnt = 2, secCnt = 2; // 初始默认左右各俩孩子
 				if (mBvh.nodes[recurInfo.args[0]].is_leaf())
 					firCnt = 1;
 				if (mBvh.nodes[recurInfo.args[1]].is_leaf())
 					secCnt = 1;
-				if (firCnt == 1 && secCnt == 1) {
+				if (firCnt == 1 && secCnt == 1) { // 左右节点都是叶子（两个叶子节点）
 
 					auto firBox = mBvh.nodes[recurInfo.args[0]].bounding_box_proxy().to_bounding_box();
 					auto secBox = mBvh.nodes[recurInfo.args[1]].bounding_box_proxy().to_bounding_box();
-					if (!this->isIntersect(firBox, secBox)) {
+					if (!this->isIntersect(firBox, secBox)) {// 判断两个盒子是否碰撞
 						continue;
 					}
-
+					// 如果两个叶子相撞了
 					const auto* const ptr = mBvh.primitive_indices.get();
 					auto firPmCnt = mBvh.nodes[recurInfo.args[0]].primitive_count;
-					auto firBeginIndex = mBvh.nodes[recurInfo.args[0]].first_child_or_primitive;
+					auto firBeginIndex = mBvh.nodes[recurInfo.args[0]].first_child_or_primitive; // 第一个叶子上最小id
 					auto secPmCnt = mBvh.nodes[recurInfo.args[1]].primitive_count;
-					auto secBeginIndex = mBvh.nodes[recurInfo.args[1]].first_child_or_primitive;
-					for (std::size_t p1 = 0; p1 < firPmCnt; ++p1) {
-						for (std::size_t p2 = 0; p2 < secPmCnt; ++p2) {
+					auto secBeginIndex = mBvh.nodes[recurInfo.args[1]].first_child_or_primitive; // 第二个叶子上最小id
+					for (std::size_t p1 = 0; p1 < firPmCnt; ++p1) { // 遍历第一个叶子所有构件id
+						for (std::size_t p2 = 0; p2 < secPmCnt; ++p2) { // 遍历第二个叶子所有构件id
 							auto [mMin, mMax] = std::minmax({ ptr[firBeginIndex + p1], ptr[secBeginIndex + p2] });
+							// 粗略认为两个都相交了（因为是叶子节点了，不能再进行细分了，所以认为都相交）
 							this->mIndexArr.emplace_back((IndexType)mMin, (IndexType)mMax);
 						}
 					}
 				}
-				else {
-					int firSubList[2], secSubList[2];
-					if (firCnt == 1)
+				else {// 左右节点至少一个不是叶子节点
+					int firSubList[2], secSubList[2]; // 0:id 1:兄弟id
+					if (firCnt == 1) // 左节点是叶子节点
 						firSubList[0] = recurInfo.args[0];
 					else {
 						firSubList[0] = mBvh.nodes[recurInfo.args[0]].first_child_or_primitive;
 						firSubList[1] = Bvh::sibling(firSubList[0]);
 					}
-					if (secCnt == 1)
+					if (secCnt == 1) // 右节点是叶子节点
 						secSubList[0] = recurInfo.args[1];
 					else {
 						secSubList[0] = mBvh.nodes[recurInfo.args[1]].first_child_or_primitive;
 						secSubList[1] = Bvh::sibling(secSubList[0]);
 					}
-					for (int p1 = 0; p1 < firCnt; ++p1){
+					for (int p1 = 0; p1 < firCnt; ++p1){ // 遍历所有可能的盒子对
 						for (int p2 = 0; p2 < secCnt; ++p2) {
 							auto firBox = mBvh.nodes[firSubList[p1]].bounding_box_proxy().to_bounding_box();
 							auto secBox = mBvh.nodes[secSubList[p2]].bounding_box_proxy().to_bounding_box();
-							if (!this->isIntersect(firBox, secBox)) {
+							if (!this->isIntersect(firBox, secBox)) {// 判断两个盒子是否碰撞
 								continue;
 							}
 							recurStack.push(RecursiveInfo{ 2, firSubList[p1], secSubList[p2], 0 });
@@ -561,7 +568,7 @@ void Collider::processBVH(const Bvh & mBvh){
 			}
 		}
 	}
-	std::sort(this->mIndexArr.begin(), this->mIndexArr.end(), [](const indexPair fir, const indexPair sec){
+	std::sort(this->mIndexArr.begin(), this->mIndexArr.end(), [](const indexPair fir, const indexPair sec){ // 从小到大输出碰撞对id
 		if(fir.Lf != sec.Lf){
 			return fir.Lf < sec.Lf;
 		}
@@ -570,7 +577,7 @@ void Collider::processBVH(const Bvh & mBvh){
 }
 #endif
 
-bool Collider::isIntersect(const Box lhs, const Box rhs) {
+bool Collider::isIntersect(const Box lhs, const Box rhs) {  // 判断两个盒子是否碰撞
 	for (int i = 0; i < 3; ++i) 
 		if (lhs.min.values[i] >= rhs.max.values[i] || rhs.min.values[i] >= lhs.max.values[i])
 			return false;

@@ -122,7 +122,7 @@ namespace ifcre {
 			SharedPtr<GLRenderTexture> m_default_rt;
 			SharedPtr<GLRenderTexture> m_comp_id_rt;
 			SharedPtr<GLRenderTexture> m_depth_normal_rt;
-		} m_framebuffer;
+		} m_framebuffer; // default 
 
 		struct {
 			uint32_t fbo_id;

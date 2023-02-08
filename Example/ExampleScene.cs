@@ -63,7 +63,7 @@ namespace Example {
         public static extern bool ifcre_save_image(string value);
 
         [DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
-        public static extern void ifcre_home();
+        public static extern void ifcre_home(bool val);
 
         //[DllImport("ifc-render-engine.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.None, ExactSpelling = false)]
         //public static extern void ifcre_set_collide_command(int val);

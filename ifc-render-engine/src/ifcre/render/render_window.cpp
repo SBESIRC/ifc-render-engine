@@ -566,7 +566,7 @@ namespace ifcre {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    void RenderWindow::switchRenderCompId() {
+    void RenderWindow::switchRenderCompId() {  // 转换 以写入所有显示的构件id到帧缓冲上
         m_cur_rt = m_comp_fb.m_comp_id_rt.get();
         m_cur_rt->attach(m_comp_fb.fbo_id);
         glBindFramebuffer(GL_FRAMEBUFFER, m_comp_fb.fbo_id);

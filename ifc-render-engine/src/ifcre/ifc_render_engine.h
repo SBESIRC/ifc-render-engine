@@ -40,7 +40,7 @@ namespace ifcre {
 		virtual void SetDataReadyStatus(bool dataIsReady) = 0;
 		virtual bool saveImage(const char* filePath) = 0;
 		//virtual void SetClipBox() = 0;
-		virtual void zoom2Home() = 0;
+		virtual void zoom2Home(bool resetAxis) = 0;
 
 		virtual void set_grid_data(int val) = 0;
 		virtual void set_grid_lines(float val) = 0;
@@ -82,7 +82,7 @@ namespace ifcre {
 		void SetDataReadyStatus(bool dataIsReady);
 		bool saveImage(const char* filePath);
 		//void SetClipBox();
-		void zoom2Home();
+		void zoom2Home(bool resetAxis);
 
 		//test dynamic ebo of components, using keyboard input
 		void updateDynamicEboData();
@@ -91,6 +91,7 @@ namespace ifcre {
 		void offscreenRending(const int index = 4);
 
 		void zoom_into(Vector<Real> bound_vecs);
+		void zoom_into_set_axis();
 		bool flag_between_zoom_reset = false;
 		void reset_coord(glm::vec3& clicked_coord);
 
