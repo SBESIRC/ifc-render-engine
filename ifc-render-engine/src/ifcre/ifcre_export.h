@@ -40,7 +40,7 @@ extern "C" {
 	__declspec(dllexport) void ifcre_set_sleep_time(int val);
 	__declspec(dllexport) void ifcre_set_data_ready_status(bool val);
 	__declspec(dllexport) bool ifcre_save_image(const char* filePath);
-	__declspec(dllexport) void ifcre_home();
+	__declspec(dllexport) void ifcre_home(const bool val);
 
 	__declspec(dllexport) void ifcre_set_grid_data(int val);
 	__declspec(dllexport) void ifcre_set_grid_lines(float val);

@@ -115,11 +115,11 @@ bool ifcre_save_image(const char* filePath) {
 }
 
 
-void ifcre_home()
+void ifcre_home(const bool val)
 {
 	SharedPtr<RenderEngine> render_engine = IFCRenderEngine::getSingleton();
 	auto& re = *render_engine;
-	re.zoom2Home();
+	re.zoom2Home(val);
 }
 
 void ifcre_set_grid_data(int val) {

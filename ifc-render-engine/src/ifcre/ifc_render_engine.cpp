@@ -230,6 +230,32 @@ namespace ifcre {
 		//flag_between_zoom_reset = true;
 	}
 
+	void IFCRenderEngine::zoom_into_set_axis() {
+		auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(ifc_model->cur_c_indices, true);
+		glm::mat4 model_mat;
+		glm::mat4 ori_model_mat = ifc_model->getModelMatrix();
+		Real scaler = 0;
+		glm::vec3 pmin = glm::vec3(bound_vecs[0], bound_vecs[1], bound_vecs[2]);
+		glm::vec3 pmax = glm::vec3(bound_vecs[3], bound_vecs[4], bound_vecs[5]);
+		util::get_model_matrix_byBBX(pmin, pmax, model_mat, scaler);
+		if (/*m_render_window->getShowTileView()*/tileViewButton) {
+			glm::mat4 trans = ifc_model->tile_matrix[ifc_model->this_comp_belongs_to_which_storey[*m_render_window->chosen_list.begin()]];
+			ifc_model->setModelMatrix(model_mat * util::inverse_mat4(trans));
+		}
+		else
+			ifc_model->setModelMatrix(model_mat);
+		ifc_model->setScaleFactor(scaler);
+		ifc_model->curcenter = (pmin + pmax) / 2.f;
+		m_camera->set_pos((m_render_window->_isperspectivecurrent ? -15.f : -100.f) * m_camera->getViewForward() / scaler / 4.f);
+
+		glm::mat4 inv_ori = model_mat * glm::inverse(ori_model_mat);
+		glm::vec3 new_click_world = inv_ori * glm::vec4(glm::vec3(0, 0, 0), 1.0);
+		glm::vec3 new_hover_world = inv_ori * glm::vec4(glm::vec3(0, 0, 0), 1.0);
+		m_render_window->m_mouse_status.click_world_center = new_click_world;
+		m_render_window->m_mouse_status.hover_world_center = new_hover_world;
+		m_render_window->m_mouse_status.click_z = 1.0;
+	}
+
 	void IFCRenderEngine::run()
 	{
 		if (m_DoesRenderAlreadyRunning)
@@ -652,13 +678,19 @@ namespace ifcre {
 		}
 	}
 
-	void IFCRenderEngine::zoom2Home() {
+	void IFCRenderEngine::zoom2Home(bool resetAxis) {
 		//info("zoom hoom");
 		if (ifc_model == NULL) {
 			return;
 		}
 		auto bound_vecs = ifc_model->generate_bbxs_bound_by_vec(ifc_model->cur_c_indices, true);
-		zoom_into(bound_vecs);
+		if (resetAxis == false) {
+			zoom_into(bound_vecs);
+		}
+		else {
+			zoom_into(bound_vecs);
+			zoom_into_set_axis();
+		}
 	}
 
 	bool IFCRenderEngine::saveImage(const char* filePath) {
